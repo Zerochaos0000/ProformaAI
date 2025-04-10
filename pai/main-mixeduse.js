@@ -29,7 +29,9 @@ function calculateProforma() {
 
   const monthlyRate = loanRate / 12;
   const numPayments = loanAmort * 12;
-  const annualDebtService = loanAmount > 0 ? (loanAmount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -numPayments))) * 12 : 0;
+  const annualDebtService = loanAmount > 0 && loanRate > 0 && numPayments > 0
+    ? (loanAmount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -numPayments))) * 12
+    : 0;
 
   const multifamilyIncome = (oneBedUnits * rent1Bed + twoBedUnits * rent2Bed + threeBedUnits * rent3Bed) * 12;
   const retailIncome = retailSqFt * retailRate;
