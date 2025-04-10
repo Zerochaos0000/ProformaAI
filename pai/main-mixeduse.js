@@ -1,27 +1,29 @@
-// main.js
-
 document.getElementById('calculate').addEventListener('click', calculateProforma);
 document.getElementById('exportPdf').addEventListener('click', exportToPDF);
 document.getElementById('exportXls').addEventListener('click', exportToExcel);
 document.getElementById('autofillDemo')?.addEventListener('click', autofillSample);
 
-function calculateProforma() {
-  const oneBedUnits = +document.getElementById('oneBedUnits').value || 0;
-  const twoBedUnits = +document.getElementById('twoBedUnits').value || 0;
-  const threeBedUnits = +document.getElementById('threeBedUnits').value || 0;
-  const rent1Bed = +document.getElementById('rent1Bed').value || 0;
-  const rent2Bed = +document.getElementById('rent2Bed').value || 0;
-  const rent3Bed = +document.getElementById('rent3Bed').value || 0;
-  const retailSqFt = +document.getElementById('retailSqFt').value || 0;
-  const retailRate = +document.getElementById('retailRate').value || 0;
+function parseCurrency(val) {
+  return +val.replace(/[$,]/g, '') || 0;
+}
 
-  const expensesBreakdown = ['taxes', 'insurance', 'utilities', 'elevator', 'management', 'supplies', 'misc', 'staff', 'repairs'].map(id => +document.getElementById(id).value || 0);
+function calculateProforma() {
+  const oneBedUnits = parseCurrency(document.getElementById('oneBedUnits').value);
+  const twoBedUnits = parseCurrency(document.getElementById('twoBedUnits').value);
+  const threeBedUnits = parseCurrency(document.getElementById('threeBedUnits').value);
+  const rent1Bed = parseCurrency(document.getElementById('rent1Bed').value);
+  const rent2Bed = parseCurrency(document.getElementById('rent2Bed').value);
+  const rent3Bed = parseCurrency(document.getElementById('rent3Bed').value);
+  const retailSqFt = parseCurrency(document.getElementById('retailSqFt').value);
+  const retailRate = parseCurrency(document.getElementById('retailRate').value);
+
+  const expensesBreakdown = ['taxes', 'insurance', 'utilities', 'elevator', 'management', 'supplies', 'misc', 'staff', 'repairs'].map(id => parseCurrency(document.getElementById(id).value));
   const expenseLabels = ['Taxes', 'Insurance', 'Utilities', 'Elevator', 'Management', 'Supplies', 'Misc', 'Staff', 'Repairs'];
   const expenses = expensesBreakdown.reduce((sum, val) => sum + val, 0);
 
-  const loanAmount = +document.getElementById('loanAmount').value || 0;
-  const loanRate = +document.getElementById('loanRate').value / 100 || 0;
-  const loanAmort = +document.getElementById('loanAmort').value || 30;
+  const loanAmount = parseCurrency(document.getElementById('loanAmount').value);
+  const loanRate = parseCurrency(document.getElementById('loanRate').value) / 100;
+  const loanAmort = parseCurrency(document.getElementById('loanAmort').value) || 30;
 
   const monthlyRate = loanRate / 12;
   const numPayments = loanAmort * 12;
@@ -33,19 +35,18 @@ function calculateProforma() {
   const noi = totalIncome - expenses;
   const cashFlow = noi - annualDebtService;
 
-  // Additional Metrics
-  const purchasePrice = +document.getElementById('purchasePrice')?.value || 0;
+  // Investment Metrics
+  const purchasePrice = parseCurrency(document.getElementById('purchasePrice')?.value);
   const irrEstimate = ((cashFlow / purchasePrice) * 100).toFixed(2);
   const cashOnCash = ((cashFlow / (purchasePrice - loanAmount)) * 100).toFixed(2);
   const equityMultiple = (cashFlow * 5) / (purchasePrice - loanAmount);
 
-  // Refinance Logic (Year 5)
-  const capRate = +document.getElementById('terminalCapRate')?.value / 100 || 0.06;
-  const costOfSale = +document.getElementById('costOfSale')?.value / 100 || 0.06;
+  // Refinance Value and Sale
+  const capRate = parseCurrency(document.getElementById('terminalCapRate')?.value) / 100 || 0.06;
+  const costOfSale = parseCurrency(document.getElementById('costOfSale')?.value) / 100 || 0.06;
   const refinanceValue = (noi * Math.pow(1.02, 5)) / capRate;
   const saleProceeds = refinanceValue - (refinanceValue * costOfSale) - loanAmount;
 
-  // Decision Logic
   let investmentNote = '';
   if (irrEstimate > 12 && equityMultiple > 1.5 && cashOnCash > 8) {
     investmentNote = `<p class='mt-4 text-green-700 font-bold'>✅ This appears to be a strong investment opportunity based on your metrics.</p>`;
@@ -151,19 +152,19 @@ function exportToExcel() {
 }
 
 function autofillSample() {
-  document.getElementById('oneBedUnits').value = 50;
-  document.getElementById('twoBedUnits').value = 60;
-  document.getElementById('threeBedUnits').value = 30;
-  document.getElementById('rent1Bed').value = 1200;
-  document.getElementById('rent2Bed').value = 1600;
-  document.getElementById('rent3Bed').value = 2000;
-  document.getElementById('retailSqFt').value = 10000;
-  document.getElementById('retailRate').value = 35;
-  document.getElementById('loanAmount').value = 7000000;
-  document.getElementById('loanRate').value = 5;
-  document.getElementById('loanAmort').value = 30;
-  document.getElementById('purchasePrice').value = 10000000;
-  document.getElementById('terminalCapRate').value = 5;
-  document.getElementById('costOfSale').value = 6;
-  ['taxes','insurance','utilities','elevator','management','supplies','misc','staff','repairs'].forEach(id => document.getElementById(id).value = 100000);
+  document.getElementById('oneBedUnits').value = "$50";
+  document.getElementById('twoBedUnits').value = "$60";
+  document.getElementById('threeBedUnits').value = "$30";
+  document.getElementById('rent1Bed').value = "$1200";
+  document.getElementById('rent2Bed').value = "$1600";
+  document.getElementById('rent3Bed').value = "$2000";
+  document.getElementById('retailSqFt').value = "10,000";
+  document.getElementById('retailRate').value = "$35";
+  document.getElementById('loanAmount').value = "$7,000,000";
+  document.getElementById('loanRate').value = "5";
+  document.getElementById('loanAmort').value = "30";
+  document.getElementById('purchasePrice').value = "$10,000,000";
+  document.getElementById('terminalCapRate').value = "5";
+  document.getElementById('costOfSale').value = "6";
+  ['taxes','insurance','utilities','elevator','management','supplies','misc','staff','repairs'].forEach(id => document.getElementById(id).value = "$100,000");
 }
