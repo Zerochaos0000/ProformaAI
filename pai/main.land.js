@@ -33,22 +33,23 @@ function calculateProforma() {
   const cashFlowBeforeTax = profit - annualDebtService;
 
   // Output results
-  document.getElementById('results').innerHTML = `
-    <h3 class="text-lg font-bold text-blue-700 mb-2">📊 Results Summary</h3>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-      <div>Total Revenue: <span class="font-semibold text-green-700">$${totalRevenue.toLocaleString()}</span></div>
-      <div>Total Development Costs: <span class="font-semibold text-red-700">$${totalCosts.toLocaleString()}</span></div>
-      <div>Estimated Profit: <span class="font-semibold text-blue-700">$${profit.toLocaleString()}</span></div>
-      <div>Loan Amount: <span class="text-gray-700">$${loanAmount.toLocaleString()}</span></div>
-      <div>Equity Required: <span class="text-gray-700">$${equityRequired.toLocaleString()}</span></div>
-      <div>Annual Debt Service: <span class="text-gray-700">$${annualDebtService.toLocaleString()}</span></div>
-      <div class="col-span-2">Cash Flow Before Tax: <span class="font-bold text-blue-700">$${cashFlowBeforeTax.toLocaleString()}</span></div>
-    </div>
-    <div class="mt-6">
-      <h4 class="text-md font-semibold text-gray-800 mb-2">📅 5-Year Phased Cash Flow</h4>
-      ${generateCashFlowTable(totalRevenue, totalCosts, annualDebtService)}
-    </div>
-  `;
+  document.getElementById('calculate').addEventListener('click', () => {
+  const lotCount = parseInt(document.getElementById('lotCount').value) || 0;
+  const salePricePerLot = parseFloat(document.getElementById('salePricePerLot').value.replace(/[^0-9.]/g, '')) || 0;
+  const siteCost = parseFloat(document.getElementById('siteCost').value.replace(/[^0-9.]/g, '')) || 0;
+  const softCost = parseFloat(document.getElementById('softCost').value.replace(/[^0-9.]/g, '')) || 0;
+  const carryingCost = parseFloat(document.getElementById('carryingCost').value.replace(/[^0-9.]/g, '')) || 0;
+  const sellingCost = parseFloat(document.getElementById('sellingCost').value.replace(/[^0-9.]/g, '')) || 0;
+
+  const totalRevenue = lotCount * salePricePerLot;
+  const totalCost = siteCost + softCost + carryingCost + sellingCost;
+  const profit = totalRevenue - totalCost;
+
+  document.getElementById('totalRevenue').textContent = '$' + totalRevenue.toLocaleString();
+  document.getElementById('totalCost').textContent = '$' + totalCost.toLocaleString();
+  document.getElementById('profit').textContent = '$' + profit.toLocaleString();
+});
+
 }
 
 function generateCashFlowTable(totalRevenue, totalCosts, debtService) {
@@ -69,6 +70,7 @@ function generateCashFlowTable(totalRevenue, totalCosts, debtService) {
       <td class="p-2 border font-semibold">$${cash.toLocaleString()}</td>
     </tr>`;
   }
+
   html += `</tbody></table>`;
   return html;
 }
