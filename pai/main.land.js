@@ -1,107 +1,99 @@
 document.getElementById("calculate").addEventListener("click", calculateProforma);
-document.getElementById("exportPdf").addEventListener("click", () => window.print());
-document.getElementById("exportXls").addEventListener("click", exportToExcel);
-document.getElementById("autofillDemo")?.addEventListener("click", autofillSample);
-
-function parseCurrency(val) {
-  if (typeof val !== "string") return +val || 0;
-  return +val.replace(/[^0-9.-]+/g, "") || 0;
-}
 
 function calculateProforma() {
-  const lots = parseCurrency(document.getElementById("totalLots").value);
-  const price = parseCurrency(document.getElementById("avgSalePrice").value);
-  const phases = parseCurrency(document.getElementById("phases").value);
-  const landCost = parseCurrency(document.getElementById("landCost").value);
-  const siteWork = parseCurrency(document.getElementById("siteWork").value);
-  const permits = parseCurrency(document.getElementById("permits").value);
-  const consultants = parseCurrency(document.getElementById("consultants").value);
-  const contingencyPercent = parseCurrency(document.getElementById("contingency").value) / 100;
+  const lots = parseFloat(document.getElementById("lots").value) || 0;
+  const pricePerLot = parseFloat(document.getElementById("pricePerLot").value) || 0;
+  const siteCosts = parseFloat(document.getElementById("siteCosts").value) || 0;
+  const loanAmount = parseFloat(document.getElementById("loanAmount").value) || 0;
+  const loanRate = parseFloat(document.getElementById("loanRate").value) / 100 || 0;
+  const loanTerm = parseFloat(document.getElementById("loanTerm").value) || 1;
 
-  const loanAmount = parseCurrency(document.getElementById("loanAmount").value);
-  const loanRate = parseCurrency(document.getElementById("loanRate").value) / 100;
-  const loanTerm = parseCurrency(document.getElementById("loanTerm").value);
+  const annualInterest = loanAmount * loanRate;
+  const totalLoanPayback = loanAmount + (annualInterest * loanTerm);
 
-  const startYear = parseCurrency(document.getElementById("startYear").value);
-  const growthRate = parseCurrency(document.getElementById("growthRate").value) / 100;
+  const annualLots = lots / 5;
+  const lotSaleEscalation = 0.03; // 3% annual increase
+  const siteCostEscalation = 0.02; // 2% annual increase
 
-  const totalDevCost = landCost + siteWork + permits + consultants;
-  const contingency = totalDevCost * contingencyPercent;
-  const totalCost = totalDevCost + contingency;
+  let table = `
+    <table class="w-full text-sm text-left border border-gray-300 mt-4">
+      <thead class="bg-blue-100">
+        <tr>
+          <th class="px-4 py-2">Year</th>
+          <th class="px-4 py-2">Lots Sold</th>
+          <th class="px-4 py-2">Price/Lot</th>
+          <th class="px-4 py-2">Gross Revenue</th>
+          <th class="px-4 py-2">Site Cost</th>
+          <th class="px-4 py-2">Net Cash Flow</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
 
-  const monthlyRate = loanRate / 12;
-  const numPayments = loanTerm * 12;
-  const annualDebtService =
-    loanAmount > 0
-      ? (loanAmount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -numPayments)) * 12
-      : 0;
-
-  // Phase logic: assume even distribution across years
-  const lotsPerYear = Math.ceil(lots / 5);
-  const results = [];
-  let cumulativeLots = 0;
+  const revenues = [], costs = [], netFlows = [];
+  let totalRev = 0, totalCost = 0, totalFlow = 0;
 
   for (let i = 0; i < 5; i++) {
-    const year = startYear + i;
-    const soldLots = Math.min(lots - cumulativeLots, lotsPerYear);
-    cumulativeLots += soldLots;
-    const adjustedPrice = price * Math.pow(1 + growthRate, i);
-    const revenue = soldLots * adjustedPrice;
-    const cashFlow = revenue - (i === 0 ? totalCost : 0) - annualDebtService;
+    const lotPrice = pricePerLot * Math.pow(1 + lotSaleEscalation, i);
+    const revenue = lotPrice * annualLots;
+    const cost = siteCosts * Math.pow(1 + siteCostEscalation, i);
+    const net = revenue - cost;
 
-    results.push({ year, revenue, devCost: i === 0 ? totalCost : 0, debt: annualDebtService, cashFlow });
+    revenues.push(revenue);
+    costs.push(cost);
+    netFlows.push(net);
+
+    totalRev += revenue;
+    totalCost += cost;
+    totalFlow += net;
+
+    table += `
+      <tr class="border-t">
+        <td class="px-4 py-2">Year ${i + 1}</td>
+        <td class="px-4 py-2">${annualLots.toFixed(0)}</td>
+        <td class="px-4 py-2">$${lotPrice.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+        <td class="px-4 py-2">$${revenue.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+        <td class="px-4 py-2">$${cost.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+        <td class="px-4 py-2 font-bold text-blue-700">$${net.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+      </tr>
+    `;
   }
 
-  const summaryHtml = `
-    <div class="text-sm border border-gray-300 rounded p-4">
-      <h4 class="text-lg font-semibold mb-2">Summary:</h4>
-      <p>Total Project Cost: <strong>$${totalCost.toLocaleString()}</strong></p>
-      <p>Annual Debt Service: <strong>$${Math.round(annualDebtService).toLocaleString()}</strong></p>
-      <p>Total Lots: <strong>${lots}</strong></p>
-      <p>Avg Lot Sale Price: <strong>$${price.toLocaleString()}</strong></p>
-    </div>`;
+  table += `</tbody></table>`;
 
-  let tableHtml = `
-    <table class="w-full mt-6 text-sm text-left border">
-      <thead class="bg-blue-100">
-        <tr><th class="px-4 py-2">Year</th><th class="px-4 py-2">Revenue</th><th class="px-4 py-2">Development Cost</th><th class="px-4 py-2">Debt Service</th><th class="px-4 py-2">Cash Flow</th></tr>
-      </thead><tbody>`;
+  document.getElementById("results").innerHTML = `
+    <div class="my-4">
+      <p><strong>Total Revenue (5 Yr):</strong> $${totalRev.toLocaleString()}</p>
+      <p><strong>Total Site Costs (5 Yr):</strong> $${totalCost.toLocaleString()}</p>
+      <p><strong>Loan Payback:</strong> $${totalLoanPayback.toLocaleString()}</p>
+      <p><strong>Net Project Profit:</strong> <span class="text-green-700 font-bold">$${(totalFlow - totalLoanPayback).toLocaleString()}</span></p>
+    </div>
+    ${table}
+    <canvas id="chart" height="100" class="mt-10"></canvas>
+  `;
 
-  results.forEach(r => {
-    tableHtml += `<tr class="border-t">
-      <td class="px-4 py-2">${r.year}</td>
-      <td class="px-4 py-2">$${Math.round(r.revenue).toLocaleString()}</td>
-      <td class="px-4 py-2">$${Math.round(r.devCost).toLocaleString()}</td>
-      <td class="px-4 py-2">$${Math.round(r.debt).toLocaleString()}</td>
-      <td class="px-4 py-2 font-semibold">$${Math.round(r.cashFlow).toLocaleString()}</td>
-    </tr>`;
+  renderChart(revenues, costs, netFlows);
+}
+
+function renderChart(rev, cost, flow) {
+  const ctx = document.getElementById("chart").getContext("2d");
+  if (window.myChart) window.myChart.destroy();
+
+  window.myChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: ["Year 1", "Year 2", "Year 3", "Year 4", "Year 5"],
+      datasets: [
+        { label: "Revenue", data: rev, backgroundColor: "#3b82f6" },
+        { label: "Costs", data: cost, backgroundColor: "#f87171" },
+        { label: "Net Cash Flow", data: flow, backgroundColor: "#10b981" },
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: "bottom" }
+      }
+    }
   });
-
-  tableHtml += "</tbody></table>";
-
-  document.getElementById("results").innerHTML = summaryHtml;
-  document.getElementById("proformaTable").innerHTML = tableHtml;
-}
-
-function exportToExcel() {
-  const ws = XLSX.utils.table_to_sheet(document.querySelector("#proformaTable table"));
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Land Proforma");
-  XLSX.writeFile(wb, "Land_Proforma.xlsx");
-}
-
-function autofillSample() {
-  document.getElementById("totalLots").value = 100;
-  document.getElementById("avgSalePrice").value = "$150,000";
-  document.getElementById("phases").value = 3;
-  document.getElementById("landCost").value = "$1,000,000";
-  document.getElementById("siteWork").value = "$2,000,000";
-  document.getElementById("permits").value = "$300,000";
-  document.getElementById("consultants").value = "$200,000";
-  document.getElementById("contingency").value = 10;
-  document.getElementById("loanAmount").value = "$2,500,000";
-  document.getElementById("loanRate").value = 5;
-  document.getElementById("loanTerm").value = 5;
-  document.getElementById("startYear").value = 2025;
-  document.getElementById("growthRate").value = 3;
 }
