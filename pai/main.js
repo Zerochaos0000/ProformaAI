@@ -1,4 +1,4 @@
-// main-multifamily.js
+// main.js
 
 document.getElementById('calculate').addEventListener('click', calculateProforma);
 document.getElementById('exportPdf').addEventListener('click', exportToPDF);
