@@ -67,8 +67,8 @@ function calculateProforma() {
         <tr><td class="px-4 py-2 font-semibold">Total Gross Income</td><td class="px-4 py-2 font-semibold">$${totalIncome.toLocaleString()}</td></tr>
         <tr><td class="px-4 py-2">Operating Expenses</td><td class="px-4 py-2">$${expenses.toLocaleString()}</td></tr>
         <tr><td class="px-4 py-2 font-semibold">Net Operating Income (NOI)</td><td class="px-4 py-2 font-semibold">$${noi.toLocaleString()}</td></tr>
-        <tr><td class="px-4 py-2">Annual Debt Service</td><td class="px-4 py-2">$${annualDebtService.toLocaleString()}</td></tr>
-        <tr><td class="px-4 py-2 font-bold text-blue-700">Cash Flow Before Tax</td><td class="px-4 py-2 font-bold text-blue-700">$${cashFlow.toLocaleString()}</td></tr>
+        <tr><td class="px-4 py-2">Annual Debt Service</td><td class="px-4 py-2">$${Math.round(annualDebtService).toLocaleString()}</td></tr>
+        <tr><td class="px-4 py-2 font-bold text-blue-700">Cash Flow Before Tax</td><td class="px-4 py-2 font-bold text-blue-700">$${Math.round(cashFlow).toLocaleString()}</td></tr>
         <tr><td class="px-4 py-2">Estimated IRR (Year 1)</td><td class="px-4 py-2">${irrEstimate}%</td></tr>
         <tr><td class="px-4 py-2">Cash-on-Cash Return</td><td class="px-4 py-2">${cashOnCash}%</td></tr>
         <tr><td class="px-4 py-2">Equity Multiple (5 Yr)</td><td class="px-4 py-2">${equityMultiple.toFixed(2)}x</td></tr>
