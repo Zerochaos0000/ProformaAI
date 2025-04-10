@@ -32,6 +32,20 @@ function calculateProforma() {
   const noi = totalIncome - expenses;
   const cashFlow = noi - annualDebtService;
 
+  // Additional Metrics
+  const purchasePrice = +document.getElementById('purchasePrice')?.value || 0;
+  const irrEstimate = ((cashFlow / purchasePrice) * 100).toFixed(2);
+  const cashOnCash = ((cashFlow / (purchasePrice - loanAmount)) * 100).toFixed(2);
+  const equityMultiple = (cashFlow * 5) / (purchasePrice - loanAmount);
+
+  // Decision Logic
+  let investmentNote = '';
+  if (irrEstimate > 12 && equityMultiple > 1.5 && cashOnCash > 8) {
+    investmentNote = `<p class='mt-4 text-green-700 font-bold'>✅ This appears to be a strong investment opportunity based on your metrics.</p>`;
+  } else {
+    investmentNote = `<p class='mt-4 text-red-600 font-bold'>⚠️ Caution: Investment returns are moderate or below expectations.</p>`;
+  }
+
   const resultsTable = `
     <table class="w-full text-sm text-left border border-gray-300">
       <thead class="bg-blue-100">
@@ -45,8 +59,12 @@ function calculateProforma() {
         <tr><td class="px-4 py-2 font-semibold">Net Operating Income (NOI)</td><td class="px-4 py-2 font-semibold">$${noi.toLocaleString()}</td></tr>
         <tr><td class="px-4 py-2">Annual Debt Service</td><td class="px-4 py-2">$${annualDebtService.toLocaleString()}</td></tr>
         <tr><td class="px-4 py-2 font-bold text-blue-700">Cash Flow Before Tax</td><td class="px-4 py-2 font-bold text-blue-700">$${cashFlow.toLocaleString()}</td></tr>
+        <tr><td class="px-4 py-2">Estimated IRR (Year 1)</td><td class="px-4 py-2">${irrEstimate}%</td></tr>
+        <tr><td class="px-4 py-2">Cash-on-Cash Return</td><td class="px-4 py-2">${cashOnCash}%</td></tr>
+        <tr><td class="px-4 py-2">Equity Multiple (5 Yr)</td><td class="px-4 py-2">${equityMultiple.toFixed(2)}x</td></tr>
       </tbody>
     </table>
+    ${investmentNote}
   `;
 
   document.getElementById('results').innerHTML = resultsTable;
