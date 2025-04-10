@@ -3,97 +3,106 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Multifamily Acquisition Proforma</title>
+  <title>Mixed-Use Proforma | ProformaTools</title>
   <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <link href="style.css" rel="stylesheet" />
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="max-w-5xl mx-auto py-10 px-6 bg-white shadow-md rounded-md">
-    <header class="mb-8">
-      <h1 class="text-3xl font-bold text-center text-blue-700 mb-2">🏢 Multifamily Acquisition Proforma</h1>
-    </header>
-
-    <section class="mb-6">
-      <h2 class="text-xl font-semibold mb-3">Project Information</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <label>Project Name <input type="text" id="projectName" placeholder="Summit Flats" class="input" /></label>
-        <label>Location <input type="text" id="location" placeholder="Townsend, DE" class="input" /></label>
-      </div>
-    </section>
-
-    <section class="mb-6">
-      <h2 class="text-xl font-semibold mb-3">Unit Mix & Monthly Rents</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <label>1-Bed Units <input type="number" id="oneBedUnits" placeholder="50" class="input" /></label>
-        <label>Rent/1-Bed ($) <input type="text" id="rent1Bed" placeholder="1300" class="input" /></label>
-        <label>2-Bed Units <input type="number" id="twoBedUnits" placeholder="60" class="input" /></label>
-        <label>Rent/2-Bed ($) <input type="tex" id="rent2Bed" placeholder="1800" class="input" /></label>
-        <label>3-Bed Units <input type="number" id="threeBedUnits" placeholder="30" class="input" /></label>
-        <label>Rent/3-Bed ($) <input type="text" id="rent3Bed" placeholder="2300" class="input" /></label>
-      </div>
-    </section>
-
-    <section class="mb-6">
-      <h2 class="text-xl font-semibold mb-3">Operating Expenses (Annual)</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <label>Property Taxes ($) <input type="text" id="taxes" placeholder="250000" class="input" /></label>
-        <label>Insurance ($) <input type="text" id="insurance" placeholder="90000" class="input" /></label>
-        <label>Utilities ($) <input type="text" id="utilities" placeholder="120000" class="input" /></label>
-        <label>Elevator ($) <input type="text" id="elevator" placeholder="30000" class="input" /></label>
-        <label>Management ($) <input type="text" id="management" placeholder="80000" class="input" /></label>
-        <label>Supplies ($) <input type="text" id="supplies" placeholder="15000" class="input" /></label>
-        <label>Misc & Reserves ($) <input type="text" id="misc" placeholder="10000" class="input" /></label>
-        <label>Building Staff ($) <input type="text" id="staff" placeholder="180000" class="input" /></label>
-        <label>Repairs ($) <input type="text" id="repairs" placeholder="110000" class="input" /></label>
-      </div>
-    </section>
-
-    <section class="mb-6">
-      <h2 class="text-xl font-semibold mb-3">Investment Data</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <label>Purchase Price ($) <input type="text" id="purchasePrice" placeholder="10000000" class="input" /></label>
-        <label>Terminal Cap Rate (%) <input type="number" id="terminalCapRate" placeholder="5.5" class="input" /></label>
-        <label>Cost of Sale EOY 5 (%) <input type="number" id="costOfSale" placeholder="6" class="input" /></label>
-      </div>
-    </section>
-
-    <section class="mb-6">
-      <h2 class="text-xl font-semibold mb-3">Financing Data</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <label>Loan Amount ($) <input type="text" id="loanAmount" placeholder="7000000" class="input" /></label>
-        <label>Loan Interest Rate (%) <input type="number" id="loanRate" placeholder="5" class="input" /></label>
-        <label>Loan Amortization (Years) <input type="number" id="loanAmort" placeholder="30" class="input" /></label>
-      </div>
-    </section>
-
-    <div class="text-center">
-      <button id="calculate" class="px-6 py-3 bg-blue-600 text-white rounded shadow hover:bg-blue-700">Calculate</button>
+<body class="bg-white text-gray-900">
+  <header class="sticky top-0 bg-white shadow-md border-b mb-6">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-blue-700 cursor-pointer" onclick="location.href='../index.html'">ProformaTools</h1>
+      <nav class="space-x-6">
+        <a href="../index.html" class="text-blue-700 font-semibold">Home</a>
+        <a href="../about.html" class="text-gray-700 hover:text-blue-600">About</a>
+      </nav>
     </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-6 py-4">
+    <h2 class="text-3xl font-bold text-center text-blue-800 mb-6">🏢 Mixed-Use Investment Proforma</h2>
+
+    <button id="autofillDemo" class="autofill-btn">Autofill Demo Inputs</button>
+
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <h3 class="text-xl font-semibold mb-2">Multifamily Unit Mix</h3>
+        <label>1-Bed Units <input type="number" id="oneBedUnits" class="input" /></label>
+        <label>Rent/1-Bed ($) <input type="text" id="rent1Bed" class="input" /></label>
+        <label>2-Bed Units <input type="number" id="twoBedUnits" class="input" /></label>
+        <label>Rent/2-Bed ($) <input type="text" id="rent2Bed" class="input" /></label>
+        <label>3-Bed Units <input type="number" id="threeBedUnits" class="input" /></label>
+        <label>Rent/3-Bed ($) <input type="text" id="rent3Bed" class="input" /></label>
+      </div>
+      <div>
+        <h3 class="text-xl font-semibold mb-2">Retail Component</h3>
+        <label>Retail Sq. Ft <input type="number" id="retailSqFt" class="input" /></label>
+        <label>Rent/Sq. Ft ($) <input type="text" id="retailRate" class="input" /></label>
+      </div>
+    </section>
+
+    <section class="mt-8">
+      <h3 class="text-xl font-semibold mb-2">Operating Expenses</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <label>Property Taxes <input type="text" id="taxes" class="input" /></label>
+        <label>Insurance <input type="text" id="insurance" class="input" /></label>
+        <label>Utilities <input type="text" id="utilities" class="input" /></label>
+        <label>Maintenance <input type="text" id="maintenance" class="input" /></label>
+        <label>Management <input type="text" id="management" class="input" /></label>
+        <label>Supplies <input type="text" id="supplies" class="input" /></label>
+        <label>Misc & Reserves <input type="text" id="misc" class="input" /></label>
+        <label>Building Staff <input type="text" id="staff" class="input" /></label>
+        <label>Repairs <input type="text" id="repairs" class="input" /></label>
+      </div>
+    </section>
+
+    <section class="mt-8">
+      <h3 class="text-xl font-semibold mb-2">Financing & Investment</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <label>Loan Amount ($) <input type="text" id="loanAmount" class="input" /></label>
+        <label>Interest Rate (%) <input type="number" id="loanRate" class="input" /></label>
+        <label>Amortization (Years) <input type="number" id="loanAmort" class="input" /></label>
+        <label>Purchase Price ($) <input type="text" id="purchasePrice" class="input" /></label>
+        <label>Terminal Cap Rate (%) <input type="number" id="terminalCapRate" class="input" /></label>
+        <label>Cost of Sale EOY5 (%) <input type="number" id="costOfSale" class="input" /></label>
+      </div>
+    </section>
 
     <div class="flex justify-center gap-4 mt-6">
-      <button id="exportPdf" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">📄 Export to PDF</button>
-      <button id="exportCsv" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">📊 Export to CSV</button>
+      <button id="calculate" class="btn">Calculate</button>
+      <button id="exportPdf" class="btn">Export PDF</button>
+      <button id="exportXls" class="btn">Export XLSX</button>
     </div>
 
-    <canvas id="resultsChart" class="mt-6 w-full h-64"></canvas>
-    <div id="results" class="mt-6"></div>
-    <div id="proformaTable" class="mt-6 text-sm"></div>
-  </div>
+    <div id="results" class="mt-10"></div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <section class="mt-12">
+      <h3 class="text-xl font-bold mb-3">📊 Income Chart</h3>
+      <canvas id="resultsChart" height="80"></canvas>
+    </section>
+
+    <section class="mt-12">
+      <h3 class="text-xl font-bold mb-3">📉 Expense Breakdown</h3>
+      <canvas id="expensesChart" height="80"></canvas>
+    </section>
+
+    <section class="mt-12">
+      <h3 class="text-xl font-bold mb-3">📅 5-Year Proforma Summary</h3>
+      <div id="proformaTable"></div>
+    </section>
+  </main>
+
+  <footer class="bg-blue-50 text-gray-600 py-6 border-t mt-20">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+      <p class="text-sm">&copy; 2025 ProformaTools. All rights reserved.</p>
+      <div class="space-x-4 mt-2 md:mt-0">
+        <a href="#" class="hover:text-blue-600">Privacy</a>
+        <a href="#" class="hover:text-blue-600">Terms</a>
+      </div>
+    </div>
+  </footer>
+
   <script src="main.js"></script>
-  <style>
-    .input {
-      width: 100%;
-      padding: 8px 12px;
-      margin-top: 4px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      background: #f9f9f9;
-    }
-  </style>
 </body>
 </html>
