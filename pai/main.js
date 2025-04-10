@@ -15,8 +15,6 @@ function calculateProforma() {
   const rent1Bed = parseCurrency(document.getElementById('rent1Bed').value);
   const rent2Bed = parseCurrency(document.getElementById('rent2Bed').value);
   const rent3Bed = parseCurrency(document.getElementById('rent3Bed').value);
-  const retailSqFt = parseCurrency(document.getElementById('retailSqFt').value);
-  const retailRate = parseCurrency(document.getElementById('retailRate').value);
 
   const expensesBreakdown = ['taxes', 'insurance', 'utilities', 'maintenance', 'management', 'supplies', 'misc', 'staff', 'repairs']
     .map(id => parseCurrency(document.getElementById(id).value));
@@ -34,8 +32,7 @@ function calculateProforma() {
     : 0;
 
   const multifamilyIncome = (oneBedUnits * rent1Bed + twoBedUnits * rent2Bed + threeBedUnits * rent3Bed) * 12;
-  const retailIncome = retailSqFt * retailRate;
-  const totalIncome = multifamilyIncome + retailIncome;
+  const totalIncome = multifamilyIncome;
   const noi = totalIncome - expenses;
   const cashFlow = noi - annualDebtService;
 
@@ -63,7 +60,6 @@ function calculateProforma() {
       </thead>
       <tbody>
         <tr><td class="px-4 py-2">Total Multifamily Income</td><td class="px-4 py-2">$${multifamilyIncome.toLocaleString()}</td></tr>
-        <tr><td class="px-4 py-2">Total Retail Income</td><td class="px-4 py-2">$${retailIncome.toLocaleString()}</td></tr>
         <tr><td class="px-4 py-2 font-semibold">Total Gross Income</td><td class="px-4 py-2 font-semibold">$${totalIncome.toLocaleString()}</td></tr>
         <tr><td class="px-4 py-2">Operating Expenses</td><td class="px-4 py-2">$${expenses.toLocaleString()}</td></tr>
         <tr><td class="px-4 py-2 font-semibold">Net Operating Income (NOI)</td><td class="px-4 py-2 font-semibold">$${noi.toLocaleString()}</td></tr>
@@ -80,7 +76,7 @@ function calculateProforma() {
   `;
 
   document.getElementById('results').innerHTML = resultsTable;
-  renderProformaChart([multifamilyIncome, retailIncome], ['Multifamily', 'Retail']);
+  renderProformaChart([multifamilyIncome], ['Multifamily']);
   renderProformaTable(totalIncome, expenses, noi, annualDebtService);
   renderExpensePieChart(expensesBreakdown, expenseLabels);
 }
@@ -160,8 +156,6 @@ function autofillSample() {
   document.getElementById('rent1Bed').value = "$1,200";
   document.getElementById('rent2Bed').value = "$1,600";
   document.getElementById('rent3Bed').value = "$2,000";
-  document.getElementById('retailSqFt').value = "10000";
-  document.getElementById('retailRate').value = "$35";
   document.getElementById('loanAmount').value = "$7,000,000";
   document.getElementById('loanRate').value = "5";
   document.getElementById('loanAmort').value = "30";
