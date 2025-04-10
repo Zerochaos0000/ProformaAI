@@ -1,3 +1,5 @@
+// main-multifamily.js
+
 document.getElementById('calculate').addEventListener('click', calculateProforma);
 document.getElementById('exportPdf').addEventListener('click', exportToPDF);
 document.getElementById('exportXls').addEventListener('click', exportToExcel);
@@ -27,9 +29,8 @@ function calculateProforma() {
 
   const monthlyRate = loanRate / 12;
   const numPayments = loanAmort * 12;
-  const annualDebtService = loanAmount > 0 && loanRate > 0 && numPayments > 0
-    ? (loanAmount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -numPayments))) * 12
-    : 0;
+  const annualDebtService = loanAmount > 0 ? 
+    Math.round((loanAmount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -numPayments))) * 12) : 0;
 
   const multifamilyIncome = (oneBedUnits * rent1Bed + twoBedUnits * rent2Bed + threeBedUnits * rent3Bed) * 12;
   const totalIncome = multifamilyIncome;
@@ -39,7 +40,7 @@ function calculateProforma() {
   const purchasePrice = parseCurrency(document.getElementById('purchasePrice')?.value);
   const irrEstimate = ((cashFlow / purchasePrice) * 100).toFixed(2);
   const cashOnCash = ((cashFlow / (purchasePrice - loanAmount)) * 100).toFixed(2);
-  const equityMultiple = (cashFlow * 5) / (purchasePrice - loanAmount);
+  const equityMultiple = ((cashFlow * 5) / (purchasePrice - loanAmount)).toFixed(2);
 
   const capRate = parseCurrency(document.getElementById('terminalCapRate')?.value) / 100 || 0.06;
   const costOfSale = parseCurrency(document.getElementById('costOfSale')?.value) / 100 || 0.06;
@@ -60,16 +61,15 @@ function calculateProforma() {
       </thead>
       <tbody>
         <tr><td class="px-4 py-2">Total Multifamily Income</td><td class="px-4 py-2">$${multifamilyIncome.toLocaleString()}</td></tr>
-        <tr><td class="px-4 py-2 font-semibold">Total Gross Income</td><td class="px-4 py-2 font-semibold">$${totalIncome.toLocaleString()}</td></tr>
         <tr><td class="px-4 py-2">Operating Expenses</td><td class="px-4 py-2">$${expenses.toLocaleString()}</td></tr>
         <tr><td class="px-4 py-2 font-semibold">Net Operating Income (NOI)</td><td class="px-4 py-2 font-semibold">$${noi.toLocaleString()}</td></tr>
-        <tr><td class="px-4 py-2">Annual Debt Service</td><td class="px-4 py-2">$${Math.round(annualDebtService).toLocaleString()}</td></tr>
-        <tr><td class="px-4 py-2 font-bold text-blue-700">Cash Flow Before Tax</td><td class="px-4 py-2 font-bold text-blue-700">$${Math.round(cashFlow).toLocaleString()}</td></tr>
+        <tr><td class="px-4 py-2">Annual Debt Service</td><td class="px-4 py-2">$${annualDebtService.toLocaleString()}</td></tr>
+        <tr><td class="px-4 py-2 font-bold text-blue-700">Cash Flow Before Tax</td><td class="px-4 py-2 font-bold text-blue-700">$${cashFlow.toLocaleString()}</td></tr>
         <tr><td class="px-4 py-2">Estimated IRR (Year 1)</td><td class="px-4 py-2">${irrEstimate}%</td></tr>
         <tr><td class="px-4 py-2">Cash-on-Cash Return</td><td class="px-4 py-2">${cashOnCash}%</td></tr>
-        <tr><td class="px-4 py-2">Equity Multiple (5 Yr)</td><td class="px-4 py-2">${equityMultiple.toFixed(2)}x</td></tr>
-        <tr><td class="px-4 py-2 text-green-700">Refinance Value (Year 5)</td><td class="px-4 py-2">$${refinanceValue.toLocaleString(undefined, {maximumFractionDigits: 0})}</td></tr>
-        <tr><td class="px-4 py-2">Estimated Net Sale Proceeds</td><td class="px-4 py-2">$${saleProceeds.toLocaleString(undefined, {maximumFractionDigits: 0})}</td></tr>
+        <tr><td class="px-4 py-2">Equity Multiple (5 Yr)</td><td class="px-4 py-2">${equityMultiple}x</td></tr>
+        <tr><td class="px-4 py-2 text-green-700">Refinance Value (Year 5)</td><td class="px-4 py-2">$${refinanceValue.toLocaleString()}</td></tr>
+        <tr><td class="px-4 py-2">Estimated Net Sale Proceeds</td><td class="px-4 py-2">$${saleProceeds.toLocaleString()}</td></tr>
       </tbody>
     </table>
     ${investmentNote}
@@ -91,7 +91,7 @@ function renderProformaChart(data, labels) {
       datasets: [{
         label: 'Annual Income by Source',
         data: data,
-        backgroundColor: ['#3b82f6', '#10b981']
+        backgroundColor: ['#3b82f6']
       }]
     }
   });
@@ -127,11 +127,11 @@ function renderProformaTable(income, expenses, noi, debt) {
     const yearlyCashFlow = yearlyNOI - debt;
     html += `<tr class="border-t">
       <td class="px-4 py-2">Year ${i}</td>
-      <td class="px-4 py-2">$${yearlyIncome.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
-      <td class="px-4 py-2">$${yearlyExpenses.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
-      <td class="px-4 py-2">$${yearlyNOI.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
-      <td class="px-4 py-2">$${debt.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
-      <td class="px-4 py-2">$${yearlyCashFlow.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+      <td class="px-4 py-2">$${yearlyIncome.toLocaleString()}</td>
+      <td class="px-4 py-2">$${yearlyExpenses.toLocaleString()}</td>
+      <td class="px-4 py-2">$${yearlyNOI.toLocaleString()}</td>
+      <td class="px-4 py-2">$${debt.toLocaleString()}</td>
+      <td class="px-4 py-2">$${yearlyCashFlow.toLocaleString()}</td>
     </tr>`;
   }
   html += '</tbody></table>';
@@ -146,7 +146,7 @@ function exportToExcel() {
   const ws = XLSX.utils.table_to_sheet(document.querySelector('#proformaTable table'));
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Proforma');
-  XLSX.writeFile(wb, 'ProformaOutput.xlsx');
+  XLSX.writeFile(wb, 'MultifamilyProforma.xlsx');
 }
 
 function autofillSample() {
