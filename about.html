@@ -68,5 +68,71 @@
       </div>
     </div>
   </footer>
+<script>
+  function toggleChatbot() {
+    const chatbot = document.getElementById('chatbot-container');
+    chatbot.classList.toggle('hidden');
+  }
+
+  async function sendMessage(e) {
+    e.preventDefault();
+    const input = document.getElementById('chat-input');
+    const chatbox = document.getElementById('chatbox');
+    const userMessage = input.value.trim();
+    if (!userMessage) return;
+
+    // Show user message
+    const userDiv = document.createElement('div');
+    userDiv.className = 'text-right text-blue-700';
+    userDiv.textContent = userMessage;
+    chatbox.appendChild(userDiv);
+
+    // Show loading message
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'text-gray-500';
+    loadingDiv.textContent = 'Thinking...';
+    chatbox.appendChild(loadingDiv);
+
+    chatbox.scrollTop = chatbox.scrollHeight;
+    input.value = '';
+
+    try {
+      const response = await fetch('https://proforma-backend-7d2p.onrender.com/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMessage })
+      });
+
+      const data = await response.json();
+      loadingDiv.remove();
+
+      const botDiv = document.createElement('div');
+      botDiv.className = 'text-gray-700';
+      botDiv.textContent = data.reply || 'Sorry, I couldn’t generate a response.';
+      chatbox.appendChild(botDiv);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    } catch (err) {
+      loadingDiv.remove();
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'text-red-600';
+      errorDiv.textContent = 'Error: Failed to reach ProformaAI backend.';
+      chatbox.appendChild(errorDiv);
+    }
+  }
+</script>
+<!-- Chatbot Toggle Button -->
+<button onclick="toggleChatbot()" class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg z-50">
+  💬
+</button>
+
+<!-- Chatbot Container -->
+<div id="chatbot-container" class="fixed bottom-20 right-6 w-80 bg-white border rounded-lg shadow-lg hidden z-50">
+  <div class="p-4 border-b bg-blue-50 text-blue-700 font-semibold">ProformaAI Chat</div>
+  <div id="chatbox" class="p-4 h-64 overflow-y-auto space-y-2 text-sm bg-white"></div>
+  <form onsubmit="sendMessage(event)" class="flex p-2 border-t bg-gray-50">
+    <input id="chat-input" type="text" placeholder="Ask your question..." class="flex-grow px-3 py-2 border rounded-l-md focus:outline-none text-sm" />
+    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded-r-md text-sm">Send</button>
+  </form>
+</div>
 </body>
 </html>
