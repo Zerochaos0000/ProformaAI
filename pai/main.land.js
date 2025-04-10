@@ -1,55 +1,63 @@
 // main.js
 
-document.getElementById('calculate').addEventListener('click', calculateLandDev);
-document.getElementById('exportXls').addEventListener('click', exportToExcel);
+function parseCurrency(val) {
+  return +String(val).replace(/[^\d.-]/g, '') || 0;
+}
 
-def calculateLandDev() {
-  const lots = parseFloat(document.getElementById('lots').value) || 0;
-  const salePricePerLot = parseCurrency(document.getElementById('salePricePerLot').value);
-  const lotSalesRevenue = lots * salePricePerLot;
-
-  const purchasePrice = parseCurrency(document.getElementById('landCost').value);
+document.getElementById('calculate').addEventListener('click', function () {
+  const lots = parseCurrency(document.getElementById('totalLots').value);
+  const avgSale = parseCurrency(document.getElementById('avgSalePrice').value);
+  const salesAbsorption = parseCurrency(document.getElementById('salesAbsorption').value);
+  const siteCost = parseCurrency(document.getElementById('siteCost').value);
+  const offsiteCost = parseCurrency(document.getElementById('offsiteCost').value);
+  const permitFees = parseCurrency(document.getElementById('permits').value);
   const loanAmount = parseCurrency(document.getElementById('loanAmount').value);
-  const loanRate = parseFloat(document.getElementById('loanRate').value) / 100;
-  const loanTerm = parseInt(document.getElementById('loanTerm').value);
-  const monthlyRate = loanRate / 12;
-  const monthlyPayment = loanAmount > 0 ? loanAmount * (monthlyRate / (1 - Math.pow(1 + monthlyRate, -loanTerm * 12))) : 0;
-  const annualDebtService = monthlyPayment * 12;
+  const interestRate = parseCurrency(document.getElementById('interestRate').value) / 100;
+  const loanTerm = parseCurrency(document.getElementById('loanTerm').value);
+  const purchasePrice = parseCurrency(document.getElementById('purchasePrice').value);
 
-  const expenses = ['engineering','permits','sitework','utilities','landscaping','marketing','misc']
-    .map(id => parseCurrency(document.getElementById(id).value))
-    .reduce((a, b) => a + b, 0);
+  const totalRevenue = lots * avgSale;
+  const totalDevelopmentCost = siteCost + offsiteCost + permitFees;
+  const interest = loanAmount * interestRate * (loanTerm / 12);
+  const totalCost = totalDevelopmentCost + purchasePrice + interest;
+  const grossProfit = totalRevenue - totalCost;
 
-  const totalCost = purchasePrice + expenses;
-  const grossProfit = lotSalesRevenue - totalCost;
-  const netProfit = lotSalesRevenue - (totalCost + annualDebtService);
+  const monthsToSellOut = Math.ceil(lots / salesAbsorption);
+  let cashFlows = [];
+  for (let i = 1; i <= monthsToSellOut; i++) {
+    const monthlySales = Math.min(salesAbsorption, lots - ((i - 1) * salesAbsorption));
+    const monthlyRevenue = monthlySales * avgSale;
+    const monthlyCost = (totalCost / monthsToSellOut);
+    const monthlyCashFlow = monthlyRevenue - monthlyCost;
+    cashFlows.push({ month: i, revenue: monthlyRevenue, cost: monthlyCost, cashFlow: monthlyCashFlow });
+  }
 
-  document.getElementById('results').innerHTML = `
-    <table class="w-full text-sm text-left border border-gray-300">
+  let resultsHTML = `
+    <h3 class="text-xl font-semibold mt-6 mb-2">📊 Results Summary</h3>
+    <ul class="space-y-2">
+      <li><strong>Total Revenue:</strong> $${totalRevenue.toLocaleString()}</li>
+      <li><strong>Total Development Cost:</strong> $${totalDevelopmentCost.toLocaleString()}</li>
+      <li><strongFinancing Cost (Interest):</strong> $${interest.toLocaleString()}</li>
+      <li><strong>Total Cost (Including Purchase):</strong> $${totalCost.toLocaleString()}</li>
+      <li><strong>Gross Profit:</strong> $${grossProfit.toLocaleString()}</li>
+      <li><strong>Months to Sell Out:</strong> ${monthsToSellOut}</li>
+    </ul>
+    <h3 class="text-xl font-semibold mt-6 mb-2">📅 Monthly Cash Flow Projection</h3>
+    <table class="min-w-full text-sm text-left border border-gray-300">
       <thead class="bg-blue-100">
-        <tr><th class="px-4 py-2">Metric</th><th class="px-4 py-2">Value</th></tr>
+        <tr><th class="px-4 py-2">Month</th><th class="px-4 py-2">Revenue</th><th class="px-4 py-2">Cost</th><th class="px-4 py-2">Cash Flow</th></tr>
       </thead>
       <tbody>
-        <tr><td class="px-4 py-2">Lot Sales Revenue</td><td class="px-4 py-2">$${lotSalesRevenue.toLocaleString()}</td></tr>
-        <tr><td class="px-4 py-2">Total Development Cost</td><td class="px-4 py-2">$${totalCost.toLocaleString()}</td></tr>
-        <tr><td class="px-4 py-2">Annual Debt Service</td><td class="px-4 py-2">$${annualDebtService.toLocaleString()}</td></tr>
-        <tr><td class="px-4 py-2 font-semibold">Gross Profit</td><td class="px-4 py-2 font-semibold text-green-700">$${grossProfit.toLocaleString()}</td></tr>
-        <tr><td class="px-4 py-2 font-semibold">Net Profit (After Debt)</td><td class="px-4 py-2 font-semibold text-blue-700">$${netProfit.toLocaleString()}</td></tr>
+        ${cashFlows.map(row => `
+          <tr class="border-t">
+            <td class="px-4 py-2">${row.month}</td>
+            <td class="px-4 py-2">$${row.revenue.toLocaleString()}</td>
+            <td class="px-4 py-2">$${row.cost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
+            <td class="px-4 py-2">$${row.cashFlow.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
+          </tr>`).join('')}
       </tbody>
     </table>
   `;
-}
 
-function parseCurrency(val) {
-  if (typeof val !== "string") return +val || 0;
-  return +val.replace(/[^0-9.-]+/g, "") || 0;
-}
-
-function exportToExcel() {
-  const table = document.querySelector('#results table');
-  if (!table) return alert('Please calculate the proforma first.');
-  const ws = XLSX.utils.table_to_sheet(table);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Land Dev Proforma');
-  XLSX.writeFile(wb, 'LandDevelopmentProforma.xlsx');
-}
+  document.getElementById('results').innerHTML = resultsHTML;
+});
