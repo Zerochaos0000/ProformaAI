@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Land Development Proforma</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-  <link href="style.css" rel="stylesheet" />
+  <link href="style-land.css" rel="stylesheet">
 </head>
-<body class="bg-gray-50 text-gray-800">
-  <header class="bg-white shadow-md border-b sticky top-0 z-50">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+<body class="bg-gray-50 text-gray-900">
+  <header class="bg-white shadow-md py-4 mb-6">
+    <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">
       <h1 class="text-2xl font-bold text-blue-700 cursor-pointer" onclick="location.href='../index.html'">ProformaTools</h1>
       <nav class="space-x-6">
         <a href="../index.html" class="text-blue-700 font-semibold">Home</a>
@@ -19,33 +18,34 @@
     </div>
   </header>
 
-  <main class="max-w-5xl mx-auto px-6 py-10">
-    <h2 class="text-3xl font-bold text-center text-blue-800 mb-10">🏗️ Land Development Proforma</h2>
+  <main class="max-w-6xl mx-auto px-4">
+    <h2 class="text-3xl font-bold text-center text-blue-800 mb-8">📍 Land Development Proforma</h2>
 
-    <section class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
       <div>
-        <label>Total Lots <input type="number" id="totalLots" class="input" /></label>
-        <label>Average Lot Sale Price ($) <input type="text" id="lotPrice" class="input" /></label>
-        <label>Sales Start Year <input type="number" id="salesStart" class="input" /></label>
-        <label>Phasing Period (Years) <input type="number" id="phasingYears" class="input" /></label>
+        <h3 class="text-xl font-semibold mb-2">Project Inputs</h3>
+        <label>Total Lots <input type="number" id="totalLots" class="input"></label>
+        <label>Lot Sale Price ($) <input type="text" id="lotSalePrice" class="input"></label>
+        <label>Monthly Absorption <input type="number" id="monthlyAbsorption" class="input"></label>
+        <label>Site Cost ($) <input type="text" id="siteCost" class="input"></label>
+        <label>Soft Cost ($) <input type="text" id="softCost" class="input"></label>
+        <label>Loan Interest Rate (%) <input type="number" id="loanInterest" class="input"></label>
+        <label>Loan Term (Months) <input type="number" id="loanTerm" class="input"></label>
       </div>
-      <div>
-        <label>Total Development Cost ($) <input type="text" id="devCost" class="input" /></label>
-        <label>Loan Amount ($) <input type="text" id="loanAmount" class="input" /></label>
-        <label>Interest Rate (%) <input type="number" id="loanRate" class="input" /></label>
-        <label>Amortization (Years) <input type="number" id="loanAmort" class="input" /></label>
-      </div>
-    </section>
 
-    <div class="flex gap-4 mb-6 justify-center">
-      <button id="calculate" class="btn">Calculate</button>
-      <button id="exportXls" class="btn">Export XLSX</button>
+      <div>
+        <h3 class="text-xl font-semibold mb-2">Controls</h3>
+        <button id="calculate" class="btn">Calculate</button>
+        <button id="exportPdf" class="btn">Export PDF</button>
+        <button id="exportXls" class="btn">Export XLSX</button>
+      </div>
     </div>
 
-    <div id="results" class="mt-8"></div>
+    <div id="results" class="bg-white p-6 rounded shadow"></div>
+    <div id="cashflowTable" class="mt-10"></div>
   </main>
 
-  <footer class="bg-blue-50 text-gray-600 py-6 border-t mt-20">
+  <footer class="bg-blue-50 text-gray-600 py-6 border-t mt-16">
     <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
       <p class="text-sm">&copy; 2025 ProformaTools. All rights reserved.</p>
       <div class="space-x-4 mt-2 md:mt-0">
@@ -55,6 +55,6 @@
     </div>
   </footer>
 
-  <script src="main.js"></script>
+  <script src="main-land.js"></script>
 </body>
 </html>
