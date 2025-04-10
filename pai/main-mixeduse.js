@@ -18,9 +18,9 @@ function calculateProforma() {
   const retailSqFt = parseCurrency(document.getElementById('retailSqFt').value);
   const retailRate = parseCurrency(document.getElementById('retailRate').value);
 
-  const expensesBreakdown = ['taxes', 'insurance', 'utilities', 'elevator', 'management', 'supplies', 'misc', 'staff', 'repairs']
+  const expensesBreakdown = ['taxes', 'insurance', 'utilities', 'maintenance', 'management', 'supplies', 'misc', 'staff', 'repairs']
     .map(id => parseCurrency(document.getElementById(id).value));
-  const expenseLabels = ['Taxes', 'Insurance', 'Utilities', 'Elevator', 'Management', 'Supplies', 'Misc', 'Staff', 'Repairs'];
+  const expenseLabels = ['Taxes', 'Insurance', 'Utilities', 'Maintenance', 'Management', 'Supplies', 'Misc', 'Staff', 'Repairs'];
   const expenses = expensesBreakdown.reduce((sum, val) => sum + val, 0);
 
   const loanAmount = parseCurrency(document.getElementById('loanAmount').value);
@@ -166,7 +166,7 @@ function autofillSample() {
   document.getElementById('purchasePrice').value = "$10,000,000";
   document.getElementById('terminalCapRate').value = "5";
   document.getElementById('costOfSale').value = "6";
-  ['taxes','insurance','utilities','elevator','management','supplies','misc','staff','repairs'].forEach(id => {
+  ['taxes','insurance','utilities','maintenance','management','supplies','misc','staff','repairs'].forEach(id => {
     document.getElementById(id).value = "$100,000";
   });
 }
