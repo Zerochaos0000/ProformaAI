@@ -3,70 +3,90 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Land Development Proforma</title>
+  <title>Land Development Proforma | ProformaTools</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans">
-  <header class="bg-white shadow mb-6">
+<body class="bg-white text-gray-900">
+  <header class="sticky top-0 bg-white shadow-md border-b mb-6">
     <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-blue-700">Land Development Proforma</h1>
+      <h1 class="text-2xl font-bold text-blue-700 cursor-pointer" onclick="location.href='../index.html'">ProformaTools</h1>
       <nav class="space-x-6">
-        <a href="../index.html" class="text-gray-700 hover:text-blue-600">Home</a>
+        <a href="../index.html" class="text-blue-700 font-semibold">Home</a>
         <a href="../about.html" class="text-gray-700 hover:text-blue-600">About</a>
       </nav>
     </div>
   </header>
 
-  <main class="max-w-5xl mx-auto px-6 py-6 bg-white shadow rounded-lg">
-    <section>
-      <h2 class="text-xl font-semibold mb-4">Lot & Revenue Information</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <label>Total Lots <input type="number" id="totalLots" class="input" /></label>
-        <label>Average Lot Sale Price ($) <input type="text" id="avgLotPrice" class="input" /></label>
-        <label>Other Revenue ($) <input type="number" id="otherRevenue" class="input" /></label>
+  <main class="max-w-6xl mx-auto px-6 py-4">
+    <h2 class="text-3xl font-bold text-center text-blue-800 mb-6">🌱 Land Development Proforma</h2>
+
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <h3 class="text-xl font-semibold mb-2">Lot & Revenue Assumptions</h3>
+        <label># of Lots <input type="number" id="lotCount" class="input" /></label>
+        <label>Sale Price/Lot ($) <input type="text" id="salePricePerLot" class="input" /></label>
+      </div>
+      <div>
+        <h3 class="text-xl font-semibold mb-2">Development Costs</h3>
+        <label>Site Cost ($) <input type="text" id="siteCost" class="input" /></label>
+        <label>Soft Cost ($) <input type="text" id="softCost" class="input" /></label>
+        <label>Carrying Cost ($) <input type="text" id="carryingCost" class="input" /></label>
+        <label>Selling Cost ($) <input type="text" id="sellingCost" class="input" /></label>
+        <label>Land Cost ($) <input type="text" id="landCost" class="input" /></label>
+        <label>Permit Fees ($) <input type="text" id="permitFees" class="input" /></label>
+        <label>Contingency ($) <input type="text" id="contingency" class="input" /></label>
       </div>
     </section>
 
     <section class="mt-8">
-      <h2 class="text-xl font-semibold mb-4">Site Costs</h2>
+      <h3 class="text-xl font-semibold mb-2">Loan Assumptions (optional)</h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <label>Land Acquisition ($) <input type="text" id="landCost" class="input" /></label>
-        <label>Site Work ($) <input type="text" id="siteWork" class="input" /></label>
-        <label>Engineering ($) <input type="text" id="engineering" class="input" /></label>
-        <label>Permits & Fees ($) <input type="text" id="permits" class="input" /></label>
-        <label>Marketing & Sales ($) <input type="text" id="marketing" class="input" /></label>
-        <label>Contingency (%) <input type="text" id="contingency" class="input" /></label>
+        <label>Loan Amount ($) <input type="text" id="loanAmount" class="input" /></label>
+        <label>Interest Rate (%) <input type="number" id="loanRate" class="input" /></label>
+        <label>Amortization (Years) <input type="number" id="loanAmort" class="input" /></label>
       </div>
     </section>
 
-    <section class="mt-8">
-      <h2 class="text-xl font-semibold mb-4">Financing</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <label>Loan Amount ($) <input type="number" id="loanAmount" class="input" /></label>
-        <label>Interest Rate (%) <input type="number" id="interestRate" class="input" /></label>
-        <label>Amortization (Years) <input type="number" id="loanTerm" class="input" /></label>
-      </div>
-    </section>
-
-    <div class="flex justify-center mt-8 gap-4">
-      <button id="calculate" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Calculate</button>
-      <button id="exportPdf" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Export PDF</button>
-      <button id="exportXls" class="bg-yellow-500 text-white px-6 py-2 rounded hover:bg-yellow-600">Export XLSX</button>
+    <div class="flex justify-center gap-4 mt-6">
+      <button id="calculate" class="btn">Calculate</button>
+      <button id="exportPdf" class="btn">Export PDF</button>
+      <button id="exportXls" class="btn">Export XLSX</button>
     </div>
 
-    <section id="results" class="mt-10"></section>
+    <div id="summary" class="mt-10 hidden">
+      <h3 class="text-2xl font-bold mb-4">📊 Proforma Summary</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div><strong>Total Revenue:</strong> <span id="totalRevenue">$0</span></div>
+        <div><strong>Total Cost:</strong> <span id="totalCost">$0</span></div>
+        <div><strong>Profit:</strong> <span id="profit">$0</span></div>
+        <div><strong>Annual Debt Service:</strong> <span id="annualDebtService">$0</span></div>
+        <div><strong>Cash Flow After Debt:</strong> <span id="cashFlow">$0</span></div>
+        <div><strong>DSCR:</strong> <span id="dscr">N/A</span></div>
+      </div>
+      <div id="decision"></div>
+    </div>
+
+    <section class="mt-12">
+      <h3 class="text-xl font-bold mb-3">📉 Expense Breakdown</h3>
+      <canvas id="costChart" height="80"></canvas>
+    </section>
+
+    <section class="mt-12" id="phasingTable"></section>
   </main>
 
-  <style>
-    .input {
-      width: 100%;
-      padding: 0.5rem;
-      border: 1px solid #ccc;
-      border-radius: 0.375rem;
-    }
-  </style>
+  <footer class="bg-blue-50 text-gray-600 py-6 border-t mt-20">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+      <p class="text-sm">&copy; 2025 ProformaTools. All rights reserved.</p>
+      <div class="space-x-4 mt-2 md:mt-0">
+        <a href="#" class="hover:text-blue-600">Privacy</a>
+        <a href="#" class="hover:text-blue-600">Terms</a>
+      </div>
+    </div>
+  </footer>
+
   <script src="main.js"></script>
 </body>
 </html>
