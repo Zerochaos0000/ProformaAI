@@ -1,20 +1,93 @@
+/* style.css */
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f9f9fc;
+  color: #333;
+}
 
-.input {
+header, footer {
+  background-color: #ffffff;
+  border-color: #e2e8f0;
+}
+
+h1, h2, h3, h4 {
+  color: #1e3a8a;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="email"],
+textarea,
+select {
   width: 100%;
   padding: 8px 12px;
   margin-top: 4px;
-  border: 1px solid #ccc;
+  border: 1px solid #cbd5e1;
   border-radius: 6px;
-  background: #f9f9f9;
+  background: #f8fafc;
 }
 
 button {
-  transition: all 0.3s ease;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-button:hover {
-  opacity: 0.9;
+#results table,
+#proformaTable table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 1rem;
+  background-color: white;
+  border: 1px solid #e2e8f0;
 }
 
+#results th,
+#results td,
+#proformaTable th,
+#proformaTable td {
+  border: 1px solid #e2e8f0;
+  padding: 8px 12px;
+  text-align: left;
+}
 
-.toast { transition: opacity 0.3s ease-in-out; }
+#results th {
+  background-color: #e0f2fe;
+  font-weight: 600;
+}
+
+#results td:nth-child(2) {
+  font-weight: 500;
+  color: #1e40af;
+}
+
+canvas {
+  max-width: 100%;
+  margin-top: 1rem;
+}
+
+.btn {
+  background-color: #2563eb;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+}
+
+.btn:hover {
+  background-color: #1d4ed8;
+}
+
+.autofill-btn {
+  background-color: #facc15;
+  color: #1e293b;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+@media print {
+  .no-print {
+    display: none;
+  }
+}
