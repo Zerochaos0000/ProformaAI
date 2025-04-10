@@ -3,6 +3,7 @@
 document.getElementById('calculate').addEventListener('click', calculateProforma);
 document.getElementById('exportPdf').addEventListener('click', exportToPDF);
 document.getElementById('exportXls').addEventListener('click', exportToExcel);
+document.getElementById('autofillDemo')?.addEventListener('click', autofillSample);
 
 function calculateProforma() {
   const oneBedUnits = +document.getElementById('oneBedUnits').value || 0;
@@ -14,9 +15,9 @@ function calculateProforma() {
   const retailSqFt = +document.getElementById('retailSqFt').value || 0;
   const retailRate = +document.getElementById('retailRate').value || 0;
 
-  const expenses = ['taxes', 'insurance', 'utilities', 'elevator', 'management', 'supplies', 'misc', 'staff', 'repairs'].reduce((sum, id) => {
-    return sum + (+document.getElementById(id).value || 0);
-  }, 0);
+  const expensesBreakdown = ['taxes', 'insurance', 'utilities', 'elevator', 'management', 'supplies', 'misc', 'staff', 'repairs'].map(id => +document.getElementById(id).value || 0);
+  const expenseLabels = ['Taxes', 'Insurance', 'Utilities', 'Elevator', 'Management', 'Supplies', 'Misc', 'Staff', 'Repairs'];
+  const expenses = expensesBreakdown.reduce((sum, val) => sum + val, 0);
 
   const loanAmount = +document.getElementById('loanAmount').value || 0;
   const loanRate = +document.getElementById('loanRate').value / 100 || 0;
@@ -37,6 +38,12 @@ function calculateProforma() {
   const irrEstimate = ((cashFlow / purchasePrice) * 100).toFixed(2);
   const cashOnCash = ((cashFlow / (purchasePrice - loanAmount)) * 100).toFixed(2);
   const equityMultiple = (cashFlow * 5) / (purchasePrice - loanAmount);
+
+  // Refinance Logic (Year 5)
+  const capRate = +document.getElementById('terminalCapRate')?.value / 100 || 0.06;
+  const costOfSale = +document.getElementById('costOfSale')?.value / 100 || 0.06;
+  const refinanceValue = (noi * Math.pow(1.02, 5)) / capRate;
+  const saleProceeds = refinanceValue - (refinanceValue * costOfSale) - loanAmount;
 
   // Decision Logic
   let investmentNote = '';
@@ -62,15 +69,17 @@ function calculateProforma() {
         <tr><td class="px-4 py-2">Estimated IRR (Year 1)</td><td class="px-4 py-2">${irrEstimate}%</td></tr>
         <tr><td class="px-4 py-2">Cash-on-Cash Return</td><td class="px-4 py-2">${cashOnCash}%</td></tr>
         <tr><td class="px-4 py-2">Equity Multiple (5 Yr)</td><td class="px-4 py-2">${equityMultiple.toFixed(2)}x</td></tr>
+        <tr><td class="px-4 py-2 text-green-700">Refinance Value (Year 5)</td><td class="px-4 py-2">$${refinanceValue.toLocaleString(undefined, {maximumFractionDigits: 0})}</td></tr>
+        <tr><td class="px-4 py-2">Estimated Net Sale Proceeds</td><td class="px-4 py-2">$${saleProceeds.toLocaleString(undefined, {maximumFractionDigits: 0})}</td></tr>
       </tbody>
     </table>
     ${investmentNote}
   `;
 
   document.getElementById('results').innerHTML = resultsTable;
-
   renderProformaChart([multifamilyIncome, retailIncome], ['Multifamily', 'Retail']);
   renderProformaTable(totalIncome, expenses, noi, annualDebtService);
+  renderExpensePieChart(expensesBreakdown, expenseLabels);
 }
 
 function renderProformaChart(data, labels) {
@@ -84,6 +93,24 @@ function renderProformaChart(data, labels) {
         label: 'Annual Income by Source',
         data: data,
         backgroundColor: ['#3b82f6', '#10b981']
+      }]
+    }
+  });
+}
+
+function renderExpensePieChart(data, labels) {
+  const ctx = document.getElementById('expensesChart').getContext('2d');
+  if (window.expenseChart) window.expenseChart.destroy();
+  window.expenseChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Expense Breakdown',
+        data: data,
+        backgroundColor: [
+          '#f87171','#facc15','#34d399','#60a5fa','#a78bfa','#f472b6','#fb923c','#4ade80','#c084fc'
+        ]
       }]
     }
   });
@@ -121,4 +148,22 @@ function exportToExcel() {
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Proforma');
   XLSX.writeFile(wb, 'ProformaOutput.xlsx');
+}
+
+function autofillSample() {
+  document.getElementById('oneBedUnits').value = 50;
+  document.getElementById('twoBedUnits').value = 60;
+  document.getElementById('threeBedUnits').value = 30;
+  document.getElementById('rent1Bed').value = 1200;
+  document.getElementById('rent2Bed').value = 1600;
+  document.getElementById('rent3Bed').value = 2000;
+  document.getElementById('retailSqFt').value = 10000;
+  document.getElementById('retailRate').value = 35;
+  document.getElementById('loanAmount').value = 7000000;
+  document.getElementById('loanRate').value = 5;
+  document.getElementById('loanAmort').value = 30;
+  document.getElementById('purchasePrice').value = 10000000;
+  document.getElementById('terminalCapRate').value = 5;
+  document.getElementById('costOfSale').value = 6;
+  ['taxes','insurance','utilities','elevator','management','supplies','misc','staff','repairs'].forEach(id => document.getElementById(id).value = 100000);
 }
