@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Multifamily Proforma | ProformaTools</title>
+  <title>Land Development Proforma | ProformaTools</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body class="bg-white text-gray-900">
+<body class="bg-gray-50 text-gray-800">
   <header class="sticky top-0 bg-white shadow-md border-b mb-6">
     <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
       <h1 class="text-2xl font-bold text-blue-700 cursor-pointer" onclick="location.href='../index.html'">ProformaTools</h1>
@@ -20,72 +20,45 @@
     </div>
   </header>
 
-  <main class="max-w-6xl mx-auto px-6 py-6">
-    <h2 class="text-3xl font-bold text-center text-blue-800 mb-8">🏢 Multifamily Investment Proforma</h2>
+  <main class="max-w-6xl mx-auto px-6 py-4">
+    <h2 class="text-3xl font-bold text-center text-blue-800 mb-6">🏡 Land Development Proforma</h2>
 
-    <section class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
-        <h3 class="text-xl font-semibold mb-3">Unit Mix</h3>
-        <label>1-Bed Units <input type="number" id="oneBedUnits" class="input" /></label>
-        <label>Rent/1-Bed ($) <input type="text" id="rent1Bed" class="input" /></label>
-        <label>2-Bed Units <input type="number" id="twoBedUnits" class="input" /></label>
-        <label>Rent/2-Bed ($) <input type="text" id="rent2Bed" class="input" /></label>
-        <label>3-Bed Units <input type="number" id="threeBedUnits" class="input" /></label>
-        <label>Rent/3-Bed ($) <input type="text" id="rent3Bed" class="input" /></label>
+        <h3 class="text-xl font-semibold mb-2">Project Inputs</h3>
+        <label>Total Lots <input type="number" id="totalLots" class="input" placeholder="e.g. 100" /></label>
+        <label>Average Sale Price per Lot ($) <input type="text" id="salePrice" class="input" placeholder="$100,000" /></label>
+        <label>Lot Sale Absorption (Lots/Month) <input type="number" id="absorption" class="input" placeholder="e.g. 5" /></label>
       </div>
 
       <div>
-        <h3 class="text-xl font-semibold mb-3">Financing</h3>
-        <label>Loan Amount ($) <input type="text" id="loanAmount" class="input" /></label>
-        <label>Interest Rate (%) <input type="number" id="loanRate" class="input" /></label>
-        <label>Amortization (Years) <input type="number" id="loanAmort" class="input" /></label>
-        <label>Purchase Price ($) <input type="text" id="purchasePrice" class="input" /></label>
-        <label>Terminal Cap Rate (%) <input type="number" id="terminalCapRate" class="input" /></label>
-        <label>Cost of Sale EOY5 (%) <input type="number" id="costOfSale" class="input" /></label>
+        <h3 class="text-xl font-semibold mb-2">Loan Assumptions</h3>
+        <label>Loan Amount ($) <input type="text" id="loanAmount" class="input" placeholder="$1,000,000" /></label>
+        <label>Interest Rate (%) <input type="number" id="interestRate" class="input" placeholder="e.g. 6" /></label>
+        <label>Amortization Period (Years) <input type="number" id="amortization" class="input" placeholder="e.g. 30" /></label>
       </div>
     </section>
 
-    <section class="mb-10">
-      <h3 class="text-xl font-semibold mb-3">Operating Expenses</h3>
+    <section class="mt-6">
+      <h3 class="text-xl font-semibold mb-2">Project Costs</h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <label>Property Taxes <input type="text" id="taxes" class="input" /></label>
-        <label>Insurance <input type="text" id="insurance" class="input" /></label>
-        <label>Utilities <input type="text" id="utilities" class="input" /></label>
-        <label>Maintenance <input type="text" id="maintenance" class="input" /></label>
-        <label>Management <input type="text" id="management" class="input" /></label>
-        <label>Supplies <input type="text" id="supplies" class="input" /></label>
-        <label>Misc & Reserves <input type="text" id="misc" class="input" /></label>
-        <label>Building Staff <input type="text" id="staff" class="input" /></label>
-        <label>Repairs <input type="text" id="repairs" class="input" /></label>
+        <label>Land Cost ($) <input type="text" id="landCost" class="input" placeholder="$2,000,000" /></label>
+        <label>Site Work ($) <input type="text" id="siteCost" class="input" placeholder="$1,500,000" /></label>
+        <label>Soft Costs ($) <input type="text" id="softCosts" class="input" placeholder="$500,000" /></label>
       </div>
     </section>
 
-    <div class="flex justify-center gap-4 mt-4 mb-10">
-      <button id="calculate" class="btn">Calculate</button>
-      <button id="exportPdf" class="btn">Export PDF</button>
-      <button id="exportXls" class="btn">Export XLSX</button>
-      <button id="autofillDemo" class="btn">Autofill Demo</button>
+    <div class="text-center mt-6">
+      <button id="calculate" class="bg-blue-700 text-white px-6 py-2 rounded hover:bg-blue-800">Calculate</button>
+      <button id="exportPdf" class="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700 ml-2">Export PDF</button>
+      <button id="exportXls" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 ml-2">Export XLSX</button>
     </div>
 
-    <section id="results" class="mb-10"></section>
-
-    <section class="mb-12">
-      <h3 class="text-xl font-bold mb-3">📊 Income Chart</h3>
-      <canvas id="resultsChart" height="80"></canvas>
-    </section>
-
-    <section class="mb-12">
-      <h3 class="text-xl font-bold mb-3">📉 Expense Breakdown</h3>
-      <canvas id="expensesChart" height="80"></canvas>
-    </section>
-
-    <section class="mb-20">
-      <h3 class="text-xl font-bold mb-3">📅 5-Year Proforma Summary</h3>
-      <div id="proformaTable"></div>
-    </section>
+    <div id="results" class="mt-10"></div>
+    <div id="proformaTable" class="mt-12"></div>
   </main>
 
-  <footer class="bg-blue-50 text-gray-600 py-6 border-t">
+  <footer class="bg-blue-50 text-gray-600 py-6 border-t mt-20">
     <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
       <p class="text-sm">&copy; 2025 ProformaTools. All rights reserved.</p>
       <div class="space-x-4 mt-2 md:mt-0">
