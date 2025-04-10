@@ -70,7 +70,7 @@
 
   <footer class="bg-blue-50 text-gray-600 py-6 border-t">
     <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
-      <p class="text-sm">&copy; 2025 ProformaAI. All rights reserved.</p>
+      <p class="text-sm">&copy; 2025 RE ProformaAI. All rights reserved.</p>
       <div class="space-x-4 mt-2 md:mt-0">
         <a href="#" class="hover:text-blue-600">Privacy</a>
         <a href="#" class="hover:text-blue-600">Terms</a>
@@ -124,7 +124,7 @@
       loadingDiv.remove();
       const errorDiv = document.createElement('div');
       errorDiv.className = 'text-red-600';
-      errorDiv.textContent = 'Error: Failed to reach ProformaAI backend.';
+      errorDiv.textContent = 'Error: Failed to reach RE ProformaAI backend.';
       chatbox.appendChild(errorDiv);
     }
   }
@@ -136,7 +136,7 @@
 
 <!-- Chatbot Container -->
 <div id="chatbot-container" class="fixed bottom-20 right-6 w-80 bg-white border rounded-lg shadow-lg hidden z-50">
-  <div class="p-4 border-b bg-blue-50 text-blue-700 font-semibold">ProformaAI Chat</div>
+  <div class="p-4 border-b bg-blue-50 text-blue-700 font-semibold">RE ProformaAI Chat</div>
   <div id="chatbox" class="p-4 h-64 overflow-y-auto space-y-2 text-sm bg-white"></div>
   <form onsubmit="sendMessage(event)" class="flex p-2 border-t bg-gray-50">
     <input id="chat-input" type="text" placeholder="Ask your question..." class="flex-grow px-3 py-2 border rounded-l-md focus:outline-none text-sm" />
