@@ -8,18 +8,18 @@ function parseCurrency(value) {
 }
 
 function calculateProforma() {
-  const numLots = parseCurrency(document.getElementById('numLots').value);
-  const salePrice = parseCurrency(document.getElementById('lotPrice').value);
-  const landCost = parseCurrency(document.getElementById('landCost').value);
-  const devCost = parseCurrency(document.getElementById('devCost').value);
-  const otherCost = parseCurrency(document.getElementById('otherCost').value);
-  const loanAmount = parseCurrency(document.getElementById('loanAmount').value);
-  const interestRate = parseCurrency(document.getElementById('interestRate').value) / 100;
-  const amortYears = parseCurrency(document.getElementById('amortYears').value);
+  const numLots = parseCurrency(document.getElementById('numLots')?.value);
+  const salePrice = parseCurrency(document.getElementById('lotPrice')?.value);
+  const landCost = parseCurrency(document.getElementById('landCost')?.value);
+  const devCost = parseCurrency(document.getElementById('devCost')?.value);
+  const otherCost = parseCurrency(document.getElementById('otherCost')?.value);
+  const loanAmount = parseCurrency(document.getElementById('loanAmount')?.value);
+  const interestRate = parseCurrency(document.getElementById('interestRate')?.value) / 100;
+  const amortYears = parseCurrency(document.getElementById('amortYears')?.value);
 
   const grossRevenue = numLots * salePrice;
   const totalCosts = landCost + devCost + otherCost;
-  const equity = grossRevenue - loanAmount;
+
   const monthlyRate = interestRate / 12;
   const numPayments = amortYears * 12;
 
@@ -30,7 +30,8 @@ function calculateProforma() {
   const netProfit = grossRevenue - totalCosts - annualDebtService;
 
   const resultsHTML = `
-    <table class="w-full text-sm text-left border border-gray-300">
+    <h3 class="text-xl font-semibold mt-8 mb-4">📊 Proforma Summary</h3>
+    <table class="w-full text-sm text-left border border-gray-300 mb-6">
       <thead class="bg-blue-100">
         <tr><th class="px-4 py-2">Metric</th><th class="px-4 py-2">Value</th></tr>
       </thead>
@@ -48,23 +49,21 @@ function calculateProforma() {
 
   document.getElementById('results').innerHTML = resultsHTML;
 
-  // 5-year projection
+  // Charts and projections
   renderProformaTable(grossRevenue, totalCosts, annualDebtService);
-
-  // Chart
   renderBarChart([grossRevenue, totalCosts, annualDebtService], ['Revenue', 'Costs', 'Debt']);
 }
 
 function renderProformaTable(revenue, costs, debt) {
   const container = document.getElementById('proformaTable');
   let html = `
-    <table class="min-w-full text-sm text-left border mt-4">
+    <h3 class="text-xl font-semibold mt-8 mb-2">📅 5-Year Projection</h3>
+    <table class="min-w-full text-sm text-left border border-gray-300">
       <thead class="bg-blue-100">
         <tr><th class="px-4 py-2">Year</th><th class="px-4 py-2">Revenue</th><th class="px-4 py-2">Costs</th><th class="px-4 py-2">Debt</th><th class="px-4 py-2">Net</th></tr>
       </thead>
       <tbody>
   `;
-
   for (let i = 1; i <= 5; i++) {
     const inflator = 1 + (i * 0.02);
     const rev = revenue * inflator;
