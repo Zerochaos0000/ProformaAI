@@ -3,79 +3,70 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Land Development Proforma | ProformaTools</title>
+  <title>Land Development Proforma</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-    .input {
-      width: 100%;
-      padding: 8px 12px;
-      margin-top: 4px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      background: #f9f9f9;
-    }
-    .btn {
-      padding: 10px 20px;
-      background-color: #2563eb;
-      color: white;
-      border-radius: 6px;
-      font-weight: 600;
-    }
-  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
 </head>
-<body class="bg-white text-gray-800">
-  <header class="sticky top-0 bg-white shadow-md border-b mb-6">
+<body class="bg-gray-50 text-gray-800 font-sans">
+  <header class="bg-white shadow mb-6">
     <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-      <a href="index.html" class="text-2xl font-bold text-blue-700">ProformaTools</a>
+      <h1 class="text-2xl font-bold text-blue-700">Land Development Proforma</h1>
       <nav class="space-x-6">
-        <a href="index.html" class="text-blue-700 font-semibold">Home</a>
-        <a href="about.html" class="text-gray-700 hover:text-blue-600">About</a>
+        <a href="../index.html" class="text-gray-700 hover:text-blue-600">Home</a>
+        <a href="../about.html" class="text-gray-700 hover:text-blue-600">About</a>
       </nav>
     </div>
   </header>
 
-  <main class="max-w-6xl mx-auto px-6">
-    <h2 class="text-3xl font-bold text-center text-blue-800 mb-8">🏗️ Land Development Proforma</h2>
-
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-      <div>
-        <label>Total Lots <input type="number" id="lots" class="input" placeholder="100" /></label>
-        <label>Price per Lot ($) <input type="number" id="pricePerLot" class="input" placeholder="100000" /></label>
-      </div>
-      <div>
-        <label>Site Development Costs ($/Yr) <input type="number" id="siteCosts" class="input" placeholder="300000" /></label>
-        <label>Loan Amount ($) <input type="number" id="loanAmount" class="input" placeholder="2000000" /></label>
-      </div>
-      <div>
-        <label>Loan Interest Rate (%) <input type="number" id="loanRate" class="input" placeholder="6" /></label>
-        <label>Loan Term (Years) <input type="number" id="loanTerm" class="input" placeholder="2" /></label>
+  <main class="max-w-5xl mx-auto px-6 py-6 bg-white shadow rounded-lg">
+    <section>
+      <h2 class="text-xl font-semibold mb-4">Lot & Revenue Information</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <label>Total Lots <input type="number" id="totalLots" class="input" /></label>
+        <label>Average Lot Sale Price ($) <input type="number" id="avgLotPrice" class="input" /></label>
+        <label>Other Revenue ($) <input type="number" id="otherRevenue" class="input" /></label>
       </div>
     </section>
 
-    <div class="flex justify-center gap-4 mb-10">
-      <button id="calculate" class="btn">Calculate</button>
+    <section class="mt-8">
+      <h2 class="text-xl font-semibold mb-4">Site Costs</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <label>Land Acquisition ($) <input type="number" id="landCost" class="input" /></label>
+        <label>Site Work ($) <input type="number" id="siteWork" class="input" /></label>
+        <label>Engineering ($) <input type="number" id="engineering" class="input" /></label>
+        <label>Permits & Fees ($) <input type="number" id="permits" class="input" /></label>
+        <label>Marketing & Sales ($) <input type="number" id="marketing" class="input" /></label>
+        <label>Contingency (%) <input type="number" id="contingency" class="input" /></label>
+      </div>
+    </section>
+
+    <section class="mt-8">
+      <h2 class="text-xl font-semibold mb-4">Financing</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <label>Loan Amount ($) <input type="number" id="loanAmount" class="input" /></label>
+        <label>Interest Rate (%) <input type="number" id="interestRate" class="input" /></label>
+        <label>Amortization (Years) <input type="number" id="loanTerm" class="input" /></label>
+      </div>
+    </section>
+
+    <div class="flex justify-center mt-8 gap-4">
+      <button id="calculate" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Calculate</button>
+      <button id="exportPdf" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Export PDF</button>
+      <button id="exportXls" class="bg-yellow-500 text-white px-6 py-2 rounded hover:bg-yellow-600">Export XLSX</button>
     </div>
 
-    <div id="results" class="mb-12"></div>
-
-    <section class="mb-16">
-      <h3 class="text-xl font-bold mb-3">📊 Proforma 5-Year Chart</h3>
-      <canvas id="chart" height="100"></canvas>
-    </section>
+    <section id="results" class="mt-10"></section>
   </main>
 
-  <footer class="bg-blue-50 text-gray-600 py-6 border-t">
-    <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
-      <p class="text-sm">&copy; 2025 ProformaTools. All rights reserved.</p>
-      <div class="space-x-4 mt-2 md:mt-0">
-        <a href="#" class="hover:text-blue-600">Privacy</a>
-        <a href="#" class="hover:text-blue-600">Terms</a>
-      </div>
-    </div>
-  </footer>
-
+  <style>
+    .input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 0.375rem;
+    }
+  </style>
   <script src="main.js"></script>
 </body>
 </html>
