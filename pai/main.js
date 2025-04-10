@@ -1,231 +1,174 @@
+document.getElementById('calculate').addEventListener('click', calculateProforma);
+document.getElementById('exportPdf').addEventListener('click', exportToPDF);
+document.getElementById('exportXls').addEventListener('click', exportToExcel);
+document.getElementById('autofillDemo')?.addEventListener('click', autofillSample);
 
-function showToast(message) {
-  const toast = document.createElement('div');
-  toast.className = 'fixed top-6 right-6 bg-green-600 text-white px-4 py-2 rounded shadow z-50';
-  toast.textContent = message;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
+function parseCurrency(val) {
+  if (typeof val !== "string") return +val || 0;
+  return +val.replace(/[^0-9.-]+/g, "") || 0;
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-  const calculateBtn = document.getElementById('calculate');
-  const exportPdfBtn = document.getElementById('exportPdf');
-  const exportCsvBtn = document.getElementById('exportCsv');
+function calculateProforma() {
+  const oneBedUnits = parseCurrency(document.getElementById('oneBedUnits').value);
+  const twoBedUnits = parseCurrency(document.getElementById('twoBedUnits').value);
+  const threeBedUnits = parseCurrency(document.getElementById('threeBedUnits').value);
+  const rent1Bed = parseCurrency(document.getElementById('rent1Bed').value);
+  const rent2Bed = parseCurrency(document.getElementById('rent2Bed').value);
+  const rent3Bed = parseCurrency(document.getElementById('rent3Bed').value);
+  const retailSqFt = parseCurrency(document.getElementById('retailSqFt').value);
+  const retailRate = parseCurrency(document.getElementById('retailRate').value);
 
-  let latestMetrics = {};
-  let proformaRows = [];
+  const expensesBreakdown = ['taxes', 'insurance', 'utilities', 'maintenance', 'management', 'supplies', 'misc', 'staff', 'repairs']
+    .map(id => parseCurrency(document.getElementById(id).value));
+  const expenseLabels = ['Taxes', 'Insurance', 'Utilities', 'Maintenance', 'Management', 'Supplies', 'Misc', 'Staff', 'Repairs'];
+  const expenses = expensesBreakdown.reduce((sum, val) => sum + val, 0);
 
-  calculateBtn.addEventListener('click', function () {
-    const getVal = id => parseFloat(document.getElementById(id).value) || 0;
+  const loanAmount = parseCurrency(document.getElementById('loanAmount').value);
+  const loanRate = parseCurrency(document.getElementById('loanRate').value) / 100;
+  const loanAmort = parseCurrency(document.getElementById('loanAmort').value) || 30;
 
-    const annualRent = getVal('oneBedUnits') * getVal('rent1Bed') * 12 +
-                       getVal('twoBedUnits') * getVal('rent2Bed') * 12 +
-                       getVal('threeBedUnits') * getVal('rent3Bed') * 12;
+  const monthlyRate = loanRate / 12;
+  const numPayments = loanAmort * 12;
+  const annualDebtService = loanAmount > 0 && loanRate > 0 && numPayments > 0
+    ? (loanAmount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -numPayments))) * 12
+    : 0;
 
-    const totalExpenses = getVal('taxes') + getVal('insurance') + getVal('utilities') + getVal('elevator') +
-                          getVal('management') + getVal('supplies') + getVal('misc') +
-                          getVal('staff') + getVal('repairs');
+  const multifamilyIncome = (oneBedUnits * rent1Bed + twoBedUnits * rent2Bed + threeBedUnits * rent3Bed) * 12;
+  const retailIncome = retailSqFt * retailRate;
+  const totalIncome = multifamilyIncome + retailIncome;
+  const noi = totalIncome - expenses;
+  const cashFlow = noi - annualDebtService;
 
-    const noi = annualRent - totalExpenses;
-    const purchasePrice = getVal('purchasePrice');
-    const terminalCapRate = getVal('terminalCapRate') / 100;
-    const costOfSale = getVal('costOfSale') / 100;
-    const loanAmount = getVal('loanAmount');
-    const rate = getVal('loanRate') / 100;
-    const amort = getVal('loanAmort');
+  const purchasePrice = parseCurrency(document.getElementById('purchasePrice')?.value);
+  const irrEstimate = ((cashFlow / purchasePrice) * 100).toFixed(2);
+  const cashOnCash = ((cashFlow / (purchasePrice - loanAmount)) * 100).toFixed(2);
+  const equityMultiple = (cashFlow * 5) / (purchasePrice - loanAmount);
 
-    const r = rate / 12, n = amort * 12;
-    const monthlyDebt = loanAmount * r / (1 - Math.pow(1 + r, -n));
-    const annualDebtService = monthlyDebt * 12;
-    const annualCashFlow = noi - annualDebtService;
+  const capRate = parseCurrency(document.getElementById('terminalCapRate')?.value) / 100 || 0.06;
+  const costOfSale = parseCurrency(document.getElementById('costOfSale')?.value) / 100 || 0.06;
+  const refinanceValue = (noi * Math.pow(1.02, 5)) / capRate;
+  const saleProceeds = refinanceValue - (refinanceValue * costOfSale) - loanAmount;
 
-    const noiYr5 = noi * Math.pow(1.02, 4);
-    const salePrice = noiYr5 / terminalCapRate;
-    const netSale = salePrice * (1 - costOfSale);
-    const equity = purchasePrice - loanAmount;
+  let investmentNote = '';
+  if (irrEstimate > 12 && equityMultiple > 1.5 && cashOnCash > 8) {
+    investmentNote = `<p class='mt-4 text-green-700 font-bold'>✅ This appears to be a strong investment opportunity based on your metrics.</p>`;
+  } else {
+    investmentNote = `<p class='mt-4 text-red-600 font-bold'>⚠️ Caution: Investment returns are moderate or below expectations.</p>`;
+  }
 
-    const cashFlows = [
-      annualCashFlow,
-      annualCashFlow * 1.02,
-      annualCashFlow * 1.04,
-      annualCashFlow * 1.06,
-      annualCashFlow * 1.08 + netSale
-    ];
-    const irr = calcIRR([-equity, ...cashFlows]);
-    const equityMult = cashFlows.reduce((a, b) => a + b, 0) / equity;
+  const resultsTable = `
+    <table class="w-full text-sm text-left border border-gray-300">
+      <thead class="bg-blue-100">
+        <tr><th class="px-4 py-2">Metric</th><th class="px-4 py-2">Value</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="px-4 py-2">Total Multifamily Income</td><td class="px-4 py-2">$${multifamilyIncome.toLocaleString()}</td></tr>
+        <tr><td class="px-4 py-2">Total Retail Income</td><td class="px-4 py-2">$${retailIncome.toLocaleString()}</td></tr>
+        <tr><td class="px-4 py-2 font-semibold">Total Gross Income</td><td class="px-4 py-2 font-semibold">$${totalIncome.toLocaleString()}</td></tr>
+        <tr><td class="px-4 py-2">Operating Expenses</td><td class="px-4 py-2">$${expenses.toLocaleString()}</td></tr>
+        <tr><td class="px-4 py-2 font-semibold">Net Operating Income (NOI)</td><td class="px-4 py-2 font-semibold">$${noi.toLocaleString()}</td></tr>
+        <tr><td class="px-4 py-2">Annual Debt Service</td><td class="px-4 py-2">$${Math.round(annualDebtService).toLocaleString()}</td></tr>
+        <tr><td class="px-4 py-2 font-bold text-blue-700">Cash Flow Before Tax</td><td class="px-4 py-2 font-bold text-blue-700">$${Math.round(cashFlow).toLocaleString()}</td></tr>
+        <tr><td class="px-4 py-2">Estimated IRR (Year 1)</td><td class="px-4 py-2">${irrEstimate}%</td></tr>
+        <tr><td class="px-4 py-2">Cash-on-Cash Return</td><td class="px-4 py-2">${cashOnCash}%</td></tr>
+        <tr><td class="px-4 py-2">Equity Multiple (5 Yr)</td><td class="px-4 py-2">${equityMultiple.toFixed(2)}x</td></tr>
+        <tr><td class="px-4 py-2 text-green-700">Refinance Value (Year 5)</td><td class="px-4 py-2">$${refinanceValue.toLocaleString(undefined, {maximumFractionDigits: 0})}</td></tr>
+        <tr><td class="px-4 py-2">Estimated Net Sale Proceeds</td><td class="px-4 py-2">$${saleProceeds.toLocaleString(undefined, {maximumFractionDigits: 0})}</td></tr>
+      </tbody>
+    </table>
+    ${investmentNote}
+  `;
 
-    latestMetrics = {
-      noi,
-      totalExpenses,
-      annualDebtService,
-      cashFlowBeforeTax: annualCashFlow,
-      irr: irr.toFixed(2),
-      equityMultiple: equityMult.toFixed(2)
-    };
+  document.getElementById('results').innerHTML = resultsTable;
+  renderProformaChart([multifamilyIncome, retailIncome], ['Multifamily', 'Retail']);
+  renderProformaTable(totalIncome, expenses, noi, annualDebtService);
+  renderExpensePieChart(expensesBreakdown, expenseLabels);
+}
 
-    proformaRows = generateProformaTable(
-      annualRent, totalExpenses, 0.05, annualDebtService, terminalCapRate, costOfSale, loanAmount, amort, rate
-    );
-
-    document.getElementById('results').innerHTML = `
-      <div class="mt-6 bg-white p-4 rounded shadow">
-        <h2 class="text-xl font-semibold mb-2">📊 Investment Results</h2>
-        <p><strong>NOI (Year 1):</strong> $${noi.toLocaleString()}</p>
-        <p><strong>Total Expenses:</strong> $${totalExpenses.toLocaleString()}</p>
-        <p><strong>Annual Debt Service:</strong> $${annualDebtService.toLocaleString()}</p>
-        <p><strong>Cash Flow Before Tax:</strong> $${annualCashFlow.toLocaleString()}</p>
-        <p><strong>IRR:</strong> ${irr.toFixed(2)}%</p>
-        <p><strong>Equity Multiple:</strong> ${equityMult.toFixed(2)}x</p>
-        <p class="mt-2 text-${irr >= 14 ? 'green' : 'red'}-600 font-semibold">
-          ${irr >= 14 ? '✅ Good Investment' : '⚠️ Risky Investment'}
-        </p>
-      </div>`;
-
-    displayProformaTable(proformaRows);
-  });
-
-  exportPdfBtn.addEventListener('click', () => {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.setFontSize(14);
-    doc.text('Multifamily Proforma Report', 20, 20);
-    doc.setFontSize(12);
-    let y = 30;
-    Object.entries(latestMetrics).forEach(([k, v]) => {
-      doc.text(`${k.replace(/([A-Z])/g, ' $1')}: ${v}`, 20, y);
-      y += 10;
-    });
-    doc.autoTable({
-      head: [['Year', 'Potential Rent', 'Other Income', 'Gross Income', 'Vacancy', 'EGI', 'Expenses', 'NOI', 'Op Margin', 'Debt Svc', 'CFBT']],
-      body: proformaRows.map(row => row.map(val => (typeof val === 'number' ? val.toFixed(0) : val))),
-      startY: y + 10,
-      theme: 'striped'
-    });
-    doc.save('Proforma_Report.pdf');
-    showToast('PDF exported successfully!');
-  });
-
-  exportCsvBtn.addEventListener('click', () => {
-    let csv = 'Metric,Value\n';
-    Object.entries(latestMetrics).forEach(([k, v]) => {
-      csv += `${k},${v}\n`;
-    });
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'Proforma_Report.csv';
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('CSV exported successfully!');
-  });
-
-  exportCsvBtn.insertAdjacentHTML("afterend", '<button id="exportExcel" class="ml-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">📥 Export to Excel</button>');
-
-  document.getElementById('exportExcel').addEventListener('click', () => {
-    const wb = XLSX.utils.book_new();
-    const rows = [['Year', 'Potential Rent', 'Other Income', 'Gross Income', 'Vacancy', 'EGI', 'Expenses', 'NOI', 'Op Margin', 'Debt Svc', 'CFBT']];
-    proformaRows.forEach(r => rows.push(r));
-    const ws = XLSX.utils.aoa_to_sheet(rows);
-    XLSX.utils.book_append_sheet(wb, ws, 'Multifamily Proforma');
-    XLSX.writeFile(wb, 'Proforma_Export.xlsx');
-    showToast('Excel exported successfully!');
-  });
-
-  function calcIRR(cashFlows, guess = 0.10) {
-    let rate = guess;
-    const maxIter = 1000, precision = 1e-6;
-    for (let i = 0; i < maxIter; i++) {
-      let npv = 0, deriv = 0;
-      for (let t = 0; t < cashFlows.length; t++) {
-        npv += cashFlows[t] / Math.pow(1 + rate, t);
-        deriv -= t * cashFlows[t] / Math.pow(1 + rate, t + 1);
-      }
-      const newRate = rate - npv / deriv;
-      if (Math.abs(newRate - rate) < precision) return newRate * 100;
-      rate = newRate;
+function renderProformaChart(data, labels) {
+  const ctx = document.getElementById('resultsChart').getContext('2d');
+  if (window.chartInstance) window.chartInstance.destroy();
+  window.chartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Annual Income by Source',
+        data: data,
+        backgroundColor: ['#3b82f6', '#10b981']
+      }]
     }
-    return rate * 100;
-  }
-});
-
-
-function generateProformaTable(baseRent, baseExpenses, vacancyRate, debtService, terminalCapRate, costOfSaleRate, loanAmount, amortYears, rate) {
-  const growthRent = 0.05;
-  const growthExpense = 0.02;
-  const rows = [];
-
-  const monthlyRate = rate / 12;
-  const n = amortYears * 12;
-  const monthlyDebt = loanAmount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -n));
-
-  for (let year = 1; year <= 5; year++) {
-    const rent = baseRent * Math.pow(1 + growthRent, year - 1);
-    const otherIncome = 0;
-    const grossIncome = rent + otherIncome;
-    const vacancy = -vacancyRate * grossIncome;
-    const effectiveIncome = grossIncome + vacancy;
-    const expenses = baseExpenses * Math.pow(1 + growthExpense, year - 1);
-    const noi = effectiveIncome - expenses;
-    const margin = ((noi / effectiveIncome) * 100).toFixed(1) + "%";
-    const cfbt = noi - debtService;
-
-    rows.push([
-      `Year ${year}`, rent, otherIncome, grossIncome, vacancy, effectiveIncome,
-      expenses, noi, margin, debtService, cfbt
-    ]);
-  }
-
-  const noiYr5 = rows[4][7];
-  const saleValue = noiYr5 / terminalCapRate;
-  const costOfSale = saleValue * costOfSaleRate;
-
-  let balance = loanAmount;
-  for (let i = 0; i < 60; i++) {
-    const interest = balance * monthlyRate;
-    const principal = monthlyDebt - interest;
-    balance -= principal;
-  }
-
-  const netProceeds = saleValue - costOfSale - balance;
-
-  rows.push(["Future Sale Value", "", "", "", "", "", "", "", "", "", saleValue]);
-  rows.push(["Cost of Sale", "", "", "", "", "", "", "", "", "", -costOfSale]);
-  rows.push(["Loan Balance", "", "", "", "", "", "", "", "", "", -balance]);
-  rows.push(["Net Sale Proceeds", "", "", "", "", "", "", "", "", "", netProceeds]);
-
-  return rows;
+  });
 }
 
-function displayProformaTable(data) {
-  const headers = ["Year", "Potential Rent", "Other Income", "Gross Income", "Vacancy", "EGI", "Expenses", "NOI", "Op Margin", "Debt Svc", "CFBT"];
-  const table = document.createElement("table");
-  table.className = "w-full table-auto border border-gray-300 mt-4";
-  const thead = document.createElement("thead");
-  const trHead = document.createElement("tr");
-  headers.forEach(h => {
-    const th = document.createElement("th");
-    th.className = "border px-2 py-1 bg-gray-100";
-    th.textContent = h;
-    trHead.appendChild(th);
+function renderExpensePieChart(data, labels) {
+  const ctx = document.getElementById('expensesChart').getContext('2d');
+  if (window.expenseChart) window.expenseChart.destroy();
+  window.expenseChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Expense Breakdown',
+        data: data,
+        backgroundColor: [
+          '#f87171','#facc15','#34d399','#60a5fa','#a78bfa','#f472b6','#fb923c','#4ade80','#c084fc'
+        ]
+      }]
+    }
   });
-  thead.appendChild(trHead);
-  table.appendChild(thead);
+}
 
-  const tbody = document.createElement("tbody");
-  data.forEach(row => {
-    const tr = document.createElement("tr");
-    row.forEach(cell => {
-      const td = document.createElement("td");
-      td.className = "border px-2 py-1 text-right";
-      td.textContent = typeof cell === "number" ? "$" + cell.toLocaleString(undefined, { maximumFractionDigits: 0 }) : cell;
-      tr.appendChild(td);
-    });
-    tbody.appendChild(tr);
+function renderProformaTable(income, expenses, noi, debt) {
+  const table = document.getElementById('proformaTable');
+  let html = '<table class="min-w-full text-sm text-left"><thead><tr class="bg-blue-100">';
+  html += '<th class="px-4 py-2">Year</th><th class="px-4 py-2">Income</th><th class="px-4 py-2">Expenses</th><th class="px-4 py-2">NOI</th><th class="px-4 py-2">Debt Service</th><th class="px-4 py-2">Cash Flow</th></tr></thead><tbody>';
+  for (let i = 1; i <= 5; i++) {
+    const inflator = 1 + (i * 0.02);
+    const yearlyIncome = income * inflator;
+    const yearlyExpenses = expenses * inflator;
+    const yearlyNOI = yearlyIncome - yearlyExpenses;
+    const yearlyCashFlow = yearlyNOI - debt;
+    html += `<tr class="border-t">
+      <td class="px-4 py-2">Year ${i}</td>
+      <td class="px-4 py-2">$${yearlyIncome.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+      <td class="px-4 py-2">$${yearlyExpenses.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+      <td class="px-4 py-2">$${yearlyNOI.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+      <td class="px-4 py-2">$${debt.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+      <td class="px-4 py-2">$${yearlyCashFlow.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
+  table.innerHTML = html;
+}
+
+function exportToPDF() {
+  window.print();
+}
+
+function exportToExcel() {
+  const ws = XLSX.utils.table_to_sheet(document.querySelector('#proformaTable table'));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Proforma');
+  XLSX.writeFile(wb, 'ProformaOutput.xlsx');
+}
+
+function autofillSample() {
+  document.getElementById('oneBedUnits').value = "50";
+  document.getElementById('twoBedUnits').value = "60";
+  document.getElementById('threeBedUnits').value = "30";
+  document.getElementById('rent1Bed').value = "$1,200";
+  document.getElementById('rent2Bed').value = "$1,600";
+  document.getElementById('rent3Bed').value = "$2,000";
+  document.getElementById('retailSqFt').value = "10000";
+  document.getElementById('retailRate').value = "$35";
+  document.getElementById('loanAmount').value = "$7,000,000";
+  document.getElementById('loanRate').value = "5";
+  document.getElementById('loanAmort').value = "30";
+  document.getElementById('purchasePrice').value = "$10,000,000";
+  document.getElementById('terminalCapRate').value = "5";
+  document.getElementById('costOfSale').value = "6";
+  ['taxes','insurance','utilities','maintenance','management','supplies','misc','staff','repairs'].forEach(id => {
+    document.getElementById(id).value = "$100,000";
   });
-  table.appendChild(tbody);
-
-  const container = document.getElementById("proformaTable");
-  container.innerHTML = "<h3 class='text-lg font-semibold mb-2'>📈 5-Year Proforma</h3>";
-  container.appendChild(table);
 }
