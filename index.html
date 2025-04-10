@@ -99,5 +99,57 @@
       </div>
     </div>
   </footer>
+<script>
+  function toggleChatbot() {
+    const chatbot = document.getElementById('chatbot-container');
+    chatbot.classList.toggle('hidden');
+  }
+
+  async function sendMessage(e) {
+    e.preventDefault();
+    const input = document.getElementById('chat-input');
+    const chatbox = document.getElementById('chatbox');
+    const userMessage = input.value.trim();
+    if (!userMessage) return;
+
+    // Show user message
+    const userDiv = document.createElement('div');
+    userDiv.className = 'text-right text-blue-700';
+    userDiv.textContent = userMessage;
+    chatbox.appendChild(userDiv);
+
+    // Show loading message
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'text-gray-500';
+    loadingDiv.textContent = 'Thinking...';
+    chatbox.appendChild(loadingDiv);
+
+    chatbox.scrollTop = chatbox.scrollHeight;
+    input.value = '';
+
+    try {
+      const response = await fetch('https://proforma-backend-7d2p.onrender.com/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMessage })
+      });
+
+      const data = await response.json();
+      loadingDiv.remove();
+
+      const botDiv = document.createElement('div');
+      botDiv.className = 'text-gray-700';
+      botDiv.textContent = data.reply || 'Sorry, I couldn’t generate a response.';
+      chatbox.appendChild(botDiv);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    } catch (err) {
+      loadingDiv.remove();
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'text-red-600';
+      errorDiv.textContent = 'Error: Failed to reach ProformaAI backend.';
+      chatbox.appendChild(errorDiv);
+    }
+  }
+</script>
 </body>
 </html>
