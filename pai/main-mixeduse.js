@@ -1,4 +1,4 @@
-// main.js - Mixed-Use Proforma Calculation Logic
+// main.js - Mixed-Use Proforma with XLS Export and Multifamily/Retail Fix
 
 document.getElementById('calculate').addEventListener('click', () => {
   const oneBedUnits = +document.getElementById('oneBedUnits').value || 0;
@@ -29,28 +29,29 @@ document.getElementById('calculate').addEventListener('click', () => {
   const loanRate = +document.getElementById('loanRate').value / 100 || 0;
   const loanAmort = +document.getElementById('loanAmort').value || 30;
 
-  // Income
-  const annualMultifamilyIncome = (oneBedUnits * rent1Bed + twoBedUnits * rent2Bed + threeBedUnits * rent3Bed) * 12;
-  const annualRetailIncome = retailSqFt * retailRate;
-  const grossIncome = annualMultifamilyIncome + annualRetailIncome;
+  // Income calculations
+  const multifamilyIncome = ((oneBedUnits * rent1Bed) + (twoBedUnits * rent2Bed) + (threeBedUnits * rent3Bed)) * 12;
+  const retailIncome = retailSqFt * retailRate;
+  const grossIncome = multifamilyIncome + retailIncome;
 
-  // Expenses
+  // Operating expenses
   const totalExpenses = taxes + insurance + utilities + elevator + management + supplies + misc + staff + repairs;
 
-  // Debt Service Calculation (Simple Amortized Loan)
-  const monthlyInterest = loanRate / 12;
-  const totalMonths = loanAmort * 12;
-  const monthlyDebtService = loanAmount * monthlyInterest / (1 - Math.pow(1 + monthlyInterest, -totalMonths));
+  // Debt Service calculation
+  const monthlyRate = loanRate / 12;
+  const termMonths = loanAmort * 12;
+  const monthlyDebtService = loanAmount > 0 ? (loanAmount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -termMonths)) : 0;
   const annualDebtService = monthlyDebtService * 12;
 
   const noi = grossIncome - totalExpenses;
   const cashFlowBeforeTax = noi - annualDebtService;
 
+  // Render output
   const results = `
     <div class="mt-4 text-sm">
       <h3 class="text-xl font-semibold text-gray-800 mb-2">Results Summary</h3>
-      <p><strong>Total Multifamily Income:</strong> $${annualMultifamilyIncome.toLocaleString()}</p>
-      <p><strong>Total Retail Income:</strong> $${annualRetailIncome.toLocaleString()}</p>
+      <p><strong>Total Multifamily Income:</strong> $${multifamilyIncome.toLocaleString()}</p>
+      <p><strong>Total Retail Income:</strong> $${retailIncome.toLocaleString()}</p>
       <p><strong>Total Gross Income:</strong> $${grossIncome.toLocaleString()}</p>
       <p><strong>Operating Expenses:</strong> $${totalExpenses.toLocaleString()}</p>
       <p><strong>Net Operating Income (NOI):</strong> $${noi.toLocaleString()}</p>
@@ -58,9 +59,9 @@ document.getElementById('calculate').addEventListener('click', () => {
       <p><strong>Cash Flow Before Tax:</strong> $${cashFlowBeforeTax.toLocaleString()}</p>
     </div>
   `;
-
   document.getElementById('results').innerHTML = results;
 
+  // Chart update
   const ctx = document.getElementById('resultsChart').getContext('2d');
   if (window.incomeChart) window.incomeChart.destroy();
   window.incomeChart = new Chart(ctx, {
@@ -69,10 +70,35 @@ document.getElementById('calculate').addEventListener('click', () => {
       labels: ['Multifamily Income', 'Retail Income', 'Expenses', 'Debt Service', 'Cash Flow'],
       datasets: [{
         label: 'Amount ($)',
-        data: [annualMultifamilyIncome, annualRetailIncome, totalExpenses, annualDebtService, cashFlowBeforeTax],
+        data: [multifamilyIncome, retailIncome, totalExpenses, annualDebtService, cashFlowBeforeTax],
         backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#6366f1']
       }]
     },
     options: { responsive: true, scales: { y: { beginAtZero: true } } }
   });
+});
+
+// XLS Export
+
+document.getElementById('exportPdf').insertAdjacentHTML('afterend', `
+  <button id="exportXls" class="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 ml-2">📁 Export to Excel</button>
+`);
+
+document.addEventListener('click', function (e) {
+  if (e.target && e.target.id === 'exportXls') {
+    const data = [
+      ['Metric', 'Amount ($)'],
+      ['Multifamily Income', multifamilyIncome],
+      ['Retail Income', retailIncome],
+      ['Gross Income', grossIncome],
+      ['Operating Expenses', totalExpenses],
+      ['Net Operating Income (NOI)', noi],
+      ['Annual Debt Service', annualDebtService],
+      ['Cash Flow Before Tax', cashFlowBeforeTax],
+    ];
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    XLSX.utils.book_append_sheet(wb, ws, 'MixedUse Proforma');
+    XLSX.writeFile(wb, 'MixedUse_Proforma.xlsx');
+  }
 });
