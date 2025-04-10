@@ -4,7 +4,8 @@ document.getElementById('exportXls').addEventListener('click', exportToExcel);
 document.getElementById('autofillDemo')?.addEventListener('click', autofillSample);
 
 function parseCurrency(val) {
-  return +val.replace(/[$,]/g, '') || 0;
+  if (typeof val !== "string") return +val || 0;
+  return +val.replace(/[^0-9.-]+/g, "") || 0;
 }
 
 function calculateProforma() {
@@ -17,7 +18,8 @@ function calculateProforma() {
   const retailSqFt = parseCurrency(document.getElementById('retailSqFt').value);
   const retailRate = parseCurrency(document.getElementById('retailRate').value);
 
-  const expensesBreakdown = ['taxes', 'insurance', 'utilities', 'elevator', 'management', 'supplies', 'misc', 'staff', 'repairs'].map(id => parseCurrency(document.getElementById(id).value));
+  const expensesBreakdown = ['taxes', 'insurance', 'utilities', 'elevator', 'management', 'supplies', 'misc', 'staff', 'repairs']
+    .map(id => parseCurrency(document.getElementById(id).value));
   const expenseLabels = ['Taxes', 'Insurance', 'Utilities', 'Elevator', 'Management', 'Supplies', 'Misc', 'Staff', 'Repairs'];
   const expenses = expensesBreakdown.reduce((sum, val) => sum + val, 0);
 
@@ -35,13 +37,11 @@ function calculateProforma() {
   const noi = totalIncome - expenses;
   const cashFlow = noi - annualDebtService;
 
-  // Investment Metrics
   const purchasePrice = parseCurrency(document.getElementById('purchasePrice')?.value);
   const irrEstimate = ((cashFlow / purchasePrice) * 100).toFixed(2);
   const cashOnCash = ((cashFlow / (purchasePrice - loanAmount)) * 100).toFixed(2);
   const equityMultiple = (cashFlow * 5) / (purchasePrice - loanAmount);
 
-  // Refinance Value and Sale
   const capRate = parseCurrency(document.getElementById('terminalCapRate')?.value) / 100 || 0.06;
   const costOfSale = parseCurrency(document.getElementById('costOfSale')?.value) / 100 || 0.06;
   const refinanceValue = (noi * Math.pow(1.02, 5)) / capRate;
@@ -152,13 +152,13 @@ function exportToExcel() {
 }
 
 function autofillSample() {
-  document.getElementById('oneBedUnits').value = "$50";
-  document.getElementById('twoBedUnits').value = "$60";
-  document.getElementById('threeBedUnits').value = "$30";
-  document.getElementById('rent1Bed').value = "$1200";
-  document.getElementById('rent2Bed').value = "$1600";
-  document.getElementById('rent3Bed').value = "$2000";
-  document.getElementById('retailSqFt').value = "10,000";
+  document.getElementById('oneBedUnits').value = "50";
+  document.getElementById('twoBedUnits').value = "60";
+  document.getElementById('threeBedUnits').value = "30";
+  document.getElementById('rent1Bed').value = "$1,200";
+  document.getElementById('rent2Bed').value = "$1,600";
+  document.getElementById('rent3Bed').value = "$2,000";
+  document.getElementById('retailSqFt').value = "10000";
   document.getElementById('retailRate').value = "$35";
   document.getElementById('loanAmount').value = "$7,000,000";
   document.getElementById('loanRate').value = "5";
@@ -166,5 +166,7 @@ function autofillSample() {
   document.getElementById('purchasePrice').value = "$10,000,000";
   document.getElementById('terminalCapRate').value = "5";
   document.getElementById('costOfSale').value = "6";
-  ['taxes','insurance','utilities','elevator','management','supplies','misc','staff','repairs'].forEach(id => document.getElementById(id).value = "$100,000");
+  ['taxes','insurance','utilities','elevator','management','supplies','misc','staff','repairs'].forEach(id => {
+    document.getElementById(id).value = "$100,000";
+  });
 }
