@@ -1,97 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mixed-Use Proforma</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProformaTools | Mixed-Use Proforma</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="style-mixeduse.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="max-w-6xl mx-auto py-10 px-6 bg-white shadow-md rounded-md">
-    <header class="mb-8">
-      <h1 class="text-3xl font-bold text-center text-blue-700 mb-2">🏢 Mixed-Use Acquisition Proforma</h1>
+<body class="bg-white text-gray-900">
+  <div class="max-w-6xl mx-auto px-6 py-10">
+    <header class="text-center mb-12">
+      <h1 class="text-4xl font-bold text-blue-700 mb-2">🏢 Mixed-Use Proforma Tool</h1>
+      <p class="text-gray-600">Calculate income and returns from Multifamily + Retail assets</p>
     </header>
 
-    <section class="mb-6">
-      <h2 class="text-xl font-semibold mb-3">Project Information</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <label>Project Name <input type="text" id="projectName" placeholder="Summit Commons" class="input" /></label>
-        <label>Location <input type="text" id="location" placeholder="Townsend, DE" class="input" /></label>
-      </div>
-    </section>
-
-    <section class="mb-6">
-      <h2 class="text-xl font-semibold mb-3">Multifamily Units</h2>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold text-blue-700 mb-3">Multifamily Unit Mix</h2>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <label>1-Bed Units <input type="number" id="oneBedUnits" placeholder="30" class="input" /></label>
-        <label>Rent/1-Bed ($) <input type="number" id="rent1Bed" placeholder="1300" class="input" /></label>
-        <label>2-Bed Units <input type="number" id="twoBedUnits" placeholder="40" class="input" /></label>
-        <label>Rent/2-Bed ($) <input type="number" id="rent2Bed" placeholder="1800" class="input" /></label>
-        <label>3-Bed Units <input type="number" id="threeBedUnits" placeholder="20" class="input" /></label>
-        <label>Rent/3-Bed ($) <input type="number" id="rent3Bed" placeholder="2300" class="input" /></label>
+        <label>1-Bed Units <input type="number" id="oneBedUnits" class="input" placeholder="50" /></label>
+        <label>2-Bed Units <input type="number" id="twoBedUnits" class="input" placeholder="40" /></label>
+        <label>3-Bed Units <input type="number" id="threeBedUnits" class="input" placeholder="20" /></label>
+        <label>Rent/1-Bed ($) <input type="number" id="rent1Bed" class="input" placeholder="1300" /></label>
+        <label>Rent/2-Bed ($) <input type="number" id="rent2Bed" class="input" placeholder="1800" /></label>
+        <label>Rent/3-Bed ($) <input type="number" id="rent3Bed" class="input" placeholder="2200" /></label>
       </div>
     </section>
 
-    <section class="mb-6">
-      <h2 class="text-xl font-semibold mb-3">Retail Space</h2>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold text-green-700 mb-3">Retail Component</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <label>Total Retail Sq Ft <input type="number" id="retailSqFt" placeholder="10000" class="input" /></label>
-        <label>Retail Rent per Sq Ft ($) <input type="number" id="retailRate" placeholder="25" class="input" /></label>
+        <label>Retail Sq Ft <input type="number" id="retailSqFt" class="input" placeholder="10000" /></label>
+        <label>Rent/Sq Ft ($) <input type="number" id="retailRate" class="input" placeholder="70" /></label>
       </div>
     </section>
 
-    <section class="mb-6">
-      <h2 class="text-xl font-semibold mb-3">Operating Expenses (Annual)</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <label>Property Taxes ($) <input type="number" id="taxes" placeholder="250000" class="input" /></label>
-        <label>Insurance ($) <input type="number" id="insurance" placeholder="90000" class="input" /></label>
-        <label>Utilities ($) <input type="number" id="utilities" placeholder="120000" class="input" /></label>
-        <label>Elevator ($) <input type="number" id="elevator" placeholder="30000" class="input" /></label>
-        <label>Management ($) <input type="number" id="management" placeholder="80000" class="input" /></label>
-        <label>Supplies ($) <input type="number" id="supplies" placeholder="15000" class="input" /></label>
-        <label>Misc & Reserves ($) <input type="number" id="misc" placeholder="10000" class="input" /></label>
-        <label>Building Staff ($) <input type="number" id="staff" placeholder="180000" class="input" /></label>
-        <label>Repairs ($) <input type="number" id="repairs" placeholder="110000" class="input" /></label>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold text-gray-700 mb-3">Operating Expenses (Annual)</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <label>Property Taxes ($) <input type="number" id="taxes" class="input" placeholder="300000" /></label>
+        <label>Insurance ($) <input type="number" id="insurance" class="input" placeholder="100000" /></label>
+        <label>Utilities ($) <input type="number" id="utilities" class="input" placeholder="80000" /></label>
+        <label>Elevator ($) <input type="number" id="elevator" class="input" placeholder="20000" /></label>
+        <label>Management ($) <input type="number" id="management" class="input" placeholder="60000" /></label>
+        <label>Supplies ($) <input type="number" id="supplies" class="input" placeholder="15000" /></label>
+        <label>Misc & Reserves ($) <input type="number" id="misc" class="input" placeholder="12000" /></label>
+        <label>Building Staff ($) <input type="number" id="staff" class="input" placeholder="180000" /></label>
+        <label>Repairs ($) <input type="number" id="repairs" class="input" placeholder="50000" /></label>
       </div>
     </section>
 
-    <section class="mb-6">
-      <h2 class="text-xl font-semibold mb-3">Investment Data</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <label>Purchase Price ($) <input type="number" id="purchasePrice" placeholder="15000000" class="input" /></label>
-        <label>Terminal Cap Rate (%) <input type="number" id="terminalCapRate" placeholder="5.5" class="input" /></label>
-        <label>Cost of Sale EOY 5 (%) <input type="number" id="costOfSale" placeholder="6" class="input" /></label>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold text-gray-800 mb-3">Financing</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <label>Loan Amount ($) <input type="number" id="loanAmount" class="input" placeholder="5000000" /></label>
+        <label>Loan Interest Rate (%) <input type="number" id="loanRate" class="input" placeholder="5" /></label>
+        <label>Loan Amortization (Years) <input type="number" id="loanAmort" class="input" placeholder="30" /></label>
       </div>
     </section>
 
-    <section class="mb-6">
-      <h2 class="text-xl font-semibold mb-3">Financing Data</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <label>Loan Amount ($) <input type="number" id="loanAmount" placeholder="9000000" class="input" /></label>
-        <label>Loan Interest Rate (%) <input type="number" id="loanRate" placeholder="5" class="input" /></label>
-        <label>Loan Amortization (Years) <input type="number" id="loanAmort" placeholder="30" class="input" /></label>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold text-indigo-700 mb-3">Investment Details</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <label>Purchase Price ($) <input type="number" id="purchasePrice" class="input" placeholder="10000000" /></label>
+        <label>Terminal Cap Rate (%) <input type="number" id="terminalCapRate" class="input" placeholder="6" /></label>
+        <label>Cost of Sale EOY 5 (%) <input type="number" id="costOfSale" class="input" placeholder="5" /></label>
       </div>
     </section>
 
-    <div class="text-center">
-      <button id="calculate" class="px-6 py-3 bg-blue-600 text-white rounded shadow hover:bg-blue-700">Calculate</button>
+    <div class="text-center mb-6">
+      <button id="calculate" class="px-6 py-3 bg-blue-700 text-white font-medium rounded hover:bg-blue-800">📊 Calculate</button>
+      <button id="exportPdf" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 ml-2">📄 Export to PDF</button>
     </div>
 
-    <div class="flex justify-center gap-4 mt-6">
-      <button id="exportPdf" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">📄 Export to PDF</button>
-      <button id="exportCsv" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">📊 Export to CSV</button>
-    </div>
-
-    <canvas id="resultsChart" class="mt-6 w-full h-64"></canvas>
-    <div id="results" class="mt-6"></div>
-    <div id="proformaTable" class="mt-6 text-sm"></div>
+    <div id="results" class="max-w-3xl mx-auto"></div>
+    <canvas id="resultsChart" class="mt-6 w-full max-w-3xl h-64 mx-auto"></canvas>
   </div>
 
   <script src="main-mixeduse.js"></script>
+  <link rel="stylesheet" href="style-mixeduse.css">
 </body>
 </html>
