@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multifamily Acquisition Proforma | ReProforma</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100">
+  <header class="bg-white shadow-md">
+    <div class="container mx-auto py-4 px-6 flex justify-between items-center">
+      <h1 class="text-3xl font-bold text-blue-700">ReProforma</h1>
+      <nav>
+        <a href="#" class="text-blue-700 font-semibold">Home</a>
+        <a href="#" class="ml-4 hover:text-blue-600">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-6 py-8">
+    <h2 class="text-3xl font-semibold text-center text-gray-800 mb-6">🏢 Multifamily Acquisition Proforma</h2>
+
+    <!-- Inputs -->
+    <section class="grid md:grid-cols-3 gap-6 mb-6">
+      <div class="bg-white rounded p-4 shadow">
+        <h3 class="text-xl font-semibold">Unit Mix & Rents</h3>
+        <label>1-Bed Units<input id="oneBedUnits" type="number" class="input"></label>
+        <label>Rent per 1-Bed<input id="rent1Bed" type="text" class="input"></label>
+        <label>2-Bed Units<input id="twoBedUnits" type="number" class="input"></label>
+        <label>Rent per 2-Bed<input id="rent2Bed" type="text" class="input"></label>
+        <label>3-Bed Units<input id="threeBedUnits" type="number" class="input"></label>
+        <label>Rent per 3-Bed<input id="rent3Bed" type="text" class="input"></label>
+      </div>
+
+      <div class="bg-white rounded p-4 shadow">
+        <h3 class="text-xl font-semibold">Income & Vacancy</h3>
+        <label>Other Income ($)<input id="otherIncome" type="text" class="input"></label>
+        <label>Vacancy Rate (%)<input id="vacancyRate" type="number" class="input"></label>
+      </div>
+
+      <div class="bg-white rounded p-4 shadow">
+        <h3 class="text-xl font-semibold">Acquisition & Loan</h3>
+        <label>Purchase Price ($)<input id="purchasePrice" type="text" class="input"></label>
+        <label>Loan Amount ($)<input id="loanAmount" type="text" class="input"></label>
+        <label>Interest Rate (%)<input id="interestRate" type="number" class="input"></label>
+        <label>Amortization (Years)<input id="loanTerm" type="number" class="input"></label>
+      </div>
+    </section>
+
+    <!-- Expenses -->
+    <section class="bg-white rounded p-4 shadow mb-6">
+      <h3 class="text-xl font-semibold">Operating Expenses</h3>
+      <div class="grid md:grid-cols-4 gap-4">
+        <label>Property Taxes<input id="propertyTaxes" type="text" class="input"></label>
+        <label>Insurance<input id="insurance" type="text" class="input"></label>
+        <label>Utilities<input id="utilities" type="text" class="input"></label>
+        <label>Maintenance<input id="maintenance" type="text" class="input"></label>
+        <label>Management<input id="management" type="text" class="input"></label>
+        <label>Supplies<input id="supplies" type="text" class="input"></label>
+        <label>Staff<input id="staff" type="text" class="input"></label>
+        <label>Miscellaneous<input id="misc" type="text" class="input"></label>
+      </div>
+    </section>
+
+    <!-- Buttons -->
+    <div class="text-center mb-8">
+      <button id="calculate" class="btn">Calculate Proforma</button>
+      <button id="exportPdf" class="btn">Export PDF</button>
+      <button id="exportXls" class="btn">Export Excel</button>
+    </div>
+
+    <!-- Results -->
+    <section class="bg-white rounded p-4 shadow mb-6">
+      <div id="results"></div>
+    </section>
+
+    <!-- Charts -->
+    <section class="grid md:grid-cols-2 gap-6 mb-6">
+      <div class="bg-white rounded p-4 shadow">
+        <canvas id="incomeChart"></canvas>
+      </div>
+      <div class="bg-white rounded p-4 shadow">
+        <canvas id="expenseChart"></canvas>
+      </div>
+    </section>
+
+    <!-- 5-Year Proforma -->
+    <section class="bg-white rounded p-4 shadow">
+      <h3 class="text-xl font-semibold">5-Year Proforma</h3>
+      <div id="fiveYearTable"></div>
+    </section>
+  </main>
+
+  <footer class="bg-gray-200 py-6 mt-8">
+    <div class="container mx-auto px-6 text-center">
+      <p>&copy; 2025 ReProforma. All rights reserved.</p>
+      <div class="space-x-4">
+        <a href="#" class="hover:text-blue-700">Privacy</a>
+        <a href="#" class="hover:text-blue-700">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

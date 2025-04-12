@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.input {
+  @apply w-full border rounded py-1 px-3 mt-1 shadow-sm;
+}
+
+.btn {
+  @apply bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow;
+}
+
+table {
+  @apply border-collapse border border-gray-200;
+}
+
+table th, table td {
+  @apply border border-gray-200 py-2 px-4;
+}
+
+canvas {
+  @apply max-h-64;
+}
+
+header, footer {
+  @apply bg-white shadow-md;
+}
