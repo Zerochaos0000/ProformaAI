@@ -1,107 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Multifamily Acquisition Proforma | REProforma</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background-color: #f9fafb;
+    }
+    .btn {
+      padding: 8px 16px;
+      background-color: #2563eb;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #1d4ed8;
+    }
+  </style>
 </head>
+
 <body class="bg-gray-50 text-gray-800">
-
-<header class="shadow py-4 bg-white">
-  <div class="max-w-5xl mx-auto px-6 flex justify-between">
-    <h1 class="text-2xl font-bold text-blue-700">Multifamily Proforma Tool</h1>
-    <nav>
-      <a href="index.html" class="font-semibold text-blue-700">Home</a>
-    </nav>
-  </div>
-</header>
-
-<main class="max-w-5xl mx-auto py-10 px-6">
-  <section class="bg-white p-6 rounded shadow mb-6">
-    <h2 class="text-xl font-semibold mb-4">Unit Mix and Rents</h2>
-    <div class="grid md:grid-cols-3 gap-4">
-      <div><label>1-Bed Units<input id="oneBedUnits" class="input" type="number"></label></div>
-      <div><label>Rent per 1-Bed<input id="rent1Bed" class="input"></label></div>
-      <div><label>2-Bed Units<input id="twoBedUnits" class="input" type="number"></label></div>
-      <div><label>Rent per 2-Bed<input id="rent2Bed" class="input"></label></div>
-      <div><label>3-Bed Units<input id="threeBedUnits" class="input" type="number"></label></div>
-      <div><label>Rent per 3-Bed<input id="rent3Bed" class="input"></label></div>
+  <header class="shadow py-4 bg-white">
+    <div class="max-w-5xl mx-auto px-6 flex justify-between">
+      <h1 class="text-2xl font-bold text-blue-700">Multifamily Acquisition Proforma</h1>
+      <nav>
+        <a href="index.html" class="font-semibold text-blue-700">Home</a>
+      </nav>
     </div>
-  </section>
+  </header>
 
-  <section class="bg-white p-6 rounded shadow mb-6">
-    <h2 class="text-xl font-semibold mb-4">Income & Vacancy</h2>
-    <div class="grid md:grid-cols-2 gap-4">
-      <div><label>Other Income<input id="otherIncome" class="input"></label></div>
-      <div><label>Vacancy Rate (%)<input id="vacancyRate" class="input"></label></div>
+  <main class="max-w-5xl mx-auto py-10 px-6">
+    <!-- Unit Mix & Rent Inputs -->
+    <section class="bg-white p-6 rounded shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">Unit Mix & Monthly Rents</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div><label>1-Bed Units<input id="oneBedUnits" type="number" class="input" /></label></div>
+        <div><label>Rent per 1-Bed ($)<input id="rent1Bed" class="input" /></label></div>
+        <div><label>2-Bed Units<input id="twoBedUnits" type="number" class="input" /></label></div>
+        <div><label>Rent per 2-Bed ($)<input id="rent2Bed" class="input" /></label></div>
+        <div><label>3-Bed Units<input id="threeBedUnits" type="number" class="input" /></label></div>
+        <div><label>Rent per 3-Bed ($)<input id="rent3Bed" class="input" /></label></div>
+      </div>
+    </section>
+
+    <!-- Other Income & Vacancy -->
+    <section class="bg-white p-6 rounded shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">Other Income & Vacancy</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div><label>Other Income ($)<input id="otherIncome" class="input" /></label></div>
+        <div><label>Vacancy Rate (%)<input id="vacancyRate" class="input" /></label></div>
+      </div>
+    </section>
+
+    <!-- Operating Expenses -->
+    <section class="bg-white p-6 rounded shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">Operating Expenses (Annual)</h2>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <input id="propertyTaxes" class="input" placeholder="Property Taxes" />
+        <input id="insurance" class="input" placeholder="Insurance" />
+        <input id="utilities" class="input" placeholder="Utilities" />
+        <input id="maintenance" class="input" placeholder="Maintenance" />
+        <input id="management" class="input" placeholder="Management" />
+        <input id="supplies" class="input" placeholder="Supplies" />
+        <input id="staff" class="input" placeholder="Staff" />
+        <input id="misc" class="input" placeholder="Misc & Reserves" />
+      </div>
+    </section>
+
+    <!-- Acquisition & Loan Details -->
+    <section class="bg-white p-6 rounded shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">Acquisition & Loan Details</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <input id="purchasePrice" class="input" placeholder="Purchase Price ($)" />
+        <input id="loanAmount" class="input" placeholder="Loan Amount ($)" />
+        <input id="interestRate" class="input" placeholder="Interest Rate (%)" />
+        <input id="loanTerm" class="input" placeholder="Loan Term (Years)" />
+      </div>
+    </section>
+
+    <!-- Calculate & Export Buttons -->
+    <div class="text-center my-6">
+      <button id="calculate" class="btn">Calculate Proforma</button>
+      <button id="exportPdf" class="btn">Export PDF</button>
+      <button id="exportXls" class="btn">Export Excel</button>
     </div>
-  </section>
 
-  <section class="bg-white p-6 rounded shadow mb-6">
-    <h2 class="text-xl font-semibold mb-4">Operating Expenses</h2>
-    <div class="grid md:grid-cols-4 gap-4">
-      <input id="propertyTaxes" class="input" placeholder="Property Taxes">
-      <input id="insurance" class="input" placeholder="Insurance">
-      <input id="utilities" class="input" placeholder="Utilities">
-      <input id="maintenance" class="input" placeholder="Maintenance">
-      <input id="management" class="input" placeholder="Management">
-      <input id="supplies" class="input" placeholder="Supplies">
-      <input id="staff" class="input" placeholder="Staff">
-      <input id="misc" class="input" placeholder="Misc & Reserves">
+    <!-- Results Section -->
+    <section class="bg-white p-6 rounded shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">Results Summary</h2>
+      <div id="results" class="overflow-x-auto"></div>
+    </section>
+
+    <!-- 5-Year Projection -->
+    <section class="bg-white p-6 rounded shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">5-Year Proforma Projection</h2>
+      <div id="fiveYearTable" class="overflow-x-auto"></div>
+    </section>
+
+    <!-- Charts -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-white p-6 rounded shadow">
+        <h2 class="text-xl font-semibold mb-4">Income Overview</h2>
+        <canvas id="incomeChart"></canvas>
+      </div>
+      <div class="bg-white p-6 rounded shadow">
+        <h2 class="text-xl font-semibold mb-4">Expenses Breakdown</h2>
+        <canvas id="expenseChart"></canvas>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="shadow py-4 bg-white mt-10">
+    <div class="max-w-5xl mx-auto px-6 text-center text-sm">
+      &copy; 2025 REProforma. All Rights Reserved. |
+      <a href="#" class="hover:text-blue-600">Privacy</a> |
+      <a href="#" class="hover:text-blue-600">Terms</a>
     </div>
-  </section>
+  </footer>
 
-  <section class="bg-white p-6 rounded shadow mb-6">
-    <h2 class="text-xl font-semibold mb-4">Acquisition & Loan Details</h2>
-    <div class="grid md:grid-cols-3 gap-4">
-      <input id="purchasePrice" class="input" placeholder="Purchase Price">
-      <input id="loanAmount" class="input" placeholder="Loan Amount">
-      <input id="interestRate" class="input" placeholder="Interest Rate (%)">
-      <input id="loanTerm" class="input" placeholder="Loan Term (Years)">
-    </div>
-  </section>
-
-  <div class="text-center my-6">
-    <button id="calculate" class="btn">Calculate Proforma</button>
-    <button id="exportPdf" class="btn">Export PDF</button>
-    <button id="exportXls" class="btn">Export Excel</button>
-  </div>
-
-  <section class="bg-white p-6 rounded shadow">
-    <h2 class="text-xl font-semibold mb-4">Results</h2>
-    <div id="results" class="overflow-x-auto"></div>
-  </section>
-
-  <section class="bg-white p-6 rounded shadow my-6">
-    <h2 class="text-xl font-semibold mb-4">5-Year Proforma Projection</h2>
-    <div id="fiveYearTable" class="overflow-x-auto"></div>
-  </section>
-
-  <section class="grid md:grid-cols-2 gap-6">
-    <div class="bg-white p-6 rounded shadow">
-      <h2 class="text-xl font-semibold mb-4">Income Overview</h2>
-      <canvas id="incomeChart"></canvas>
-    </div>
-    <div class="bg-white p-6 rounded shadow">
-      <h2 class="text-xl font-semibold mb-4">Expenses Breakdown</h2>
-      <canvas id="expenseChart"></canvas>
-    </div>
-  </section>
-
-</main>
-
-<footer class="shadow py-4 bg-white mt-10">
-  <div class="max-w-5xl mx-auto px-6 text-center text-sm">
-    &copy; 2025 REProforma. All Rights Reserved. | 
-    <a href="#" class="hover:text-blue-600">Privacy</a> |
-    <a href="#" class="hover:text-blue-600">Terms</a>
-  </div>
-</footer>
-
-<script src="main.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>
