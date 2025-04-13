@@ -96,10 +96,57 @@ function render5YearProforma(income, expenses, debtService) {
   document.getElementById('fiveYearTable').innerHTML = table;
 }
 
-function exportExcel(){
-  let table = document.getElementById('fiveYearTable').innerHTML;
-  let wb = XLSX.utils.table_to_book(document.querySelector('#fiveYearTable table'));
-  XLSX.writeFile(wb, 'Multifamily_Proforma.xlsx');
+function exportXls() {
+  const wb = XLSX.utils.book_new();
+
+  // Collecting input values
+  const inputData = [
+    ["Multifamily Acquisition Proforma"],
+    [],
+    ["Unit Mix & Rent Inputs"],
+    ["1-Bed Units", document.getElementById('oneBedUnits').value],
+    ["Rent per 1-Bed ($)", document.getElementById('rent1Bed').value],
+    ["2-Bed Units", document.getElementById('twoBedUnits').value],
+    ["Rent per 2-Bed ($)", document.getElementById('rent2Bed').value],
+    ["3-Bed Units", document.getElementById('threeBedUnits').value],
+    ["Rent per 3-Bed ($)", document.getElementById('rent3Bed').value],
+    [],
+    ["Other Income & Vacancy"],
+    ["Other Income ($)", document.getElementById('otherIncome').value],
+    ["Vacancy Rate (%)", document.getElementById('vacancyRate').value],
+    [],
+    ["Operating Expenses (Annual)"],
+    ["Property Taxes", document.getElementById('propertyTaxes').value],
+    ["Insurance", document.getElementById('insurance').value],
+    ["Utilities", document.getElementById('utilities').value],
+    ["Maintenance", document.getElementById('maintenance').value],
+    ["Management", document.getElementById('management').value],
+    ["Supplies", document.getElementById('supplies').value],
+    ["Staff", document.getElementById('staff').value],
+    ["Misc & Reserves", document.getElementById('misc').value],
+    [],
+    ["Acquisition & Loan Details"],
+    ["Purchase Price ($)", document.getElementById('purchasePrice').value],
+    ["Loan Amount ($)", document.getElementById('loanAmount').value],
+    ["Interest Rate (%)", document.getElementById('interestRate').value],
+    ["Loan Term (Years)", document.getElementById('loanTerm').value],
+  ];
+
+  const inputWS = XLSX.utils.aoa_to_sheet(inputData);
+  XLSX.utils.book_append_sheet(wb, inputWS, "Inputs");
+
+  // Collecting calculated results from DOM
+  const resultsTable = document.querySelector("#results table");
+  const resultsWS = XLSX.utils.table_to_sheet(resultsTable);
+  XLSX.utils.book_append_sheet(wb, resultsWS, "Results Summary");
+
+  // Collecting 5-year proforma table from DOM
+  const fiveYearTable = document.querySelector("#fiveYearTable table");
+  const fiveYearWS = XLSX.utils.table_to_sheet(fiveYearTable);
+  XLSX.utils.book_append_sheet(wb, fiveYearWS, "5-Year Proforma");
+
+  // Export the workbook
+  XLSX.writeFile(wb, "Multifamily_Proforma.xlsx");
 }
 
 // Reset all input fields
