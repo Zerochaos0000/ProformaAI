@@ -99,8 +99,8 @@ function render5YearProforma(income, expenses, debtService) {
 function exportToExcel() {
   const workbook = XLSX.utils.book_new();
 
-  // --- Input Data Sheet ---
-  const inputs = [
+  // --- Input Data ---
+  const inputData = [
     ["Category", "Field", "Value"],
     ["Unit Mix", "1-Bed Units", document.getElementById('oneBedUnits').value],
     ["Unit Mix", "Rent per 1-Bed", document.getElementById('rent1Bed').value],
@@ -125,28 +125,35 @@ function exportToExcel() {
   ];
 
   const inputSheet = XLSX.utils.aoa_to_sheet([["REProforma - Input Data"]]);
-  XLSX.utils.sheet_add_aoa(inputSheet, inputs, { origin: "A3" });
+  XLSX.utils.sheet_add_aoa(inputSheet, inputData, { origin: "A3" });
   inputSheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
+
+  // Apply bold style to headers
+  inputSheet["A3"].s = inputSheet["B3"].s = inputSheet["C3"].s = {
+    font: { bold: true },
+    alignment: { horizontal: "center" }
+  };
+
   XLSX.utils.book_append_sheet(workbook, inputSheet, "Inputs");
 
-  // --- Summary Results Sheet ---
-  const summaryTable = document.querySelector('#results table');
-  if (summaryTable) {
-    const summarySheet = XLSX.utils.table_to_sheet(summaryTable);
+  // --- Summary Sheet ---
+  const resultsTable = document.querySelector('#results table');
+  if (resultsTable) {
+    const summarySheet = XLSX.utils.table_to_sheet(resultsTable);
     XLSX.utils.book_append_sheet(workbook, summarySheet, "Summary");
 
-    // Add Decision Note at bottom
-    const cashOnCash = parseFloat(summarySheet['B8']?.v.replace('%','')) || 0;
-    const note = (cashOnCash > 12)
-      ? "✅ This appears to be a strong investment opportunity."
-      : "⚠️ Caution: Cash-on-Cash return is moderate or low.";
-    const lastRow = Object.keys(summarySheet)
-      .filter(k => k.startsWith('A'))
-      .map(k => parseInt(k.replace('A', '')))
-      .sort((a,b) => b - a)[0] + 2;
+    // Decision note
+    const cashOnCashCell = summarySheet['B8'];
+    const cashOnCash = cashOnCashCell && cashOnCashCell.v.includes('%')
+      ? parseFloat(cashOnCashCell.v.replace('%',''))
+      : 0;
+    const note = (cashOnCash >= 12)
+      ? "✅ Strong investment based on returns"
+      : "⚠️ Moderate or low investment return";
 
-    summarySheet[`A${lastRow}`] = { t: "s", v: "Note" };
-    summarySheet[`B${lastRow}`] = { t: "s", v: note };
+    const noteRow = XLSX.utils.decode_range(summarySheet['!ref']).e.r + 2;
+    summarySheet[`A${noteRow}`] = { t: "s", v: "Investment Note", s: { font: { bold: true } } };
+    summarySheet[`B${noteRow}`] = { t: "s", v: note };
   }
 
   // --- 5-Year Projection Sheet ---
@@ -156,31 +163,9 @@ function exportToExcel() {
     XLSX.utils.book_append_sheet(workbook, projSheet, "5-Year Projection");
   }
 
-  // --- Styling ---
-  const styleSheet = workbook.Sheets["Summary"];
-  if (styleSheet) {
-    const range = XLSX.utils.decode_range(styleSheet["!ref"]);
-    for (let C = range.s.c; C <= range.e.c; ++C) {
-      const addr = XLSX.utils.encode_cell({ c: C, r: 0 });
-      if (!styleSheet[addr]) continue;
-      styleSheet[addr].s = {
-        font: { bold: true },
-        alignment: { horizontal: "center" }
-      };
-    }
-
-    // Format numbers as currency
-    for (let R = range.s.r + 1; R <= range.e.r; ++R) {
-      const valCell = XLSX.utils.encode_cell({ r: R, c: 1 });
-      if (styleSheet[valCell]) {
-        styleSheet[valCell].z = "$#,##0.00";
-      }
-    }
-  }
-
-  // Save file
+  // --- Write file ---
   XLSX.writeFile(workbook, 'Styled_Multifamily_Proforma.xlsx');
-  alert("✅ Excel exported with formatting!");
+  alert("✅ Excel exported with styled headings and notes!");
 }
 
 // Reset all input fields
