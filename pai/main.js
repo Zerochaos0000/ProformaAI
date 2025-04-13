@@ -1,8 +1,18 @@
 document.getElementById('calculate').addEventListener('click', calculateProforma);
-document.getElementById('exportPdf').addEventListener('click', () => window.print());
 document.getElementById('exportXls').addEventListener('click', exportToExcel);
 document.getElementById('autofillDemo').addEventListener('click', autofillDemo);
 document.getElementById('resetInputs').addEventListener('click', resetInputs);
+document.getElementById('exportPdf').addEventListener('click', () => {
+  const content = document.getElementById('pdfExportContent');
+  const options = {
+    margin: 0.4,
+    filename: 'Multifamily_Proforma_Report.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+  };
+  html2pdf().set(options).from(content).save();
+});
 
 function parseCurrency(val) {
   return Number(val.replace(/[^0-9.-]+/g, "")) || 0;
