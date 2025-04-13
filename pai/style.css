@@ -25,6 +25,15 @@
   background-color: #eab308;
 }
 
+.btn.reset-btn {
+  background-color: #f87171;
+  color: white;
+}
+
+.btn.reset-btn:hover {
+  background-color: #dc2626;
+}
+
 table {
   @apply border-collapse border border-gray-200;
 }
