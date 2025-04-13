@@ -8,6 +8,7 @@ document.getElementById('exportPdf').addEventListener('click', () => {
     html2canvas:  { scale: 2 },
     jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
   };
+  
   html2pdf().from(element).set(opt).save();
 });
 document.getElementById('exportXls').addEventListener('click', exportToExcel);
