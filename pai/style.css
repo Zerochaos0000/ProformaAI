@@ -89,17 +89,3 @@ header, footer {
   header, footer, .btn, .autofill-btn {
     display: none !important;
   }
-
-  main {
-    padding: 0;
-    margin: 0;
-  }
-
-  canvas {
-    max-height: none !important;
-  }
-
-  body {
-    -webkit-print-color-adjust: exact;
-  }
-}
