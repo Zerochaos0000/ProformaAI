@@ -3,6 +3,32 @@ document.getElementById('exportXls').addEventListener('click', exportToExcel);
 document.getElementById('autofillDemo').addEventListener('click', autofillDemo);
 document.getElementById('resetInputs').addEventListener('click', resetInputs);
 document.getElementById('exportPdf').addEventListener('click', () => {
+  const exportDiv = document.getElementById('pdfExportContent');
+  const resultsContent = document.getElementById('results').innerHTML;
+  const projectionContent = document.getElementById('fiveYearTable').innerHTML;
+
+  const incomeCanvas = document.getElementById('incomeChart');
+  const expenseCanvas = document.getElementById('expenseChart');
+  const incomeImg = incomeCanvas.toDataURL('image/png');
+  const expenseImg = expenseCanvas.toDataURL('image/png');
+
+  exportDiv.innerHTML = `
+    <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 16px;">🏢 Multifamily Acquisition Proforma Report</h2>
+
+    <h3 style="font-size: 18px; font-weight: bold; margin-top: 24px;">Results Summary</h3>
+    <div style="margin-bottom: 24px;">${resultsContent}</div>
+
+    <h3 style="font-size: 18px; font-weight: bold; margin-top: 24px;">5-Year Proforma Projection</h3>
+    <div style="margin-bottom: 24px;">${projectionContent}</div>
+
+    <h3 style="font-size: 18px; font-weight: bold;">Income Overview</h3>
+    <img src="${incomeImg}" style="max-width: 100%; margin-bottom: 20px;" />
+
+    <h3 style="font-size: 18px; font-weight: bold;">Expenses Breakdown</h3>
+    <img src="${expenseImg}" style="max-width: 100%;" />
+  `;
+
+
   const content = document.getElementById('pdfExportContent');
   const options = {
     margin: 0.4,
