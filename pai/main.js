@@ -1,20 +1,32 @@
 document.getElementById('calculate').addEventListener('click', calculateProforma);
-document.getElementById('exportPdf').addEventListener('click', () => window.print());
 document.getElementById('exportXls').addEventListener('click', exportToExcel);
 document.getElementById('autofillDemo').addEventListener('click', autofillDemo);
 document.getElementById('resetInputs').addEventListener('click', resetInputs);
+document.getElementById('exportPdf').addEventListener('click', () => {
+  const content = document.getElementById('pdfExportContent');
+  const options = {
+    margin: 0.4,
+    filename: 'Multifamily_Proforma_Report.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+  };
+  html2pdf().set(options).from(content).save();
+});
 
 function parseCurrency(val) {
-  return Number(val.replace(/[^0-9.-]+/g,"")) || 0;
+  return Number(val.replace(/[^0-9.-]+/g, "")) || 0;
 }
 
+let decisionText = '';
+
 function calculateProforma() {
-  // Income Inputs
   const units = [
-    {count: parseCurrency(document.getElementById('oneBedUnits').value), rent: parseCurrency(document.getElementById('rent1Bed').value)},
-    {count: parseCurrency(document.getElementById('twoBedUnits').value), rent: parseCurrency(document.getElementById('rent2Bed').value)},
-    {count: parseCurrency(document.getElementById('threeBedUnits').value), rent: parseCurrency(document.getElementById('rent3Bed').value)}
+    { count: parseCurrency(document.getElementById('oneBedUnits').value), rent: parseCurrency(document.getElementById('rent1Bed').value) },
+    { count: parseCurrency(document.getElementById('twoBedUnits').value), rent: parseCurrency(document.getElementById('rent2Bed').value) },
+    { count: parseCurrency(document.getElementById('threeBedUnits').value), rent: parseCurrency(document.getElementById('rent3Bed').value) }
   ];
+
   const otherIncome = parseCurrency(document.getElementById('otherIncome').value);
   const vacancyRate = parseFloat(document.getElementById('vacancyRate').value) / 100;
 
@@ -22,14 +34,12 @@ function calculateProforma() {
   const vacancyLoss = grossPotentialRent * vacancyRate;
   const effectiveGrossIncome = grossPotentialRent + otherIncome - vacancyLoss;
 
-  // Operating Expenses
   const expenses = ['propertyTaxes','insurance','utilities','maintenance','management','supplies','staff','misc']
     .map(id => parseCurrency(document.getElementById(id).value));
-  const totalExpenses = expenses.reduce((a,b) => a + b, 0);
+  const totalExpenses = expenses.reduce((a, b) => a + b, 0);
 
   const NOI = effectiveGrossIncome - totalExpenses;
 
-  // Loan Calculations
   const loanAmount = parseCurrency(document.getElementById('loanAmount').value);
   const interestRate = parseFloat(document.getElementById('interestRate').value) / 100;
   const loanTerm = parseInt(document.getElementById('loanTerm').value);
@@ -38,13 +48,18 @@ function calculateProforma() {
   const annualDebtService = monthlyPayment * 12;
 
   const cashFlowBeforeTax = NOI - annualDebtService;
-
-  // Investment Metrics
   const purchasePrice = parseCurrency(document.getElementById('purchasePrice').value);
   const initialEquity = purchasePrice - loanAmount;
   const cashOnCash = (cashFlowBeforeTax / initialEquity) * 100;
 
-  // Results Table
+  if (cashOnCash >= 12) {
+    decisionText = `✅ This appears to be a strong investment opportunity (CoC: ${cashOnCash.toFixed(2)}%)`;
+  } else if (cashOnCash >= 8) {
+    decisionText = `⚠️ Moderate returns. Consider refining assumptions (CoC: ${cashOnCash.toFixed(2)}%)`;
+  } else {
+    decisionText = `❌ Low investment return. Proceed with caution (CoC: ${cashOnCash.toFixed(2)}%)`;
+  }
+
   const resultsHTML = `
     <table class="w-full text-left border-collapse">
       <tr><td>Total Potential Rent</td><td>$${grossPotentialRent.toLocaleString()}</td></tr>
@@ -55,8 +70,9 @@ function calculateProforma() {
       <tr><td>Annual Debt Service</td><td>$${annualDebtService.toLocaleString()}</td></tr>
       <tr class="font-bold"><td>Cash Flow Before Tax</td><td>$${cashFlowBeforeTax.toLocaleString()}</td></tr>
       <tr><td>Cash-on-Cash Return</td><td>${cashOnCash.toFixed(2)}%</td></tr>
-    </table>`;
-
+    </table>
+    <p class="mt-4 font-semibold">${decisionText}</p>
+  `;
   document.getElementById('results').innerHTML = resultsHTML;
 
   renderCharts(effectiveGrossIncome, NOI, totalExpenses);
@@ -84,8 +100,8 @@ function renderCharts(egi, noi, expenses) {
 
 function render5YearProforma(income, expenses, debtService) {
   let table = '<table class="w-full text-left"><tr><th>Year</th><th>Income</th><th>Expenses</th><th>NOI</th><th>Debt Service</th><th>Cash Flow</th></tr>';
-  for(let y=1; y<=5; y++){
-    let growth = Math.pow(1.02, y-1);
+  for(let y = 1; y <= 5; y++) {
+    let growth = Math.pow(1.02, y - 1);
     let yearlyIncome = income * growth;
     let yearlyExpenses = expenses * growth;
     let yearlyNOI = yearlyIncome - yearlyExpenses;
@@ -97,27 +113,22 @@ function render5YearProforma(income, expenses, debtService) {
 }
 
 function exportToExcel() {
-  const workbook = XLSX.utils.book_new();
+  const wb = XLSX.utils.book_new();
 
-  // Title Sheet
-  const titleSheet = XLSX.utils.aoa_to_sheet([
-    ["REProforma Multifamily Acquisition Model"],
-    ["Generated:", new Date().toLocaleString()],
-    []
-  ]);
-  XLSX.utils.book_append_sheet(workbook, titleSheet, "Cover");
-
-  // Input Sheet
-  const inputs = [
-    ["Input Category", "Field", "Value"],
-    ["Unit Mix", "1-Bed Units", document.getElementById('oneBedUnits').value],
-    ["Unit Mix", "2-Bed Units", document.getElementById('twoBedUnits').value],
-    ["Unit Mix", "3-Bed Units", document.getElementById('threeBedUnits').value],
-    ["Unit Mix", "Rent per 1-Bed", document.getElementById('rent1Bed').value],
-    ["Unit Mix", "Rent per 2-Bed", document.getElementById('rent2Bed').value],
-    ["Unit Mix", "Rent per 3-Bed", document.getElementById('rent3Bed').value],
+  const title = [["REProforma - Multifamily Acquisition Proforma"]];
+  const spacer = [[""]];
+  const inputData = [
+    ["Category", "Field", "Value"],
+    ["Rental Mix", "1-Bed Units", document.getElementById('oneBedUnits').value],
+    ["Rental Mix", "Rent per 1-Bed", document.getElementById('rent1Bed').value],
+    ["Rental Mix", "2-Bed Units", document.getElementById('twoBedUnits').value],
+    ["Rental Mix", "Rent per 2-Bed", document.getElementById('rent2Bed').value],
+    ["Rental Mix", "3-Bed Units", document.getElementById('threeBedUnits').value],
+    ["Rental Mix", "Rent per 3-Bed", document.getElementById('rent3Bed').value],
+    spacer[0],
     ["Income", "Other Income", document.getElementById('otherIncome').value],
     ["Income", "Vacancy Rate (%)", document.getElementById('vacancyRate').value],
+    spacer[0],
     ["Expenses", "Property Taxes", document.getElementById('propertyTaxes').value],
     ["Expenses", "Insurance", document.getElementById('insurance').value],
     ["Expenses", "Utilities", document.getElementById('utilities').value],
@@ -126,54 +137,109 @@ function exportToExcel() {
     ["Expenses", "Supplies", document.getElementById('supplies').value],
     ["Expenses", "Staff", document.getElementById('staff').value],
     ["Expenses", "Misc & Reserves", document.getElementById('misc').value],
+    spacer[0],
     ["Financing", "Purchase Price", document.getElementById('purchasePrice').value],
     ["Financing", "Loan Amount", document.getElementById('loanAmount').value],
     ["Financing", "Interest Rate (%)", document.getElementById('interestRate').value],
-    ["Financing", "Loan Term", document.getElementById('loanTerm').value],
+    ["Financing", "Loan Term (Years)", document.getElementById('loanTerm').value]
   ];
 
-  const inputSheet = XLSX.utils.aoa_to_sheet(inputs);
-  XLSX.utils.book_append_sheet(workbook, inputSheet, 'Inputs');
+  const inputSheet = XLSX.utils.aoa_to_sheet([...title, [], ...inputData]);
+  inputSheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
+  inputSheet["!cols"] = [{ wch: 20 }, { wch: 30 }, { wch: 20 }];
 
-  // Summary Table
-  const resultsTable = document.getElementById('results').querySelector('table');
+  XLSX.utils.book_append_sheet(wb, inputSheet, "Inputs");
+
+  // --- Results Summary ---
+  const resultsTable = document.querySelector('#results table');
   if (resultsTable) {
-    const resultSheet = XLSX.utils.table_to_sheet(resultsTable);
-    XLSX.utils.book_append_sheet(workbook, resultSheet, 'Summary');
+    const resultsSheet = XLSX.utils.table_to_sheet(resultsTable);
+    const range = XLSX.utils.decode_range(resultsSheet['!ref']);
+
+    // Style headers
+    for (let C = range.s.c; C <= range.e.c; C++) {
+      const cellRef = XLSX.utils.encode_cell({ r: range.s.r, c: C });
+      if (!resultsSheet[cellRef]) continue;
+      resultsSheet[cellRef].s = {
+        font: { bold: true },
+        alignment: { wrapText: true, horizontal: "center" }
+      };
+    }
+
+    // Currency format for values
+    for (let R = range.s.r + 1; R <= range.e.r; R++) {
+      const valCell = XLSX.utils.encode_cell({ r: R, c: 1 });
+      if (resultsSheet[valCell] && resultsSheet[valCell].t === 'n') {
+        resultsSheet[valCell].z = '$#,##0';
+      }
+    }
+
+// Fix Cash-on-Cash Return row to be numeric with percentage formatting
+for (let R = range.s.r; R <= range.e.r; R++) {
+  const labelCell = XLSX.utils.encode_cell({ r: R, c: 0 });
+  const valueCell = XLSX.utils.encode_cell({ r: R, c: 1 });
+  if (resultsSheet[labelCell] && resultsSheet[labelCell].v?.toString().includes('Cash-on-Cash')) {
+    let valStr = resultsSheet[valueCell]?.v || "0";
+    let valNum = parseFloat(valStr.toString().replace('%','')) / 100;  // Convert to decimal
+    resultsSheet[valueCell].v = valNum;
+    resultsSheet[valueCell].t = 'n';
+    resultsSheet[valueCell].z = '0.00%';
+
+    // Highlight with color logic
+    let color = 'FFCCCC';
+    if (valNum >= 0.12) color = 'CCFFCC'; // green
+    else if (valNum >= 0.08) color = 'FFFFCC'; // yellow
+
+    resultsSheet[labelCell].s = { fill: { fgColor: { rgb: color } }, font: { bold: true } };
+    resultsSheet[valueCell].s = { fill: { fgColor: { rgb: color } }, font: { bold: true } };
   }
-
-  // 5-Year Table
-  const yearTable = document.getElementById('fiveYearTable').querySelector('table');
-  if (yearTable) {
-    const yearSheet = XLSX.utils.table_to_sheet(yearTable);
-    XLSX.utils.book_append_sheet(workbook, yearSheet, '5-Year Projection');
-  }
-
-  // Decision Note Logic
-  const purchasePrice = parseFloat(document.getElementById('purchasePrice').value);
-  const loanAmount = parseFloat(document.getElementById('loanAmount').value);
-  const equity = purchasePrice - loanAmount;
-  const noi = parseFloat(document.getElementById('results').innerText.match(/Net Operating Income \(NOI\)\s+\$([\d,]+)/)?.[1].replace(/,/g, "") || 0);
-  const debtService = parseFloat(document.getElementById('results').innerText.match(/Annual Debt Service\s+\$([\d,]+)/)?.[1].replace(/,/g, "") || 0);
-  const cashFlow = noi - debtService;
-  const cocReturn = ((cashFlow / equity) * 100).toFixed(2);
-
-  const decision = cocReturn >= 12
-    ? "✅ This appears to be a strong investment opportunity."
-    : "⚠️ Consider revising your assumptions or evaluating further.";
-
-  const decisionSheet = XLSX.utils.aoa_to_sheet([["Decision Summary"], ["Cash-on-Cash Return", cocReturn + "%"], [decision]]);
-  XLSX.utils.book_append_sheet(workbook, decisionSheet, 'Investment Decision');
-
-  // Save
-  XLSX.writeFile(workbook, 'Multifamily_Proforma_Styled.xlsx');
 }
-// Reset all input fields
+
+    XLSX.utils.book_append_sheet(wb, resultsSheet, "Results");
+  }
+
+  // --- 5-Year Projection ---
+  const projTable = document.querySelector('#fiveYearTable table');
+  if (projTable) {
+    const projSheet = XLSX.utils.table_to_sheet(projTable);
+    projSheet["!cols"] = Array(6).fill({ wch: 18 });
+
+    // Make header bold
+    const range = XLSX.utils.decode_range(projSheet['!ref']);
+    for (let C = range.s.c; C <= range.e.c; C++) {
+      const cellRef = XLSX.utils.encode_cell({ r: range.s.r, c: C });
+      if (projSheet[cellRef]) {
+        projSheet[cellRef].s = {
+          font: { bold: true },
+          alignment: { wrapText: true, horizontal: "center" }
+        };
+      }
+    }
+
+    // Format numbers
+    for (let R = range.s.r + 1; R <= range.e.r; R++) {
+      for (let C = 1; C <= 5; C++) {
+        const cell = projSheet[XLSX.utils.encode_cell({ r: R, c: C })];
+        if (cell && cell.t === 'n') {
+          cell.z = '$#,##0';
+        }
+      }
+    }
+
+    XLSX.utils.book_append_sheet(wb, projSheet, "5-Year Projection");
+  }
+
+  // Write file
+  XLSX.writeFile(wb, "Multifamily_Proforma_Export.xlsx");
+  alert("✅ Excel exported with formatting, currency, and decision highlight!");
+}
+
+// Reset
 function resetInputs() {
   document.querySelectorAll('input').forEach(input => input.value = '');
 }
 
-// Autofill Demo Inputs
+// Autofill Demo
 function autofillDemo() {
   document.getElementById('oneBedUnits').value = 20;
   document.getElementById('rent1Bed').value = 1200;
