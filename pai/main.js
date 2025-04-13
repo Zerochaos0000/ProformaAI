@@ -174,26 +174,19 @@ function exportToExcel() {
       }
     }
 
-// Fix Cash-on-Cash Return row to be numeric with percentage formatting
-for (let R = range.s.r; R <= range.e.r; R++) {
-  const labelCell = XLSX.utils.encode_cell({ r: R, c: 0 });
-  const valueCell = XLSX.utils.encode_cell({ r: R, c: 1 });
-  if (resultsSheet[labelCell] && resultsSheet[labelCell].v?.toString().includes('Cash-on-Cash')) {
-    let valStr = resultsSheet[valueCell]?.v || "0";
-    let valNum = parseFloat(valStr.toString().replace('%','')) / 100;  // Convert to decimal
-    resultsSheet[valueCell].v = valNum;
-    resultsSheet[valueCell].t = 'n';
-    resultsSheet[valueCell].z = '0.00%';
+    // Highlight decision row
+    for (let R = range.s.r; R <= range.e.r; R++) {
+      const labelCell = XLSX.utils.encode_cell({ r: R, c: 0 });
+      if (resultsSheet[labelCell] && resultsSheet[labelCell].v?.toString().includes('Cash-on-Cash')) {
+        const val = parseFloat(resultsSheet[XLSX.utils.encode_cell({ r: R, c: 1 })].v);
+        let color = 'FFCCCC'; // red default
+        if (val >= 12) color = 'CCFFCC'; // green
+        else if (val >= 8) color = 'FFFFCC'; // yellow
 
-    // Highlight with color logic
-    let color = 'FFCCCC';
-    if (valNum >= 0.12) color = 'CCFFCC'; // green
-    else if (valNum >= 0.08) color = 'FFFFCC'; // yellow
-
-    resultsSheet[labelCell].s = { fill: { fgColor: { rgb: color } }, font: { bold: true } };
-    resultsSheet[valueCell].s = { fill: { fgColor: { rgb: color } }, font: { bold: true } };
-  }
-}
+        resultsSheet[labelCell].s = { fill: { fgColor: { rgb: color } }, font: { bold: true } };
+        resultsSheet[XLSX.utils.encode_cell({ r: R, c: 1 })].s = { fill: { fgColor: { rgb: color } } };
+      }
+    }
 
     XLSX.utils.book_append_sheet(wb, resultsSheet, "Results");
   }
