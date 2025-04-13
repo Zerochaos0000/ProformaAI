@@ -115,11 +115,9 @@ function render5YearProforma(income, expenses, debtService) {
 function exportToExcel() {
   const wb = XLSX.utils.book_new();
 
-  // Title
   const title = [["REProforma - Multifamily Acquisition Proforma"]];
   const spacer = [[""]];
-
-  const inputData = [
+  const inputs = [
     ["Category", "Field", "Value"],
     ["Rental Mix", "1-Bed Units", document.getElementById('oneBedUnits').value],
     ["Rental Mix", "Rent per 1-Bed", document.getElementById('rent1Bed').value],
@@ -146,30 +144,70 @@ function exportToExcel() {
     ["Financing", "Loan Term (Years)", document.getElementById('loanTerm').value],
   ];
 
-  const inputSheet = XLSX.utils.aoa_to_sheet([...title, [], ...inputData]);
-  inputSheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
-  inputSheet["A1"].s = { font: { bold: true, sz: 14 }, alignment: { horizontal: "center" } };
-  inputSheet["A3"] = { t: "s", v: "Category", s: { font: { bold: true } } };
-  inputSheet["B3"] = { t: "s", v: "Field", s: { font: { bold: true } } };
-  inputSheet["C3"] = { t: "s", v: "Value", s: { font: { bold: true } } };
+  const ws = XLSX.utils.aoa_to_sheet([...title, [], ...inputs]);
 
-  XLSX.utils.book_append_sheet(wb, inputSheet, "Inputs");
+  ws["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
 
-  // Export Results
+  // Apply styles
+  Object.keys(ws).forEach(cell => {
+    if (cell[0] === '!') return;
+
+    ws[cell].s = {
+      font: { bold: cell.startsWith("A1") || cell.startsWith("A3") || cell.startsWith("B3") || cell.startsWith("C3") },
+      alignment: { horizontal: "left" },
+      border: {
+        top: { style: "thin", color: { rgb: "999999" } },
+        bottom: { style: "thin", color: { rgb: "999999" } },
+        left: { style: "thin", color: { rgb: "999999" } },
+        right: { style: "thin", color: { rgb: "999999" } }
+      }
+    };
+  });
+
+  XLSX.utils.book_append_sheet(wb, ws, "Inputs");
+
+  // Results Summary
   const resultsTable = document.querySelector('#results table');
   if (resultsTable) {
     const summarySheet = XLSX.utils.table_to_sheet(resultsTable);
+    Object.keys(summarySheet).forEach(cell => {
+      if (cell[0] === '!') return;
+      summarySheet[cell].s = {
+        font: { bold: cell.includes("A1") || cell.includes("A8") }, // make first and cash flow row bold
+        alignment: { horizontal: "left" },
+        border: {
+          top: { style: "thin", color: { rgb: "999999" } },
+          bottom: { style: "thin", color: { rgb: "999999" } },
+          left: { style: "thin", color: { rgb: "999999" } },
+          right: { style: "thin", color: { rgb: "999999" } }
+        }
+      };
+    });
+
     XLSX.utils.book_append_sheet(wb, summarySheet, "Results");
   }
 
-  // Export 5-Year Projection
-  const fiveYearTable = document.querySelector('#fiveYearTable table');
-  if (fiveYearTable) {
-    const projSheet = XLSX.utils.table_to_sheet(fiveYearTable);
+  // 5-Year Projection
+  const projTable = document.querySelector('#fiveYearTable table');
+  if (projTable) {
+    const projSheet = XLSX.utils.table_to_sheet(projTable);
+    Object.keys(projSheet).forEach(cell => {
+      if (cell[0] === '!') return;
+      projSheet[cell].s = {
+        alignment: { horizontal: "left" },
+        border: {
+          top: { style: "thin", color: { rgb: "cccccc" } },
+          bottom: { style: "thin", color: { rgb: "cccccc" } },
+          left: { style: "thin", color: { rgb: "cccccc" } },
+          right: { style: "thin", color: { rgb: "cccccc" } }
+        }
+      };
+    });
     XLSX.utils.book_append_sheet(wb, projSheet, "5-Year Projection");
   }
 
-  XLSX.writeFile(wb, "Multifamily_Proforma_Export.xlsx");
+  XLSX.writeFile(wb, "Multifamily_Proforma_Styled.xlsx");
+  alert("📥 Excel exported with bold headers and styled layout!");
 }
 
 // Reset
