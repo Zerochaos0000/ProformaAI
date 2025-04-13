@@ -31,7 +31,7 @@ document.getElementById('exportPdf').addEventListener('click', () => {
 
   const content = document.getElementById('pdfExportContent');
   const options = {
-    margin: 0.4,
+    margin: 0,
     filename: 'Multifamily_Proforma_Report.pdf',
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: { scale: 2 },
