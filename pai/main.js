@@ -9,12 +9,12 @@ function parseCurrency(val) {
 }
 
 function calculateProforma() {
-  // Income Inputs
   const units = [
-    {count: parseCurrency(document.getElementById('oneBedUnits').value), rent: parseCurrency(document.getElementById('rent1Bed').value)},
-    {count: parseCurrency(document.getElementById('twoBedUnits').value), rent: parseCurrency(document.getElementById('rent2Bed').value)},
-    {count: parseCurrency(document.getElementById('threeBedUnits').value), rent: parseCurrency(document.getElementById('rent3Bed').value)}
+    { count: parseCurrency(document.getElementById('oneBedUnits').value), rent: parseCurrency(document.getElementById('rent1Bed').value) },
+    { count: parseCurrency(document.getElementById('twoBedUnits').value), rent: parseCurrency(document.getElementById('rent2Bed').value) },
+    { count: parseCurrency(document.getElementById('threeBedUnits').value), rent: parseCurrency(document.getElementById('rent3Bed').value) }
   ];
+
   const otherIncome = parseCurrency(document.getElementById('otherIncome').value);
   const vacancyRate = parseFloat(document.getElementById('vacancyRate').value) / 100;
 
@@ -22,14 +22,12 @@ function calculateProforma() {
   const vacancyLoss = grossPotentialRent * vacancyRate;
   const effectiveGrossIncome = grossPotentialRent + otherIncome - vacancyLoss;
 
-  // Operating Expenses
   const expenses = ['propertyTaxes','insurance','utilities','maintenance','management','supplies','staff','misc']
     .map(id => parseCurrency(document.getElementById(id).value));
-  const totalExpenses = expenses.reduce((a,b) => a + b, 0);
+  const totalExpenses = expenses.reduce((a, b) => a + b, 0);
 
   const NOI = effectiveGrossIncome - totalExpenses;
 
-  // Loan Calculations
   const loanAmount = parseCurrency(document.getElementById('loanAmount').value);
   const interestRate = parseFloat(document.getElementById('interestRate').value) / 100;
   const loanTerm = parseInt(document.getElementById('loanTerm').value);
@@ -39,22 +37,21 @@ function calculateProforma() {
 
   const cashFlowBeforeTax = NOI - annualDebtService;
 
-  // Investment Metrics
   const purchasePrice = parseCurrency(document.getElementById('purchasePrice').value);
   const initialEquity = purchasePrice - loanAmount;
   const cashOnCash = (cashFlowBeforeTax / initialEquity) * 100;
 
-  // Decision Summary Logic
-let decisionSummary = "";
-if (cashOnCash >= 12) {
-  decisionSummary = `<p class="mt-4 text-green-600 font-semibold">✅ This appears to be a strong investment opportunity based on a Cash-on-Cash return of ${cashOnCash.toFixed(2)}%.</p>`;
-} else if (cashOnCash >= 8) {
-  decisionSummary = `<p class="mt-4 text-yellow-600 font-semibold">⚠️ This investment has moderate returns with a Cash-on-Cash return of ${cashOnCash.toFixed(2)}%. Consider refining assumptions.</p>`;
-} else {
-  decisionSummary = `<p class="mt-4 text-red-600 font-semibold">❌ This investment may have low returns (Cash-on-Cash: ${cashOnCash.toFixed(2)}%). Proceed with caution.</p>`;
-}
-  
-  // Results Table
+  // ✅ Decision Summary Logic
+  let decisionSummary = "";
+  if (cashOnCash >= 12) {
+    decisionSummary = `<p class="mt-4 text-green-600 font-semibold">✅ This appears to be a strong investment opportunity based on a Cash-on-Cash return of ${cashOnCash.toFixed(2)}%.</p>`;
+  } else if (cashOnCash >= 8) {
+    decisionSummary = `<p class="mt-4 text-yellow-600 font-semibold">⚠️ This investment has moderate returns with a Cash-on-Cash return of ${cashOnCash.toFixed(2)}%. Consider refining assumptions.</p>`;
+  } else {
+    decisionSummary = `<p class="mt-4 text-red-600 font-semibold">❌ This investment may have low returns (Cash-on-Cash: ${cashOnCash.toFixed(2)}%). Proceed with caution.</p>`;
+  }
+
+  // ✅ Results Table HTML
   const resultsHTML = `
     <table class="w-full text-left border-collapse">
       <tr><td>Total Potential Rent</td><td>$${grossPotentialRent.toLocaleString()}</td></tr>
@@ -65,9 +62,11 @@ if (cashOnCash >= 12) {
       <tr><td>Annual Debt Service</td><td>$${annualDebtService.toLocaleString()}</td></tr>
       <tr class="font-bold"><td>Cash Flow Before Tax</td><td>$${cashFlowBeforeTax.toLocaleString()}</td></tr>
       <tr><td>Cash-on-Cash Return</td><td>${cashOnCash.toFixed(2)}%</td></tr>
-    </table>`;
+    </table>
+    ${decisionSummary}
+  `;
 
-  document.getElementById('results').innerHTML = resultsHTML + decisionSummary;
+  document.getElementById('results').innerHTML = resultsHTML;
 
   renderCharts(effectiveGrossIncome, NOI, totalExpenses);
   render5YearProforma(effectiveGrossIncome, totalExpenses, annualDebtService);
