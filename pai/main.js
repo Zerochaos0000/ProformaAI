@@ -4,26 +4,13 @@ document.getElementById('autofillDemo').addEventListener('click', autofillDemo);
 document.getElementById('resetInputs').addEventListener('click', resetInputs);
 document.getElementById('exportPdf').addEventListener('click', () => {
   const content = document.getElementById('pdfExportContent');
-
-  // Optional: Remove charts or dynamic canvas elements (html2pdf doesn't handle them well)
-  const canvases = content.querySelectorAll('canvas');
-  canvases.forEach(canvas => canvas.style.display = 'none');
-
   const options = {
-    margin: 0.5,
+    margin: 0.4,
     filename: 'Multifamily_Proforma_Report.pdf',
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: {
-      scale: 2,
-      useCORS: true
-    },
-    jsPDF: {
-      unit: 'in',
-      format: 'letter',
-      orientation: 'portrait'
-    }
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
   };
-
   html2pdf().set(options).from(content).save();
 });
 
