@@ -96,57 +96,53 @@ function render5YearProforma(income, expenses, debtService) {
   document.getElementById('fiveYearTable').innerHTML = table;
 }
 
-function exportXls() {
-  const wb = XLSX.utils.book_new();
+function exportToExcel() {
+  const workbook = XLSX.utils.book_new();
 
-  // Collecting input values
-  const inputData = [
-    ["Multifamily Acquisition Proforma"],
-    [],
-    ["Unit Mix & Rent Inputs"],
-    ["1-Bed Units", document.getElementById('oneBedUnits').value],
-    ["Rent per 1-Bed ($)", document.getElementById('rent1Bed').value],
-    ["2-Bed Units", document.getElementById('twoBedUnits').value],
-    ["Rent per 2-Bed ($)", document.getElementById('rent2Bed').value],
-    ["3-Bed Units", document.getElementById('threeBedUnits').value],
-    ["Rent per 3-Bed ($)", document.getElementById('rent3Bed').value],
-    [],
-    ["Other Income & Vacancy"],
-    ["Other Income ($)", document.getElementById('otherIncome').value],
-    ["Vacancy Rate (%)", document.getElementById('vacancyRate').value],
-    [],
-    ["Operating Expenses (Annual)"],
-    ["Property Taxes", document.getElementById('propertyTaxes').value],
-    ["Insurance", document.getElementById('insurance').value],
-    ["Utilities", document.getElementById('utilities').value],
-    ["Maintenance", document.getElementById('maintenance').value],
-    ["Management", document.getElementById('management').value],
-    ["Supplies", document.getElementById('supplies').value],
-    ["Staff", document.getElementById('staff').value],
-    ["Misc & Reserves", document.getElementById('misc').value],
-    [],
-    ["Acquisition & Loan Details"],
-    ["Purchase Price ($)", document.getElementById('purchasePrice').value],
-    ["Loan Amount ($)", document.getElementById('loanAmount').value],
-    ["Interest Rate (%)", document.getElementById('interestRate').value],
-    ["Loan Term (Years)", document.getElementById('loanTerm').value],
+  // Collect Inputs
+  const inputs = [
+    ["Input Category", "Field", "Value"],
+    ["Unit Mix", "1-Bed Units", document.getElementById('oneBedUnits').value],
+    ["Unit Mix", "2-Bed Units", document.getElementById('twoBedUnits').value],
+    ["Unit Mix", "3-Bed Units", document.getElementById('threeBedUnits').value],
+    ["Unit Mix", "Rent per 1-Bed", document.getElementById('rent1Bed').value],
+    ["Unit Mix", "Rent per 2-Bed", document.getElementById('rent2Bed').value],
+    ["Unit Mix", "Rent per 3-Bed", document.getElementById('rent3Bed').value],
+    ["Income", "Other Income", document.getElementById('otherIncome').value],
+    ["Income", "Vacancy Rate (%)", document.getElementById('vacancyRate').value],
+    ["Expenses", "Property Taxes", document.getElementById('propertyTaxes').value],
+    ["Expenses", "Insurance", document.getElementById('insurance').value],
+    ["Expenses", "Utilities", document.getElementById('utilities').value],
+    ["Expenses", "Maintenance", document.getElementById('maintenance').value],
+    ["Expenses", "Management", document.getElementById('management').value],
+    ["Expenses", "Supplies", document.getElementById('supplies').value],
+    ["Expenses", "Staff", document.getElementById('staff').value],
+    ["Expenses", "Misc & Reserves", document.getElementById('misc').value],
+    ["Financing", "Purchase Price", document.getElementById('purchasePrice').value],
+    ["Financing", "Loan Amount", document.getElementById('loanAmount').value],
+    ["Financing", "Interest Rate (%)", document.getElementById('interestRate').value],
+    ["Financing", "Loan Term", document.getElementById('loanTerm').value],
   ];
 
-  const inputWS = XLSX.utils.aoa_to_sheet(inputData);
-  XLSX.utils.book_append_sheet(wb, inputWS, "Inputs");
+  const inputSheet = XLSX.utils.aoa_to_sheet(inputs);
+  XLSX.utils.book_append_sheet(workbook, inputSheet, 'Inputs');
 
-  // Collecting calculated results from DOM
-  const resultsTable = document.querySelector("#results table");
-  const resultsWS = XLSX.utils.table_to_sheet(resultsTable);
-  XLSX.utils.book_append_sheet(wb, resultsWS, "Results Summary");
+  // Export Results Summary
+  const resultsHTML = document.getElementById('results');
+  if (resultsHTML.querySelector('table')) {
+    const resultsSheet = XLSX.utils.table_to_sheet(resultsHTML.querySelector('table'));
+    XLSX.utils.book_append_sheet(workbook, resultsSheet, 'Summary');
+  }
 
-  // Collecting 5-year proforma table from DOM
-  const fiveYearTable = document.querySelector("#fiveYearTable table");
-  const fiveYearWS = XLSX.utils.table_to_sheet(fiveYearTable);
-  XLSX.utils.book_append_sheet(wb, fiveYearWS, "5-Year Proforma");
+  // Export 5-Year Proforma
+  const fiveYearHTML = document.getElementById('fiveYearTable');
+  if (fiveYearHTML.querySelector('table')) {
+    const proformaSheet = XLSX.utils.table_to_sheet(fiveYearHTML.querySelector('table'));
+    XLSX.utils.book_append_sheet(workbook, proformaSheet, '5-Year Projection');
+  }
 
-  // Export the workbook
-  XLSX.writeFile(wb, "Multifamily_Proforma.xlsx");
+  // Write file
+  XLSX.writeFile(workbook, 'Multifamily_Proforma_Output.xlsx');
 }
 
 // Reset all input fields
