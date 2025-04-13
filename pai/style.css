@@ -41,34 +41,6 @@ label {
   margin-bottom: 0.5rem;
 }
 
-@media print {
-  body {
-    background: white;
-    color: black;
-    padding: 20px;
-  }
-
-  header, footer, .btn, .autofill-btn, .export-controls {
-    display: none !important;
-  }
-
-  table {
-    width: 100% !important;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
-
-  table td, table th {
-    border: 1px solid #333;
-    padding: 6px;
-    font-size: 14px;
-  }
-
-  h2, h3 {
-    color: black !important;
-  }
-}
-
 table {
   @apply border-collapse border border-gray-200;
 }
@@ -84,8 +56,3 @@ canvas {
 header, footer {
   @apply bg-white shadow-md;
 }
-
-@media print {
-  header, footer, .btn, .autofill-btn {
-    display: none !important;
-  }
