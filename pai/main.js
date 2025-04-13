@@ -143,6 +143,7 @@ function exportToExcel() {
 
   // Write file
   XLSX.writeFile(workbook, 'Multifamily_Proforma_Output.xlsx');
+  alert("Excel export successful! 📊");
 }
 
 // Reset all input fields
