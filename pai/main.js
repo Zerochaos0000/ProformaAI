@@ -1,6 +1,6 @@
 document.getElementById('calculate').addEventListener('click', calculateProforma);
 document.getElementById('exportPdf').addEventListener('click', () => window.print());
-document.getElementById('exportXls').addEventListener('click', exportExcel);
+document.getElementById('exportXls').addEventListener('click', exportToExcel);
 document.getElementById('autofillDemo').addEventListener('click', autofillDemo);
 document.getElementById('resetInputs').addEventListener('click', resetInputs);
 
