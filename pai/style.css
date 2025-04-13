@@ -2,17 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Input field styling */
 .input {
   @apply w-full border rounded py-1 px-3 mt-1 shadow-sm;
 }
 
-/* Primary button styling */
 .btn {
   @apply bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow;
 }
 
-/* Autofill button */
 .autofill-btn {
   background-color: #facc15;
   color: #1f2937;
@@ -28,7 +25,6 @@
   background-color: #eab308;
 }
 
-/* Reset button */
 .btn.reset-btn {
   background-color: #f87171;
   color: white;
@@ -38,7 +34,6 @@
   background-color: #dc2626;
 }
 
-/* Form labels */
 label {
   display: flex;
   flex-direction: column;
@@ -46,7 +41,34 @@ label {
   margin-bottom: 0.5rem;
 }
 
-/* Table styling */
+@media print {
+  body {
+    background: white;
+    color: black;
+    padding: 20px;
+  }
+
+  header, footer, .btn, .autofill-btn, .export-controls {
+    display: none !important;
+  }
+
+  table {
+    width: 100% !important;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+
+  table td, table th {
+    border: 1px solid #333;
+    padding: 6px;
+    font-size: 14px;
+  }
+
+  h2, h3 {
+    color: black !important;
+  }
+}
+
 table {
   @apply border-collapse border border-gray-200;
 }
@@ -55,83 +77,10 @@ table th, table td {
   @apply border border-gray-200 py-2 px-4;
 }
 
-/* Canvas chart styling */
 canvas {
   @apply max-h-64;
 }
 
-/* Header and footer styling */
 header, footer {
   @apply bg-white shadow-md;
-}
-
-/* Styles for PDF Export content */
-#pdfExportContent {
-  padding: 1in;
-  background-color: white;
-  color: black;
-}
-
-#pdfExportContent h2,
-#pdfExportContent h3 {
-  font-weight: bold;
-  margin-bottom: 16px;
-}
-
-#pdfExportContent table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-#pdfExportContent td,
-#pdfExportContent th {
-  border: 1px solid #ccc;
-  padding: 8px;
-  font-size: 13px;
-}
-
-/* Print styles for PDF export */
-@media print {
-  body {
-    background: white !important;
-    color: black !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
-  header,
-  footer,
-  .btn,
-  .autofill-btn,
-  .export-controls,
-  canvas {
-    display: none !important;
-  }
-
-  #pdfExportContent {
-    display: block !important;
-    padding: 1in !important;
-    margin: 0 auto;
-    background: white !important;
-    color: black !important;
-  }
-
-  #pdfExportContent table {
-    width: 100% !important;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
-
-  #pdfExportContent td,
-  #pdfExportContent th {
-    border: 1px solid #333 !important;
-    padding: 6px !important;
-    font-size: 14px !important;
-  }
-
-  #pdfExportContent h2,
-  #pdfExportContent h3 {
-    color: black !important;
-  }
 }
