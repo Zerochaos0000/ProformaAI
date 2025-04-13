@@ -1,6 +1,8 @@
 document.getElementById('calculate').addEventListener('click', calculateProforma);
 document.getElementById('exportPdf').addEventListener('click', () => window.print());
 document.getElementById('exportXls').addEventListener('click', exportExcel);
+document.getElementById('autofillDemo').addEventListener('click', autofillDemo);
+document.getElementById('resetInputs').addEventListener('click', resetInputs);
 
 function parseCurrency(val) {
   return Number(val.replace(/[^0-9.-]+/g,"")) || 0;
@@ -100,7 +102,13 @@ function exportExcel(){
   XLSX.writeFile(wb, 'Multifamily_Proforma.xlsx');
 }
 
-document.getElementById('autofillDemo').addEventListener('click', autofillDemo);
+
+
+// Reset all input fields
+function resetInputs() {
+  const inputs = document.querySelectorAll('.input');
+  inputs.forEach(input => input.value = '');
+}
 
 // Autofill Demo Inputs
 function autofillDemo() {
