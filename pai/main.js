@@ -4,14 +4,34 @@ document.getElementById('autofillDemo').addEventListener('click', autofillDemo);
 document.getElementById('resetInputs').addEventListener('click', resetInputs);
 document.getElementById('exportPdf').addEventListener('click', () => {
   const content = document.getElementById('pdfExportContent');
-  const options = {
-    margin: 0.4,
+
+  // Scroll to top before export (helps html2canvas render better sometimes)
+  window.scrollTo(0, 0);
+
+  // Optional: Force charts/canvases to hide
+  const canvases = content.querySelectorAll('canvas');
+  canvases.forEach(canvas => canvas.style.display = 'none');
+
+  const opt = {
+    margin: 0.5,
     filename: 'Multifamily_Proforma_Report.pdf',
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      scrollY: 0 // prevent auto-scroll bugs
+    },
+    jsPDF: {
+      unit: 'in',
+      format: 'letter',
+      orientation: 'portrait'
+    }
   };
-  html2pdf().set(options).from(content).save();
+
+  // Use a delay to allow layout rendering
+  setTimeout(() => {
+    html2pdf().set(opt).from(content).save();
+  }, 300);
 });
 
 function parseCurrency(val) {
