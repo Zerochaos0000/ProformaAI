@@ -34,6 +34,13 @@
   background-color: #dc2626;
 }
 
+label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
 table {
   @apply border-collapse border border-gray-200;
 }
