@@ -102,6 +102,7 @@ function exportExcel(){
 
 document.getElementById('autofillDemo').addEventListener('click', autofillDemo);
 
+// Autofill Demo Inputs
 function autofillDemo() {
   document.getElementById('oneBedUnits').value = 20;
   document.getElementById('rent1Bed').value = 1200;
