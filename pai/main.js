@@ -99,7 +99,15 @@ function render5YearProforma(income, expenses, debtService) {
 function exportToExcel() {
   const workbook = XLSX.utils.book_new();
 
-  // Collect Inputs
+  // Title Sheet
+  const titleSheet = XLSX.utils.aoa_to_sheet([
+    ["REProforma Multifamily Acquisition Model"],
+    ["Generated:", new Date().toLocaleString()],
+    []
+  ]);
+  XLSX.utils.book_append_sheet(workbook, titleSheet, "Cover");
+
+  // Input Sheet
   const inputs = [
     ["Input Category", "Field", "Value"],
     ["Unit Mix", "1-Bed Units", document.getElementById('oneBedUnits').value],
@@ -127,25 +135,39 @@ function exportToExcel() {
   const inputSheet = XLSX.utils.aoa_to_sheet(inputs);
   XLSX.utils.book_append_sheet(workbook, inputSheet, 'Inputs');
 
-  // Export Results Summary
-  const resultsHTML = document.getElementById('results');
-  if (resultsHTML.querySelector('table')) {
-    const resultsSheet = XLSX.utils.table_to_sheet(resultsHTML.querySelector('table'));
-    XLSX.utils.book_append_sheet(workbook, resultsSheet, 'Summary');
+  // Summary Table
+  const resultsTable = document.getElementById('results').querySelector('table');
+  if (resultsTable) {
+    const resultSheet = XLSX.utils.table_to_sheet(resultsTable);
+    XLSX.utils.book_append_sheet(workbook, resultSheet, 'Summary');
   }
 
-  // Export 5-Year Proforma
-  const fiveYearHTML = document.getElementById('fiveYearTable');
-  if (fiveYearHTML.querySelector('table')) {
-    const proformaSheet = XLSX.utils.table_to_sheet(fiveYearHTML.querySelector('table'));
-    XLSX.utils.book_append_sheet(workbook, proformaSheet, '5-Year Projection');
+  // 5-Year Table
+  const yearTable = document.getElementById('fiveYearTable').querySelector('table');
+  if (yearTable) {
+    const yearSheet = XLSX.utils.table_to_sheet(yearTable);
+    XLSX.utils.book_append_sheet(workbook, yearSheet, '5-Year Projection');
   }
 
-  // Write file
-  XLSX.writeFile(workbook, 'Multifamily_Proforma_Output.xlsx');
-  alert("Excel export successful! 📊");
+  // Decision Note Logic
+  const purchasePrice = parseFloat(document.getElementById('purchasePrice').value);
+  const loanAmount = parseFloat(document.getElementById('loanAmount').value);
+  const equity = purchasePrice - loanAmount;
+  const noi = parseFloat(document.getElementById('results').innerText.match(/Net Operating Income \(NOI\)\s+\$([\d,]+)/)?.[1].replace(/,/g, "") || 0);
+  const debtService = parseFloat(document.getElementById('results').innerText.match(/Annual Debt Service\s+\$([\d,]+)/)?.[1].replace(/,/g, "") || 0);
+  const cashFlow = noi - debtService;
+  const cocReturn = ((cashFlow / equity) * 100).toFixed(2);
+
+  const decision = cocReturn >= 12
+    ? "✅ This appears to be a strong investment opportunity."
+    : "⚠️ Consider revising your assumptions or evaluating further.";
+
+  const decisionSheet = XLSX.utils.aoa_to_sheet([["Decision Summary"], ["Cash-on-Cash Return", cocReturn + "%"], [decision]]);
+  XLSX.utils.book_append_sheet(workbook, decisionSheet, 'Investment Decision');
+
+  // Save
+  XLSX.writeFile(workbook, 'Multifamily_Proforma_Styled.xlsx');
 }
-
 // Reset all input fields
 function resetInputs() {
   document.querySelectorAll('input').forEach(input => input.value = '');
