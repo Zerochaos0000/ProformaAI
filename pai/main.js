@@ -124,48 +124,51 @@ function exportToExcel() {
     ["Financing", "Loan Term (Years)", document.getElementById('loanTerm').value]
   ];
 
-  const inputSheet = XLSX.utils.aoa_to_sheet([["REProforma - Input Data"]]);
-  XLSX.utils.sheet_add_aoa(inputSheet, inputData, { origin: "A3" });
-  inputSheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
+  const ws = XLSX.utils.aoa_to_sheet([["REProforma - Multifamily Proforma Input Sheet"], [], ...inputData]);
+  ws["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
+  ws["A1"].s = { font: { bold: true, sz: 14 }, alignment: { horizontal: "center" } };
 
   // Apply bold style to headers
-  inputSheet["A3"].s = inputSheet["B3"].s = inputSheet["C3"].s = {
-    font: { bold: true },
-    alignment: { horizontal: "center" }
-  };
+  ["A3", "B3", "C3"].forEach(cell => {
+    if (!ws[cell]) return;
+    ws[cell].s = {
+      font: { bold: true },
+      alignment: { horizontal: "center" }
+    };
+  });
 
-  XLSX.utils.book_append_sheet(workbook, inputSheet, "Inputs");
+  // Apply bold to input row labels
+  for (let i = 4; i < inputData.length + 3; i++) {
+    if (ws[`A${i}`]) ws[`A${i}`].s = { font: { bold: true } };
+    if (ws[`B${i}`]) ws[`B${i}`].s = { font: { bold: true } };
+  }
 
-  // --- Summary Sheet ---
-  const resultsTable = document.querySelector('#results table');
-  if (resultsTable) {
-    const summarySheet = XLSX.utils.table_to_sheet(resultsTable);
-    XLSX.utils.book_append_sheet(workbook, summarySheet, "Summary");
+  XLSX.utils.book_append_sheet(workbook, ws, "Inputs");
 
-    // Decision note
+  // --- Export Summary ---
+  const resultsHTML = document.getElementById('results');
+  if (resultsHTML.querySelector('table')) {
+    const summarySheet = XLSX.utils.table_to_sheet(resultsHTML.querySelector('table'));
+    XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
+
     const cashOnCashCell = summarySheet['B8'];
-    const cashOnCash = cashOnCashCell && cashOnCashCell.v.includes('%')
-      ? parseFloat(cashOnCashCell.v.replace('%',''))
-      : 0;
-    const note = (cashOnCash >= 12)
-      ? "✅ Strong investment based on returns"
-      : "⚠️ Moderate or low investment return";
+    const cashOnCash = cashOnCashCell?.v?.includes('%') ? parseFloat(cashOnCashCell.v.replace('%','')) : 0;
+    const note = (cashOnCash >= 12) ? "✅ Strong investment based on returns" : "⚠️ Moderate or low investment return";
 
     const noteRow = XLSX.utils.decode_range(summarySheet['!ref']).e.r + 2;
     summarySheet[`A${noteRow}`] = { t: "s", v: "Investment Note", s: { font: { bold: true } } };
     summarySheet[`B${noteRow}`] = { t: "s", v: note };
   }
 
-  // --- 5-Year Projection Sheet ---
-  const projTable = document.querySelector('#fiveYearTable table');
-  if (projTable) {
-    const projSheet = XLSX.utils.table_to_sheet(projTable);
-    XLSX.utils.book_append_sheet(workbook, projSheet, "5-Year Projection");
+  // --- Export 5-Year Table ---
+  const fiveYearHTML = document.getElementById('fiveYearTable');
+  if (fiveYearHTML.querySelector('table')) {
+    const fiveYearSheet = XLSX.utils.table_to_sheet(fiveYearHTML.querySelector('table'));
+    XLSX.utils.book_append_sheet(workbook, fiveYearSheet, '5-Year Projection');
   }
 
-  // --- Write file ---
-  XLSX.writeFile(workbook, 'Styled_Multifamily_Proforma.xlsx');
-  alert("✅ Excel exported with styled headings and notes!");
+  XLSX.writeFile(workbook, 'Multifamily_Proforma_Styled.xlsx');
+  alert("📥 Excel exported with bold headers and formatted layout!");
 }
 
 // Reset all input fields
