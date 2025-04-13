@@ -117,7 +117,7 @@ function exportToExcel() {
 
   const title = [["REProforma - Multifamily Acquisition Proforma"]];
   const spacer = [[""]];
-  const inputs = [
+  const inputData = [
     ["Category", "Field", "Value"],
     ["Rental Mix", "1-Bed Units", document.getElementById('oneBedUnits').value],
     ["Rental Mix", "Rent per 1-Bed", document.getElementById('rent1Bed').value],
@@ -141,73 +141,90 @@ function exportToExcel() {
     ["Financing", "Purchase Price", document.getElementById('purchasePrice').value],
     ["Financing", "Loan Amount", document.getElementById('loanAmount').value],
     ["Financing", "Interest Rate (%)", document.getElementById('interestRate').value],
-    ["Financing", "Loan Term (Years)", document.getElementById('loanTerm').value],
+    ["Financing", "Loan Term (Years)", document.getElementById('loanTerm').value]
   ];
 
-  const ws = XLSX.utils.aoa_to_sheet([...title, [], ...inputs]);
+  const inputSheet = XLSX.utils.aoa_to_sheet([...title, [], ...inputData]);
+  inputSheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
+  inputSheet["!cols"] = [{ wch: 20 }, { wch: 30 }, { wch: 20 }];
 
-  ws["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
+  XLSX.utils.book_append_sheet(wb, inputSheet, "Inputs");
 
-  // Apply styles
-  Object.keys(ws).forEach(cell => {
-    if (cell[0] === '!') return;
-
-    ws[cell].s = {
-      font: { bold: cell.startsWith("A1") || cell.startsWith("A3") || cell.startsWith("B3") || cell.startsWith("C3") },
-      alignment: { horizontal: "left" },
-      border: {
-        top: { style: "thin", color: { rgb: "999999" } },
-        bottom: { style: "thin", color: { rgb: "999999" } },
-        left: { style: "thin", color: { rgb: "999999" } },
-        right: { style: "thin", color: { rgb: "999999" } }
-      }
-    };
-  });
-
-  XLSX.utils.book_append_sheet(wb, ws, "Inputs");
-
-  // Results Summary
+  // --- Results Summary ---
   const resultsTable = document.querySelector('#results table');
   if (resultsTable) {
-    const summarySheet = XLSX.utils.table_to_sheet(resultsTable);
-    Object.keys(summarySheet).forEach(cell => {
-      if (cell[0] === '!') return;
-      summarySheet[cell].s = {
-        font: { bold: cell.includes("A1") || cell.includes("A8") }, // make first and cash flow row bold
-        alignment: { horizontal: "left" },
-        border: {
-          top: { style: "thin", color: { rgb: "999999" } },
-          bottom: { style: "thin", color: { rgb: "999999" } },
-          left: { style: "thin", color: { rgb: "999999" } },
-          right: { style: "thin", color: { rgb: "999999" } }
-        }
-      };
-    });
+    const resultsSheet = XLSX.utils.table_to_sheet(resultsTable);
+    const range = XLSX.utils.decode_range(resultsSheet['!ref']);
 
-    XLSX.utils.book_append_sheet(wb, summarySheet, "Results");
+    // Style headers
+    for (let C = range.s.c; C <= range.e.c; C++) {
+      const cellRef = XLSX.utils.encode_cell({ r: range.s.r, c: C });
+      if (!resultsSheet[cellRef]) continue;
+      resultsSheet[cellRef].s = {
+        font: { bold: true },
+        alignment: { wrapText: true, horizontal: "center" }
+      };
+    }
+
+    // Currency format for values
+    for (let R = range.s.r + 1; R <= range.e.r; R++) {
+      const valCell = XLSX.utils.encode_cell({ r: R, c: 1 });
+      if (resultsSheet[valCell] && resultsSheet[valCell].t === 'n') {
+        resultsSheet[valCell].z = '$#,##0';
+      }
+    }
+
+    // Highlight decision row
+    for (let R = range.s.r; R <= range.e.r; R++) {
+      const labelCell = XLSX.utils.encode_cell({ r: R, c: 0 });
+      if (resultsSheet[labelCell] && resultsSheet[labelCell].v?.toString().includes('Cash-on-Cash')) {
+        const val = parseFloat(resultsSheet[XLSX.utils.encode_cell({ r: R, c: 1 })].v);
+        let color = 'FFCCCC'; // red default
+        if (val >= 12) color = 'CCFFCC'; // green
+        else if (val >= 8) color = 'FFFFCC'; // yellow
+
+        resultsSheet[labelCell].s = { fill: { fgColor: { rgb: color } }, font: { bold: true } };
+        resultsSheet[XLSX.utils.encode_cell({ r: R, c: 1 })].s = { fill: { fgColor: { rgb: color } } };
+      }
+    }
+
+    XLSX.utils.book_append_sheet(wb, resultsSheet, "Results");
   }
 
-  // 5-Year Projection
+  // --- 5-Year Projection ---
   const projTable = document.querySelector('#fiveYearTable table');
   if (projTable) {
     const projSheet = XLSX.utils.table_to_sheet(projTable);
-    Object.keys(projSheet).forEach(cell => {
-      if (cell[0] === '!') return;
-      projSheet[cell].s = {
-        alignment: { horizontal: "left" },
-        border: {
-          top: { style: "thin", color: { rgb: "cccccc" } },
-          bottom: { style: "thin", color: { rgb: "cccccc" } },
-          left: { style: "thin", color: { rgb: "cccccc" } },
-          right: { style: "thin", color: { rgb: "cccccc" } }
+    projSheet["!cols"] = Array(6).fill({ wch: 18 });
+
+    // Make header bold
+    const range = XLSX.utils.decode_range(projSheet['!ref']);
+    for (let C = range.s.c; C <= range.e.c; C++) {
+      const cellRef = XLSX.utils.encode_cell({ r: range.s.r, c: C });
+      if (projSheet[cellRef]) {
+        projSheet[cellRef].s = {
+          font: { bold: true },
+          alignment: { wrapText: true, horizontal: "center" }
+        };
+      }
+    }
+
+    // Format numbers
+    for (let R = range.s.r + 1; R <= range.e.r; R++) {
+      for (let C = 1; C <= 5; C++) {
+        const cell = projSheet[XLSX.utils.encode_cell({ r: R, c: C })];
+        if (cell && cell.t === 'n') {
+          cell.z = '$#,##0';
         }
-      };
-    });
+      }
+    }
+
     XLSX.utils.book_append_sheet(wb, projSheet, "5-Year Projection");
   }
 
-  XLSX.writeFile(wb, "Multifamily_Proforma_Styled.xlsx");
-  alert("📥 Excel exported with bold headers and styled layout!");
+  // Write file
+  XLSX.writeFile(wb, "Multifamily_Proforma_Export.xlsx");
+  alert("✅ Excel exported with formatting, currency, and decision highlight!");
 }
 
 // Reset
