@@ -103,55 +103,63 @@ function render5YearProforma(income, expenses, debtService) {
 }
 
 function exportToExcel() {
-  const workbook = XLSX.utils.book_new();
-  const inputs = [
-    ["REProforma - Multifamily Proforma"],
-    [],
+  const wb = XLSX.utils.book_new();
+
+  // Title
+  const title = [["REProforma - Multifamily Acquisition Proforma"]];
+  const spacer = [[""]];
+
+  const inputData = [
     ["Category", "Field", "Value"],
-    ["Unit Mix", "1-Bed Units", document.getElementById('oneBedUnits').value],
-    ["", "Rent per 1-Bed", document.getElementById('rent1Bed').value],
-    ["", "2-Bed Units", document.getElementById('twoBedUnits').value],
-    ["", "Rent per 2-Bed", document.getElementById('rent2Bed').value],
-    ["", "3-Bed Units", document.getElementById('threeBedUnits').value],
-    ["", "Rent per 3-Bed", document.getElementById('rent3Bed').value],
-    [],
+    ["Rental Mix", "1-Bed Units", document.getElementById('oneBedUnits').value],
+    ["Rental Mix", "Rent per 1-Bed", document.getElementById('rent1Bed').value],
+    ["Rental Mix", "2-Bed Units", document.getElementById('twoBedUnits').value],
+    ["Rental Mix", "Rent per 2-Bed", document.getElementById('rent2Bed').value],
+    ["Rental Mix", "3-Bed Units", document.getElementById('threeBedUnits').value],
+    ["Rental Mix", "Rent per 3-Bed", document.getElementById('rent3Bed').value],
+    spacer[0],
     ["Income", "Other Income", document.getElementById('otherIncome').value],
-    ["", "Vacancy Rate (%)", document.getElementById('vacancyRate').value],
-    [],
+    ["Income", "Vacancy Rate (%)", document.getElementById('vacancyRate').value],
+    spacer[0],
     ["Expenses", "Property Taxes", document.getElementById('propertyTaxes').value],
-    ["", "Insurance", document.getElementById('insurance').value],
-    ["", "Utilities", document.getElementById('utilities').value],
-    ["", "Maintenance", document.getElementById('maintenance').value],
-    ["", "Management", document.getElementById('management').value],
-    ["", "Supplies", document.getElementById('supplies').value],
-    ["", "Staff", document.getElementById('staff').value],
-    ["", "Misc & Reserves", document.getElementById('misc').value],
-    [],
+    ["Expenses", "Insurance", document.getElementById('insurance').value],
+    ["Expenses", "Utilities", document.getElementById('utilities').value],
+    ["Expenses", "Maintenance", document.getElementById('maintenance').value],
+    ["Expenses", "Management", document.getElementById('management').value],
+    ["Expenses", "Supplies", document.getElementById('supplies').value],
+    ["Expenses", "Staff", document.getElementById('staff').value],
+    ["Expenses", "Misc & Reserves", document.getElementById('misc').value],
+    spacer[0],
     ["Financing", "Purchase Price", document.getElementById('purchasePrice').value],
-    ["", "Loan Amount", document.getElementById('loanAmount').value],
-    ["", "Interest Rate (%)", document.getElementById('interestRate').value],
-    ["", "Loan Term (Years)", document.getElementById('loanTerm').value]
+    ["Financing", "Loan Amount", document.getElementById('loanAmount').value],
+    ["Financing", "Interest Rate (%)", document.getElementById('interestRate').value],
+    ["Financing", "Loan Term (Years)", document.getElementById('loanTerm').value],
   ];
 
-  const inputSheet = XLSX.utils.aoa_to_sheet(inputs);
-  XLSX.utils.book_append_sheet(workbook, inputSheet, 'Inputs');
+  const inputSheet = XLSX.utils.aoa_to_sheet([...title, [], ...inputData]);
+  inputSheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
+  inputSheet["A1"].s = { font: { bold: true, sz: 14 }, alignment: { horizontal: "center" } };
+  inputSheet["A3"] = { t: "s", v: "Category", s: { font: { bold: true } } };
+  inputSheet["B3"] = { t: "s", v: "Field", s: { font: { bold: true } } };
+  inputSheet["C3"] = { t: "s", v: "Value", s: { font: { bold: true } } };
 
-  const results = document.getElementById('results').querySelector('table');
-  if (results) {
-    const resultSheet = XLSX.utils.table_to_sheet(results);
-    const lastRow = XLSX.utils.decode_range(resultSheet['!ref']).e.r + 2;
-    resultSheet[`A${lastRow}`] = { t: 's', v: "Decision Summary", s: { font: { bold: true } } };
-    resultSheet[`B${lastRow}`] = { t: 's', v: decisionText };
-    XLSX.utils.book_append_sheet(workbook, resultSheet, 'Summary');
+  XLSX.utils.book_append_sheet(wb, inputSheet, "Inputs");
+
+  // Export Results
+  const resultsTable = document.querySelector('#results table');
+  if (resultsTable) {
+    const summarySheet = XLSX.utils.table_to_sheet(resultsTable);
+    XLSX.utils.book_append_sheet(wb, summarySheet, "Results");
   }
 
-  const fiveYear = document.getElementById('fiveYearTable').querySelector('table');
-  if (fiveYear) {
-    const projectionSheet = XLSX.utils.table_to_sheet(fiveYear);
-    XLSX.utils.book_append_sheet(workbook, projectionSheet, '5-Year Projection');
+  // Export 5-Year Projection
+  const fiveYearTable = document.querySelector('#fiveYearTable table');
+  if (fiveYearTable) {
+    const projSheet = XLSX.utils.table_to_sheet(fiveYearTable);
+    XLSX.utils.book_append_sheet(wb, projSheet, "5-Year Projection");
   }
 
-  XLSX.writeFile(workbook, 'Multifamily_Proforma_Export.xlsx');
+  XLSX.writeFile(wb, "Multifamily_Proforma_Export.xlsx");
 }
 
 // Reset
