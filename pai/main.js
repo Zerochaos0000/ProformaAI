@@ -102,12 +102,9 @@ function exportExcel(){
   XLSX.writeFile(wb, 'Multifamily_Proforma.xlsx');
 }
 
-
-
 // Reset all input fields
 function resetInputs() {
-  const inputs = document.querySelectorAll('.input');
-  inputs.forEach(input => input.value = '');
+  document.querySelectorAll('input').forEach(input => input.value = '');
 }
 
 // Autofill Demo Inputs
