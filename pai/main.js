@@ -91,12 +91,12 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
-
-
-    inputSheet["A1"].s = { font: { bold: true, sz: 14 }, alignment: { horizontal: "center" } };
-    inputSheet["A3"] = { t: "s", v: "Category", s: { font: { bold: true } } };
-    inputSheet["B3"] = { t: "s", v: "Field", s: { font: { bold: true } } };
-    inputSheet["C3"] = { t: "s", v: "Value", s: { font: { bold: true } } };
+  const inputSheet = XLSX.utils.aoa_to_sheet([...title, [], ...inputData]);
+  inputSheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
+  inputSheet["A1"].s = { font: { bold: true, sz: 14 }, alignment: { horizontal: "center" } };
+  inputSheet["A3"] = { t: "s", v: "Category", s: { font: { bold: true } } };
+  inputSheet["B3"] = { t: "s", v: "Field", s: { font: { bold: true } } };
+  inputSheet["C3"] = { t: "s", v: "Value", s: { font: { bold: true } } };
 
     XLSX.utils.book_append_sheet(wb, inputSheet, "Inputs");
 
