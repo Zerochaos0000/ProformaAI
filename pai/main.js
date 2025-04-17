@@ -1,4 +1,3 @@
-
 document.addEventListener("DOMContentLoaded", function() {
 
   document.getElementById('calculate').addEventListener('click', calculateProforma);
