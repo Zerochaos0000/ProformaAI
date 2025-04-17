@@ -136,7 +136,7 @@ function render5YearProforma(income, expenses, debtService) {
     let yearlyExpenses = expenses * growth;
     let yearlyNOI = yearlyIncome - yearlyExpenses;
     let cashFlow = yearlyNOI - debtService;
-    table += `<tr><td>${y}</td><td>$${yearlyIncome.toFixed(0)}</td><td>$${yearlyExpenses.toFixed(0)}</td><td>$${yearlyNOI.toFixed(0)}</td><td>$${debtService.toFixed(0)}</td><td>$${cashFlow.toFixed(0)}</td></tr>`;
+    table += `<tr><td>${y}</td><td>$${yearlyIncome.toLocaleString()}</td><td>$${yearlyExpenses.toLocaleString()}</td><td>$${yearlyNOI.toLocaleString()}</td><td>$${debtService.toLocaleString()}</td><td>$${cashFlow.toLocaleString()}</td></tr>`;
   }
   table += "</table>";
   document.getElementById('fiveYearTable').innerHTML = table;
