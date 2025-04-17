@@ -93,7 +93,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 
-  , e: { r: 0, c: 2 } }];
     inputSheet["A1"].s = { font: { bold: true, sz: 14 }, alignment: { horizontal: "center" } };
     inputSheet["A3"] = { t: "s", v: "Category", s: { font: { bold: true } } };
     inputSheet["B3"] = { t: "s", v: "Field", s: { font: { bold: true } } };
@@ -246,7 +245,6 @@ document.addEventListener("DOMContentLoaded", function() {
     ];
 
     const inputSheet = XLSX.utils.aoa_to_sheet([...title, [], ...inputData]);
-    inputSheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
     XLSX.utils.book_append_sheet(wb, inputSheet, "Inputs");
 
     const resultsTable = document.querySelector('#results table');
