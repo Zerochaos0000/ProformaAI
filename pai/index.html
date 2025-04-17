@@ -9,22 +9,40 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background-color: #f9fafb;
+    }
+    .btn {
+      padding: 8px 16px;
+      background-color: #2563eb;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #1d4ed8;
+    }
+  </style>
 </head>
 
-<body class="bg-white text-gray-900">
+  <body class="bg-white text-gray-900">
   <header class="sticky top-0 bg-white shadow-md border-b mb-6">
     <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-blue-700 cursor-pointer">RE Proforma</h1>
+      <h1 class="text-2xl font-bold text-blue-700 cursor-pointer" onclick="location.href='../index.html'">RE Proforma</h1>
       <nav class="space-x-6">
-        <a href="#" class="text-blue-700 font-semibold">Home</a>
-        <a href="#" class="text-gray-700 hover:text-blue-600">About</a>
+        <a href="../index.html" class="text-blue-700 font-semibold">Home</a>
+        <a href="../about.html" class="text-gray-700 hover:text-blue-600">About</a>
       </nav>
     </div>
   </header>
 
-  <main class="max-w-5xl mx-auto py-10 px-6">
+  <main class="max-w-5xl mx-auto py-10 px-6">  
     <h2 class="text-3xl font-bold text-center text-blue-800 mb-6">🏢 Multifamily Acquisition Proforma</h2>
-
     <!-- Unit Mix & Rent Inputs -->
     <section class="bg-white p-6 rounded shadow mb-6">
       <h2 class="text-xl font-semibold mb-4">Unit Mix & Monthly Rents</h2>
@@ -48,32 +66,65 @@
     </section>
 
     <!-- Operating Expenses -->
-    <section class="bg-white p-6 rounded shadow mb-6">
-      <h2 class="text-xl font-semibold mb-4">Operating Expenses (Annual)</h2>
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <label>Property Taxes<input id="propertyTaxes" class="input" /></label>
-        <label>Insurance<input id="insurance" class="input" /></label>
-        <label>Utilities<input id="utilities" class="input" /></label>
-        <label>Maintenance<input id="maintenance" class="input" /></label>
-        <label>Management<input id="management" class="input" /></label>
-        <label>Supplies<input id="supplies" class="input" /></label>
-        <label>Staff<input id="staff" class="input" /></label>
-        <label>Misc & Reserves<input id="misc" class="input" /></label>
-      </div>
-    </section>
+<section class="bg-white p-6 rounded shadow mb-6">
+  <h2 class="text-xl font-semibold mb-4">Operating Expenses (Annual)</h2>
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <label>
+      Property Taxes
+      <input id="propertyTaxes" class="input"  />
+    </label>
+    <label>
+      Insurance
+      <input id="insurance" class="input"  />
+    </label>
+    <label>
+      Utilities
+      <input id="utilities" class="input"  />
+    </label>
+    <label>
+      Maintenance
+      <input id="maintenance" class="input"  />
+    </label>
+    <label>
+      Management
+      <input id="management" class="input"  />
+    </label>
+    <label>
+      Supplies
+      <input id="supplies" class="input"  />
+    </label>
+    <label>
+      Staff
+      <input id="staff" class="input"  />
+    </label>
+    <label>
+      Misc & Reserves
+      <input id="misc" class="input"  />
+    </label></div>
+</section>
 
-    <!-- Acquisition & Loan Details -->
-    <section class="bg-white p-6 rounded shadow mb-6">
-      <h2 class="text-xl font-semibold mb-4">Acquisition & Loan Details</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <label>Purchase Price ($)<input id="purchasePrice" class="input" /></label>
-        <label>Loan Amount ($)<input id="loanAmount" class="input" /></label>
-        <label>Interest Rate (%)<input id="interestRate" class="input" /></label>
-        <label>Loan Term (Years)<input id="loanTerm" class="input" /></label>
-      </div>
-    </section>
+<section class="bg-white p-6 rounded shadow mb-6">
+  <h2 class="text-xl font-semibold mb-4">Acquisition & Loan Details</h2>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <label>
+      Purchase Price ($)
+      <input id="purchasePrice" class="input"  />
+    </label>
+    <label>
+      Loan Amount ($)
+      <input id="loanAmount" class="input"  />
+    </label>
+    <label>
+      Interest Rate (%)
+      <input id="interestRate" class="input"  />
+    </label>
+    <label>
+      Loan Term (Years)
+      <input id="loanTerm" class="input"  />
+    </label></div>
+</section>
 
-    <!-- Action Buttons -->
+    <!-- Calculate & Export Buttons -->
     <div class="text-center my-6">
       <button id="calculate" class="btn">Calculate Proforma</button>
       <button id="exportPdf" class="btn">Export PDF</button>
@@ -82,7 +133,7 @@
       <button id="resetInputs" class="btn reset-btn">Reset Inputs</button>
     </div>
 
-    <!-- Results -->
+    <!-- Results Section -->
     <section class="bg-white p-6 rounded shadow mb-6">
       <h2 class="text-xl font-semibold mb-4">Results Summary</h2>
       <div id="results" class="overflow-x-auto"></div>
@@ -107,6 +158,7 @@
     </section>
   </main>
 
+  <!-- Footer -->
   <footer class="shadow py-4 bg-white mt-10">
     <div class="max-w-5xl mx-auto px-6 text-center text-sm">
       &copy; 2025 REProforma. All Rights Reserved. |
