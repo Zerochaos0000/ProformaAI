@@ -1,44 +1,8 @@
 document.getElementById('calculate').addEventListener('click', calculateProforma);
+document.getElementById('exportPdf').addEventListener('click', () => window.print());
 document.getElementById('exportXls').addEventListener('click', exportToExcel);
 document.getElementById('autofillDemo').addEventListener('click', autofillDemo);
 document.getElementById('resetInputs').addEventListener('click', resetInputs);
-document.getElementById('exportPdf').addEventListener('click', () => {
-  const exportDiv = document.getElementById('pdfExportContent');
-  const resultsContent = document.getElementById('results').innerHTML;
-  const projectionContent = document.getElementById('fiveYearTable').innerHTML;
-
-  const incomeCanvas = document.getElementById('incomeChart');
-  const expenseCanvas = document.getElementById('expenseChart');
-  const incomeImg = incomeCanvas.toDataURL('image/png');
-  const expenseImg = expenseCanvas.toDataURL('image/png');
-
-  exportDiv.innerHTML = `
-    <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 16px;">🏢 Multifamily Acquisition Proforma Report</h2>
-
-    <h3 style="font-size: 18px; font-weight: bold; margin-top: 24px;">Results Summary</h3>
-    <div style="margin-bottom: 24px;">${resultsContent}</div>
-
-    <h3 style="font-size: 18px; font-weight: bold; margin-top: 24px;">5-Year Proforma Projection</h3>
-    <div style="margin-bottom: 24px;">${projectionContent}</div>
-
-    <h3 style="font-size: 18px; font-weight: bold;">Income Overview</h3>
-    <img src="${incomeImg}" style="max-width: 100%; margin-bottom: 20px;" />
-
-    <h3 style="font-size: 18px; font-weight: bold;">Expenses Breakdown</h3>
-    <img src="${expenseImg}" style="max-width: 100%;" />
-  `;
-
-
-  const content = document.getElementById('pdfExportContent');
-  const options = {
-    margin: 0,
-    filename: 'Multifamily_Proforma_Report.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-  };
-  html2pdf().set(options).from(content).save();
-});
 
 function parseCurrency(val) {
   return Number(val.replace(/[^0-9.-]+/g, "")) || 0;
@@ -124,56 +88,9 @@ function renderCharts(egi, noi, expenses) {
   });
 }
 
-function render5YearProforma(income, expenses, debtService) {
-  let table = '<table class="w-full text-left"><tr><th>Year</th><th>Income</th><th>Expenses</th><th>NOI</th><th>Debt Service</th><th>Cash Flow</th></tr>';
-  for(let y = 1; y <= 5; y++) {
-    let growth = Math.pow(1.02, y - 1);
-    let yearlyIncome = income * growth;
-    let yearlyExpenses = expenses * growth;
-    let yearlyNOI = yearlyIncome - yearlyExpenses;
-    let cashFlow = yearlyNOI - debtService;
-    table += `<tr><td>${y}</td><td>$${yearlyIncome.toFixed(0)}</td><td>$${yearlyExpenses.toFixed(0)}</td><td>$${yearlyNOI.toFixed(0)}</td><td>$${debtService.toFixed(0)}</td><td>$${cashFlow.toFixed(0)}</td></tr>`;
-  }
-  table += '</table>';
-  document.getElementById('fiveYearTable').innerHTML = table;
-}
 
-function exportToExcel() {
-  const wb = XLSX.utils.book_new();
 
-  // Title
-  const title = [["REProforma - Multifamily Acquisition Proforma"]];
-  const spacer = [[""]];
-
-  const inputData = [
-    ["Category", "Field", "Value"],
-    ["Rental Mix", "1-Bed Units", document.getElementById('oneBedUnits').value],
-    ["Rental Mix", "Rent per 1-Bed", document.getElementById('rent1Bed').value],
-    ["Rental Mix", "2-Bed Units", document.getElementById('twoBedUnits').value],
-    ["Rental Mix", "Rent per 2-Bed", document.getElementById('rent2Bed').value],
-    ["Rental Mix", "3-Bed Units", document.getElementById('threeBedUnits').value],
-    ["Rental Mix", "Rent per 3-Bed", document.getElementById('rent3Bed').value],
-    spacer[0],
-    ["Income", "Other Income", document.getElementById('otherIncome').value],
-    ["Income", "Vacancy Rate (%)", document.getElementById('vacancyRate').value],
-    spacer[0],
-    ["Expenses", "Property Taxes", document.getElementById('propertyTaxes').value],
-    ["Expenses", "Insurance", document.getElementById('insurance').value],
-    ["Expenses", "Utilities", document.getElementById('utilities').value],
-    ["Expenses", "Maintenance", document.getElementById('maintenance').value],
-    ["Expenses", "Management", document.getElementById('management').value],
-    ["Expenses", "Supplies", document.getElementById('supplies').value],
-    ["Expenses", "Staff", document.getElementById('staff').value],
-    ["Expenses", "Misc & Reserves", document.getElementById('misc').value],
-    spacer[0],
-    ["Financing", "Purchase Price", document.getElementById('purchasePrice').value],
-    ["Financing", "Loan Amount", document.getElementById('loanAmount').value],
-    ["Financing", "Interest Rate (%)", document.getElementById('interestRate').value],
-    ["Financing", "Loan Term (Years)", document.getElementById('loanTerm').value],
-  ];
-
-  const inputSheet = XLSX.utils.aoa_to_sheet([...title, [], ...inputData]);
-  inputSheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
+, e: { r: 0, c: 2 } }];
   inputSheet["A1"].s = { font: { bold: true, sz: 14 }, alignment: { horizontal: "center" } };
   inputSheet["A3"] = { t: "s", v: "Category", s: { font: { bold: true } } };
   inputSheet["B3"] = { t: "s", v: "Field", s: { font: { bold: true } } };
@@ -228,4 +145,118 @@ function autofillDemo() {
   document.getElementById('loanAmount').value = 3500000;
   document.getElementById('interestRate').value = 5;
   document.getElementById('loanTerm').value = 25;
+}
+
+
+// Modified version of render5YearProforma with accurate inflation-based projection
+function render5YearProforma(income, expenses, debtService) {
+  const rentGrowth = [0, 0.05, 0.02, 0.02, 0.02];
+  const otherGrowth = [0, 0.03, 0.02, 0.02, 0.02];
+  const expenseGrowth = [0, 0.02, 0.02, 0.02, 0.02];
+  const vacancyRate = 0.05;
+
+  const baseOtherIncome = parseCurrency(document.getElementById('otherIncome').value);
+  const baseRentIncome = income + (vacancyRate * income) - baseOtherIncome;
+
+  let table = '<table class="w-full text-left"><tr><th>Year</th><th>Potential Rental Income</th><th>Total Other Income</th><th>Potential Gross Income</th><th>Vacancy Loss</th><th>EGI</th><th>Operating Expenses</th><th>NOI</th><th>Operating Margin</th><th>Debt Service</th><th>Cash Flow</th></tr>';
+
+  for (let y = 0; y < 5; y++) {
+    const rental = baseRentIncome * (1 + rentGrowth.slice(0, y + 1).reduce((a, b) => a + b, 0));
+    const other = baseOtherIncome * (1 + otherGrowth.slice(0, y + 1).reduce((a, b) => a + b, 0));
+    const gross = rental + other;
+    const vacancy = gross * vacancyRate;
+    const egi = gross - vacancy;
+    const yearlyExpenses = expenses * Math.pow(1.02, y);
+    const noi = egi - yearlyExpenses;
+    const margin = (noi / egi) * 100;
+    const cf = noi - debtService;
+
+    table += `<tr>
+      <td>Year ${y + 1}</td>
+      <td>$${rental.toFixed(0)}</td>
+      <td>$${other.toFixed(0)}</td>
+      <td>$${gross.toFixed(0)}</td>
+      <td>$${vacancy.toFixed(0)}</td>
+      <td>$${egi.toFixed(0)}</td>
+      <td>$${yearlyExpenses.toFixed(0)}</td>
+      <td>$${noi.toFixed(0)}</td>
+      <td>${margin.toFixed(1)}%</td>
+      <td>$${debtService.toFixed(0)}</td>
+      <td>$${cf.toFixed(0)}</td>
+    </tr>`;
+  }
+
+  // Future Sale Calculation at Year 5
+  const exitCapRate = 0.06;
+  const year5NOI = (baseRentIncome * Math.pow(1.02, 4) + baseOtherIncome * Math.pow(1.02, 4)) * (1 - vacancyRate) - expenses * Math.pow(1.02, 4);
+  const saleValue = year5NOI / exitCapRate;
+  const costOfSale = saleValue * 0.03;
+  const loanTerm = parseInt(document.getElementById('loanTerm').value);
+  const interestRate = parseFloat(document.getElementById('interestRate').value) / 100;
+  const loanAmount = parseCurrency(document.getElementById('loanAmount').value);
+  const monthlyRate = interestRate / 12;
+  const loanBalance = loanAmount * Math.pow(1 + monthlyRate, loanTerm * 12 - 60) - (loanAmount * monthlyRate * ((Math.pow(1 + monthlyRate, loanTerm * 12 - 60) - 1) / monthlyRate));
+
+  const netProceeds = saleValue - costOfSale - loanBalance;
+
+  table += `<tr><td colspan="11"><strong>Future Sale Value</strong>: $${saleValue.toFixed(0)}</td></tr>`;
+  table += `<tr><td colspan="11"><strong>Less: Cost of Sale (3%)</strong>: $${costOfSale.toFixed(0)}</td></tr>`;
+  table += `<tr><td colspan="11"><strong>Less: Loan Balance (Year 5)</strong>: $${loanBalance.toFixed(0)}</td></tr>`;
+  table += `<tr><td colspan="11"><strong>Net Sale Proceeds</strong>: $${netProceeds.toFixed(0)}</td></tr>`;
+
+  table += '</table>';
+  document.getElementById('fiveYearTable').innerHTML = table;
+}
+
+
+function exportToExcel() {
+  const wb = XLSX.utils.book_new();
+
+  const title = [["REProforma - Multifamily Acquisition Proforma"]];
+  const spacer = [[""]];
+
+  const inputData = [
+    ["Category", "Field", "Value"],
+    ["Rental Mix", "1-Bed Units", document.getElementById('oneBedUnits').value],
+    ["Rental Mix", "Rent per 1-Bed", document.getElementById('rent1Bed').value],
+    ["Rental Mix", "2-Bed Units", document.getElementById('twoBedUnits').value],
+    ["Rental Mix", "Rent per 2-Bed", document.getElementById('rent2Bed').value],
+    ["Rental Mix", "3-Bed Units", document.getElementById('threeBedUnits').value],
+    ["Rental Mix", "Rent per 3-Bed", document.getElementById('rent3Bed').value],
+    spacer[0],
+    ["Income", "Other Income", document.getElementById('otherIncome').value],
+    ["Income", "Vacancy Rate (%)", document.getElementById('vacancyRate').value],
+    spacer[0],
+    ["Expenses", "Property Taxes", document.getElementById('propertyTaxes').value],
+    ["Expenses", "Insurance", document.getElementById('insurance').value],
+    ["Expenses", "Utilities", document.getElementById('utilities').value],
+    ["Expenses", "Maintenance", document.getElementById('maintenance').value],
+    ["Expenses", "Management", document.getElementById('management').value],
+    ["Expenses", "Supplies", document.getElementById('supplies').value],
+    ["Expenses", "Staff", document.getElementById('staff').value],
+    ["Expenses", "Misc & Reserves", document.getElementById('misc').value],
+    spacer[0],
+    ["Financing", "Purchase Price", document.getElementById('purchasePrice').value],
+    ["Financing", "Loan Amount", document.getElementById('loanAmount').value],
+    ["Financing", "Interest Rate (%)", document.getElementById('interestRate').value],
+    ["Financing", "Loan Term (Years)", document.getElementById('loanTerm').value],
+  ];
+
+  const inputSheet = XLSX.utils.aoa_to_sheet([...title, [], ...inputData]);
+  inputSheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
+  XLSX.utils.book_append_sheet(wb, inputSheet, "Inputs");
+
+  const resultsTable = document.querySelector('#results table');
+  if (resultsTable) {
+    const summarySheet = XLSX.utils.table_to_sheet(resultsTable);
+    XLSX.utils.book_append_sheet(wb, summarySheet, "Results");
+  }
+
+  const fiveYearTable = document.querySelector('#fiveYearTable table');
+  if (fiveYearTable) {
+    const projSheet = XLSX.utils.table_to_sheet(fiveYearTable);
+    XLSX.utils.book_append_sheet(wb, projSheet, "5-Year Projection + Sale");
+  }
+
+  XLSX.writeFile(wb, "Multifamily_Proforma_Export.xlsx");
 }
