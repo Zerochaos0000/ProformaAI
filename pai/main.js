@@ -46,11 +46,11 @@ function calculateProforma() {
 
   let decisionText = '';
   if (cashOnCash >= 12) {
-    decisionText = `✅ This appears to be a strong investment opportunity (CoC: ${cashOnCash.toFixed(2)}%)`;
+    decisionText = `✅ This appears to be a strong investment opportunity (CoC: ${Math.round(cashOnCash)}%)`;
   } else if (cashOnCash >= 8) {
-    decisionText = `⚠️ Moderate returns. Consider refining assumptions (CoC: ${cashOnCash.toFixed(2)}%)`;
+    decisionText = `⚠️ Moderate returns. Consider refining assumptions (CoC: ${Math.round(cashOnCash)}%)`;
   } else {
-    decisionText = `❌ Low investment return. Proceed with caution (CoC: ${cashOnCash.toFixed(2)}%)`;
+    decisionText = `❌ Low investment return. Proceed with caution (CoC: ${Math.round(cashOnCash)}%)`;
   }
 
   const capRate = (NOI / purchasePrice) * 100;
@@ -94,11 +94,11 @@ function calculateProforma() {
       <tr><td>Effective Gross Income</td><td>$${effectiveGrossIncome.toLocaleString()}</td></tr>
       <tr><td>Operating Expenses</td><td>$${totalExpenses.toLocaleString()}</td></tr>
       <tr><td>Net Operating Income (NOI)</td><td>$${NOI.toLocaleString()}</td></tr>
-      <tr><td>Annual Debt Service</td><td>$${annualDebtService.toLocaleString()}</td></tr>
-      <tr class="font-bold"><td>Cash Flow Before Tax</td><td>$${cashFlowBeforeTax.toLocaleString()}</td></tr>
-      <tr><td>Cash-on-Cash Return</td><td>${cashOnCash.toFixed(2)}%</td></tr>
-      <tr><td>Cap Rate</td><td>${capRate.toFixed(2)}%</td></tr>
-      <tr><td>Estimated IRR</td><td>${irr.toFixed(2)}%</td></tr>
+      <tr><td>Annual Debt Service</td><td>$${Math.round(annualDebtService).toLocaleString()}</td></tr>
+      <tr class="font-bold"><td>Cash Flow Before Tax</td><td>$${Math.round(cashFlowBeforeTax).toLocaleString()}</td></tr>
+      <tr><td>Cash-on-Cash Return</td><td>${Math.round(cashOnCash)}%</td></tr>
+      <tr><td>Cap Rate</td><td>${Math.round(capRate)}%</td></tr>
+      <tr><td>Estimated IRR</td><td>${Math.round(irr)}%</td></tr>
     </table>
     <p class="mt-4 font-semibold">${decisionText}</p>
   `;
@@ -136,7 +136,7 @@ function render5YearProforma(income, expenses, debtService) {
     let yearlyExpenses = expenses * growth;
     let yearlyNOI = yearlyIncome - yearlyExpenses;
     let cashFlow = yearlyNOI - debtService;
-    table += `<tr><td>${y}</td><td>$${yearlyIncome.toLocaleString()}</td><td>$${yearlyExpenses.toLocaleString()}</td><td>$${yearlyNOI.toLocaleString()}</td><td>$${debtService.toLocaleString()}</td><td>$${cashFlow.toLocaleString()}</td></tr>`;
+    table += `<tr><td>${y}</td><td>$${Math.round(yearlyIncome).toLocaleString()}</td><td>$${Math.round(yearlyExpenses).toLocaleString()}</td><td>$${Math.round(yearlyNOI).toLocaleString()}</td><td>$${Math.round(debtService).toLocaleString()}</td><td>$${Math.round(cashFlow).toLocaleString()}</td></tr>`;
   }
   table += "</table>";
   document.getElementById('fiveYearTable').innerHTML = table;
