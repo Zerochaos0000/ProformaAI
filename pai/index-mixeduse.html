@@ -169,6 +169,50 @@ d<!DOCTYPE html>
       </ul>
     </section>
 
+    <canvas id="cocChart" width="400" height="300"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const ctx = document.getElementById("cocChart").getContext("2d");
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: ["<8%", "8–10%", "10–12%", "12–15%", "15%+"],
+      datasets: [{
+        label: "Return Quality",
+        data: [2, 5, 8, 12, 18],
+        backgroundColor: [
+          "#f87171",  // red - weak
+          "#facc15",  // yellow - average
+          "#4ade80",  // light green - strong
+          "#22c55e",  // green - very strong
+          "#ef4444"   // red - high risk
+        ]
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Target Return (%)'
+          }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => `Target: ${ctx.raw}%`
+          }
+        }
+      }
+    }
+  });
+});
+</script>
+
 
     
 
