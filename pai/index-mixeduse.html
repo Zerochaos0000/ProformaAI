@@ -3,14 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mixed-Use Proforma | RE Proforma</title>
+  <title>RE Proforma</title>
   <link rel="icon" type="image/png" href="favicon.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-  <link href="style-mixeduse.css" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background-color: #f9fafb;
+    }
+    .btn {
+      padding: 8px 16px;
+      background-color: #2563eb;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #1d4ed8;
+    }
+  </style>
 </head>
-<body class="bg-white text-gray-900">
+
+  <body class="bg-white text-gray-900">
   <header class="sticky top-0 bg-white shadow-md border-b mb-6">
     <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
       <h1 class="text-2xl font-bold text-blue-700 cursor-pointer" onclick="location.href='../index.html'">RE Proforma</h1>
@@ -21,89 +41,179 @@
     </div>
   </header>
 
-  <main class="max-w-6xl mx-auto px-6 py-4">
-    <h2 class="text-3xl font-bold text-center text-blue-800 mb-6">🏢 Mixed-Use Investment Proforma</h2>
+  <main class="max-w-5xl mx-auto py-10 px-6">  
+    <h2 class="text-3xl font-bold text-center text-blue-800 mb-6">🏬 Commercial/Retail Acquisition Proforma</h2>
+    <!-- Unit Mix & Rent Inputs -->
+    
+    
 
-    <button id="autofillDemo" class="autofill-btn">Autofill Demo Inputs</button>
 
-    <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <h3 class="text-xl font-semibold mb-2">Multifamily Unit Mix</h3>
-        <label>1-Bed Units <input type="number" id="oneBedUnits" class="input" /></label>
-        <label>Rent/1-Bed ($) <input type="text" id="rent1Bed" class="input" /></label>
-        <label>2-Bed Units <input type="number" id="twoBedUnits" class="input" /></label>
-        <label>Rent/2-Bed ($) <input type="text" id="rent2Bed" class="input" /></label>
-        <label>3-Bed Units <input type="number" id="threeBedUnits" class="input" /></label>
-        <label>Rent/3-Bed ($) <input type="text" id="rent3Bed" class="input" /></label>
-      </div>
-      <div>
-        <h3 class="text-xl font-semibold mb-2">Retail Component</h3>
-        <label>Retail Sq. Ft <input type="number" id="retailSqFt" class="input" /></label>
-        <label>Rent/Sq. Ft ($) <input type="text" id="retailRate" class="input" /></label>
-      </div>
-    </section>
-
-    <section class="mt-8">
-      <h3 class="text-xl font-semibold mb-2">Operating Expenses</h3>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <label>Property Taxes <input type="text" id="taxes" class="input" /></label>
-        <label>Insurance <input type="text" id="insurance" class="input" /></label>
-        <label>Utilities <input type="text" id="utilities" class="input" /></label>
-        <label>Maintenance <input type="text" id="maintenance" class="input" /></label>
-        <label>Management <input type="text" id="management" class="input" /></label>
-        <label>Supplies <input type="text" id="supplies" class="input" /></label>
-        <label>Misc & Reserves <input type="text" id="misc" class="input" /></label>
-        <label>Building Staff <input type="text" id="staff" class="input" /></label>
-        <label>Repairs <input type="text" id="repairs" class="input" /></label>
-      </div>
-    </section>
-
-    <section class="mt-8">
-      <h3 class="text-xl font-semibold mb-2">Financing & Investment</h3>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <label>Loan Amount ($) <input type="text" id="loanAmount" class="input" /></label>
-        <label>Interest Rate (%) <input type="number" id="loanRate" class="input" /></label>
-        <label>Amortization (Years) <input type="number" id="loanAmort" class="input" /></label>
-        <label>Purchase Price ($) <input type="text" id="purchasePrice" class="input" /></label>
-        <label>Terminal Cap Rate (%) <input type="number" id="terminalCapRate" class="input" /></label>
-        <label>Cost of Sale EOY5 (%) <input type="number" id="costOfSale" class="input" /></label>
+    <!-- Tenant Lease Roster -->
+<section class="bg-white p-6 rounded shadow mb-6">
+  <h2 class="text-xl font-semibold mb-4">Tenant Lease Roster</h2>
+  <table id="tenantTable" class="w-full text-left mb-4 border">
+    <thead>
+      <tr class="bg-gray-100">
+        <th class="p-2">Tenant</th>
+        <th class="p-2">SF</th>
+        <th class="p-2">Base Rent ($/SF)</th>
+        <th class="p-2">Lease Start</th>
+        <th class="p-2">Lease End</th>
+        <th class="p-2">Annual Escalation (%)</th>
+        <th class="p-2">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="tenantRows">
+      <tr>
+        <td><input class="input" placeholder="Tenant A" /></td>
+        <td><input class="input" type="number" /></td>
+        <td><input class="input" type="number" /></td>
+        <td><input class="input" type="date" /></td>
+        <td><input class="input" type="date" /></td>
+        <td><input class="input" type="number" value="2" /></td>
+        <td><button class="btn text-sm bg-red-500 hover:bg-red-600" onclick="this.closest('tr').remove()">🗑</button></td>
+      </tr>
+    </tbody>
+  </table>
+  <button class="btn bg-green-600 hover:bg-green-700 mb-2" onclick="addTenantRow()">➕ Add Tenant</button>
+</section>
+<!-- Other Income & Vacancy -->
+    <section class="bg-white p-6 rounded shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">Other Income & Vacancy</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div><label>Other Income ($)<input id="otherIncome" class="input" /></label></div>
+        <div><label>Vacancy Rate (%)<input id="vacancyRate" class="input" /></label></div>
       </div>
     </section>
 
-    <div class="flex justify-center gap-4 mt-6">
-      <button id="calculate" class="btn">Calculate</button>
+    <!-- Operating Expenses -->
+<section class="bg-white p-6 rounded shadow mb-6">
+  <h2 class="text-xl font-semibold mb-4">Operating Expenses (Annual)</h2>
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <label>
+      Property Taxes
+      <input id="propertyTaxes" class="input"  />
+    </label>
+    <label>
+      Insurance
+      <input id="insurance" class="input"  />
+    </label>
+    <label>
+      Utilities
+      <input id="utilities" class="input"  />
+    </label>
+    <label>
+      Maintenance
+      <input id="maintenance" class="input"  />
+    </label>
+    <label>
+      Management
+      <input id="management" class="input"  />
+    </label>
+    <label>
+      Supplies
+      <input id="supplies" class="input"  />
+    </label>
+    <label>
+      Staff
+      <input id="staff" class="input"  />
+    </label>
+    <label>
+      Misc & Reserves
+      <input id="misc" class="input"  />
+    </label></div>
+</section>
+
+<section class="bg-white p-6 rounded shadow mb-6">
+  <h2 class="text-xl font-semibold mb-4">Acquisition & Loan Details</h2>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <label>
+      Purchase Price ($)
+      <input id="purchasePrice" class="input"  />
+    </label>
+    <label>
+      Loan Amount ($)
+      <input id="loanAmount" class="input"  />
+    </label>
+    <label>
+      Interest Rate (%)
+      <input id="interestRate" class="input"  />
+    </label>
+    <label>
+      Loan Term (Years)
+      <input id="loanTerm" class="input"  />
+    </label></div>
+</section>
+
+    <!-- Calculate & Export Buttons -->
+    <div class="text-center my-6">
+      <button id="calculate" class="btn">Calculate Proforma</button>
       <button id="exportPdf" class="btn">Export PDF</button>
-      <button id="exportXls" class="btn">Export XLSX</button>
+      <button id="exportXls" class="btn">Export Excel</button>
+      <button id="autofillDemo" class="autofill-btn">Autofill Demo Inputs</button>
+      <button id="resetInputs" class="btn reset-btn">Reset Inputs</button>
     </div>
 
-    <div id="results" class="mt-10"></div>
-
-    <section class="mt-12">
-      <h3 class="text-xl font-bold mb-3">📊 Income Chart</h3>
-      <canvas id="resultsChart" height="80"></canvas>
+    <!-- Results Section -->
+    <section class="bg-white p-6 rounded shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">Results Summary</h2>
+      <div id="results" class="overflow-x-auto"></div>
+    </section>
+    <!-- Metric Explanations -->
+    <section class="bg-white p-6 rounded shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">📘 Investment Metric Definitions</h2>
+      <ul class="list-disc pl-6 space-y-3 text-gray-800">
+        <li><strong>Cash-on-Cash Return:</strong> Annual cash flow before taxes divided by your initial cash investment (equity). Indicates how efficiently your money is working year-to-year.</li>
+        <li><strong>Cap Rate:</strong> Net Operating Income (NOI) divided by the purchase price. Shows property income potential, useful for comparing properties.</li>
+        <li><strong>Estimated IRR:</strong> The average annual return over time, including cash flow and sale proceeds, adjusted for time value of money.</li>
+      </ul>
     </section>
 
-    <section class="mt-12">
-      <h3 class="text-xl font-bold mb-3">📉 Expense Breakdown</h3>
-      <canvas id="expensesChart" height="80"></canvas>
+
+    
+
+
+
+<!-- Financing Details -->
+<section class="bg-white p-6 rounded shadow mb-6">
+  <h2 class="text-xl font-semibold mb-4">Financing & Assumptions</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <label>Vacancy Rate (%)<input id="vacancyRate" class="input" value="5" type="number" /></label>
+    <label>Purchase Price ($)<input id="purchasePrice" class="input" value="22000000" /></label>
+    <label>Loan Amount ($)<input id="loanAmount" class="input" value="15400000" /></label>
+    <label>Interest Rate (%)<input id="interestRate" class="input" value="6" /></label>
+    <label>Loan Term (Years)<input id="loanTerm" class="input" value="25" /></label>
+  </div>
+</section>
+
+<!-- 5-Year Projection -->
+    <section class="bg-white p-6 rounded shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">5-Year Proforma Projection</h2>
+      <div id="fiveYearTable" class="overflow-x-auto"></div>
     </section>
 
-    <section class="mt-12">
-      <h3 class="text-xl font-bold mb-3">📅 5-Year Proforma Summary</h3>
-      <div id="proformaTable"></div>
+    <!-- Charts -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-white p-6 rounded shadow">
+        <h2 class="text-xl font-semibold mb-4">Income Overview</h2>
+        <canvas id="incomeChart"></canvas>
+      </div>
+      <div class="bg-white p-6 rounded shadow">
+        <h2 class="text-xl font-semibold mb-4">Expenses Breakdown</h2>
+        <canvas id="expenseChart"></canvas>
+      </div>
     </section>
   </main>
 
-  <footer class="bg-blue-50 text-gray-600 py-6 border-t mt-20">
-    <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
-      <p class="text-sm">&copy; 2025 RE Proforma. All rights reserved.</p>
-      <div class="space-x-4 mt-2 md:mt-0">
-        <a href="#" class="hover:text-blue-600">Privacy</a>
-        <a href="#" class="hover:text-blue-600">Terms</a>
-      </div>
+  <!-- Footer -->
+  <footer class="shadow py-4 bg-white mt-10">
+    <div class="max-w-5xl mx-auto px-6 text-center text-sm">
+      &copy; 2025 REProforma. All Rights Reserved. |
+      <a href="#" class="hover:text-blue-600">Privacy</a> |
+      <a href="#" class="hover:text-blue-600">Terms</a>
     </div>
   </footer>
 
-  <script src="main-mixeduse.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>
