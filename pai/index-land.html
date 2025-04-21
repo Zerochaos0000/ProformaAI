@@ -51,6 +51,56 @@
 
     <div id="results" class="mt-10"></div>
 
+     <!-- Metric Explanations -->
+    <section class="bg-white p-6 rounded shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">📘 Investment Metric Definitions</h2>
+      <ul class="list-disc pl-6 space-y-3 text-gray-800">
+        <li><strong>Cash-on-Cash Return:</strong> Annual cash flow before taxes divided by your initial cash investment (equity). Indicates how efficiently your money is working year-to-year.</li>
+        <li><strong>Cap Rate:</strong> Net Operating Income (NOI) divided by the purchase price. Shows property income potential, useful for comparing properties.</li>
+        <li><strong>Estimated IRR:</strong> The average annual return over time, including cash flow and sale proceeds, adjusted for time value of money.</li>
+      </ul>
+    </section>
+
+   <!-- Cash-on-Cash Return Quality Table -->
+<section class="bg-white p-6 rounded shadow mb-6">
+  <h2 class="text-xl font-semibold mb-4">📈 What Is a Good Cash-on-Cash Return?</h2>
+  <table class="w-full text-left border border-gray-200">
+    <thead class="bg-gray-100">
+      <tr>
+        <th class="p-2 border-b">Return</th>
+        <th class="p-2 border-b">Quality</th>
+        <th class="p-2 border-b">Typical Deal Type</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="p-2 border-b">&lt;8%</td>
+        <td class="p-2 border-b text-red-600 font-semibold">❌ Weak</td>
+        <td class="p-2 border-b">Overpriced core assets, low yield</td>
+      </tr>
+      <tr>
+        <td class="p-2 border-b">8–10%</td>
+        <td class="p-2 border-b text-yellow-500 font-semibold">🟡 Average</td>
+        <td class="p-2 border-b">Stabilized multifamily in primary markets</td>
+      </tr>
+      <tr>
+        <td class="p-2 border-b">10–12%</td>
+        <td class="p-2 border-b text-green-500 font-semibold">🟢 Strong</td>
+        <td class="p-2 border-b">Value-add or mixed-use in secondary markets</td>
+      </tr>
+      <tr>
+        <td class="p-2 border-b">12–15%</td>
+        <td class="p-2 border-b text-green-600 font-semibold">🟢 Very Strong</td>
+        <td class="p-2 border-b">Opportunistic or repositioning deals</td>
+      </tr>
+      <tr>
+        <td class="p-2">15%+</td>
+        <td class="p-2 text-red-500 font-semibold">🔴 High Risk</td>
+        <td class="p-2">Ground-up development, distressed assets</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
     <section class="mt-12">
       <h3 class="text-xl font-bold mb-3">📈 Financial Chart</h3>
       <canvas id="chart" height="80"></canvas>
