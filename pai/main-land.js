@@ -48,13 +48,6 @@ function calculateProforma() {
     </table>
   `;
 
-function autofillDemo() {
-  const tenants = [
-    ["Starbucks", 2000, 45],
-    ["Verizon", 3500, 42],
-    ["Chase Bank", 4200, 50]
-  ];
-  
   document.getElementById('results').innerHTML = resultsHTML;
 
   renderProformaTable(grossRevenue, totalCosts, annualDebtService);
@@ -124,30 +117,13 @@ function exportToExcel() {
   XLSX.writeFile(wb, 'Land_Development_Proforma.xlsx');
 }
 
-  function autofillDemo() {
-  document.getElementById('oneBedUnits').value = 20;
-  document.getElementById('rent1Bed').value = 1200;
-  document.getElementById('twoBedUnits').value = 35;
-  document.getElementById('rent2Bed').value = 1500;
-  document.getElementById('threeBedUnits').value = 15;
-  document.getElementById('rent3Bed').value = 1800;
-
-  document.getElementById('otherIncome').value = 25000;
-  document.getElementById('vacancyRate').value = 5;
-
-  document.getElementById('propertyTaxes').value = 40000;
-  document.getElementById('insurance').value = 12000;
-  document.getElementById('utilities').value = 25000;
-  document.getElementById('maintenance').value = 15000;
-  document.getElementById('management').value = 20000;
-  document.getElementById('supplies').value = 5000;
-  document.getElementById('staff').value = 30000;
-  document.getElementById('misc').value = 8000;
-
-  document.getElementById('purchasePrice').value = 5000000;
-  document.getElementById('loanAmount').value = 3500000;
-  document.getElementById('interestRate').value = 5;
-  document.getElementById('loanTerm').value = 25;
+function autofillDemo() {
+  document.getElementById('numLots').value = 40;
+  document.getElementById('lotPrice').value = 75000;
+  document.getElementById('landCost').value = 500000;
+  document.getElementById('devCost').value = 1000000;
+  document.getElementById('otherCost').value = 150000;
+  document.getElementById('loanAmount').value = 1200000;
+  document.getElementById('interestRate').value = 6;
+  document.getElementById('amortYears').value = 20;
 }
-
-});
