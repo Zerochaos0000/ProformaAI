@@ -1,44 +1,18 @@
-/* General */
-body {
-  font-family: 'Inter', sans-serif;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Inputs */
 .input {
-  width: 100%;
-  padding: 10px 14px;
-  margin: 6px 0 14px 0;
-  border: 1px solid #d1d5db; /* Tailwind gray-300 */
-  border-radius: 6px;
-  background-color: #f9fafb; /* Tailwind gray-50 */
-  transition: border 0.2s ease;
+  @apply w-full border rounded py-1 px-3 mt-1 shadow-sm;
 }
 
-.input:focus {
-  outline: none;
-  border-color: #3b82f6; /* Tailwind blue-500 */
-  background-color: #ffffff;
-}
-
-/* Primary Buttons */
 .btn {
-  padding: 10px 20px;
-  background-color: #2563eb; /* Tailwind blue-600 */
-  color: white;
-  font-weight: 600;
-  border-radius: 6px;
-  border: none;
-  transition: background-color 0.3s ease;
+  @apply bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow;
 }
 
-.btn:hover {
-  background-color: #1e40af; /* Tailwind blue-800 */
-}
-
-/* Autofill Button */
 .autofill-btn {
-  background-color: #facc15; /* Tailwind yellow-400 */
-  color: #1f2937; /* Tailwind gray-800 */
+  background-color: #facc15;
+  color: #1f2937;
   font-weight: 600;
   padding: 8px 16px;
   border-radius: 0.375rem;
@@ -48,38 +22,65 @@ body {
 }
 
 .autofill-btn:hover {
-  background-color: #eab308; /* Tailwind yellow-500 */
+  background-color: #eab308;
 }
 
-/* Labels */
+.btn.reset-btn {
+  background-color: #f87171;
+  color: white;
+}
+
+.btn.reset-btn:hover {
+  background-color: #dc2626;
+}
+
 label {
-  display: block;
+  display: flex;
+  flex-direction: column;
   font-weight: 500;
-  color: #374151; /* Tailwind gray-700 */
-  margin-bottom: 4px;
+  margin-bottom: 0.5rem;
 }
 
-/* Tables */
+@media print {
+  body {
+    background: white;
+    color: black;
+    padding: 20px;
+  }
+
+  header, footer, .btn, .autofill-btn, .export-controls {
+    display: none !important;
+  }
+
+  table {
+    width: 100% !important;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+
+  table td, table th {
+    border: 1px solid #333;
+    padding: 6px;
+    font-size: 14px;
+  }
+
+  h2, h3 {
+    color: black !important;
+  }
+}
+
 table {
-  border-collapse: collapse;
-  width: 100%;
-  margin-top: 16px;
+  @apply border-collapse border border-gray-200;
 }
 
-th, td {
-  padding: 10px 14px;
-  border: 1px solid #e5e7eb; /* Tailwind gray-200 */
+table th, table td {
+  @apply border border-gray-200 py-2 px-4;
 }
 
-thead {
-  background-color: #eff6ff; /* Tailwind blue-50 */
-  font-weight: 600;
+canvas {
+  @apply max-h-64;
 }
 
-tr:nth-child(even) {
-  background-color: #f9fafb; /* Tailwind gray-50 */
-}
-
-tr:hover {
-  background-color: #f1f5f9; /* Tailwind gray-100 */
+header, footer {
+  @apply bg-white shadow-md;
 }
