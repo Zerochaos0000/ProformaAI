@@ -48,6 +48,13 @@ function calculateProforma() {
     </table>
   `;
 
+function autofillDemo() {
+  const tenants = [
+    ["Starbucks", 2000, 45],
+    ["Verizon", 3500, 42],
+    ["Chase Bank", 4200, 50]
+  ];
+  
   document.getElementById('results').innerHTML = resultsHTML;
 
   renderProformaTable(grossRevenue, totalCosts, annualDebtService);
