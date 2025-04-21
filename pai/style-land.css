@@ -1,13 +1,35 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+body {
+  font-family: 'Inter', sans-serif;
+}
 
 .input {
-  @apply w-full border rounded py-1 px-3 mt-1 shadow-sm;
+  width: 100%;
+  padding: 10px 14px;
+  margin: 6px 0 14px 0;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #f9fafb;
+  transition: border 0.2s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background-color: #fff;
 }
 
 .btn {
-  @apply bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow;
+  padding: 10px 20px;
+  background-color: #2563eb;
+  color: white;
+  font-weight: 600;
+  border-radius: 6px;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+  background-color: #1e40af;
 }
 
 .autofill-btn {
@@ -25,62 +47,33 @@
   background-color: #eab308;
 }
 
-.btn.reset-btn {
-  background-color: #f87171;
-  color: white;
-}
-
-.btn.reset-btn:hover {
-  background-color: #dc2626;
-}
-
 label {
-  display: flex;
-  flex-direction: column;
+  display: block;
   font-weight: 500;
-  margin-bottom: 0.5rem;
-}
-
-@media print {
-  body {
-    background: white;
-    color: black;
-    padding: 20px;
-  }
-
-  header, footer, .btn, .autofill-btn, .export-controls {
-    display: none !important;
-  }
-
-  table {
-    width: 100% !important;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
-
-  table td, table th {
-    border: 1px solid #333;
-    padding: 6px;
-    font-size: 14px;
-  }
-
-  h2, h3 {
-    color: black !important;
-  }
+  color: #374151;
+  margin-bottom: 4px;
 }
 
 table {
-  @apply border-collapse border border-gray-200;
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 16px;
 }
 
-table th, table td {
-  @apply border border-gray-200 py-2 px-4;
+th, td {
+  padding: 10px 14px;
+  border: 1px solid #e5e7eb;
 }
 
-canvas {
-  @apply max-h-64;
+thead {
+  background-color: #eff6ff;
+  font-weight: 600;
 }
 
-header, footer {
-  @apply bg-white shadow-md;
+tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+tr:hover {
+  background-color: #f1f5f9;
 }
