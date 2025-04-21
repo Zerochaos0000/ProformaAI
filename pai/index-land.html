@@ -3,50 +3,74 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Land Development Proforma</title>
+  <title>Land Development Proforma | RE Proforma</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="style-land.css"/>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-white text-gray-900">
 
-  <div class="max-w-5xl mx-auto py-10 px-4">
-    <h1 class="text-3xl font-bold mb-6 text-center">Land Development Proforma</h1>
+  <header class="sticky top-0 bg-white shadow-md border-b mb-6">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-blue-700 cursor-pointer" onclick="location.href='../index.html'">RE Proforma</h1>
+      <nav class="space-x-6">
+        <a href="../index.html" class="text-blue-700 font-semibold">Home</a>
+        <a href="../about.html" class="text-gray-700 hover:text-blue-600">About</a>
+      </nav>
+    </div>
+  </header>
 
-    <!-- Project Inputs -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-      <div><label class="block mb-1"># of Lots</label><input id="numLots" type="number" class="w-full border p-2 rounded" /></div>
-      <div><label class="block mb-1">Lot Sale Price ($)</label><input id="lotPrice" type="number" class="w-full border p-2 rounded" /></div>
-      <div><label class="block mb-1">Land Cost ($)</label><input id="landCost" type="number" class="w-full border p-2 rounded" /></div>
-      <div><label class="block mb-1">Development Cost ($)</label><input id="devCost" type="number" class="w-full border p-2 rounded" /></div>
-      <div><label class="block mb-1">Other Costs ($)</label><input id="otherCost" type="number" class="w-full border p-2 rounded" /></div>
+  <main class="max-w-6xl mx-auto px-6 py-8">
+    <h2 class="text-3xl font-bold text-center text-blue-800 mb-6">🏗️ Land Development Proforma</h2>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <div>
+        <h3 class="text-xl font-semibold mb-2">Project Inputs</h3>
+        <label># of Lots <input type="number" id="numLots" class="input" /></label>
+        <label>Lot Sale Price ($) <input type="text" id="lotPrice" class="input" /></label>
+        <label>Land Cost ($) <input type="text" id="landCost" class="input" /></label>
+        <label>Development Cost ($) <input type="text" id="devCost" class="input" /></label>
+        <label>Other Costs ($) <input type="text" id="otherCost" class="input" /></label>
+      </div>
+      <div>
+        <h3 class="text-xl font-semibold mb-2">Loan Assumptions</h3>
+        <label>Loan Amount ($) <input type="text" id="loanAmount" class="input" /></label>
+        <label>Interest Rate (%) <input type="number" id="interestRate" class="input" /></label>
+        <label>Amortization (Years) <input type="number" id="amortYears" class="input" /></label>
+      </div>
     </div>
 
-    <!-- Loan Assumptions -->
-    <h2 class="text-xl font-semibold mt-6 mb-2">Loan Assumptions</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-      <div><label class="block mb-1">Loan Amount ($)</label><input id="loanAmount" type="number" class="w-full border p-2 rounded" /></div>
-      <div><label class="block mb-1">Interest Rate (%)</label><input id="interestRate" type="number" step="0.01" class="w-full border p-2 rounded" /></div>
-      <div><label class="block mb-1">Amortization (Years)</label><input id="amortYears" type="number" class="w-full border p-2 rounded" /></div>
+    <div class="flex justify-center gap-4 mt-10">
+      <button id="calculate" class="btn">Calculate</button>
+      <button id="exportPdf" class="btn">Export PDF</button>
+      <button id="exportXls" class="btn">Export XLSX</button>
+      <button id="autofillDemo" class="autofill-btn">Autofill Demo Inputs</button>
     </div>
 
-    <!-- Buttons -->
-    <div class="flex flex-wrap gap-4 mb-8">
-      <button id="calculate" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Calculate</button>
-      <button id="exportPdf" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Export PDF</button>
-      <button id="exportXls" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Export XLSX</button>
-      <button id="autofillDemo" class="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded">Autofill Demo</button>
+    <div id="results" class="mt-10"></div>
+
+    <section class="mt-12">
+      <h3 class="text-xl font-bold mb-3">📈 Financial Chart</h3>
+      <canvas id="chart" height="80"></canvas>
+    </section>
+
+    <section class="mt-12">
+      <h3 class="text-xl font-bold mb-3">📅 5-Year Proforma</h3>
+      <div id="proformaTable"></div>
+    </section>
+  </main>
+
+  <footer class="bg-blue-50 text-gray-600 py-6 border-t mt-20">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+      <p class="text-sm">&copy; 2025 RE Proforma. All rights reserved.</p>
+      <div class="space-x-4 mt-2 md:mt-0">
+        <a href="#" class="hover:text-blue-600">Privacy</a>
+        <a href="#" class="hover:text-blue-600">Terms</a>
+      </div>
     </div>
-
-    <!-- Results Table -->
-    <div id="results" class="mb-8"></div>
-
-    <!-- Bar Chart -->
-    <canvas id="chart" class="w-full max-w-3xl mx-auto mb-10"></canvas>
-
-    <!-- Proforma Table -->
-    <div id="proformaTable"></div>
-  </div>
+  </footer>
 
   <script src="main-land.js"></script>
 </body>
