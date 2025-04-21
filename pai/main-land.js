@@ -1,6 +1,7 @@
 document.getElementById('calculate').addEventListener('click', calculateProforma);
 document.getElementById('exportPdf').addEventListener('click', exportToPDF);
 document.getElementById('exportXls').addEventListener('click', exportToExcel);
+document.getElementById('autofillDemo').addEventListener('click', autofillDemo);
 
 function parseCurrency(value) {
   if (typeof value !== "string") return +value || 0;
