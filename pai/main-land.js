@@ -118,12 +118,12 @@ function exportToExcel() {
 }
 
 function autofillDemo() {
-  document.getElementById('numLots').value = 40;
-  document.getElementById('lotPrice').value = 75000;
+  document.getElementById('numLots').value = 25;
+  document.getElementById('lotPrice').value = 85000;
   document.getElementById('landCost').value = 500000;
-  document.getElementById('devCost').value = 1000000;
-  document.getElementById('otherCost').value = 150000;
-  document.getElementById('loanAmount').value = 1200000;
-  document.getElementById('interestRate').value = 6;
+  document.getElementById('devCost').value = 750000;
+  document.getElementById('otherCost').value = 100000;
+  document.getElementById('loanAmount').value = 1000000;
+  document.getElementById('interestRate').value = 5;
   document.getElementById('amortYears').value = 20;
 }
