@@ -8,30 +8,11 @@
   <link rel="icon" type="image/png" href="favicon.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link rel="stylesheet" href="style-land.css" />
-  <style>
-    .input {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      background-color: #f9fafb;
-    }
-    .btn {
-      padding: 8px 16px;
-      background-color: #2563eb;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .btn:hover {
-      background-color: #1d4ed8;
-    }
-  </style>
 </head>
-
-
 
 <body class="bg-gray-100 text-gray-900">
   <main class="max-w-6xl mx-auto py-10 px-6">
@@ -89,12 +70,10 @@
     </div>
 
     <!-- Results -->
-<section class="bg-white p-6 rounded shadow mb-6">
-  <h2 class="text-xl font-semibold mb-4">📊 Results Summary</h2>
-  <div id="results" class="overflow-x-auto text-sm"></div>
-</section>
-
-    
+    <section class="bg-white p-6 rounded shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">📊 Results Summary</h2>
+      <div id="results" class="overflow-x-auto text-sm"></div>
+    </section>
 
     <!-- Charts -->
     <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -107,7 +86,6 @@
         <canvas id="projectionChart"></canvas>
       </div>
     </section>
-
   </main>
 
   <!-- Footer -->
