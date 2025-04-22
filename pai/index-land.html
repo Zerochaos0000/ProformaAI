@@ -1,133 +1,101 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Land Development Proforma | RE Proforma</title>
-  <link rel="icon" type="image/png" href="favicon.png" />
+  <meta charset="UTF-8">
+  <title>Land Development Proforma</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-  <link rel="stylesheet" href="style-land.css"/>
+  <script src="fixed-main.js" defer></script>
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
-<body class="bg-white text-gray-900">
 
-  <header class="sticky top-0 bg-white shadow-md border-b mb-6">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-blue-700 cursor-pointer" onclick="location.href='../index.html'">RE Proforma</h1>
-      <nav class="space-x-6">
-        <a href="../index.html" class="text-blue-700 font-semibold">Home</a>
-        <a href="../about.html" class="text-gray-700 hover:text-blue-600">About</a>
-      </nav>
-    </div>
-  </header>
 
-  <main class="max-w-6xl mx-auto px-6 py-8">
-    <h2 class="text-3xl font-bold text-center text-blue-800 mb-6">🏗️ Land Development Proforma</h2>
 
-    <div class="grid md:grid-cols-2 gap-6">
-      <div>
-        <h3 class="text-xl font-semibold mb-2">Project Inputs</h3>
-        <label># of Lots <input type="number" id="numLots" class="input" /></label>
-        <label>Lot Sale Price ($) <input type="text" id="lotPrice" class="input" /></label>
-        <label>Land Cost ($) <input type="text" id="landCost" class="input" /></label>
-        <label>Development Cost ($) <input type="text" id="devCost" class="input" /></label>
-        <label>Other Costs ($) <input type="text" id="otherCost" class="input" /></label>
-      </div>
-      <div>
-        <h3 class="text-xl font-semibold mb-2">Loan Assumptions</h3>
-        <label>Loan Amount ($) <input type="text" id="loanAmount" class="input" /></label>
-        <label>Interest Rate (%) <input type="number" id="interestRate" class="input" /></label>
-        <label>Amortization (Years) <input type="number" id="amortYears" class="input" /></label>
-      </div>
-    </div>
+<body class="bg-gray-100 text-gray-900">
+  <main class="max-w-6xl mx-auto py-10 px-6">
+    <h1 class="text-3xl font-bold text-blue-800 mb-8 text-center">🌱 Land Development Proforma</h1>
 
-    <div class="flex justify-center gap-4 mt-10">
-      <button id="calculate" class="btn">Calculate</button>
-      <button id="exportPdf" class="btn">Export PDF</button>
-      <button id="exportXls" class="btn">Export XLSX</button>
-      <button id="autofillDemo" class="autofill-btn">Autofill Demo Inputs</button>
-    </div>
-
-    <div id="results" class="mt-10"></div>
-
-     <!-- Results Section -->
+    <!-- Project Scope -->
     <section class="bg-white p-6 rounded shadow mb-6">
-      <h2 class="text-xl font-semibold mb-4">Results Summary</h2>
-      <div id="results" class="overflow-x-auto"></div>
+      <h2 class="text-xl font-semibold mb-4">🏗️ Project Scope</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <label>Total Acreage<input id="totalAcreage" class="input" value="30" /></label>
+        <label>Lots to Develop<input id="numLots" class="input" value="72" /></label>
+        <label>Lot Size (acres)<input id="lotSize" class="input" value="0.25" /></label>
+      </div>
     </section>
 
-     <!-- Metric Explanations -->
+    <!-- Revenue -->
     <section class="bg-white p-6 rounded shadow mb-6">
-      <h2 class="text-xl font-semibold mb-4">📘 Investment Metric Definitions</h2>
-      <ul class="list-disc pl-6 space-y-3 text-gray-800">
-        <li><strong>Cash-on-Cash Return:</strong> Annual cash flow before taxes divided by your initial cash investment (equity). Indicates how efficiently your money is working year-to-year.</li>
-        <li><strong>Cap Rate:</strong> Net Operating Income (NOI) divided by the purchase price. Shows property income potential, useful for comparing properties.</li>
-        <li><strong>Estimated IRR:</strong> The average annual return over time, including cash flow and sale proceeds, adjusted for time value of money.</li>
-      </ul>
+      <h2 class="text-xl font-semibold mb-4">💰 Revenue</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <label>Price per Lot ($)<input id="lotPrice" class="input" value="140000" /></label>
+        <label>Absorption Rate (lots/month)<input id="absorptionRate" class="input" value="5" /></label>
+      </div>
     </section>
 
-   <!-- Cash-on-Cash Return Quality Table -->
+    <!-- Development Costs -->
+    <section class="bg-white p-6 rounded shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">🛠️ Development Costs</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <label>Sitework & Grading<input id="sitework" class="input" value="2300000" /></label>
+        <label>Roads & Utilities<input id="infrastructure" class="input" value="1050000" /></label>
+        <label>Permits & Impact Fees<input id="permits" class="input" value="370000" /></label>
+        <label>Soft Costs (15%)<input id="softCosts" class="input" value="567000" /></label>
+        <label>Contingency (8%)<input id="contingency" class="input" value="328960" /></label>
+      </div>
+    </section>
+
+    <!-- Financing -->
+    <section class="bg-white p-6 rounded shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">🏦 Financing</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <label>Land Purchase Price<input id="landCost" class="input" value="1600000" /></label>
+        <label>Loan Amount<input id="loanAmount" class="input" value="2250000" /></label>
+        <label>Interest Rate (%)<input id="interestRate" class="input" value="6.25" /></label>
+        <label>Loan Term (Years)<input id="loanTerm" class="input" value="2" /></label>
+      </div>
+    </section>
+
+    <!-- Buttons -->
+    <div class="flex flex-wrap gap-4 justify-center my-8">
+      <button id="calculate" class="btn">Calculate Proforma</button>
+      <button id="exportPdf" class="btn bg-gray-700 hover:bg-gray-800">Export PDF</button>
+      <button id="exportXls" class="btn bg-green-600 hover:bg-green-700">Export Excel</button>
+      <button id="autofillDemo" class="btn bg-yellow-500 hover:bg-yellow-600">Autofill Demo</button>
+      <button id="resetInputs" class="btn bg-red-500 hover:bg-red-600">Reset Inputs</button>
+    </div>
+
+    <!-- Results -->
 <section class="bg-white p-6 rounded shadow mb-6">
-  <h2 class="text-xl font-semibold mb-4">📈 What Is a Good Cash-on-Cash Return?</h2>
-  <table class="w-full text-left border border-gray-200">
-    <thead class="bg-gray-100">
-      <tr>
-        <th class="p-2 border-b">Return</th>
-        <th class="p-2 border-b">Quality</th>
-        <th class="p-2 border-b">Typical Deal Type</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="p-2 border-b">&lt;8%</td>
-        <td class="p-2 border-b text-red-600 font-semibold">❌ Weak</td>
-        <td class="p-2 border-b">Overpriced core assets, low yield</td>
-      </tr>
-      <tr>
-        <td class="p-2 border-b">8–10%</td>
-        <td class="p-2 border-b text-yellow-500 font-semibold">🟡 Average</td>
-        <td class="p-2 border-b">Stabilized multifamily in primary markets</td>
-      </tr>
-      <tr>
-        <td class="p-2 border-b">10–12%</td>
-        <td class="p-2 border-b text-green-500 font-semibold">🟢 Strong</td>
-        <td class="p-2 border-b">Value-add or mixed-use in secondary markets</td>
-      </tr>
-      <tr>
-        <td class="p-2 border-b">12–15%</td>
-        <td class="p-2 border-b text-green-600 font-semibold">🟢 Very Strong</td>
-        <td class="p-2 border-b">Opportunistic or repositioning deals</td>
-      </tr>
-      <tr>
-        <td class="p-2">15%+</td>
-        <td class="p-2 text-red-500 font-semibold">🔴 High Risk</td>
-        <td class="p-2">Ground-up development, distressed assets</td>
-      </tr>
-    </tbody>
-  </table>
+  <h2 class="text-xl font-semibold mb-4">📊 Results Summary</h2>
+  <div id="results" class="overflow-x-auto text-sm"></div>
 </section>
-    <section class="mt-12">
-      <h3 class="text-xl font-bold mb-3">📈 Financial Chart</h3>
-      <canvas id="chart" height="80"></canvas>
-    </section>
 
-    <section class="mt-12">
-      <h3 class="text-xl font-bold mb-3">📅 5-Year Proforma</h3>
-      <div id="proformaTable"></div>
-    </section>
-  </main>
+    
 
-  <footer class="bg-blue-50 text-gray-600 py-6 border-t mt-20">
-    <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
-      <p class="text-sm">&copy; 2025 RE Proforma. All rights reserved.</p>
-      <div class="space-x-4 mt-2 md:mt-0">
-        <a href="#" class="hover:text-blue-600">Privacy</a>
-        <a href="#" class="hover:text-blue-600">Terms</a>
+    <!-- Charts -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-white p-6 rounded shadow">
+        <h2 class="text-lg font-semibold mb-2">Cost Breakdown</h2>
+        <canvas id="costChart"></canvas>
       </div>
-    </div>
-  </footer>
+      <div class="bg-white p-6 rounded shadow">
+        <h2 class="text-lg font-semibold mb-2">5-Year Profit Projection</h2>
+        <canvas id="projectionChart"></canvas>
+      </div>
+    </section>
 
-  <script src="main-land.js"></script>
+  </main>
 </body>
 </html>
