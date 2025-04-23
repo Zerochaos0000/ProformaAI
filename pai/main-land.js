@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', () => {
   const parse = id => parseFloat(document.getElementById(id).value) || 0;
 
