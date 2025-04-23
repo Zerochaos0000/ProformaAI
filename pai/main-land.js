@@ -1,6 +1,5 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const parse = id => parseFloat(document.getElementById(id).value) || 0;
-
+  document.addEventListener('DOMContentLoaded', () => {
+    const parse = id => parseFloat(document.getElementById(id).value) || 0;
   document.getElementById('calculate').addEventListener('click', () => {
     const sfdCount = parse('sfdCount');
     const sfdPrice = parse('sfdPrice');
@@ -40,7 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const resultsHTML = `
       <h3 class="text-xl font-bold mb-4 text-gray-800">📋 Financial Summary</h3>
-
       <h4 class="text-md font-semibold text-gray-700 mb-2">💰 Revenue</h4>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <div class="bg-white border-l-4 border-gray-400 p-4 rounded shadow">
