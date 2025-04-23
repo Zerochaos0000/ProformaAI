@@ -4,128 +4,89 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RE Proforma</title>
-  <link rel="icon" type="image/png" href="favicon.png" />
+  <title>Silver View Developer Proforma</title>
+  <link rel="stylesheet" href="style-land.css" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    .input {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      background-color: #f9fafb;
-    }
-    .btn {
-      padding: 8px 16px;
-      background-color: #2563eb;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .btn:hover {
-      background-color: #1d4ed8;
-    }
-  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
-  <body class="bg-white text-gray-900">
-  <header class="sticky top-0 bg-white shadow-md border-b mb-6">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-blue-700 cursor-pointer" onclick="location.href='../index.html'">RE Proforma</h1>
-      <nav class="space-x-6">
-        <a href="../index.html" class="text-blue-700 font-semibold">Home</a>
-        <a href="../about.html" class="text-gray-700 hover:text-blue-600">About</a>
-      </nav>
-    </div>
-  </header>
-    
-<body class="bg-gray-100 text-gray-900">
-  <main class="max-w-5xl mx-auto py-10 px-6">  
-    <h2 class="text-3xl font-bold text-center text-blue-800 mb-6">🌱 Land Development Proforma<</h2>
-
-    <!-- Project Scope -->
-    <section class="bg-white p-6 rounded shadow mb-6">
-      <h2 class="text-xl font-semibold mb-4">🏗️ Project Scope</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <label>Total Acreage<input id="totalAcreage" class="input" value="30" /></label>
-        <label>Lots to Develop<input id="numLots" class="input" value="72" /></label>
-        <label>Lot Size (acres)<input id="lotSize" class="input" value="0.25" /></label>
+<body class="bg-white text-gray-900">
+  <main class="max-w-6xl mx-auto py-8 px-6">
+    <h1 class="text-3xl font-bold text-blue-700 mb-6 text-center">Silver View Farms Developer Proforma</h1>
+    <section class="bg-white rounded shadow p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">🏡 Lot Mix & Escalation</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <label>SFD Count<input id="sfdCount" class="input" value="90" /></label>
+        <label>SFD Price<input id="sfdPrice" class="input" value="210000" /></label>
+        <label>SFD Escalation (%)<input id="sfdEscalation" class="input" value="3.57" /></label>
+        <label>Twin Count<input id="twinCount" class="input" value="26" /></label>
+        <label>Twin Price<input id="twinPrice" class="input" value="170000" /></label>
+        <label>Twin Escalation (%)<input id="twinEscalation" class="input" value="3.82" /></label>
+        <label>SFA Count<input id="sfaCount" class="input" value="76" /></label>
+        <label>SFA Price<input id="sfaPrice" class="input" value="115000" /></label>
+        <label>SFA Escalation (%)<input id="sfaEscalation" class="input" value="3.04" /></label>
       </div>
     </section>
-
-    <!-- Revenue -->
-    <section class="bg-white p-6 rounded shadow mb-6">
-      <h2 class="text-xl font-semibold mb-4">💰 Revenue</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <label>Price per Lot ($)<input id="lotPrice" class="input" value="140000" /></label>
-        <label>Absorption Rate (lots/month)<input id="absorptionRate" class="input" value="5" /></label>
+    <section class="bg-white rounded shadow p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">💵 Development Costs</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <label>Land Cost<input id="landCost" class="input" value="6000000" /></label>
+        <label>Closing Cost (%)<input id="closingCost" class="input" value="3.0" /></label>
+        <label>On-site Development<input id="onsiteDev" class="input" value="8000000" /></label>
+        <label>Consulting & Engineering<input id="consulting" class="input" value="240000" /></label>
+        <label>Delmarva<input id="delmarva" class="input" value="480000" /></label>
+        <label>Landscaping<input id="landscaping" class="input" value="480000" /></label>
+        <label>Mailboxes<input id="mailboxes" class="input" value="40000" /></label>
+        <label>Monuments<input id="monuments" class="input" value="100000" /></label>
+        <label>Dedication<input id="dedication" class="input" value="250000" /></label>
+        <label>Escalation<input id="escalation" class="input" value="243060" /></label>
+        <label>Contingency<input id="contingency" class="input" value="1402500" /></label>
       </div>
     </section>
-
-    <!-- Development Costs -->
-    <section class="bg-white p-6 rounded shadow mb-6">
-      <h2 class="text-xl font-semibold mb-4">🛠️ Development Costs</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        <label>Sitework & Grading<input id="sitework" class="input" value="2300000" /></label>
-        <label>Roads & Utilities<input id="infrastructure" class="input" value="1050000" /></label>
-        <label>Permits & Impact Fees<input id="permits" class="input" value="370000" /></label>
-        <label>Soft Costs (15%)<input id="softCosts" class="input" value="567000" /></label>
-        <label>Contingency (8%)<input id="contingency" class="input" value="328960" /></label>
+    <section class="bg-white rounded shadow p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">💼 Soft Costs</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <label>Transfer Tax (%)<input id="transferTax" class="input" value="2.1" /></label>
+        <label>Property Tax / Lot / Year ($)<input id="propertyTax" class="input" value="500" /></label>
+        <label>Bonding (%)<input id="bonding" class="input" value="2" /></label>
+        <label>HOA Subsidy ($)<input id="hoaSubsidy" class="input" value="2500" /></label>
+        <label>Due Diligence ($)<input id="dueDiligence" class="input" value="50000" /></label>
+        <label>Legal / Tax ($)<input id="legalTax" class="input" value="150000" /></label>
       </div>
     </section>
-
-    <!-- Financing -->
-    <section class="bg-white p-6 rounded shadow mb-6">
+    <section class="bg-white rounded shadow p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4">🏦 Financing</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        <label>Land Purchase Price<input id="landCost" class="input" value="1600000" /></label>
-        <label>Loan Amount<input id="loanAmount" class="input" value="2250000" /></label>
-        <label>Interest Rate (%)<input id="interestRate" class="input" value="6.25" /></label>
-        <label>Loan Term (Years)<input id="loanTerm" class="input" value="2" /></label>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <label>Loan to Cost (%)<input id="loanToCost" class="input" value="70" /></label>
+        <label>Interest Rate (%)<input id="interestRate" class="input" value="13.5" /></label>
+        <label>Loan Fees (%)<input id="loanFees" class="input" value="3" /></label>
+        <label>Payoff Rate (% of Lot Rev)<input id="payoffRate" class="input" value="80" /></label>
       </div>
     </section>
-
-    <!-- Buttons -->
-    <div class="flex flex-wrap gap-4 justify-center my-8">
+    <div class="flex gap-4 justify-center my-6">
       <button id="calculate" class="btn">Calculate Proforma</button>
       <button id="exportPdf" class="btn bg-gray-700 hover:bg-gray-800">Export PDF</button>
-      <button id="exportXls" class="btn bg-green-600 hover:bg-green-700">Export Excel</button>
-      <button id="autofillDemo" class="btn bg-yellow-500 hover:bg-yellow-600">Autofill Demo</button>
-      <button id="resetInputs" class="btn bg-red-500 hover:bg-red-600">Reset Inputs</button>
+      <button id="exportExcel" class="btn bg-green-600 hover:bg-green-700">Export Excel</button>
     </div>
+    <section class="bg-white rounded shadow p-6 mt-6">
+      <h2 class="text-xl font-semibold mb-4">📊 Results</h2>
+<div id="results" class="text-sm">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="summary-cards"></div>
+        <div id="detailed-results" class="mt-6"></div>
 
-    <!-- Results -->
-    <section class="bg-white p-6 rounded shadow mb-6">
-      <h2 class="text-xl font-semibold mb-4">📊 Results Summary</h2>
-      <div id="results" class="overflow-x-auto text-sm"></div>
-    </section>
+<div class="charts-wrapper mt-8">
+  <h2 class="text-xl font-semibold text-gray-800 mb-4 text-center">📊 Forecast Visualizations</h2>
+  <canvas id="projectionGraph" class="my-6 w-full max-w-4xl mx-auto h-96"></canvas>
+  <canvas id="irrCurve" class="my-6 w-full max-w-4xl mx-auto h-64"></canvas>
+  <canvas id="lotAbsorption" class="my-6 w-full max-w-4xl mx-auto h-64"></canvas>
+</div>
 
-    <!-- Charts -->
-    <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="bg-white p-6 rounded shadow">
-        <h2 class="text-lg font-semibold mb-2">Cost Breakdown</h2>
-        <canvas id="costChart"></canvas>
-      </div>
-      <div class="bg-white p-6 rounded shadow">
-        <h2 class="text-lg font-semibold mb-2">5-Year Profit Projection</h2>
-        <canvas id="projectionChart"></canvas>
-      </div>
     </section>
   </main>
-
-  <!-- Footer -->
-  <footer class="shadow py-4 bg-white mt-10">
-    <div class="max-w-5xl mx-auto px-6 text-center text-sm">
-      &copy; 2025 REProforma. All Rights Reserved. |
-      <a href="#" class="hover:text-blue-600">Privacy</a> |
-      <a href="#" class="hover:text-blue-600">Terms</a>
-    </div>
-  </footer>
-
   <script src="main-land.js"></script>
 </body>
 </html>
