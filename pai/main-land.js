@@ -416,8 +416,8 @@ document.getElementById('autofillDemo').addEventListener('click', () => {
     dueDiligence: 50000,
     legalTax: 150000,
     loanToCost: 70,
-    interestRate: 13.5,
-    loanFees: 3,
+    interestRate: 8,
+    loanFees: 2,
     payoffRate: 80
   };
   Object.entries(autofillValues).forEach(([id, value]) => {
