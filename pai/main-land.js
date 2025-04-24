@@ -107,23 +107,7 @@
   
 
 
-document.getElementById('exportPdf').addEventListener('click', () => {
-  const target = document.getElementById('detailed-results');
-  setTimeout(() => {
-    html2canvas(target).then(canvas => {
-      const imgData = canvas.toDataURL('image/jpeg', 1.0);
-      const pdf = new jspdf.jsPDF('p', 'pt', 'a4');
-      const pageWidth = 595.28;
-      const pageHeight = 841.89;
-      const imgWidth = pageWidth;
-      const imgHeight = canvas.height * imgWidth / canvas.width;
 
-      let position = 0;
-      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-      pdf.save('SilverView_Report_REProforma.pdf');
-    });
-  }, 300);
-});
 
 
 document.getElementById('exportPdf').addEventListener('click', () => {
@@ -400,4 +384,54 @@ document.getElementById('exportPdf').addEventListener('click', () => {
     html2canvas: { scale: 2 },
     jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
   }).save();
+});
+
+
+document.getElementById('autofillDemo').addEventListener('click', () => {
+  const autofillValues = {
+    sfdCount: 90,
+    sfdPrice: 210000,
+    sfdEscalation: 3.57,
+    twinCount: 26,
+    twinPrice: 170000,
+    twinEscalation: 3.82,
+    sfaCount: 76,
+    sfaPrice: 115000,
+    sfaEscalation: 3.04,
+    landCost: 6000000,
+    closingCost: 3.0,
+    onsiteDev: 8000000,
+    consulting: 240000,
+    delmarva: 480000,
+    landscaping: 480000,
+    mailboxes: 40000,
+    monuments: 100000,
+    dedication: 250000,
+    escalation: 243060,
+    contingency: 1402500,
+    transferTax: 2.1,
+    propertyTax: 500,
+    bonding: 2,
+    hoaSubsidy: 2500,
+    dueDiligence: 50000,
+    legalTax: 150000,
+    loanToCost: 70,
+    interestRate: 13.5,
+    loanFees: 3,
+    payoffRate: 80
+  };
+  Object.entries(autofillValues).forEach(([id, value]) => {
+    const input = document.getElementById(id);
+    if (input) input.value = value;
+  });
+});
+
+document.getElementById('resetInputs').addEventListener('click', () => {
+  const inputs = document.querySelectorAll('input');
+  inputs.forEach(input => input.value = '');
+  document.getElementById('summary-cards').innerHTML = '';
+  document.getElementById('detailed-results').innerHTML = '';
+  if (window.projectionChart) window.projectionChart.destroy();
+  if (window.irrChart) window.irrChart.destroy();
+  if (window.absorptionChart) window.absorptionChart.destroy();
 });
