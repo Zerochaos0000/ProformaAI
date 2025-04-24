@@ -8,7 +8,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style-land.css" />
   <style>
     .input {
       width: 100%;
@@ -28,6 +28,11 @@
       background-color: #1d4ed8;
     }
   </style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 </head>
 
   <body class="bg-white text-gray-900">
@@ -49,10 +54,10 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <label>SFD Count<input id="sfdCount" class="input" placeholder="90" /></label>
         <label>SFD Price<input id="sfdPrice" class="input" placeholder="210000" /></label>
-        <label>SFD Escalation (%)<input id="sfdEscalation" placeholder="input" value="3.57" /></label>
+        <label>SFD Escalation (%)<input id="sfdEscalation" class="input" placeholder="3.57" /></label>
         <label>Twin Count<input id="twinCount" class="input" placeholder="26" /></label>
         <label>Twin Price<input id="twinPrice" class="input" placeholder="170000" /></label>
-        <label>Twin Escalation (%)<input id="twinEscalation" placeholder="input" value="3.82" /></label>
+        <label>Twin Escalation (%)<input id="twinEscalation" class="input" placeholder="3.82" /></label>
         <label>SFA Count<input id="sfaCount" class="input" placeholder="76" /></label>
         <label>SFA Price<input id="sfaPrice" class="input" placeholder="115000" /></label>
         <label>SFA Escalation (%)<input id="sfaEscalation" class="input" placeholder="3.04" /></label>
@@ -94,10 +99,12 @@
         <label>Payoff Rate (% of Lot Rev)<input id="payoffRate" class="input" placeholder="80" /></label>
       </div>
     </section>
-    <div class="flex gap-4 justify-center my-6">
+    <div class="flex gap-4 justify-center my-6 flex-wrap">
       <button id="calculate" class="btn">Calculate Proforma</button>
       <button id="exportPdf" class="btn bg-gray-700 hover:bg-gray-800">Export PDF</button>
       <button id="exportExcel" class="btn bg-green-600 hover:bg-green-700">Export Excel</button>
+      <button id="autofillDemo" class="btn bg-yellow-500 hover:bg-yellow-600">Autofill Demo</button>
+      <button id="resetInputs" class="btn bg-red-500 hover:bg-red-600">Reset Inputs</button>
     </div>
     <section class="bg-white rounded shadow p-6 mt-6">
       <h2 class="text-xl font-semibold mb-4">📊 Results</h2>
