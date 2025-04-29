@@ -1,135 +1,597 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RE Proforma</title>
-  <link rel="icon" type="image/png" href="favicon.png" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Land Developer Proforma | RE Proforma</title>
+  <link rel="icon" type="image/png" href="../favicon.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-  <link rel="stylesheet" href="style-land.css" />
-  <style>
-    .input {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      background-color: #f9fafb;
-    }
-    .btn {
-      padding: 8px 16px;
-      background-color: #2563eb;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .btn:hover {
-      background-color: #1d4ed8;
-    }
-  </style>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style-land.css">
 </head>
 
-  <body class="bg-white text-gray-900">
-  <header class="sticky top-0 bg-white shadow-md border-b mb-6">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-blue-700 cursor-pointer" onclick="location.href='../index.html'">RE Proforma</h1>
-      <nav class="space-x-6">
-        <a href="../index.html" class="text-blue-700 font-semibold">Home</a>
-        <a href="../about.html" class="text-gray-700 hover:text-blue-600">About</a>
-      </nav>
+<body class="bg-white text-gray-900 min-h-screen flex flex-col">
+  <!-- Main navigation with dropdown menu -->
+  <header class="sticky top-0 z-50 bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+      <a href="../index.html" class="text-2xl font-semibold text-[#0043ce]">RE Proforma</a>
+      
+      <!-- Mobile menu button -->
+      <div class="md:hidden">
+        <button id="mobile-menu-button" class="text-[#0043ce] focus:outline-none">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+      
+      <!-- Desktop menu - aligned right -->
+      <div class="hidden md:flex items-center space-x-8">
+        <nav class="flex space-x-8">
+          <a href="../index.html" class="text-[#525252] hover:text-[#0043ce] py-5">Home</a>
+          
+          <!-- Tools dropdown -->
+          <div class="relative group">
+            <button class="flex items-center text-[#0043ce] group-hover:text-[#0043ce] border-b-2 border-[#0043ce] py-5 focus:outline-none">
+              Tools
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="absolute left-0 mt-1 w-48 bg-white shadow-lg rounded-md overflow-hidden z-20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-95 group-hover:scale-100">
+              <a href="../pai/index.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-[#0043ce] border-l-2 border-transparent hover:border-[#0043ce]">Multifamily Acquisition</a>
+              <a href="../pai/index-mixeduse.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-[#0043ce] border-l-2 border-transparent hover:border-[#0043ce]">Mixed-Use Development</a>
+              <a href="../pai/index-land.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-[#0043ce] border-l-2 border-[#0043ce] bg-gray-50">Land Development</a>
+              <a href="../tools.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-[#0043ce] border-l-2 border-transparent hover:border-[#0043ce] font-medium">View All Tools</a>
+            </div>
+          </div>
+          
+          <!-- Market Data dropdown -->
+          <div class="relative group">
+            <button class="flex items-center text-[#525252] group-hover:text-[#0043ce] py-5 focus:outline-none">
+              Market Data
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="absolute left-0 mt-1 w-48 bg-white shadow-lg rounded-md overflow-hidden z-20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-95 group-hover:scale-100">
+              <a href="../market/trends.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-[#0043ce] border-l-2 border-transparent hover:border-[#0043ce]">Market Trends</a>
+              <a href="../market/reports.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-[#0043ce] border-l-2 border-transparent hover:border-[#0043ce]">Research Reports</a>
+              <a href="../market/listings.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-[#0043ce] border-l-2 border-transparent hover:border-[#0043ce]">Investment Listings</a>
+            </div>
+          </div>
+          
+          <!-- About dropdown -->
+          <div class="relative group">
+            <button class="flex items-center text-[#525252] group-hover:text-[#0043ce] py-5 focus:outline-none">
+              About
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="absolute left-0 mt-1 w-48 bg-white shadow-lg rounded-md overflow-hidden z-20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-95 group-hover:scale-100">
+              <a href="../about/company.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-[#0043ce] border-l-2 border-transparent hover:border-[#0043ce]">Our Company</a>
+              <a href="../about/team.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-[#0043ce] border-l-2 border-transparent hover:border-[#0043ce]">Team</a>
+              <a href="../about/contact.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-[#0043ce] border-l-2 border-transparent hover:border-[#0043ce]">Contact Us</a>
+            </div>
+          </div>
+        </nav>
+
+        <button class="px-5 py-2 font-medium bg-[#0043ce] text-white hover:bg-[#0030a0] transition-colors rounded">Let's talk</button>
+      </div>
+    </div>
+    
+    <!-- Mobile menu (hidden by default) -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-t shadow-lg">
+      <div class="px-4 py-3 space-y-1">
+        <a href="../index.html" class="block py-2 px-3 rounded text-[#525252] hover:bg-gray-50">Home</a>
+        
+        <!-- Mobile Tools submenu -->
+        <div class="mobile-dropdown">
+          <button class="flex items-center justify-between w-full py-2 px-3 rounded bg-[#e5f0ff] text-[#0043ce] font-medium focus:outline-none">
+            Tools
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1 mobile-dropdown-icon transform rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="pl-4 mobile-dropdown-content">
+            <a href="../pai/index.html" class="block py-2 px-3 text-sm text-gray-800 hover:bg-gray-50 border-l border-gray-200">Multifamily Acquisition</a>
+            <a href="../pai/index-mixeduse.html" class="block py-2 px-3 text-sm text-gray-800 hover:bg-gray-50 border-l border-gray-200">Mixed-Use Development</a>
+            <a href="../pai/index-land.html" class="block py-2 px-3 text-sm text-gray-800 bg-gray-50 text-[#0043ce] border-l-2 border-[#0043ce]">Land Development</a>
+            <a href="../tools.html" class="block py-2 px-3 text-sm font-medium text-gray-800 hover:bg-gray-50 border-l border-gray-200">View All Tools</a>
+          </div>
+        </div>
+        
+        <!-- Mobile Market Data submenu -->
+        <div class="mobile-dropdown">
+          <button class="flex items-center justify-between w-full py-2 px-3 rounded hover:bg-gray-50 text-[#525252] focus:outline-none">
+            Market Data
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1 mobile-dropdown-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="hidden pl-4 mobile-dropdown-content">
+            <a href="../market/trends.html" class="block py-2 px-3 text-sm text-gray-800 hover:bg-gray-50 border-l border-gray-200">Market Trends</a>
+            <a href="../market/reports.html" class="block py-2 px-3 text-sm text-gray-800 hover:bg-gray-50 border-l border-gray-200">Research Reports</a>
+            <a href="../market/listings.html" class="block py-2 px-3 text-sm text-gray-800 hover:bg-gray-50 border-l border-gray-200">Investment Listings</a>
+          </div>
+        </div>
+        
+        <!-- Mobile About submenu -->
+        <div class="mobile-dropdown">
+          <button class="flex items-center justify-between w-full py-2 px-3 rounded hover:bg-gray-50 text-[#525252] focus:outline-none">
+            About
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1 mobile-dropdown-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="hidden pl-4 mobile-dropdown-content">
+            <a href="../about/company.html" class="block py-2 px-3 text-sm text-gray-800 hover:bg-gray-50 border-l border-gray-200">Our Company</a>
+            <a href="../about/team.html" class="block py-2 px-3 text-sm text-gray-800 hover:bg-gray-50 border-l border-gray-200">Team</a>
+            <a href="../about/contact.html" class="block py-2 px-3 text-sm text-gray-800 hover:bg-gray-50 border-l border-gray-200">Contact Us</a>
+          </div>
+        </div>
+        
+        <button class="w-full mt-3 py-2 text-center font-medium bg-[#0043ce] text-white hover:bg-[#0030a0] transition-colors rounded">Let's talk</button>
+      </div>
     </div>
   </header>
-    
-<body class="bg-white text-gray-900">
-  <main class="max-w-6xl mx-auto py-8 px-6">
-    <h1 class="text-3xl font-bold text-blue-700 mb-6 text-center">Land Developer Proforma</h1>
-    <section class="bg-white rounded shadow p-6 mb-6">
-      <h2 class="text-xl font-semibold mb-4">🏡 Lot Mix & Escalation</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <label>SFD Count<input id="sfdCount" class="input" /></label>
-        <label>SFD Price<input id="sfdPrice" class="input" /></label>
-        <label>SFD Escalation (%)<input id="sfdEscalation" class="input" /></label>
-        <label>Twin Count<input id="twinCount" class="input" /></label>
-        <label>Twin Price<input id="twinPrice" class="input" /></label>
-        <label>Twin Escalation (%)<input id="twinEscalation" class="input" /></label>
-        <label>SFA Count<input id="sfaCount" class="input" /></label>
-        <label>SFA Price<input id="sfaPrice" class="input" /></label>
-        <label>SFA Escalation (%)<input id="sfaEscalation" class="input" /></label>
-      </div>
-    </section>
-    <section class="bg-white rounded shadow p-6 mb-6">
-      <h2 class="text-xl font-semibold mb-4">💵 Development Costs</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <label>Land Cost<input id="landCost" class="input" /></label>
-        <label>Closing Cost (%)<input id="closingCost" class="input" /></label>
-        <label>On-site Development<input id="onsiteDev" class="input" /></label>
-        <label>Consulting & Engineering<input id="consulting" class="input" /></label>
-        <label>Delmarva<input id="delmarva" class="input" /></label>
-        <label>Landscaping<input id="landscaping" class="input" /></label>
-        <label>Mailboxes<input id="mailboxes" class="input" /></label>
-        <label>Monuments<input id="monuments" class="input" /></label>
-        <label>Dedication<input id="dedication" class="input" /></label>
-        <label>Escalation<input id="escalation" class="input" /></label>
-        <label>Contingency<input id="contingency" class="input" /></label>
-      </div>
-    </section>
-    <section class="bg-white rounded shadow p-6 mb-6">
-      <h2 class="text-xl font-semibold mb-4">💼 Soft Costs</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <label>Transfer Tax (%)<input id="transferTax" class="input" /></label>
-        <label>Property Tax / Lot / Year ($)<input id="propertyTax" class="input" /></label>
-        <label>Bonding (%)<input id="bonding" class="input" /></label>
-        <label>HOA Subsidy ($)<input id="hoaSubsidy" class="input" /></label>
-        <label>Due Diligence ($)<input id="dueDiligence" class="input" /></label>
-        <label>Legal / Tax ($)<input id="legalTax" class="input" /></label>
-      </div>
-    </section>
-    <section class="bg-white rounded shadow p-6 mb-6">
-      <h2 class="text-xl font-semibold mb-4">🏦 Financing</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <label>Loan to Cost (%)<input id="loanToCost" class="input" /></label>
-        <label>Interest Rate (%)<input id="interestRate" class="input" /></label>
-        <label>Loan Fees (%)<input id="loanFees" class="input" /></label>
-        <label>Payoff Rate (% of Lot Rev)<input id="payoffRate" class="input" /></label>
-      </div>
-    </section>
-    <div class="flex gap-4 justify-center my-6 flex-wrap">
-      <button id="calculate" class="btn">Calculate Proforma</button>
-      <button id="exportPdf" class="btn bg-gray-700 hover:bg-gray-800">Export PDF</button>
-      <button id="exportExcel" class="btn bg-green-600 hover:bg-green-700">Export Excel</button>
-      <button id="autofillDemo" class="btn bg-yellow-500 hover:bg-yellow-600">Autofill Demo</button>
-      <button id="resetInputs" class="btn bg-red-500 hover:bg-red-600">Reset Inputs</button>
-    </div>
-    <section class="bg-white rounded shadow p-6 mt-6">
-      <h2 class="text-xl font-semibold mb-4">📊 Results</h2>
-<div id="results" class="text-sm">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="summary-cards"></div>
-        <div id="detailed-results" class="mt-6"></div>
 
-<div class="charts-wrapper mt-8">
-  <h2 class="text-xl font-semibold text-gray-800 mb-4 text-center">📊 Forecast Visualizations</h2>
-  <canvas id="projectionGraph" class="my-6 w-full max-w-4xl mx-auto h-96"></canvas>
-  <canvas id="irrCurve" class="my-6 w-full max-w-4xl mx-auto h-64"></canvas>
-  <canvas id="lotAbsorption" class="my-6 w-full max-w-4xl mx-auto h-64"></canvas>
+  <!-- Hero section -->
+  <section class="bg-gradient-to-r from-[#f9f5ff] to-white py-12">
+    <div class="max-w-5xl mx-auto px-4">
+      <div class="flex flex-col md:flex-row items-center gap-8">
+        <div class="md:w-3/5">
+          <h1 class="text-4xl font-light leading-tight mb-4 text-[#6941C6]">Land Developer Proforma</h1>
+          <p class="text-lg text-[#393939] mb-6">Comprehensive analysis for land acquisition, development, and sales with sophisticated financial modeling.</p>
+          <div class="flex flex-wrap gap-4">
+            <button id="autofillDemo" class="px-6 py-3 text-base font-medium bg-[#6941C6] text-white hover:bg-[#5535A5] transition-colors rounded flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+              </svg>
+              Demo Data
+            </button>
+            <button id="resetInputs" class="px-6 py-3 text-base font-medium border-2 border-[#6941C6] text-[#6941C6] hover:bg-[#f9f5ff] transition-colors rounded flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Reset
+            </button>
+          </div>
+        </div>
+        <div class="md:w-2/5">
+          <img src="https://images.unsplash.com/photo-1622547748225-3fc4abd2cca0?q=80&w=500&h=400&auto=format&fit=crop" alt="Land development" class="rounded-lg shadow-lg object-cover h-64 w-full">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main content -->
+  <main class="max-w-7xl mx-auto px-4 flex-grow">
+    <!-- Tab Navigation -->
+    <div class="mb-6 border-b border-gray-200">
+      <nav class="flex flex-wrap -mb-px">
+        <button class="tab-button mr-2 py-3 px-4 border-b-2 font-medium text-sm border-[#6941C6] text-[#6941C6]" data-tab="input-tab">
+          Input Parameters
+        </button>
+        <button class="tab-button mr-2 py-3 px-4 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="results-tab">
+          Results & Analysis
+        </button>
+        <button class="tab-button mr-2 py-3 px-4 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="charts-tab">
+          Charts & Projections
+        </button>
+      </nav>
+    </div>
+
+    <!-- Input Tab -->
+    <div id="input-tab" class="tab-content active">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Left Column -->
+        <div class="space-y-6">
+          <!-- Lot Mix & Escalation -->
+          <section class="pro-card bg-white p-6">
+            <div class="flex items-center mb-6">
+              <div class="h-10 w-10 rounded-full bg-[#f9f5ff] flex items-center justify-center mr-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#6941C6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </div>
+              <h2 class="text-lg font-medium text-[#393939]">Lot Mix & Escalation</h2>
+            </div>
+            <div class="space-y-5">
+              <div class="border-b pb-4">
+                <h3 class="font-medium text-[#4B5563] mb-3">Single Family Detached (SFD)</h3>
+                <div class="grid grid-cols-1 gap-3">
+                  <label class="block">
+                    <span class="text-[#4B5563] text-sm">Count</span>
+                    <input id="sfdCount" type="number" class="input mt-1" placeholder="0" />
+                  </label>
+                  <label class="block">
+                    <span class="text-[#4B5563] text-sm">Price ($)</span>
+                    <input id="sfdPrice" type="number" class="input mt-1" placeholder="0" />
+                  </label>
+                  <label class="block">
+                    <span class="text-[#4B5563] text-sm">Escalation (%)</span>
+                    <input id="sfdEscalation" type="number" step="0.1" class="input mt-1" placeholder="0.0" />
+                  </label>
+                </div>
+              </div>
+              <div class="border-b pb-4">
+                <h3 class="font-medium text-[#4B5563] mb-3">Twin Homes</h3>
+                <div class="grid grid-cols-1 gap-3">
+                  <label class="block">
+                    <span class="text-[#4B5563] text-sm">Count</span>
+                    <input id="twinCount" type="number" class="input mt-1" placeholder="0" />
+                  </label>
+                  <label class="block">
+                    <span class="text-[#4B5563] text-sm">Price ($)</span>
+                    <input id="twinPrice" type="number" class="input mt-1" placeholder="0" />
+                  </label>
+                  <label class="block">
+                    <span class="text-[#4B5563] text-sm">Escalation (%)</span>
+                    <input id="twinEscalation" type="number" step="0.1" class="input mt-1" placeholder="0.0" />
+                  </label>
+                </div>
+              </div>
+              <div>
+                <h3 class="font-medium text-[#4B5563] mb-3">Single Family Attached (SFA)</h3>
+                <div class="grid grid-cols-1 gap-3">
+                  <label class="block">
+                    <span class="text-[#4B5563] text-sm">Count</span>
+                    <input id="sfaCount" type="number" class="input mt-1" placeholder="0" />
+                  </label>
+                  <label class="block">
+                    <span class="text-[#4B5563] text-sm">Price ($)</span>
+                    <input id="sfaPrice" type="number" class="input mt-1" placeholder="0" />
+                  </label>
+                  <label class="block">
+                    <span class="text-[#4B5563] text-sm">Escalation (%)</span>
+                    <input id="sfaEscalation" type="number" step="0.1" class="input mt-1" placeholder="0.0" />
+                  </label>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Middle Column -->
+        <div class="space-y-6">
+          <!-- Development Costs -->
+          <section class="pro-card bg-white p-6">
+            <div class="flex items-center mb-6">
+              <div class="h-10 w-10 rounded-full bg-[#e0f2fe] flex items-center justify-center mr-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#0056b3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h2 class="text-lg font-medium text-[#393939]">Development Costs</h2>
+            </div>
+            <div class="space-y-3">
+              <label class="block">
+                <span class="text-[#4B5563] text-sm">Land Cost ($)</span>
+                <input id="landCost" type="number" class="input mt-1" placeholder="0" />
+              </label>
+              <label class="block">
+                <span class="text-[#4B5563] text-sm">Closing Cost (%)</span>
+                <input id="closingCost" type="number" step="0.1" class="input mt-1" placeholder="0.0" />
+              </label>
+              <label class="block">
+                <span class="text-[#4B5563] text-sm">On-site Development ($)</span>
+                <input id="onsiteDev" type="number" class="input mt-1" placeholder="0" />
+              </label>
+              <label class="block">
+                <span class="text-[#4B5563] text-sm">Consulting & Engineering ($)</span>
+                <input id="consulting" type="number" class="input mt-1" placeholder="0" />
+              </label>
+              <label class="block">
+                <span class="text-[#4B5563] text-sm">Delmarva ($)</span>
+                <input id="delmarva" type="number" class="input mt-1" placeholder="0" />
+              </label>
+              <label class="block">
+                <span class="text-[#4B5563] text-sm">Landscaping ($)</span>
+                <input id="landscaping" type="number" class="input mt-1" placeholder="0" />
+              </label>
+              <label class="block">
+                <span class="text-[#4B5563] text-sm">Mailboxes ($)</span>
+                <input id="mailboxes" type="number" class="input mt-1" placeholder="0" />
+              </label>
+              <label class="block">
+                <span class="text-[#4B5563] text-sm">Monuments ($)</span>
+                <input id="monuments" type="number" class="input mt-1" placeholder="0" />
+              </label>
+              <label class="block">
+                <span class="text-[#4B5563] text-sm">Dedication ($)</span>
+                <input id="dedication" type="number" class="input mt-1" placeholder="0" />
+              </label>
+              <label class="block">
+                <span class="text-[#4B5563] text-sm">Escalation ($)</span>
+                <input id="escalation" type="number" class="input mt-1" placeholder="0" />
+              </label>
+              <label class="block">
+                <span class="text-[#4B5563] text-sm">Contingency ($)</span>
+                <input id="contingency" type="number" class="input mt-1" placeholder="0" />
+              </label>
+            </div>
+          </section>
+        </div>
+
+        <!-- Right Column -->
+        <div class="space-y-6">
+          <!-- Soft Costs -->
+          <section class="pro-card bg-white p-6">
+            <div class="flex items-center mb-6">
+              <div class="h-10 w-10 rounded-full bg-[#d0e2ff] flex items-center justify-center mr-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#0056b3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h2 class="text-lg font-medium text-[#393939]">Soft Costs</h2>
+            </div>
+            <div class="space-y-3">
+              <label class="block">
+                <span class="text-[#4B5563] text-sm">Transfer Tax (%)</span>
+                <input id="transferTax" type="number" step="0.1" class="input mt-1" placeholder="0.0" />
+              </label>
+              <label class="block">
+                <span class="text-[#4B5563] text-sm">Property Tax/Lot/Year ($)</span>
+                <input id="propertyTax" type="number" class="input mt-1" placeholder="0" />
+              </label>
+              <label class="block">
+                <span class="text-[#4B5563] text-sm">Bonding (%)</span>
+                <input id="bonding" type="number" step="0.1" class="input mt-1" placeholder="0.0" />
+              </label>
+              <label class="block">
+                <span class="text-[#4B5563] text-sm">HOA Subsidy ($)</span>
+                <input id="hoaSubsidy" type="number" class="input mt-1" placeholder="0" />
+              </label>
+              <label class="block">
+                <span class="text-[#4B5563] text-sm">Due Diligence ($)</span>
+                <input id="dueDiligence" type="number" class="input mt-1" placeholder="0" />
+              </label>
+              <label class="block">
+                <span class="text-[#4B5563] text-sm">Legal / Tax ($)</span>
+                <input id="legalTax" type="number" class="input mt-1" placeholder="0" />
+              </label>
+            </div>
+          </section>
+
+          <!-- Financing -->
+          <section class="pro-card bg-white p-6">
+            <div class="flex items-center mb-6">
+              <div class="h-10 w-10 rounded-full bg-[#fcf4e8] flex items-center justify-center mr-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#B54708]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+                </svg>
+              </div>
+              <h2 class="text-lg font-medium text-[#393939]">Financing</h2>
+            </div>
+            <div class="space-y-3">
+              <label class="block">
+                <span class="text-[#4B5563] text-sm">Loan to Cost (%)</span>
+                <input id="loanToCost" type="number" step="0.1" class="input mt-1" placeholder="0.0" />
+              </label>
+              <label class="block">
+                <span class="text-[#4B5563] text-sm">Interest Rate (%)</span>
+                <input id="interestRate" type="number" step="0.1" class="input mt-1" placeholder="0.0" />
+              </label>
+              <label class="block">
+                <span class="text-[#4B5563] text-sm">Loan Fees (%)</span>
+                <input id="loanFees" type="number" step="0.1" class="input mt-1" placeholder="0.0" />
+              </label>
+              <label class="block">
+                <span class="text-[#4B5563] text-sm">Payoff Rate (% of Lot Rev)</span>
+                <input id="payoffRate" type="number" step="0.1" class="input mt-1" placeholder="0.0" />
+              </label>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- Calculate Button -->
+      <div class="flex justify-center mt-8">
+        <button id="calculate" class="bg-[#6941C6] hover:bg-[#5535A5] text-white font-medium px-8 py-3 rounded transition flex items-center text-lg shadow">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+          Calculate Proforma
+        </button>
+      </div>
+    </div>
+    
+    <!-- Results Tab -->
+    <div id="results-tab" class="tab-content">
+      <div class="pro-card bg-white p-6 mb-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-medium text-[#393939]">Proforma Summary</h2>
+          <div class="flex space-x-3">
+            <button id="exportPdf" class="px-4 py-2 font-medium bg-[#262626] text-white hover:bg-black transition-colors rounded flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+              </svg>
+              Export PDF
+            </button>
+            <button id="exportExcel" class="px-4 py-2 font-medium bg-[#166534] text-white hover:bg-[#14532d] transition-colors rounded flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Export Excel
+            </button>
+          </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" id="summary-cards">
+          <!-- Will be populated by JavaScript -->
+        </div>
+
+        <!-- Detailed Results -->
+        <div id="detailed-results" class="mt-8">
+          <!-- Will be populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Scenario Analysis -->
+      <div class="pro-card bg-white p-6">
+        <h2 class="text-xl font-medium text-[#393939] mb-6">Scenario Analysis</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <h3 class="font-medium text-[#4B5563] mb-3">Interest Rate Sensitivity</h3>
+            <div class="bg-[#f9fafb] rounded p-4">
+              <table class="w-full text-sm text-left text-[#4B5563]" id="interest-sensitivity">
+                <!-- Will be populated by JavaScript -->
+              </table>
+            </div>
+          </div>
+          <div>
+            <h3 class="font-medium text-[#4B5563] mb-3">Price Sensitivity</h3>
+            <div class="bg-[#f9fafb] rounded p-4">
+              <table class="w-full text-sm text-left text-[#4B5563]" id="price-sensitivity">
+                <!-- Will be populated by JavaScript -->
+              </table>
+            </div>
+          </div>
+          <div>
+            <h3 class="font-medium text-[#4B5563] mb-3">Absorption Sensitivity</h3>
+            <div class="bg-[#f9fafb] rounded p-4">
+              <table class="w-full text-sm text-left text-[#4B5563]" id="absorption-sensitivity">
+                <!-- Will be populated by JavaScript -->
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+<!-- Charts & Projections Section -->
+<div id="charts-tab" class="tab-content">
+  <div class="pro-card bg-white p-6 mb-6">
+    <h2 class="text-2xl font-bold text-[#393939] mb-6">Financial Projections</h2>
+
+    <!-- Cash Flow Projection -->
+    <div class="bg-[#f9fafb] rounded p-6 w-full h-[500px] mb-8">
+      <h3 class="font-semibold text-[#4B5563] mb-4">Cash Flow Projection</h3>
+      <canvas id="projectionGraph" class="w-full h-full"></canvas>
+    </div>
+
+    <!-- IRR Curve -->
+    <div class="bg-[#f9fafb] rounded p-6 w-full h-[400px] mb-8">
+      <h3 class="font-semibold text-[#4B5563] mb-4">IRR Curve</h3>
+      <canvas id="irrCurve" class="w-full h-full"></canvas>
+    </div>
+
+    <!-- Lot Absorption -->
+    <div class="bg-[#f9fafb] rounded p-6 w-full h-[400px] mb-8">
+      <h3 class="font-semibold text-[#4B5563] mb-4">Lot Absorption Schedule</h3>
+      <canvas id="lotAbsorption" class="w-full h-full"></canvas>
+    </div>
+
+    <!-- Revenue and Cost Breakdown Side-by-Side -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+      <div class="bg-[#f9fafb] rounded p-6 w-full h-[400px]">
+        <h3 class="font-semibold text-[#4B5563] mb-4">Revenue Breakdown</h3>
+        <canvas id="revenueBreakdown" class="w-full h-full"></canvas>
+      </div>
+      <div class="bg-[#f9fafb] rounded p-6 w-full h-[400px]">
+        <h3 class="font-semibold text-[#4B5563] mb-4">Cost Breakdown</h3>
+        <canvas id="costBreakdown" class="w-full h-full"></canvas>
+      </div>
+    </div>
+
+    <!-- Monthly Cash Flow and Cumulative Return Side-by-Side -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div class="bg-[#f9fafb] rounded p-6 w-full h-[400px]">
+        <h3 class="font-semibold text-[#4B5563] mb-4">Monthly Net Cash Flow</h3>
+        <canvas id="monthlyCashFlow" class="w-full h-full"></canvas>
+      </div>
+      <div class="bg-[#f9fafb] rounded p-6 w-full h-[400px]">
+        <h3 class="font-semibold text-[#4B5563] mb-4">Cumulative Return</h3>
+        <canvas id="cumulativeReturn" class="w-full h-full"></canvas>
+      </div>
+    </div>
+
+  </div>
 </div>
 
-    </section>
-  </main>
+
+
+
+    <!-- CTA Section -->
+  <section class="bg-[#0043ce] py-16 text-white">
+    <div class="max-w-5xl mx-auto px-4 text-center">
+      <h2 class="text-3xl font-light mb-6">Ready to optimize your real estate investment strategy?</h2>
+      <p class="text-xl opacity-90 mb-8 max-w-3xl mx-auto">Join thousands of investors using our proforma tools to make better decisions and maximize returns.</p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="#" class="btn-primary bg-white text-[#0056b3] hover:bg-[#e0e0e0]">Get started today</a>
+        <a href="#" class="btn-secondary text-white border-white hover:bg-[#004494]">Schedule a demo</a>
+      </div>
+    </div>
+  </section>
+
 
   <!-- Footer -->
-  <footer class="shadow py-4 bg-white mt-10">
-    <div class="max-w-5xl mx-auto px-6 text-center text-sm">
-      &copy; 2025 REProforma. All Rights Reserved. |
-      <a href="#" class="hover:text-blue-600">Privacy</a> |
-      <a href="#" class="hover:text-blue-600">Terms</a>
+
+  <footer class="bg-[#161616] text-white py-16 w-full">
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 px-8 w-full">
+        <div>
+          <h4 class="text-lg font-medium mb-4">RE Proforma</h4>
+          <p class="text-[#c6c6c6] text-sm mb-6">Advanced analytics for real estate investment professionals.</p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-[#c6c6c6] hover:text-white">
+              <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path>
+              </svg>
+            </a>
+            <a href="#" class="text-[#c6c6c6] hover:text-white">
+              <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path>
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-lg font-medium mb-4">Tools</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="../pai/index.html" class="hover:text-white text-[#c6c6c6]">Multifamily Acquisition</a></li>
+            <li><a href="../pai/index-mixeduse.html" class="hover:text-white text-[#c6c6c6]">Mixed-Use Development</a></li>
+            <li><a href="../pai/index-land.html" class="hover:text-white text-white">Land Development</a></li>
+            <li><a href="../pai/index-office.html" class="hover:text-white text-[#c6c6c6]">Commercial Office</a></li>
+            <li><a href="../pai/index-retail.html" class="hover:text-white text-[#c6c6c6]">Retail</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-lg font-medium mb-4">Resources</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="#" class="hover:text-white text-[#c6c6c6]">Market Reports</a></li>
+            <li><a href="#" class="hover:text-white text-[#c6c6c6]">Investment Guide</a></li>
+            <li><a href="#" class="hover:text-white text-[#c6c6c6]">Case Studies</a></li>
+            <li><a href="#" class="hover:text-white text-[#c6c6c6]">Blog</a></li>
+            <li><a href="#" class="hover:text-white text-[#c6c6c6]">Support</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-lg font-medium mb-4">Subscribe</h4>
+          <p class="text-sm text-[#c6c6c6] mb-4">Get the latest real estate investment insights and updates.</p>
+          <form class="flex">
+            <input type="email" placeholder="Enter your email" class="px-3 py-2 rounded-l w-full text-gray-900 text-sm" />
+            <button type="submit" class="bg-[#6941C6] hover:bg-[#5535A5] text-white px-4 rounded-r text-sm">Subscribe</button>
+          </form>
+        </div>
+      </div>
+      <div class="text-center text-gray-400 text-xs w-full px-8">
+        <p class="text-[#c6c6c6]">&copy; 2025 RE Proforma. All rights reserved.</p>
+        <div class="flex space-x-6 mt-4 md:mt-0">
+          <a href="../privacy.html" class="hover:text-white text-[#c6c6c6]">Privacy Policy</a>
+          <a href="../terms.html" class="hover:text-white text-[#c6c6c6]">Terms of Service</a>
+        </div>
+      </div>
     </div>
   </footer>
+    <!-- Scripts -->
   <script src="main-land.js"></script>
 </body>
 </html>
