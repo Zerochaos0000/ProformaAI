@@ -1,86 +1,103 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* commercial-retail.css */
+
+body {
+  font-family: 'Inter', sans-serif;
+}
 
 .input {
-  @apply w-full border rounded py-1 px-3 mt-1 shadow-sm;
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md text-sm;
 }
 
-.btn {
-  @apply bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow;
+.pro-card {
+  @apply border border-gray-200 rounded-lg shadow-sm;
 }
 
-.autofill-btn {
-  background-color: #facc15;
-  color: #1f2937;
-  font-weight: 600;
-  padding: 8px 16px;
-  border-radius: 0.375rem;
-  margin-bottom: 20px;
-  display: inline-block;
-  transition: background 0.3s ease;
+.tab-content {
+  display: none;
 }
 
-.autofill-btn:hover {
-  background-color: #eab308;
+.tab-content.active {
+  display: block;
 }
 
-.btn.reset-btn {
-  background-color: #f87171;
-  color: white;
+.tab-button {
+  transition: all 0.3s ease;
 }
 
-.btn.reset-btn:hover {
-  background-color: #dc2626;
+button:hover, a:hover {
+  cursor: pointer;
 }
 
-label {
+/* Summary Cards */
+#summary-cards div {
+  min-height: 100px;
   display: flex;
   flex-direction: column;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
+  justify-content: center;
+  align-items: start;
 }
 
-@media print {
-  body {
-    background: white;
-    color: black;
-    padding: 20px;
-  }
-
-  header, footer, .btn, .autofill-btn, .export-controls {
-    display: none !important;
-  }
-
-  table {
-    width: 100% !important;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
-
-  table td, table th {
-    border: 1px solid #333;
-    padding: 6px;
-    font-size: 14px;
-  }
-
-  h2, h3 {
-    color: black !important;
-  }
+/* Responsive Fix for Inputs in Cards */
+.pro-card input, .pro-card select {
+  margin-top: 4px;
+  padding: 8px;
+  width: 100%;
+  border-radius: 0.375rem;
+  border: 1px solid #d1d5db;
 }
 
-table {
-  @apply border-collapse border border-gray-200;
-}
-
-table th, table td {
-  @apply border border-gray-200 py-2 px-4;
-}
-
+/* Chart canvas fix */
 canvas {
-  @apply max-h-64;
+  max-width: 100% !important;
+  height: auto !important;
 }
 
-header, footer {
-  @apply bg-white shadow-md;
+/* CTA buttons */
+.btn-primary {
+  @apply px-6 py-3 font-medium rounded border border-transparent transition;
+}
+
+.btn-secondary {
+  @apply px-6 py-3 font-medium rounded border border-white transition;
+}
+
+/* Footer spacing fix */
+footer ul li a {
+  line-height: 1.75rem;
+}
+
+/* Fix spacing and vertical alignment */
+label span {
+  display: inline-block;
+  margin-bottom: 4px;
+}
+
+/* Button alignment */
+button svg {
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+/* Override Tailwind if needed */
+@media (min-width: 768px) {
+  .pro-card .grid-cols-3 > div {
+    margin-bottom: 0.5rem;
+  }
+
+  .md\:grid-cols-3 {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Export Button Containers */
+#exportPdf, #exportExcel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.875rem;
+}
+
+/* Hide html2pdf artifact page breaks */
+html2pdf__page-break {
+  display: none;
 }
