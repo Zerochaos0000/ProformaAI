@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rent vs. Buy Calculator | RE Proforma</title>
+  <link href="../favicon.png" rel="icon" type="image/png" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .input {
+      width: 100%; padding: 8px 12px;
+      border: 1px solid #d1d5db; border-radius: 0.375rem;
+      font-size: 0.875rem; background: #fff; color: #111827;
+      transition: border-color 0.2s, box-shadow 0.2s; margin-top: 4px;
+    }
+    .input:focus { outline: none; border-color: #0056b3; box-shadow: 0 0 0 3px rgba(0,86,179,0.12); }
+    .pro-card { border: 1px solid #e5e7eb; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    label { display: flex; flex-direction: column; font-weight: 400; }
+    label span { font-size: 0.875rem; color: #4B5563; margin-bottom: 2px; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .verdict-buy { background: #dcfce7; border: 2px solid #16a34a; border-radius: 12px; padding: 24px; text-align: center; }
+    .verdict-rent { background: #dbeafe; border: 2px solid #1d4ed8; border-radius: 12px; padding: 24px; text-align: center; }
+    .verdict-tie { background: #fef9c3; border: 2px solid #ca8a04; border-radius: 12px; padding: 24px; text-align: center; }
+    .cost-row { display: flex; justify-content: space-between; padding: 9px 12px; border-bottom: 1px solid #f3f4f6; font-size: 0.875rem; }
+    .cost-row:last-child { border-bottom: none; }
+    .cost-row:hover { background: #f9fafb; }
+  </style>
+</head>
+<body class="bg-white text-gray-900 min-h-screen flex flex-col">
+
+<!-- Header -->
+<header class="sticky top-0 z-50 bg-white shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+    <a class="text-2xl font-semibold" href="../index.html" style="color:#0043ce">RE Proforma</a>
+    <div class="md:hidden">
+      <button id="mobile-menu-button" class="focus:outline-none" style="color:#0043ce">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+      </button>
+    </div>
+    <div class="hidden md:flex items-center space-x-8">
+      <nav class="flex space-x-8">
+        <a href="../index.html" class="py-5 text-sm" style="color:#525252">Home</a>
+        <div class="relative group">
+          <button class="flex items-center py-5 text-sm font-medium border-b-2 focus:outline-none" style="color:#0043ce;border-color:#0043ce">
+            Tools <svg class="h-4 w-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+          </button>
+          <div class="absolute left-0 mt-1 w-56 bg-white shadow-lg rounded-md overflow-hidden z-20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+            <a href="index.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-700">Multifamily Acquisition</a>
+            <a href="index-mixeduse.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-700">Commercial/Retail</a>
+            <a href="index-land.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-700">Land Development</a>
+            <div class="border-t border-gray-100 my-1"></div>
+            <a href="index-affordability.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-700">🏠 Home Affordability</a>
+            <a href="index-rentvsbuy.html" class="block px-4 py-3 text-sm bg-gray-50 border-l-2 border-blue-700" style="color:#0043ce">🔄 Rent vs. Buy</a>
+            <a href="index-mortgage-payoff.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-700">📅 Mortgage Payoff</a>
+          </div>
+        </div>
+        <a href="../about.html" class="py-5 text-sm" style="color:#525252">About</a>
+      </nav>
+      <button class="px-5 py-2 font-medium text-white rounded transition-colors text-sm" style="background:#0043ce">Let's talk</button>
+    </div>
+  </div>
+  <div class="hidden bg-white border-t shadow-lg" id="mobile-menu">
+    <div class="px-4 py-3 space-y-1 text-sm">
+      <a href="../index.html" class="block py-2 px-3 rounded text-gray-600 hover:bg-gray-50">Home</a>
+      <a href="index.html" class="block py-2 px-3 text-gray-700">Multifamily Acquisition</a>
+      <a href="index-mixeduse.html" class="block py-2 px-3 text-gray-700">Commercial/Retail</a>
+      <a href="index-land.html" class="block py-2 px-3 text-gray-700">Land Development</a>
+      <a href="index-affordability.html" class="block py-2 px-3 text-gray-700">🏠 Home Affordability</a>
+      <a href="index-rentvsbuy.html" class="block py-2 px-3 font-medium" style="color:#0043ce">🔄 Rent vs. Buy</a>
+      <a href="index-mortgage-payoff.html" class="block py-2 px-3 text-gray-700">📅 Mortgage Payoff</a>
+      <a href="../about.html" class="block py-2 px-3 text-gray-700">About</a>
+    </div>
+  </div>
+</header>
+
+<!-- Hero -->
+<section style="background:linear-gradient(to right,#EBF5FF,#fff)" class="py-12">
+  <div class="max-w-5xl mx-auto px-4">
+    <div class="flex flex-col md:flex-row items-center gap-8">
+      <div class="md:w-3/5">
+        <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold mb-4" style="background:#dbeafe;color:#1d4ed8">FREE TOOL · NO SIGN-UP REQUIRED</div>
+        <h1 class="text-4xl font-light leading-tight mb-4" style="color:#0056b3">🔄 Rent vs. Buy Calculator</h1>
+        <p class="text-lg mb-6" style="color:#393939">The most important financial decision most people make. See the true 5, 10, and 20-year cost of renting versus buying in your area.</p>
+        <div class="flex flex-wrap gap-3">
+          <button id="autofillDemo" class="px-5 py-2 text-sm font-medium text-white rounded flex items-center" style="background:#0056b3">
+            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+            Demo Data
+          </button>
+          <button id="resetInputs" class="px-5 py-2 text-sm font-medium rounded flex items-center border-2" style="border-color:#0056b3;color:#0056b3">
+            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+            Reset
+          </button>
+        </div>
+      </div>
+      <div class="md:w-2/5">
+        <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=500&h=350&auto=format&fit=crop" alt="Rent vs Buy" class="rounded-lg shadow-lg object-cover h-56 w-full" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="max-w-7xl mx-auto px-4 flex-grow py-8">
+
+  <!-- Tabs -->
+  <div class="mb-6 border-b border-gray-200">
+    <nav class="flex flex-wrap -mb-px">
+      <button class="tab-button mr-2 py-3 px-4 border-b-2 font-medium text-sm" data-tab="input-tab" style="border-color:#0056b3;color:#0056b3">Your Scenario</button>
+      <button class="tab-button mr-2 py-3 px-4 border-b-2 border-transparent font-medium text-sm text-gray-500" data-tab="results-tab">Results &amp; Verdict</button>
+      <button class="tab-button mr-2 py-3 px-4 border-b-2 border-transparent font-medium text-sm text-gray-500" data-tab="timeline-tab">Year-by-Year Timeline</button>
+    </nav>
+  </div>
+
+  <!-- INPUT TAB -->
+  <div class="tab-content active" id="input-tab">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+
+      <!-- Renting Side -->
+      <section class="pro-card bg-white p-6">
+        <div class="flex items-center mb-5">
+          <div class="h-10 w-10 rounded-full flex items-center justify-center mr-3" style="background:#dbeafe">
+            <span class="text-lg">🏘️</span>
+          </div>
+          <h2 class="text-base font-semibold" style="color:#393939">Renting Scenario</h2>
+        </div>
+        <div class="space-y-4">
+          <label><span>Current Monthly Rent ($)</span><input class="input" id="monthlyRent" type="number" placeholder="2000" /></label>
+          <label><span>Annual Rent Increase (%)</span><input class="input" id="rentIncrease" type="number" step="0.1" placeholder="3" /></label>
+          <label><span>Renters Insurance ($/mo)</span><input class="input" id="rentersInsurance" type="number" placeholder="20" /></label>
+          <label><span>Investment Return on Down Payment (%) <em class="text-gray-400 font-normal text-xs">if you invest instead of buying</em></span><input class="input" id="investmentReturn" type="number" step="0.1" placeholder="7" /></label>
+        </div>
+      </section>
+
+      <!-- Buying Side -->
+      <section class="pro-card bg-white p-6">
+        <div class="flex items-center mb-5">
+          <div class="h-10 w-10 rounded-full flex items-center justify-center mr-3" style="background:#dcfce7">
+            <span class="text-lg">🏠</span>
+          </div>
+          <h2 class="text-base font-semibold" style="color:#393939">Buying Scenario</h2>
+        </div>
+        <div class="space-y-4">
+          <label><span>Home Purchase Price ($)</span><input class="input" id="homePrice" type="number" placeholder="400000" /></label>
+          <label><span>Down Payment ($)</span><input class="input" id="downPayment" type="number" placeholder="80000" /></label>
+          <label><span>Mortgage Interest Rate (%)</span><input class="input" id="interestRate" type="number" step="0.01" placeholder="6.75" /></label>
+          <label><span>Loan Term (Years)</span>
+            <select class="input" id="loanTerm"><option value="30">30</option><option value="20">20</option><option value="15">15</option></select>
+          </label>
+          <label><span>Annual Property Tax Rate (%)</span><input class="input" id="propertyTaxRate" type="number" step="0.01" placeholder="1.2" /></label>
+          <label><span>Annual Home Insurance ($)</span><input class="input" id="homeInsurance" type="number" placeholder="1800" /></label>
+          <label><span>Monthly HOA ($)</span><input class="input" id="hoaFees" type="number" placeholder="0" /></label>
+          <label><span>Annual Maintenance (% of home value)</span><input class="input" id="maintenancePct" type="number" step="0.1" placeholder="1" /></label>
+          <label><span>Closing Costs (%)</span><input class="input" id="closingCosts" type="number" step="0.1" placeholder="3" /></label>
+        </div>
+      </section>
+    </div>
+
+    <!-- Shared Assumptions -->
+    <section class="pro-card bg-white p-6 mb-6">
+      <div class="flex items-center mb-5">
+        <div class="h-10 w-10 rounded-full flex items-center justify-center mr-3" style="background:#f3e8ff">
+          <svg class="h-5 w-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+        </div>
+        <h2 class="text-base font-semibold" style="color:#393939">Shared Assumptions</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <label><span>Home Appreciation Rate (%/yr)</span><input class="input" id="appreciation" type="number" step="0.1" placeholder="3.5" /></label>
+        <label><span>Your Tax Bracket (%)</span><input class="input" id="taxBracket" type="number" placeholder="22" /></label>
+        <label><span>How Long Will You Stay? (Years)</span><input class="input" id="holdYears" type="number" placeholder="10" /></label>
+      </div>
+    </section>
+
+    <div class="flex justify-center mt-6 mb-4">
+      <button id="calculate" class="text-white font-medium px-8 py-3 rounded flex items-center text-base shadow" style="background:#0056b3">
+        <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+        Compare Rent vs. Buy
+      </button>
+    </div>
+  </div>
+
+  <!-- RESULTS TAB -->
+  <div class="tab-content" id="results-tab">
+    <!-- Verdict Banner -->
+    <div id="verdict-banner" class="mb-6"></div>
+
+    <!-- Side by Side -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <div class="pro-card bg-white p-6">
+        <h3 class="font-semibold text-base mb-4 flex items-center gap-2" style="color:#393939">🏘️ Total Cost of Renting</h3>
+        <div id="rent-cost-breakdown" class="bg-gray-50 rounded-lg p-2"></div>
+      </div>
+      <div class="pro-card bg-white p-6">
+        <h3 class="font-semibold text-base mb-4 flex items-center gap-2" style="color:#393939">🏠 Total Cost of Buying</h3>
+        <div id="buy-cost-breakdown" class="bg-gray-50 rounded-lg p-2"></div>
+      </div>
+    </div>
+
+    <!-- Break-even -->
+    <div class="pro-card bg-white p-6 mb-6" id="breakeven-section">
+      <h3 class="font-semibold text-base mb-4" style="color:#393939">⏱ Break-Even Analysis</h3>
+      <div id="breakeven-content"></div>
+    </div>
+
+    <!-- Key factors -->
+    <div class="pro-card bg-white p-6">
+      <h3 class="font-semibold text-base mb-4" style="color:#393939">📋 Factors Beyond the Numbers</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm" style="color:#4B5563">
+        <div>
+          <p class="font-semibold mb-2" style="color:#1d4ed8">Reasons to BUY</p>
+          <ul class="space-y-1">
+            <li>✅ Building equity and net worth</li>
+            <li>✅ Stability — fixed payment, can't be evicted</li>
+            <li>✅ Freedom to renovate and customize</li>
+            <li>✅ Forced savings / wealth-building discipline</li>
+            <li>✅ Hedge against rent inflation</li>
+          </ul>
+        </div>
+        <div>
+          <p class="font-semibold mb-2" style="color:#0369a1">Reasons to RENT</p>
+          <ul class="space-y-1">
+            <li>✅ Flexibility to move at any time</li>
+            <li>✅ No maintenance responsibility</li>
+            <li>✅ No property value risk</li>
+            <li>✅ Lower upfront cash required</li>
+            <li>✅ Better if staying fewer than 3–5 years</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIMELINE TAB -->
+  <div class="tab-content" id="timeline-tab">
+    <div class="pro-card bg-white p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-6" style="color:#393939">Cumulative Cost Over Time</h2>
+      <div style="height:400px;background:#f9fafb" class="rounded p-4 mb-6">
+        <canvas id="timelineChart"></canvas>
+      </div>
+    </div>
+    <div class="pro-card bg-white p-6">
+      <h3 class="font-semibold text-base mb-4" style="color:#393939">Year-by-Year Breakdown</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm" id="timeline-table" style="border-collapse:collapse;color:#4B5563">
+          <thead><tr style="background:#f3f4f6">
+            <th class="p-2 border-b text-left font-semibold" style="color:#374151">Year</th>
+            <th class="p-2 border-b text-right font-semibold" style="color:#1d4ed8">Rent Total Cost</th>
+            <th class="p-2 border-b text-right font-semibold" style="color:#166534">Buy Total Cost</th>
+            <th class="p-2 border-b text-right font-semibold" style="color:#374151">Net Difference</th>
+            <th class="p-2 border-b text-right font-semibold" style="color:#374151">Home Value</th>
+            <th class="p-2 border-b text-right font-semibold" style="color:#374151">Equity Built</th>
+          </tr></thead>
+          <tbody id="timeline-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- CTA -->
+<section class="py-16 text-white" style="background:#0043ce">
+  <div class="max-w-5xl mx-auto px-4 text-center">
+    <h2 class="text-3xl font-light mb-4">Decided to buy? Know what you can afford.</h2>
+    <p class="text-lg opacity-90 mb-8 max-w-2xl mx-auto">Use our Home Affordability Calculator to find your exact buying power based on income and debts.</p>
+    <div class="flex flex-wrap justify-center gap-4">
+      <a href="index-affordability.html" class="px-6 py-3 font-medium rounded" style="background:#fff;color:#0056b3">🏠 Affordability Calculator</a>
+      <a href="index-mortgage-payoff.html" class="px-6 py-3 font-medium rounded border-2 border-white text-white">📅 Mortgage Payoff →</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="text-white py-12 w-full" style="background:#161616">
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10 px-8">
+    <div><h4 class="text-base font-medium mb-3">RE Proforma</h4><p class="text-sm" style="color:#c6c6c6">Advanced analytics for real estate investment professionals.</p></div>
+    <div><h4 class="text-base font-medium mb-3">Pro Tools</h4><ul class="space-y-2 text-sm" style="color:#c6c6c6"><li><a href="index.html" class="hover:text-white">Multifamily Acquisition</a></li><li><a href="index-mixeduse.html" class="hover:text-white">Commercial/Retail</a></li><li><a href="index-land.html" class="hover:text-white">Land Development</a></li></ul></div>
+    <div><h4 class="text-base font-medium mb-3">Free Tools</h4><ul class="space-y-2 text-sm" style="color:#c6c6c6"><li><a href="index-affordability.html" class="hover:text-white">🏠 Home Affordability</a></li><li><a href="index-rentvsbuy.html" class="text-white font-medium">🔄 Rent vs. Buy</a></li><li><a href="index-mortgage-payoff.html" class="hover:text-white">📅 Mortgage Payoff</a></li></ul></div>
+    <div><h4 class="text-base font-medium mb-3">Company</h4><ul class="space-y-2 text-sm" style="color:#c6c6c6"><li><a href="../about.html" class="hover:text-white">About</a></li><li><a href="../privacy.html" class="hover:text-white">Privacy Policy</a></li><li><a href="../terms.html" class="hover:text-white">Terms of Service</a></li></ul></div>
+  </div>
+  <div class="text-center text-xs px-8" style="color:#c6c6c6">© 2025 RE Proforma. All rights reserved.</div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  let timelineChart = null;
+
+  document.getElementById('mobile-menu-button').addEventListener('click', () => {
+    document.getElementById('mobile-menu').classList.toggle('hidden');
+  });
+
+  document.querySelectorAll('.tab-button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.getAttribute('data-tab');
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.getElementById(target).classList.add('active');
+      document.querySelectorAll('.tab-button').forEach(b => { b.style.color='#6b7280'; b.style.borderColor='transparent'; });
+      btn.style.color = '#0056b3'; btn.style.borderColor = '#0056b3';
+      if (target === 'timeline-tab') renderTimelineChart();
+    });
+  });
+
+  function n(id) { return parseFloat(document.getElementById(id).value) || 0; }
+
+  // Store calculated data for chart
+  let _yearData = [];
+
+  document.getElementById('calculate').addEventListener('click', calculate);
+
+  function calculate() {
+    const monthlyRent    = n('monthlyRent');
+    const rentIncrease   = n('rentIncrease') / 100;
+    const rentersIns     = n('rentersInsurance');
+    const investReturn   = n('investmentReturn') / 100;
+    const homePrice      = n('homePrice');
+    const downPayment    = n('downPayment');
+    const rate           = n('interestRate') / 100;
+    const term           = parseInt(document.getElementById('loanTerm').value);
+    const taxRate        = n('propertyTaxRate') / 100;
+    const homeIns        = n('homeInsurance') / 12;
+    const hoa            = n('hoaFees');
+    const maintPct       = n('maintenancePct') / 100;
+    const closingPct     = n('closingCosts') / 100;
+    const appreciation   = n('appreciation') / 100;
+    const taxBracket     = n('taxBracket') / 100;
+    const holdYears      = Math.max(1, Math.min(30, parseInt(n('holdYears')) || 10));
+
+    if (!monthlyRent || !homePrice || !rate) { alert('Please fill in the required fields.'); return; }
+
+    const loanAmount     = homePrice - downPayment;
+    const monthlyRate    = rate / 12;
+    const totalPayments  = term * 12;
+    const monthlyPI      = loanAmount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -totalPayments));
+    const closingCosts   = homePrice * closingPct;
+    const pmi            = downPayment / homePrice < 0.20 ? loanAmount * 0.005 / 12 : 0;
+
+    _yearData = [];
+
+    let cumRentCost    = 0;
+    let cumBuyCost     = closingCosts + downPayment; // upfront cash for buy
+    let rentInvestment = downPayment + closingCosts; // invested instead
+    let loanBalance    = loanAmount;
+    let currentRent    = monthlyRent;
+    let homeValue      = homePrice;
+
+    for (let yr = 1; yr <= Math.max(holdYears, 30); yr++) {
+      // Renting
+      let yearRentCost = 0;
+      for (let m = 0; m < 12; m++) {
+        yearRentCost += currentRent + rentersIns;
+        currentRent *= (1 + rentIncrease / 12);
+      }
+      cumRentCost += yearRentCost;
+      rentInvestment *= (1 + investReturn); // opportunity cost invested
+
+      // Buying — mortgage payments
+      let yearBuyCost   = 0;
+      let yearInterest  = 0;
+      let yearPrincipal = 0;
+      homeValue *= (1 + appreciation);
+      const monthlyTax  = homeValue * taxRate / 12;
+      const monthlyMaint = homeValue * maintPct / 12;
+      const yearPMI     = loanBalance > 0 && (loanBalance / homePrice) > 0.80 ? pmi * 12 : 0;
+
+      for (let m = 0; m < 12; m++) {
+        if (loanBalance > 0) {
+          const interestPayment  = loanBalance * monthlyRate;
+          const principalPayment = Math.min(monthlyPI - interestPayment, loanBalance);
+          yearInterest  += interestPayment;
+          yearPrincipal += principalPayment;
+          loanBalance   -= principalPayment;
+        }
+      }
+      // Tax deduction on mortgage interest (simplified)
+      const interestDeduction = yearInterest * taxBracket;
+      yearBuyCost = monthlyPI * 12 + monthlyTax * 12 + homeIns * 12 + hoa * 12 + monthlyMaint * 12 + yearPMI - interestDeduction;
+      cumBuyCost += yearBuyCost;
+
+      const equity = homeValue - Math.max(0, loanBalance);
+      const netBuyCost = cumBuyCost - equity; // true economic cost
+      const netRentCost = cumRentCost - (rentInvestment - downPayment - closingCosts);
+
+      if (yr <= Math.max(holdYears, 30)) {
+        _yearData.push({ yr, cumRentCost: Math.round(cumRentCost), cumBuyCost: Math.round(cumBuyCost), netBuyCost: Math.round(netBuyCost), netRentCost: Math.round(netRentCost), homeValue: Math.round(homeValue), equity: Math.round(equity), loanBalance: Math.round(loanBalance) });
+      }
+    }
+
+    const holdData = _yearData[holdYears - 1] || _yearData[_yearData.length - 1];
+    const diff = holdData.netRentCost - holdData.netBuyCost;
+    const buyWins = diff > 0;
+    const isTie   = Math.abs(diff) < holdData.cumRentCost * 0.03;
+
+    // Find break-even year
+    let breakEvenYear = null;
+    for (let i = 1; i < _yearData.length; i++) {
+      if (_yearData[i-1].netBuyCost > _yearData[i-1].netRentCost && _yearData[i].netBuyCost <= _yearData[i].netRentCost) { breakEvenYear = i + 1; break; }
+      if (_yearData[i].netBuyCost <= _yearData[i].netRentCost) { breakEvenYear = i + 1; break; }
+    }
+
+    // Verdict
+    let verdictHTML;
+    if (isTie) {
+      verdictHTML = `<div class="verdict-tie"><p class="text-2xl font-bold text-yellow-700 mb-2">🟡 It's a Toss-Up</p><p class="text-yellow-800 text-base">The financial difference is small. Your decision should be based on lifestyle, flexibility, and personal goals.</p></div>`;
+    } else if (buyWins) {
+      verdictHTML = `<div class="verdict-buy"><p class="text-2xl font-bold text-green-700 mb-2">🏠 Buying Wins Over ${holdYears} Years</p><p class="text-green-800 text-base">You save approximately <strong>$${Math.abs(diff).toLocaleString()}</strong> by buying vs. renting over your ${holdYears}-year horizon.</p></div>`;
+    } else {
+      verdictHTML = `<div class="verdict-rent"><p class="text-2xl font-bold text-blue-700 mb-2">🏘️ Renting Wins Over ${holdYears} Years</p><p class="text-blue-800 text-base">Renting saves approximately <strong>$${Math.abs(diff).toLocaleString()}</strong> over your ${holdYears}-year horizon. Consider buying only if you plan to stay longer.</p></div>`;
+    }
+    document.getElementById('verdict-banner').innerHTML = verdictHTML;
+
+    // Rent cost breakdown
+    document.getElementById('rent-cost-breakdown').innerHTML = `
+      <div class="cost-row"><span style="color:#374151">Total Rent Paid</span><span style="color:#1d4ed8;font-weight:600">$${holdData.cumRentCost.toLocaleString()}</span></div>
+      <div class="cost-row"><span style="color:#374151">Renters Insurance</span><span style="font-weight:500">$${Math.round(rentersIns * 12 * holdYears).toLocaleString()}</span></div>
+      <div class="cost-row"><span style="color:#374151">Opportunity Gain (invested down payment)</span><span style="color:#16a34a;font-weight:600">+$${Math.round(rentInvestment - downPayment - closingCosts > 0 ? rentInvestment - downPayment - closingCosts : 0).toLocaleString()}</span></div>
+      <div class="cost-row" style="background:#dbeafe;border-radius:6px"><span style="color:#1d4ed8;font-weight:700">Net True Cost of Renting</span><span style="color:#1d4ed8;font-weight:700">$${holdData.netRentCost.toLocaleString()}</span></div>
+    `;
+
+    // Buy cost breakdown
+    document.getElementById('buy-cost-breakdown').innerHTML = `
+      <div class="cost-row"><span style="color:#374151">Down Payment + Closing Costs</span><span style="font-weight:500">$${Math.round(downPayment + closingCosts).toLocaleString()}</span></div>
+      <div class="cost-row"><span style="color:#374151">Total Mortgage Payments</span><span style="font-weight:500">$${Math.round(monthlyPI * 12 * holdYears).toLocaleString()}</span></div>
+      <div class="cost-row"><span style="color:#374151">Property Taxes</span><span style="font-weight:500">$${Math.round(homePrice * taxRate * holdYears).toLocaleString()}</span></div>
+      <div class="cost-row"><span style="color:#374151">Maintenance + Insurance + HOA</span><span style="font-weight:500">~$${Math.round((homeIns * 12 + hoa * 12 + homePrice * maintPct) * holdYears).toLocaleString()}</span></div>
+      <div class="cost-row"><span style="color:#374151">Equity Built (asset)</span><span style="color:#16a34a;font-weight:600">+$${holdData.equity.toLocaleString()}</span></div>
+      <div class="cost-row" style="background:#dcfce7;border-radius:6px"><span style="color:#166534;font-weight:700">Net True Cost of Buying</span><span style="color:#166534;font-weight:700">$${holdData.netBuyCost.toLocaleString()}</span></div>
+    `;
+
+    // Break-even
+    document.getElementById('breakeven-content').innerHTML = breakEvenYear
+      ? `<div class="flex items-center gap-4">
+          <div class="text-5xl font-bold" style="color:#0056b3">${breakEvenYear}</div>
+          <div>
+            <p class="font-semibold" style="color:#393939">Years Until Buying Pays Off</p>
+            <p class="text-sm" style="color:#4B5563">After year ${breakEvenYear}, buying becomes the cheaper option. ${holdYears >= breakEvenYear ? "✅ You plan to stay past break-even — buying likely makes sense." : "⚠️ You plan to leave before break-even — renting may be smarter."}</p>
+          </div>
+        </div>`
+      : `<p style="color:#4B5563">Renting remains cheaper throughout the analysis period at current assumptions.</p>`;
+
+    // Year-by-year table
+    let tbody = '';
+    for (let i = 0; i < Math.min(holdYears, _yearData.length); i++) {
+      const d = _yearData[i];
+      const better = d.netBuyCost < d.netRentCost ? '🏠' : '🏘️';
+      const diffVal = d.netRentCost - d.netBuyCost;
+      const diffColor = diffVal > 0 ? '#166534' : '#1d4ed8';
+      tbody += `<tr style="border-bottom:1px solid #f3f4f6">
+        <td class="p-2">${d.yr}${d.yr === holdYears ? ' ⭐' : ''}</td>
+        <td class="p-2 text-right" style="color:#1d4ed8">$${d.cumRentCost.toLocaleString()}</td>
+        <td class="p-2 text-right" style="color:#166534">$${d.cumBuyCost.toLocaleString()}</td>
+        <td class="p-2 text-right font-semibold" style="color:${diffColor}">${better} $${Math.abs(diffVal).toLocaleString()}</td>
+        <td class="p-2 text-right">$${d.homeValue.toLocaleString()}</td>
+        <td class="p-2 text-right" style="color:#16a34a">$${d.equity.toLocaleString()}</td>
+      </tr>`;
+    }
+    document.getElementById('timeline-body').innerHTML = tbody;
+
+    // Switch to results tab
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.getElementById('results-tab').classList.add('active');
+    document.querySelectorAll('.tab-button').forEach(b => { b.style.color='#6b7280'; b.style.borderColor='transparent'; });
+    document.querySelector('[data-tab="results-tab"]').style.color = '#0056b3';
+    document.querySelector('[data-tab="results-tab"]').style.borderColor = '#0056b3';
+  }
+
+  function renderTimelineChart() {
+    if (!_yearData.length) return;
+    const ctx = document.getElementById('timelineChart').getContext('2d');
+    if (timelineChart) timelineChart.destroy();
+    const slice = _yearData.slice(0, Math.min(30, _yearData.length));
+    timelineChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: slice.map(d => 'Yr ' + d.yr),
+        datasets: [
+          { label: 'Net Cost of Renting', data: slice.map(d => d.netRentCost), borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.08)', fill: true, tension: 0.3, borderWidth: 2 },
+          { label: 'Net Cost of Buying', data: slice.map(d => d.netBuyCost), borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.08)', fill: true, tension: 0.3, borderWidth: 2 },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': $' + ctx.parsed.y.toLocaleString() } } },
+        scales: { y: { ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k' }, grid: { color: '#f3f4f6' } } }
+      }
+    });
+  }
+
+  document.getElementById('autofillDemo').addEventListener('click', () => {
+    document.getElementById('monthlyRent').value = 2200;
+    document.getElementById('rentIncrease').value = 3;
+    document.getElementById('rentersInsurance').value = 25;
+    document.getElementById('investmentReturn').value = 7;
+    document.getElementById('homePrice').value = 420000;
+    document.getElementById('downPayment').value = 84000;
+    document.getElementById('interestRate').value = 6.75;
+    document.getElementById('loanTerm').value = 30;
+    document.getElementById('propertyTaxRate').value = 1.2;
+    document.getElementById('homeInsurance').value = 1800;
+    document.getElementById('hoaFees').value = 0;
+    document.getElementById('maintenancePct').value = 1;
+    document.getElementById('closingCosts').value = 3;
+    document.getElementById('appreciation').value = 3.5;
+    document.getElementById('taxBracket').value = 22;
+    document.getElementById('holdYears').value = 10;
+  });
+
+  document.getElementById('resetInputs').addEventListener('click', () => {
+    document.querySelectorAll('input').forEach(i => i.value = '');
+    _yearData = [];
+    document.getElementById('verdict-banner').innerHTML = '';
+    document.getElementById('rent-cost-breakdown').innerHTML = '';
+    document.getElementById('buy-cost-breakdown').innerHTML = '';
+    document.getElementById('breakeven-content').innerHTML = '';
+    document.getElementById('timeline-body').innerHTML = '';
+    if (timelineChart) { timelineChart.destroy(); timelineChart = null; }
+  });
+});
+</script>
+</body>
+</html>

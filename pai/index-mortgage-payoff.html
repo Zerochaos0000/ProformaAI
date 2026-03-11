@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mortgage Payoff Calculator | RE Proforma</title>
+  <link href="../favicon.png" rel="icon" type="image/png" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .input {
+      width: 100%; padding: 8px 12px;
+      border: 1px solid #d1d5db; border-radius: 0.375rem;
+      font-size: 0.875rem; background: #fff; color: #111827;
+      transition: border-color 0.2s, box-shadow 0.2s; margin-top: 4px;
+    }
+    .input:focus { outline: none; border-color: #0056b3; box-shadow: 0 0 0 3px rgba(0,86,179,0.12); }
+    .pro-card { border: 1px solid #e5e7eb; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    label { display: flex; flex-direction: column; font-weight: 400; }
+    label span { font-size: 0.875rem; color: #4B5563; margin-bottom: 2px; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .stat-card { border-radius: 0.5rem; padding: 16px 20px; }
+    .amort-row:nth-child(even) { background: #f9fafb; }
+    .amort-row:hover { background: #EBF5FF; }
+    .savings-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; }
+    @media print {
+      header, footer, .cta-section { display: none !important; }
+      .tab-content { display: block !important; }
+    }
+  </style>
+</head>
+<body class="bg-white text-gray-900 min-h-screen flex flex-col">
+
+<!-- Header -->
+<header class="sticky top-0 z-50 bg-white shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+    <a class="text-2xl font-semibold" href="../index.html" style="color:#0043ce">RE Proforma</a>
+    <div class="md:hidden">
+      <button id="mobile-menu-button" class="focus:outline-none" style="color:#0043ce">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+      </button>
+    </div>
+    <div class="hidden md:flex items-center space-x-8">
+      <nav class="flex space-x-8">
+        <a href="../index.html" class="py-5 text-sm" style="color:#525252">Home</a>
+        <div class="relative group">
+          <button class="flex items-center py-5 text-sm font-medium border-b-2 focus:outline-none" style="color:#0043ce;border-color:#0043ce">
+            Tools <svg class="h-4 w-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+          </button>
+          <div class="absolute left-0 mt-1 w-56 bg-white shadow-lg rounded-md overflow-hidden z-20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+            <a href="index.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-700">Multifamily Acquisition</a>
+            <a href="index-mixeduse.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-700">Commercial/Retail</a>
+            <a href="index-land.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-700">Land Development</a>
+            <div class="border-t border-gray-100 my-1"></div>
+            <a href="index-affordability.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-700">🏠 Home Affordability</a>
+            <a href="index-rentvsbuy.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-700">🔄 Rent vs. Buy</a>
+            <a href="index-mortgage-payoff.html" class="block px-4 py-3 text-sm bg-gray-50 border-l-2 border-blue-700" style="color:#0043ce">📅 Mortgage Payoff</a>
+          </div>
+        </div>
+        <a href="../about.html" class="py-5 text-sm" style="color:#525252">About</a>
+      </nav>
+      <button class="px-5 py-2 font-medium text-white rounded transition-colors text-sm" style="background:#0043ce">Let's talk</button>
+    </div>
+  </div>
+  <div class="hidden bg-white border-t shadow-lg" id="mobile-menu">
+    <div class="px-4 py-3 space-y-1 text-sm">
+      <a href="../index.html" class="block py-2 px-3 rounded text-gray-600 hover:bg-gray-50">Home</a>
+      <a href="index.html" class="block py-2 px-3 text-gray-700">Multifamily Acquisition</a>
+      <a href="index-mixeduse.html" class="block py-2 px-3 text-gray-700">Commercial/Retail</a>
+      <a href="index-land.html" class="block py-2 px-3 text-gray-700">Land Development</a>
+      <a href="index-affordability.html" class="block py-2 px-3 text-gray-700">🏠 Home Affordability</a>
+      <a href="index-rentvsbuy.html" class="block py-2 px-3 text-gray-700">🔄 Rent vs. Buy</a>
+      <a href="index-mortgage-payoff.html" class="block py-2 px-3 font-medium" style="color:#0043ce">📅 Mortgage Payoff</a>
+      <a href="../about.html" class="block py-2 px-3 text-gray-700">About</a>
+    </div>
+  </div>
+</header>
+
+<!-- Hero -->
+<section style="background:linear-gradient(to right,#EBF5FF,#fff)" class="py-12">
+  <div class="max-w-5xl mx-auto px-4">
+    <div class="flex flex-col md:flex-row items-center gap-8">
+      <div class="md:w-3/5">
+        <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold mb-4" style="background:#dbeafe;color:#1d4ed8">FREE TOOL · NO SIGN-UP REQUIRED</div>
+        <h1 class="text-4xl font-light leading-tight mb-4" style="color:#0056b3">📅 Mortgage Payoff Calculator</h1>
+        <p class="text-lg mb-6" style="color:#393939">See exactly how much interest you'll save and how many years you'll cut off your mortgage by making extra payments — monthly, yearly, or a one-time lump sum.</p>
+        <div class="flex flex-wrap gap-3">
+          <button id="autofillDemo" class="px-5 py-2 text-sm font-medium text-white rounded flex items-center" style="background:#0056b3">
+            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+            Demo Data
+          </button>
+          <button id="resetInputs" class="px-5 py-2 text-sm font-medium rounded flex items-center border-2" style="border-color:#0056b3;color:#0056b3">
+            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+            Reset
+          </button>
+        </div>
+      </div>
+      <div class="md:w-2/5">
+        <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=500&h=350&auto=format&fit=crop" alt="Mortgage" class="rounded-lg shadow-lg object-cover h-56 w-full" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="max-w-7xl mx-auto px-4 flex-grow py-8">
+
+  <!-- Tabs -->
+  <div class="mb-6 border-b border-gray-200">
+    <nav class="flex flex-wrap -mb-px">
+      <button class="tab-button mr-2 py-3 px-4 border-b-2 font-medium text-sm" data-tab="input-tab" style="border-color:#0056b3;color:#0056b3">Your Mortgage</button>
+      <button class="tab-button mr-2 py-3 px-4 border-b-2 border-transparent font-medium text-sm text-gray-500" data-tab="results-tab">Savings Summary</button>
+      <button class="tab-button mr-2 py-3 px-4 border-b-2 border-transparent font-medium text-sm text-gray-500" data-tab="chart-tab">Payoff Chart</button>
+      <button class="tab-button mr-2 py-3 px-4 border-b-2 border-transparent font-medium text-sm text-gray-500" data-tab="amort-tab">Amortization Schedule</button>
+    </nav>
+  </div>
+
+  <!-- INPUT TAB -->
+  <div class="tab-content active" id="input-tab">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+
+      <!-- Loan Details -->
+      <section class="pro-card bg-white p-6">
+        <div class="flex items-center mb-5">
+          <div class="h-10 w-10 rounded-full flex items-center justify-center mr-3" style="background:#EBF5FF">
+            <svg class="h-5 w-5" style="color:#0056b3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+          </div>
+          <h2 class="text-base font-semibold" style="color:#393939">Current Mortgage Details</h2>
+        </div>
+        <div class="space-y-4">
+          <label><span>Original Loan Amount ($)</span><input class="input" id="loanAmount" type="number" placeholder="350000" /></label>
+          <label><span>Current Remaining Balance ($) <em class="text-gray-400 font-normal text-xs">leave blank to use original amount</em></span><input class="input" id="remainingBalance" type="number" placeholder="" /></label>
+          <label><span>Interest Rate (%)</span><input class="input" id="interestRate" type="number" step="0.01" placeholder="6.5" /></label>
+          <label><span>Original Loan Term (Years)</span>
+            <select class="input" id="loanTerm"><option value="30">30 Years</option><option value="20">20 Years</option><option value="15">15 Years</option><option value="10">10 Years</option></select>
+          </label>
+          <label><span>Months Already Paid</span><input class="input" id="monthsPaid" type="number" placeholder="0" /></label>
+        </div>
+      </section>
+
+      <!-- Extra Payments -->
+      <section class="pro-card bg-white p-6">
+        <div class="flex items-center mb-5">
+          <div class="h-10 w-10 rounded-full flex items-center justify-center mr-3" style="background:#dcfce7">
+            <svg class="h-5 w-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+          </div>
+          <h2 class="text-base font-semibold" style="color:#393939">Extra Payment Strategy</h2>
+        </div>
+        <div class="space-y-4">
+          <label><span>Extra Monthly Payment ($)</span><input class="input" id="extraMonthly" type="number" placeholder="0" /></label>
+          <label><span>Extra Annual Payment ($) <em class="text-gray-400 font-normal text-xs">e.g. tax refund each year</em></span><input class="input" id="extraAnnual" type="number" placeholder="0" /></label>
+          <label><span>One-Time Lump Sum Payment ($)</span><input class="input" id="lumpSum" type="number" placeholder="0" /></label>
+          <label><span>Apply Lump Sum in Month #</span><input class="input" id="lumpSumMonth" type="number" placeholder="1" /></label>
+          <div class="bg-blue-50 rounded-lg p-3 text-sm" style="color:#1d4ed8">
+            <p class="font-semibold mb-1">💡 Strategy tip</p>
+            <p style="color:#1e40af">Even $100–$200 extra per month can save you tens of thousands in interest over the life of a 30-year loan.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="flex justify-center mt-4 mb-4">
+      <button id="calculate" class="text-white font-medium px-8 py-3 rounded flex items-center text-base shadow" style="background:#0056b3">
+        <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+        Calculate Payoff
+      </button>
+    </div>
+
+    <!-- How it works -->
+    <div class="pro-card bg-white p-6 mt-6">
+      <h3 class="font-semibold text-base mb-4" style="color:#393939">📐 How Extra Payments Work</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm" style="color:#4B5563">
+        <div class="bg-gray-50 rounded p-4"><p class="font-semibold mb-1" style="color:#0056b3">Goes to Principal</p><p>Extra payments are applied directly to your loan principal, reducing the balance faster and cutting future interest charges.</p></div>
+        <div class="bg-gray-50 rounded p-4"><p class="font-semibold mb-1" style="color:#0056b3">Compounding Effect</p><p>Every dollar of principal paid early saves you 20–30 years of interest on that dollar. Small amounts add up dramatically.</p></div>
+        <div class="bg-gray-50 rounded p-4"><p class="font-semibold mb-1" style="color:#0056b3">No Penalty</p><p>Most conventional mortgages have no prepayment penalty. Always confirm with your lender, but for most homeowners it's free to pay extra.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS TAB -->
+  <div class="tab-content" id="results-tab">
+    <!-- Comparison Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <div class="pro-card bg-white p-6">
+        <div class="flex items-center mb-4">
+          <div class="h-8 w-8 rounded-full flex items-center justify-center mr-2" style="background:#fee2e2"><span class="text-sm">📋</span></div>
+          <h3 class="font-semibold" style="color:#393939">Original Schedule</h3>
+        </div>
+        <div id="original-stats" class="space-y-3"></div>
+      </div>
+      <div class="pro-card bg-white p-6">
+        <div class="flex items-center mb-4">
+          <div class="h-8 w-8 rounded-full flex items-center justify-center mr-2" style="background:#dcfce7"><span class="text-sm">🚀</span></div>
+          <h3 class="font-semibold" style="color:#393939">With Extra Payments</h3>
+        </div>
+        <div id="accelerated-stats" class="space-y-3"></div>
+      </div>
+    </div>
+
+    <!-- Savings Banner -->
+    <div id="savings-banner" class="mb-6"></div>
+
+    <!-- Extra payment strategies comparison -->
+    <div class="pro-card bg-white p-6 mb-6">
+      <h3 class="font-semibold text-base mb-4" style="color:#393939">📊 Quick Comparison: Extra Payment Scenarios</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm" id="scenarios-table" style="border-collapse:collapse;color:#4B5563">
+          <thead><tr style="background:#f3f4f6">
+            <th class="p-2 border-b text-left font-semibold" style="color:#374151">Extra Payment</th>
+            <th class="p-2 border-b text-right font-semibold" style="color:#374151">Payoff Date</th>
+            <th class="p-2 border-b text-right font-semibold" style="color:#374151">Years Saved</th>
+            <th class="p-2 border-b text-right font-semibold" style="color:#166534">Interest Saved</th>
+          </tr></thead>
+          <tbody id="scenarios-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHART TAB -->
+  <div class="tab-content" id="chart-tab">
+    <div class="pro-card bg-white p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-2" style="color:#393939">Loan Balance Over Time</h2>
+      <p class="text-sm mb-6" style="color:#6b7280">See how your loan balance drops faster with extra payments.</p>
+      <div style="height:400px;background:#f9fafb" class="rounded p-4 mb-6">
+        <canvas id="balanceChart"></canvas>
+      </div>
+    </div>
+    <div class="pro-card bg-white p-6">
+      <h3 class="font-semibold text-base mb-4" style="color:#393939">Interest Paid Over Time</h3>
+      <div style="height:350px;background:#f9fafb" class="rounded p-4">
+        <canvas id="interestChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- AMORTIZATION TAB -->
+  <div class="tab-content" id="amort-tab">
+    <div class="pro-card bg-white p-6">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3">
+        <h2 class="text-xl font-semibold" style="color:#393939">Full Amortization Schedule</h2>
+        <div class="flex gap-2 text-xs">
+          <span class="savings-badge" style="background:#dcfce7;color:#166534">🟢 With Extra Payments</span>
+          <span class="savings-badge" style="background:#fee2e2;color:#991b1b">🔴 Without Extra</span>
+        </div>
+      </div>
+      <div class="overflow-x-auto" style="max-height:600px;overflow-y:auto">
+        <table class="w-full text-xs" style="border-collapse:collapse;color:#4B5563">
+          <thead style="position:sticky;top:0;background:#f3f4f6">
+            <tr>
+              <th class="p-2 border-b text-left font-semibold" style="color:#374151">Month</th>
+              <th class="p-2 border-b text-right font-semibold" style="color:#374151">Payment</th>
+              <th class="p-2 border-b text-right font-semibold" style="color:#374151">Principal</th>
+              <th class="p-2 border-b text-right font-semibold" style="color:#dc2626">Interest</th>
+              <th class="p-2 border-b text-right font-semibold" style="color:#374151">Extra</th>
+              <th class="p-2 border-b text-right font-semibold" style="color:#0056b3">Balance</th>
+            </tr>
+          </thead>
+          <tbody id="amort-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- CTA -->
+<section class="py-16 text-white cta-section" style="background:#0043ce">
+  <div class="max-w-5xl mx-auto px-4 text-center">
+    <h2 class="text-3xl font-light mb-4">Ready to invest in your next property?</h2>
+    <p class="text-lg opacity-90 mb-8 max-w-2xl mx-auto">Building equity faster? Use our professional proforma tools to analyze your next real estate investment.</p>
+    <div class="flex flex-wrap justify-center gap-4">
+      <a href="index.html" class="px-6 py-3 font-medium rounded" style="background:#fff;color:#0056b3">Multifamily Proforma</a>
+      <a href="index-affordability.html" class="px-6 py-3 font-medium rounded border-2 border-white text-white">🏠 Affordability Calculator</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="text-white py-12 w-full" style="background:#161616">
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10 px-8">
+    <div><h4 class="text-base font-medium mb-3">RE Proforma</h4><p class="text-sm" style="color:#c6c6c6">Advanced analytics for real estate investment professionals.</p></div>
+    <div><h4 class="text-base font-medium mb-3">Pro Tools</h4><ul class="space-y-2 text-sm" style="color:#c6c6c6"><li><a href="index.html" class="hover:text-white">Multifamily Acquisition</a></li><li><a href="index-mixeduse.html" class="hover:text-white">Commercial/Retail</a></li><li><a href="index-land.html" class="hover:text-white">Land Development</a></li></ul></div>
+    <div><h4 class="text-base font-medium mb-3">Free Tools</h4><ul class="space-y-2 text-sm" style="color:#c6c6c6"><li><a href="index-affordability.html" class="hover:text-white">🏠 Home Affordability</a></li><li><a href="index-rentvsbuy.html" class="hover:text-white">🔄 Rent vs. Buy</a></li><li><a href="index-mortgage-payoff.html" class="text-white font-medium">📅 Mortgage Payoff</a></li></ul></div>
+    <div><h4 class="text-base font-medium mb-3">Company</h4><ul class="space-y-2 text-sm" style="color:#c6c6c6"><li><a href="../about.html" class="hover:text-white">About</a></li><li><a href="../privacy.html" class="hover:text-white">Privacy Policy</a></li><li><a href="../terms.html" class="hover:text-white">Terms of Service</a></li></ul></div>
+  </div>
+  <div class="text-center text-xs px-8" style="color:#c6c6c6">© 2025 RE Proforma. All rights reserved.</div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  let balanceChart = null, interestChart = null;
+
+  document.getElementById('mobile-menu-button').addEventListener('click', () => {
+    document.getElementById('mobile-menu').classList.toggle('hidden');
+  });
+
+  document.querySelectorAll('.tab-button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.getAttribute('data-tab');
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.getElementById(target).classList.add('active');
+      document.querySelectorAll('.tab-button').forEach(b => { b.style.color='#6b7280'; b.style.borderColor='transparent'; });
+      btn.style.color = '#0056b3'; btn.style.borderColor = '#0056b3';
+      if (target === 'chart-tab') renderCharts();
+    });
+  });
+
+  function n(id) { return parseFloat(document.getElementById(id).value) || 0; }
+
+  let _orig = null, _accel = null;
+
+  function amortize(startBalance, rate, termMonths, extraMonthly, extraAnnual, lumpSum, lumpSumMonth) {
+    let balance = startBalance;
+    const monthlyRate = rate / 12;
+    const stdPayment = startBalance * monthlyRate / (1 - Math.pow(1 + monthlyRate, -termMonths));
+    let totalInterest = 0, totalPrincipal = 0, totalPaid = 0;
+    const schedule = [];
+    for (let m = 1; balance > 0.01 && m <= termMonths + 1; m++) {
+      const interest  = balance * monthlyRate;
+      let principal   = Math.min(stdPayment - interest, balance);
+      let extra       = extraMonthly;
+      if (m % 12 === 0) extra += extraAnnual;
+      if (m === lumpSumMonth) extra += lumpSum;
+      extra = Math.min(extra, balance - principal);
+      const totalPrincipalThisMonth = principal + extra;
+      balance -= totalPrincipalThisMonth;
+      totalInterest += interest;
+      totalPrincipal += totalPrincipalThisMonth;
+      totalPaid += stdPayment + extra;
+      schedule.push({ month: m, payment: stdPayment + extra, principal: totalPrincipalThisMonth, interest, extra, balance: Math.max(0, balance) });
+      if (balance <= 0) break;
+    }
+    return { schedule, totalInterest, totalPrincipal, totalPaid, months: schedule.length, stdPayment };
+  }
+
+  document.getElementById('calculate').addEventListener('click', calculate);
+
+  function calculate() {
+    const loanAmount  = n('loanAmount');
+    const remaining   = n('remainingBalance') || loanAmount;
+    const rate        = n('interestRate') / 100;
+    const term        = parseInt(document.getElementById('loanTerm').value);
+    const monthsPaid  = n('monthsPaid');
+    const extraMo     = n('extraMonthly');
+    const extraAnn    = n('extraAnnual');
+    const lumpSum     = n('lumpSum');
+    const lumpSumMo   = Math.max(1, n('lumpSumMonth') || 1);
+
+    if (!loanAmount || !rate) { alert('Please enter loan amount and interest rate.'); return; }
+
+    const remainingTerm = term * 12 - monthsPaid;
+    _orig  = amortize(remaining, rate, remainingTerm, 0, 0, 0, 0);
+    _accel = amortize(remaining, rate, remainingTerm, extraMo, extraAnn, lumpSum, lumpSumMo);
+
+    const origYears   = Math.floor(_orig.months / 12);
+    const origMonths  = _orig.months % 12;
+    const accelYears  = Math.floor(_accel.months / 12);
+    const accelMonths = _accel.months % 12;
+    const savedMonths = _orig.months - _accel.months;
+    const savedYears  = Math.floor(savedMonths / 12);
+    const savedMos    = savedMonths % 12;
+    const interestSaved = _orig.totalInterest - _accel.totalInterest;
+
+    function statRow(label, value, color) {
+      return `<div class="flex justify-between items-center py-2 border-b border-gray-100 text-sm">
+        <span style="color:#374151">${label}</span>
+        <span class="font-semibold" style="color:${color || '#111827'}">${value}</span>
+      </div>`;
+    }
+
+    const now = new Date();
+    function payoffDate(months) {
+      const d = new Date(now.getFullYear(), now.getMonth() + months, 1);
+      return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    }
+
+    document.getElementById('original-stats').innerHTML =
+      statRow('Monthly Payment', '$' + Math.round(_orig.stdPayment).toLocaleString()) +
+      statRow('Payoff In', origYears + ' yrs ' + origMonths + ' mos') +
+      statRow('Payoff Date', payoffDate(_orig.months)) +
+      statRow('Total Interest', '$' + Math.round(_orig.totalInterest).toLocaleString(), '#dc2626') +
+      statRow('Total Paid', '$' + Math.round(_orig.totalPaid).toLocaleString());
+
+    document.getElementById('accelerated-stats').innerHTML =
+      statRow('Monthly Payment', '$' + Math.round(_accel.stdPayment + extraMo).toLocaleString(), '#166534') +
+      statRow('Payoff In', accelYears + ' yrs ' + accelMonths + ' mos', '#166534') +
+      statRow('Payoff Date', payoffDate(_accel.months), '#166534') +
+      statRow('Total Interest', '$' + Math.round(_accel.totalInterest).toLocaleString(), '#16a34a') +
+      statRow('Total Paid', '$' + Math.round(_accel.totalPaid).toLocaleString());
+
+    // Savings Banner
+    const hasSavings = savedMonths > 0 || interestSaved > 100;
+    document.getElementById('savings-banner').innerHTML = hasSavings
+      ? `<div class="rounded-xl p-6 text-center" style="background:linear-gradient(135deg,#dcfce7,#bbf7d0);border:2px solid #16a34a">
+          <p class="text-sm font-semibold uppercase tracking-wide mb-2" style="color:#166534">💰 Your Extra Payment Savings</p>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div><p class="text-3xl font-bold" style="color:#166534">$${Math.round(interestSaved).toLocaleString()}</p><p class="text-sm" style="color:#15803d">Interest Saved</p></div>
+            <div><p class="text-3xl font-bold" style="color:#166534">${savedYears}y ${savedMos}m</p><p class="text-sm" style="color:#15803d">Time Saved</p></div>
+            <div><p class="text-3xl font-bold" style="color:#166534">${payoffDate(_accel.months)}</p><p class="text-sm" style="color:#15803d">New Payoff Date</p></div>
+          </div>
+        </div>`
+      : `<div class="rounded-xl p-4 text-center" style="background:#fef9c3;border:1px solid #fde68a"><p style="color:#92400e">Enter extra payment amounts above to see your savings.</p></div>`;
+
+    // Scenarios table
+    const scenarios = [
+      { label: 'No extra payment', extra: 0, annual: 0 },
+      { label: '+$100/month', extra: 100, annual: 0 },
+      { label: '+$200/month', extra: 200, annual: 0 },
+      { label: '+$500/month', extra: 500, annual: 0 },
+      { label: '+$1,000/month', extra: 1000, annual: 0 },
+      { label: '+$5,000/year', extra: 0, annual: 5000 },
+    ];
+    let tbody = '';
+    scenarios.forEach(s => {
+      const res = amortize(remaining, rate, remainingTerm, s.extra, s.annual, 0, 1);
+      const mSaved = _orig.months - res.months;
+      const iSaved = _orig.totalInterest - res.totalInterest;
+      const isSelected = s.extra === extraMo && s.annual === extraAnn;
+      tbody += `<tr style="${isSelected ? 'background:#EBF5FF;' : ''}border-bottom:1px solid #f3f4f6">
+        <td class="p-2 font-medium" style="color:#374151">${s.label}${isSelected ? ' ⭐' : ''}</td>
+        <td class="p-2 text-right">${payoffDate(res.months)}</td>
+        <td class="p-2 text-right" style="color:${mSaved>0?'#166534':'#6b7280'}">${mSaved > 0 ? Math.floor(mSaved/12) + 'y ' + (mSaved%12) + 'm' : '—'}</td>
+        <td class="p-2 text-right font-semibold" style="color:${iSaved>0?'#166534':'#6b7280'}">${iSaved > 0 ? '$' + Math.round(iSaved).toLocaleString() : '—'}</td>
+      </tr>`;
+    });
+    document.getElementById('scenarios-body').innerHTML = tbody;
+
+    // Amortization table — show accelerated schedule
+    let amortHTML = '';
+    _accel.schedule.forEach(row => {
+      amortHTML += `<tr class="amort-row" style="border-bottom:1px solid #f3f4f6">
+        <td class="p-2">${row.month}</td>
+        <td class="p-2 text-right">$${Math.round(row.payment).toLocaleString()}</td>
+        <td class="p-2 text-right" style="color:#166534">$${Math.round(row.principal).toLocaleString()}</td>
+        <td class="p-2 text-right" style="color:#dc2626">$${Math.round(row.interest).toLocaleString()}</td>
+        <td class="p-2 text-right" style="color:#0056b3">${row.extra > 0 ? '$' + Math.round(row.extra).toLocaleString() : '—'}</td>
+        <td class="p-2 text-right font-semibold" style="color:#0056b3">$${Math.round(row.balance).toLocaleString()}</td>
+      </tr>`;
+    });
+    document.getElementById('amort-body').innerHTML = amortHTML;
+
+    // Switch to results
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.getElementById('results-tab').classList.add('active');
+    document.querySelectorAll('.tab-button').forEach(b => { b.style.color='#6b7280'; b.style.borderColor='transparent'; });
+    document.querySelector('[data-tab="results-tab"]').style.color = '#0056b3';
+    document.querySelector('[data-tab="results-tab"]').style.borderColor = '#0056b3';
+  }
+
+  function renderCharts() {
+    if (!_orig || !_accel) return;
+    // Sample every 6 months for chart
+    const origSlice  = _orig.schedule.filter((_, i) => i % 6 === 0 || i === _orig.schedule.length - 1);
+    const accelSlice = _accel.schedule.filter((_, i) => i % 6 === 0 || i === _accel.schedule.length - 1);
+    const maxLen = origSlice.length;
+    const accelBalances = accelSlice.map(r => r.balance);
+    while (accelBalances.length < maxLen) accelBalances.push(0);
+
+    // Balance chart
+    const ctx1 = document.getElementById('balanceChart').getContext('2d');
+    if (balanceChart) balanceChart.destroy();
+    balanceChart = new Chart(ctx1, {
+      type: 'line',
+      data: {
+        labels: origSlice.map(r => 'Mo ' + r.month),
+        datasets: [
+          { label: 'Original Schedule', data: origSlice.map(r => r.balance), borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.06)', fill: true, tension: 0.3, borderWidth: 2 },
+          { label: 'With Extra Payments', data: accelBalances, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.06)', fill: true, tension: 0.3, borderWidth: 2 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': $' + Math.round(ctx.parsed.y).toLocaleString() } } },
+        scales: { y: { ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k' }, grid: { color: '#f3f4f6' } } }
+      }
+    });
+
+    // Cumulative interest chart
+    const ctx2 = document.getElementById('interestChart').getContext('2d');
+    if (interestChart) interestChart.destroy();
+    let cumOrigInt = 0, cumAccelInt = 0;
+    const origCumInt  = origSlice.map(r => { cumOrigInt += r.interest; return cumOrigInt; });
+    const accelCumInt = [];
+    let ai = 0;
+    accelSlice.forEach(r => { ai += r.interest; accelCumInt.push(ai); });
+    while (accelCumInt.length < maxLen) accelCumInt.push(accelCumInt[accelCumInt.length - 1] || ai);
+    interestChart = new Chart(ctx2, {
+      type: 'line',
+      data: {
+        labels: origSlice.map(r => 'Mo ' + r.month),
+        datasets: [
+          { label: 'Interest Paid (Original)', data: origCumInt, borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.08)', fill: true, tension: 0.3, borderWidth: 2 },
+          { label: 'Interest Paid (Accelerated)', data: accelCumInt, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.08)', fill: true, tension: 0.3, borderWidth: 2 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': $' + Math.round(ctx.parsed.y).toLocaleString() } } },
+        scales: { y: { ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k' }, grid: { color: '#f3f4f6' } } }
+      }
+    });
+  }
+
+  document.getElementById('autofillDemo').addEventListener('click', () => {
+    document.getElementById('loanAmount').value   = 350000;
+    document.getElementById('remainingBalance').value = 320000;
+    document.getElementById('interestRate').value = 6.5;
+    document.getElementById('loanTerm').value     = 30;
+    document.getElementById('monthsPaid').value   = 36;
+    document.getElementById('extraMonthly').value = 200;
+    document.getElementById('extraAnnual').value  = 2000;
+    document.getElementById('lumpSum').value      = 10000;
+    document.getElementById('lumpSumMonth').value = 1;
+  });
+
+  document.getElementById('resetInputs').addEventListener('click', () => {
+    document.querySelectorAll('input').forEach(i => i.value = '');
+    _orig = null; _accel = null;
+    document.getElementById('original-stats').innerHTML = '';
+    document.getElementById('accelerated-stats').innerHTML = '';
+    document.getElementById('savings-banner').innerHTML = '';
+    document.getElementById('scenarios-body').innerHTML = '';
+    document.getElementById('amort-body').innerHTML = '';
+    if (balanceChart) { balanceChart.destroy(); balanceChart = null; }
+    if (interestChart) { interestChart.destroy(); interestChart = null; }
+  });
+});
+</script>
+</body>
+</html>
