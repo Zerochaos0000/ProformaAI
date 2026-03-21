@@ -50,112 +50,119 @@
 <body>
 
   <!-- ══════════════════ HEADER ══════════════════ -->
+  <style>
+    /* JS-driven dropdown — no group-hover dependency */
+    .dd-menu { display:none; position:absolute; left:0; top:100%; background:white; border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,.12); border:1px solid #f1f5f9; z-index:50; min-width:220px; padding:6px 0; }
+    .dd-menu.open { display:block; }
+    .dd-wrap { position:relative; }
+    .dd-trigger { display:flex; align-items:center; gap:4px; font-size:13px; background:none; border:none; cursor:pointer; padding:20px 0; color:#525252; font-family:inherit; }
+    .dd-trigger:hover, .dd-trigger.open { color:#0043ce; }
+    .dd-trigger svg { transition:transform .2s; }
+    .dd-trigger.open svg { transform:rotate(180deg); }
+    .dd-item { display:flex; align-items:center; gap:8px; padding:9px 16px; font-size:13px; color:#374151; text-decoration:none; border-left:2px solid transparent; transition:background .1s, color .1s, border-color .1s; }
+    .dd-item:hover { background:#eff6ff; color:#0043ce; border-left-color:#0043ce; }
+    .dd-label { padding:6px 16px 3px; font-size:10px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:#9ca3af; }
+    .dd-divider { height:1px; background:#f1f5f9; margin:4px 16px; }
+  </style>
+
   <header class="sticky top-0 z-50 bg-white shadow-sm">
     <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
-      <a href="index.html" class="text-2xl font-semibold text-blue-800" style="color:var(--navy)">RE Proforma</a>
+      <a href="index.html" class="text-2xl font-semibold" style="color:var(--navy)">RE Proforma</a>
 
       <!-- Mobile hamburger -->
-      <button id="mobile-btn" class="md:hidden focus:outline-none" style="color:var(--navy)">
+      <button id="mobile-btn" class="md:hidden focus:outline-none" style="color:var(--navy);background:none;border:none;cursor:pointer;">
         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
       </button>
 
       <!-- Desktop nav -->
-      <div class="hidden md:flex items-center space-x-8">
-        <nav class="flex items-center space-x-6">
+      <div class="hidden md:flex items-center" style="gap:32px;">
+        <nav class="flex items-center" style="gap:24px;">
 
-          <a href="index.html" class="text-sm font-medium py-5 border-b-2" style="color:var(--navy); border-color:var(--navy)">Home</a>
+          <a href="index.html" class="text-sm font-medium" style="color:var(--navy);border-bottom:2px solid var(--navy);padding:20px 0;">Home</a>
 
           <!-- Tools dropdown -->
-          <div class="relative group">
-            <button class="flex items-center text-sm py-5 focus:outline-none text-gray-600 group-hover:text-blue-700">
+          <div class="dd-wrap" id="ddTools">
+            <button class="dd-trigger" id="ddToolsBtn">
               Tools
-              <svg class="h-4 w-4 ml-1 transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-              </svg>
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div class="tools-dropdown absolute left-0 top-full mt-0 bg-white rounded-lg shadow-xl border border-gray-100 z-30 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 overflow-hidden">
-              <div class="px-4 pt-3 pb-1">
-                <span class="text-xs font-semibold uppercase tracking-widest text-gray-400">Pro Tools</span>
-              </div>
-              <a href="pai/index.html"            class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-600">🏢 Multifamily Acquisition</a>
-              <a href="pai/index-mixeduse.html"   class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-600">🏬 Commercial/Retail</a>
-              <a href="pai/index-land.html"       class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-600">🗺️ Land Development</a>
-              <div class="border-t border-gray-100 mx-4 my-1"></div>
-              <div class="px-4 pt-1 pb-1">
-                <span class="text-xs font-semibold uppercase tracking-widest text-gray-400">Free Tools</span>
-              </div>
-              <a href="pai/index-affordability.html"   class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-600">🏠 Home Affordability</a>
-              <a href="pai/index-rentvsbuy.html"       class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-600">🔄 Rent vs. Buy</a>
-              <a href="pai/index-mortgage-payoff.html" class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-600 mb-1">📅 Mortgage Payoff</a>
+            <div class="dd-menu" id="ddToolsMenu">
+              <div class="dd-label">Pro Tools</div>
+              <a class="dd-item" href="pai/index.html">🏢 Multifamily Acquisition</a>
+              <a class="dd-item" href="pai/index-mixeduse.html">🏬 Commercial &amp; NNN Retail</a>
+              <a class="dd-item" href="pai/index-land.html">🗺️ Land Development</a>
+              <div class="dd-divider"></div>
+              <div class="dd-label">Free Tools</div>
+              <a class="dd-item" href="pai/index-affordability.html">🏠 Home Affordability</a>
+              <a class="dd-item" href="pai/index-rentvsbuy.html">🔄 Rent vs. Buy</a>
+              <a class="dd-item" href="pai/index-mortgage-payoff.html">📅 Mortgage Payoff</a>
             </div>
           </div>
 
           <!-- Market Data dropdown -->
-          <div class="relative group">
-            <button class="flex items-center text-sm py-5 focus:outline-none text-gray-600 group-hover:text-blue-700">
+          <div class="dd-wrap" id="ddMarket">
+            <button class="dd-trigger" id="ddMarketBtn">
               Market Data
-              <svg class="h-4 w-4 ml-1 transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-              </svg>
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div class="absolute left-0 top-full mt-0 w-52 bg-white rounded-lg shadow-xl border border-gray-100 z-30 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 overflow-hidden">
-              <a href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-600">Market Trends</a>
-              <a href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research"                               target="_blank" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-600">Research Reports</a>
-              <a href="https://berkadia.com/properties"                                                                                    target="_blank" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-600 mb-1">Investment Listings</a>
+            <div class="dd-menu" id="ddMarketMenu" style="min-width:200px;">
+              <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank">Market Trends</a>
+              <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank">Research Reports</a>
+              <a class="dd-item" href="https://berkadia.com/properties" target="_blank">Investment Listings</a>
             </div>
           </div>
 
-          <a href="about.html" class="text-sm text-gray-600 hover:text-blue-700 py-5">About</a>
+          <a href="about.html" class="text-sm" style="color:#525252;padding:20px 0;">About</a>
         </nav>
 
-        <a href="about.html" class="px-5 py-2 text-sm font-medium text-white rounded transition-colors" style="background:var(--navy)" onmouseover="this.style.background='var(--navy-dark)'" onmouseout="this.style.background='var(--navy)'">Let's talk</a>
+        <a href="about.html" class="px-5 py-2 text-sm font-medium text-white rounded" style="background:var(--navy)">Let's talk</a>
       </div>
     </div>
 
     <!-- Mobile menu -->
-    <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100 shadow-md">
+    <div id="mobile-menu" class="hidden bg-white border-t border-gray-100" style="box-shadow:0 4px 12px rgba(0,0,0,.08);">
       <div class="px-4 py-3 space-y-1 text-sm">
         <a href="index.html" class="block py-2 px-3 rounded font-medium" style="background:#e5f0ff; color:var(--navy)">Home</a>
 
         <!-- Mobile: Tools accordion -->
         <div>
-          <button class="mobile-toggle flex items-center justify-between w-full py-2 px-3 rounded text-gray-600 hover:bg-gray-50 focus:outline-none">
+          <button class="mobile-toggle flex items-center justify-between w-full py-2 px-3 rounded hover:bg-gray-50" style="background:none;border:none;cursor:pointer;font-size:13px;color:#525252;font-family:inherit;">
             Tools
-            <svg class="h-4 w-4 mobile-arrow transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="h-4 w-4 mobile-arrow" style="transition:transform .2s;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
             </svg>
           </button>
-          <div class="mobile-sub pl-3 pt-1 pb-2 space-y-0.5">
-            <p class="px-3 pt-1 pb-0.5 text-xs font-semibold uppercase tracking-widest text-gray-400">Pro Tools</p>
-            <a href="pai/index.html"            class="block py-2 px-3 text-gray-700 hover:bg-gray-50 rounded border-l-2 border-gray-200 hover:border-blue-500">🏢 Multifamily Acquisition</a>
-            <a href="pai/index-mixeduse.html"   class="block py-2 px-3 text-gray-700 hover:bg-gray-50 rounded border-l-2 border-gray-200 hover:border-blue-500">🏬 Commercial/Retail</a>
-            <a href="pai/index-land.html"       class="block py-2 px-3 text-gray-700 hover:bg-gray-50 rounded border-l-2 border-gray-200 hover:border-blue-500">🗺️ Land Development</a>
-            <p class="px-3 pt-2 pb-0.5 text-xs font-semibold uppercase tracking-widest text-gray-400 border-t border-gray-100 mt-1">Free Tools</p>
-            <a href="pai/index-affordability.html"   class="block py-2 px-3 text-gray-700 hover:bg-gray-50 rounded border-l-2 border-gray-200 hover:border-blue-500">🏠 Home Affordability</a>
-            <a href="pai/index-rentvsbuy.html"       class="block py-2 px-3 text-gray-700 hover:bg-gray-50 rounded border-l-2 border-gray-200 hover:border-blue-500">🔄 Rent vs. Buy</a>
-            <a href="pai/index-mortgage-payoff.html" class="block py-2 px-3 text-gray-700 hover:bg-gray-50 rounded border-l-2 border-gray-200 hover:border-blue-500">📅 Mortgage Payoff</a>
+          <div class="mobile-sub" style="display:none;padding-left:12px;">
+            <p style="padding:6px 12px 2px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;">Pro Tools</p>
+            <a href="pai/index.html"                 class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">🏢 Multifamily Acquisition</a>
+            <a href="pai/index-mixeduse.html"         class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">🏬 Commercial/Retail</a>
+            <a href="pai/index-land.html"             class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">🗺️ Land Development</a>
+            <p style="padding:8px 12px 2px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;border-top:1px solid #f1f5f9;margin-top:4px;">Free Tools</p>
+            <a href="pai/index-affordability.html"   class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">🏠 Home Affordability</a>
+            <a href="pai/index-rentvsbuy.html"       class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">🔄 Rent vs. Buy</a>
+            <a href="pai/index-mortgage-payoff.html" class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">📅 Mortgage Payoff</a>
           </div>
         </div>
 
         <!-- Mobile: Market Data accordion -->
         <div>
-          <button class="mobile-toggle flex items-center justify-between w-full py-2 px-3 rounded text-gray-600 hover:bg-gray-50 focus:outline-none">
+          <button class="mobile-toggle flex items-center justify-between w-full py-2 px-3 rounded hover:bg-gray-50" style="background:none;border:none;cursor:pointer;font-size:13px;color:#525252;font-family:inherit;">
             Market Data
-            <svg class="h-4 w-4 mobile-arrow transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="h-4 w-4 mobile-arrow" style="transition:transform .2s;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
             </svg>
           </button>
-          <div class="mobile-sub pl-3 pt-1 pb-2 space-y-0.5">
-            <a href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank" class="block py-2 px-3 text-gray-700 hover:bg-gray-50 rounded border-l-2 border-gray-200">Market Trends</a>
-            <a href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research"                               target="_blank" class="block py-2 px-3 text-gray-700 hover:bg-gray-50 rounded border-l-2 border-gray-200">Research Reports</a>
-            <a href="https://berkadia.com/properties"                                                                                    target="_blank" class="block py-2 px-3 text-gray-700 hover:bg-gray-50 rounded border-l-2 border-gray-200">Investment Listings</a>
+          <div class="mobile-sub" style="display:none;padding-left:12px;">
+            <a href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank" class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">Market Trends</a>
+            <a href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research"                               target="_blank" class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">Research Reports</a>
+            <a href="https://berkadia.com/properties"                                                                                    target="_blank" class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">Investment Listings</a>
           </div>
         </div>
 
-        <a href="about.html" class="block py-2 px-3 rounded text-gray-600 hover:bg-gray-50">About</a>
-        <a href="about.html" class="block mt-2 py-2 text-center font-medium text-white rounded" style="background:var(--navy)">Let's talk</a>
+        <a href="about.html" class="block py-2 px-3 rounded" style="color:#525252;font-size:13px;">About</a>
+        <a href="about.html" class="block mt-2 py-2 text-center font-medium text-white rounded" style="background:var(--navy);font-size:13px;">Let's talk</a>
       </div>
     </div>
   </header>
@@ -182,6 +189,7 @@
 
       <!-- Pro tools heading -->
       <div class="flex flex-col items-center mb-10">
+        <span class="inline-block text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded-full mb-3" style="background:#dbeafe; color:#1d4ed8">Professional Tools</span>
         <h2 class="text-3xl font-light text-center" style="color:var(--navy)">Enterprise-grade investment analysis</h2>
         <p class="mt-3 text-base text-center max-w-xl" style="color:var(--gray-text)">Institutional-quality proforma modeling for serious real estate investors and developers.</p>
       </div>
@@ -211,15 +219,15 @@
         <div class="pro-card bg-white p-6 rounded-lg">
           <div class="h-12 w-12 rounded-full flex items-center justify-center mb-4" style="background:#d0e2ff">
             <svg class="h-6 w-6" style="color:var(--primary)" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
             </svg>
           </div>
-          <h3 class="text-xl font-medium mb-2">Commercial/Retail Proforma</h3>
-          <p class="text-sm mb-5" style="color:var(--gray-text)">Underwrite complex commercial projects with lease analysis, DSCR modeling, and tenant improvement budgets.</p>
+          <h3 class="text-xl font-medium mb-2">Commercial &amp; NNN Retail</h3>
+          <p class="text-sm mb-5" style="color:var(--gray-text)">Analyze NNN, multi-tenant strip centers, and office acquisitions — with cap rate, IRR, DSCR, and 10-year cash flow modeling.</p>
           <ul class="space-y-2 text-sm mb-6" style="color:var(--gray-text)">
-            <li class="flex items-start gap-2"><svg class="h-4 w-4 mt-0.5 flex-shrink-0" style="color:var(--primary)" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>Component-based analysis</li>
-            <li class="flex items-start gap-2"><svg class="h-4 w-4 mt-0.5 flex-shrink-0" style="color:var(--primary)" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>DSCR &amp; NOI analysis</li>
-            <li class="flex items-start gap-2"><svg class="h-4 w-4 mt-0.5 flex-shrink-0" style="color:var(--primary)" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>IRR &amp; equity multiple</li>
+            <li class="flex items-start gap-2"><svg class="h-4 w-4 mt-0.5 flex-shrink-0" style="color:var(--primary)" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>NNN, NN &amp; gross lease types</li>
+            <li class="flex items-start gap-2"><svg class="h-4 w-4 mt-0.5 flex-shrink-0" style="color:var(--primary)" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>Cap rate, IRR &amp; equity multiple</li>
+            <li class="flex items-start gap-2"><svg class="h-4 w-4 mt-0.5 flex-shrink-0" style="color:var(--primary)" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>Rent escalation &amp; sensitivity analysis</li>
           </ul>
           <a href="pai/index-mixeduse.html" class="flex items-center text-sm font-medium hover:underline" style="color:var(--primary)">
             Launch tool <svg class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
@@ -251,7 +259,8 @@
 
       <!-- Free tools heading -->
       <div class="flex flex-col items-center mb-10">
-        <h2 class="text-3xl font-light text-center" style="color:var(--navy)">For Homeowners &amp; First-Time Buyers</h2>
+        <span class="inline-block text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded-full mb-3" style="background:#dcfce7; color:#166534">Free · No Sign-Up Required</span>
+        <h2 class="text-3xl font-light text-center" style="color:#393939">For Homeowners &amp; First-Time Buyers</h2>
         <p class="mt-3 text-base text-center max-w-xl" style="color:var(--gray-text)">Practical calculators to help everyday people make smarter real estate decisions.</p>
       </div>
 
@@ -487,19 +496,68 @@
 
   <!-- ══════════════════ SCRIPTS ══════════════════ -->
   <script>
-    // Mobile hamburger toggle
+    // ── Mobile hamburger ──────────────────────────────
     document.getElementById('mobile-btn').addEventListener('click', function () {
       document.getElementById('mobile-menu').classList.toggle('hidden');
     });
 
-    // Mobile accordion toggles
+    // ── Mobile accordion toggles ──────────────────────
     document.querySelectorAll('.mobile-toggle').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var sub   = this.nextElementSibling;
         var arrow = this.querySelector('.mobile-arrow');
-        sub.classList.toggle('open');
-        arrow.style.transform = sub.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0)';
+        var open  = sub.style.display === 'block';
+        sub.style.display   = open ? 'none' : 'block';
+        arrow.style.transform = open ? 'rotate(0)' : 'rotate(180deg)';
       });
+    });
+
+    // ── Desktop dropdown: hover-open, close on mouseleave ──
+    function setupDropdown(wrapId, menuId, btnId) {
+      var wrap = document.getElementById(wrapId);
+      var menu = document.getElementById(menuId);
+      var btn  = document.getElementById(btnId);
+      if (!wrap || !menu) return;
+
+      var closeTimer;
+
+      wrap.addEventListener('mouseenter', function () {
+        clearTimeout(closeTimer);
+        menu.classList.add('open');
+        if (btn) btn.classList.add('open');
+      });
+      wrap.addEventListener('mouseleave', function () {
+        closeTimer = setTimeout(function () {
+          menu.classList.remove('open');
+          if (btn) btn.classList.remove('open');
+        }, 120); // small delay so cursor can move to menu
+      });
+
+      // Also toggle on click (touch devices)
+      if (btn) {
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var isOpen = menu.classList.contains('open');
+          closeAllDropdowns();
+          if (!isOpen) {
+            menu.classList.add('open');
+            btn.classList.add('open');
+          }
+        });
+      }
+    }
+
+    function closeAllDropdowns() {
+      document.querySelectorAll('.dd-menu').forEach(function(m){ m.classList.remove('open'); });
+      document.querySelectorAll('.dd-trigger').forEach(function(b){ b.classList.remove('open'); });
+    }
+
+    setupDropdown('ddTools',  'ddToolsMenu',  'ddToolsBtn');
+    setupDropdown('ddMarket', 'ddMarketMenu', 'ddMarketBtn');
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.dd-wrap')) closeAllDropdowns();
     });
   </script>
 </body>
