@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Commercial/Retail Proforma | RE Proforma</title>
+<title>Commercial/Retail Proforma | REProforma</title>
 <link rel="icon" type="image/png" href="../favicon.png"/>
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -145,7 +145,17 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--slate);marg
 <!-- ══════════════════ HEADER ══════════════════ -->
 <header class="sticky top-0 z-50 bg-white border-b border-gray-200" style="box-shadow:0 1px 4px rgba(0,0,0,.06)">
   <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
-    <a href="../index.html" class="text-xl font-bold" style="color:var(--navy)">RE Proforma</a>
+    <a href="../index.html" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;">
+        <svg width="34" height="34" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="36" height="36" rx="8" fill="#0043ce"/>
+          <rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/>
+          <rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/>
+          <rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/>
+        </svg>
+        <span style="display:flex;align-items:baseline;line-height:1;">
+          <span style="font-size:19px;font-weight:700;color:#0043ce;letter-spacing:-0.3px;">RE</span><span style="font-size:19px;font-weight:300;color:#0043ce;letter-spacing:-0.3px;">Proforma</span>
+        </span>
+      </a>
     <button id="mob-btn" class="md:hidden" style="color:var(--navy);background:none;border:none;cursor:pointer;">
       <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
     </button>
@@ -522,7 +532,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--slate);marg
 <section class="py-12 text-white no-print" style="background:var(--navy)">
   <div class="max-w-4xl mx-auto px-4 text-center">
     <h2 class="text-2xl font-bold mb-2">Ready to optimize your investment strategy?</h2>
-    <p class="opacity-80 mb-6 text-sm">Join thousands of investors using RE Proforma to make smarter decisions.</p>
+    <p class="opacity-80 mb-6 text-sm">Join thousands of investors using REProforma to make smarter decisions.</p>
     <div class="flex flex-wrap justify-center gap-3">
       <a href="#" class="px-5 py-2.5 font-semibold rounded-lg bg-white hover:bg-gray-100 text-sm" style="color:var(--blue)">Get started today</a>
       <a href="../about.html" class="px-5 py-2.5 font-semibold rounded-lg border-2 border-white text-white hover:bg-blue-800 text-sm">Schedule a demo</a>
@@ -535,7 +545,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--slate);marg
   <div class="max-w-7xl mx-auto px-4">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
       <div>
-        <h4 class="font-bold mb-3">RE Proforma</h4>
+        <h4 class="font-bold mb-3">REProforma</h4>
         <p class="text-sm text-gray-400 mb-4">Advanced analytics for real estate investment professionals.</p>
       </div>
       <div>
@@ -569,7 +579,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--slate);marg
       </div>
     </div>
     <div class="pt-6 border-t border-gray-800 flex flex-col md:flex-row justify-between text-sm text-gray-500">
-      <p>© 2025 RE Proforma. All rights reserved.</p>
+      <p>© 2025 REProforma. All rights reserved.</p>
       <div class="flex gap-5 mt-3 md:mt-0"><a href="../privacy.html" class="hover:text-white">Privacy</a><a href="../terms.html" class="hover:text-white">Terms</a></div>
     </div>
   </div>
@@ -1140,7 +1150,7 @@ function exportExcel(){
   if(!window.XLSX){alert('XLSX library not loaded.');return;}
   const wb=XLSX.utils.book_new();
   const ws=XLSX.utils.aoa_to_sheet([
-    ['RE Proforma – Commercial/Retail'],[''],
+    ['REProforma – Commercial/Retail'],[''],
     ['Property',str('propName')],['Purchase Price',num('purchasePrice')],
     ['Annual Rent',num('annualRent')],['Going-In Cap',pct(num('annualRent')/num('purchasePrice')*100)],
     ['Lease Type',str('leaseType')],['LTV',pct(num('loanToValue'))],
