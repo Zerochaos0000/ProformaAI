@@ -548,4 +548,27 @@
         btn.addEventListener('click', function (e) {
           e.stopPropagation();
           var isOpen = menu.classList.contains('open');
-          cl
+          closeAllDropdowns();
+          if (!isOpen) {
+            menu.classList.add('open');
+            btn.classList.add('open');
+          }
+        });
+      }
+    }
+
+    function closeAllDropdowns() {
+      document.querySelectorAll('.dd-menu').forEach(function(m){ m.classList.remove('open'); });
+      document.querySelectorAll('.dd-trigger').forEach(function(b){ b.classList.remove('open'); });
+    }
+
+    setupDropdown('ddTools',  'ddToolsMenu',  'ddToolsBtn');
+    setupDropdown('ddMarket', 'ddMarketMenu', 'ddMarketBtn');
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.dd-wrap')) closeAllDropdowns();
+    });
+  </script>
+</body>
+</html>
