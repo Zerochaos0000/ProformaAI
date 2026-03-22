@@ -1,1201 +1,634 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Land Development | REProforma</title>
-  <link rel="icon" type="image/png" href="../favicon.png" />
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style-land.css">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Land Development Proforma | REProforma</title>
+<link rel="icon" type="image/png" href="../favicon.png"/>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;margin:0;}
+.inp{width:100%;padding:8px 11px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;color:#1e293b;background:white;outline:none;transition:border-color .15s,box-shadow .15s;}
+.inp:focus{border-color:#0043ce;box-shadow:0 0 0 3px rgba(0,67,206,.08);}
+.inp-suf{position:relative;}.inp-suf span{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:12px;color:#94a3b8;pointer-events:none;}.inp-suf .inp{padding-right:26px;}
+.inp-pre{position:relative;}.inp-pre span{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:#94a3b8;pointer-events:none;}.inp-pre .inp{padding-left:20px;}
+.card{background:white;border:1px solid #e2e8f0;border-radius:12px;padding:20px;}
+.sec{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#94a3b8;padding-bottom:8px;border-bottom:1px solid #f1f5f9;margin-bottom:14px;}
+.lbl{font-size:11px;font-weight:600;color:#64748b;letter-spacing:.02em;text-transform:uppercase;display:block;margin-bottom:3px;}
+.tab-btn{border-bottom:2px solid transparent;padding:12px 18px;font-size:13px;font-weight:500;color:#64748b;cursor:pointer;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap;transition:color .15s,border-color .15s;}
+.tab-btn.active{color:#0043ce;border-bottom-color:#0043ce;font-weight:600;}
+.tab-panel{display:none;}.tab-panel.active{display:block;}
+.pro-table{width:100%;border-collapse:collapse;font-size:13px;}
+.pro-table th{background:#f8fafc;padding:8px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0;}
+.pro-table td{padding:8px 12px;border-bottom:1px solid #f8fafc;color:#374151;}
+.pro-table tr.hi td{background:#eff6ff;font-weight:700;color:#0043ce;border-top:1px solid #bfdbfe;}
+.pro-table tr.sec-row td{background:#f1f5f9;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#475569;padding:5px 12px;}
+.pro-table td.r{text-align:right;font-variant-numeric:tabular-nums;}
+.pro-table td.neg{color:#dc2626;text-align:right;}
+.metric{background:white;border:1px solid #e2e8f0;border-radius:10px;padding:16px 18px;}
+.metric-val{font-size:26px;font-weight:700;color:#1e293b;line-height:1;}
+.metric-lbl{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#94a3b8;margin-top:4px;}
+.dd-menu{display:none;position:absolute;left:0;top:100%;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.12);border:1px solid #f1f5f9;z-index:50;min-width:220px;padding:6px 0;}
+.dd-menu.open{display:block;}
+.dd-wrap{position:relative;}
+.dd-trigger{display:flex;align-items:center;gap:4px;font-size:13px;background:none;border:none;cursor:pointer;padding:20px 0;color:#525252;font-family:inherit;}
+.dd-trigger:hover,.dd-trigger.open{color:#0043ce;}
+.dd-trigger.open svg{transform:rotate(180deg);}
+.dd-item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:#374151;text-decoration:none;border-left:2px solid transparent;}
+.dd-item:hover,.dd-item.act{background:#eff6ff;color:#0043ce;border-left-color:#0043ce;}
+.dd-label{padding:6px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;}
+.dd-divider{height:1px;background:#f1f5f9;margin:4px 16px;}
+.mob-sub{display:none;}.mob-sub.open{display:block;}
+@media print{header,.no-print{display:none!important;}}
+</style>
 </head>
+<body>
 
-<body class="bg-white text-gray-900 min-h-screen flex flex-col">
-  <!-- Main navigation with dropdown menu -->
-    <style>
-    .dd-menu{display:none;position:absolute;left:0;top:100%;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.12);border:1px solid #f1f5f9;z-index:50;min-width:220px;padding:6px 0;}
-    .dd-menu.open{display:block;}
-    .dd-wrap{position:relative;}
-    .dd-trigger{display:flex;align-items:center;gap:4px;font-size:13px;background:none;border:none;cursor:pointer;padding:20px 0;color:#525252;font-family:inherit;}
-    .dd-trigger:hover,.dd-trigger.open{color:#0043ce;}
-    .dd-trigger svg{transition:transform .2s;}
-    .dd-trigger.open svg{transform:rotate(180deg);}
-    .dd-item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:#374151;text-decoration:none;border-left:2px solid transparent;transition:background .1s,color .1s,border-color .1s;}
-    .dd-item:hover,.dd-item.active{background:#eff6ff;color:#0043ce;border-left-color:#0043ce;}
-    .dd-label{padding:6px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;}
-    .dd-divider{height:1px;background:#f1f5f9;margin:4px 16px;}
-    .mob-sub{display:none;}
-    .mob-sub.open{display:block;}
-  </style>
-  <header class="sticky top-0 z-50 bg-white shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
-      <a href="../index.html" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;">
-        <svg width="34" height="34" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
-        <span style="display:flex;align-items:baseline;line-height:1;"><span style="font-size:19px;font-weight:700;color:#0043ce;letter-spacing:-0.3px;">RE</span><span style="font-size:19px;font-weight:300;color:#0043ce;letter-spacing:-0.3px;">Proforma</span></span>
-      </a>
-      <button id="mob-btn" class="md:hidden" style="color:#0043ce;background:none;border:none;cursor:pointer;">
-        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-      </button>
-      <div class="hidden md:flex items-center" style="gap:32px;">
-        <nav class="flex items-center" style="gap:24px;">
-          <a href="../index.html" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">Home</a>
-          <div class="dd-wrap" id="ddTools">
-            <button class="dd-trigger" id="ddToolsBtn" style="color:#0043ce;border-bottom:2px solid #0043ce;font-weight:600;">Tools <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-            <div class="dd-menu" id="ddToolsMenu">
-              <div class="dd-label">Pro Tools</div>
-              <a class="dd-item" href="index.html">🏢 Multifamily Acquisition</a>
-              <a class="dd-item" href="index-mixeduse.html">🏬 Commercial &amp; NNN Retail</a>
-              <a class="dd-item  active" href="index-land.html">🗺️ Land Development</a>
-              <div class="dd-divider"></div>
-              <div class="dd-label">Free Tools</div>
-              <a class="dd-item" href="index-affordability.html">🏠 Home Affordability</a>
-              <a class="dd-item" href="index-rentvsbuy.html">🔄 Rent vs. Buy</a>
-              <a class="dd-item" href="index-mortgage-payoff.html">📅 Mortgage Payoff</a>
-            </div>
-          </div>
-          <div class="dd-wrap" id="ddMarket">
-            <button class="dd-trigger" id="ddMarketBtn">Market Data <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-            <div class="dd-menu" id="ddMarketMenu" style="min-width:200px;">
-              <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank">Market Trends</a>
-              <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank">Research Reports</a>
-              <a class="dd-item" href="https://berkadia.com/properties" target="_blank">Investment Listings</a>
-            </div>
-          </div>
-          <a href="../about.html" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">About</a>
-        </nav>
-        <a href="../about.html" class="px-4 py-2 text-sm font-semibold text-white rounded" style="background:#0043ce;">Let's talk</a>
-      </div>
-    </div>
-    <div id="mob-menu" class="hidden bg-white border-t border-gray-100" style="box-shadow:0 4px 12px rgba(0,0,0,.08);">
-      <div class="px-4 py-3 space-y-1 text-sm">
-        <a href="../index.html" class="block py-2 px-3 rounded" style="color:#525252;font-size:13px;">Home</a>
-        <div>
-          <button class="mob-toggle flex items-center justify-between w-full py-2 px-3 rounded" style="background:#eff6ff;color:#0043ce;border:none;cursor:pointer;font-size:13px;font-family:inherit;font-weight:600;">
-            Tools <svg class="h-4 w-4 mob-arrow" style="transition:transform .2s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-          </button>
-          <div class="mob-sub" style="display:none;padding-left:12px;">
-            <p style="padding:6px 12px 2px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;">Pro Tools</p>
-            <a href="index.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏢 Multifamily Acquisition</a>
-            <a href="index-mixeduse.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏬 Commercial/Retail</a>
-            <a href="index-land.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;background:#eff6ff;color:#0043ce;border-color:#0043ce;font-weight:600;">🗺️ Land Development</a>
-            <p style="padding:8px 12px 2px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;border-top:1px solid #f1f5f9;margin-top:4px;">Free Tools</p>
-            <a href="index-affordability.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏠 Home Affordability</a>
-            <a href="index-rentvsbuy.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🔄 Rent vs. Buy</a>
-            <a href="index-mortgage-payoff.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">📅 Mortgage Payoff</a>
-          </div>
-        </div>
-        <div>
-          <button class="mob-toggle flex items-center justify-between w-full py-2 px-3 rounded" style="background:none;color:#525252;border:none;cursor:pointer;font-size:13px;font-family:inherit;">
-            Market Data <svg class="h-4 w-4 mob-arrow" style="transition:transform .2s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-          </button>
-          <div class="mob-sub" style="display:none;padding-left:12px;">
-            <a href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank" class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">Market Trends</a>
-            <a href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank" class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">Research Reports</a>
-            <a href="https://berkadia.com/properties" target="_blank" class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">Investment Listings</a>
-          </div>
-        </div>
-        <a href="../about.html" class="block py-2 px-3 rounded" style="color:#525252;font-size:13px;">About</a>
-        <a href="../about.html" class="block mt-2 py-2 text-center font-semibold text-white rounded" style="background:#0043ce;font-size:13px;">Let's talk</a>
-      </div>
-    </div>
-  </header>
-
-  <!-- Hero section -->
-  <section class="bg-gradient-to-r from-[#EBF5FF] to-white py-12">
-    <div class="max-w-5xl mx-auto px-4">
-      <div class="flex flex-col md:flex-row items-center gap-8">
-        <div class="md:w-3/5">
-          <h1 class="text-4xl font-light leading-tight mb-4 text-[#0043ce]">Land Developer Proforma</h1>
-          <p class="text-lg text-[#393939] mb-6">Comprehensive analysis for land acquisition, development, and sales with sophisticated financial modeling.</p>
-          <div class="flex flex-wrap gap-4">
-            <button id="autofillDemo" class="px-6 py-3 text-base font-medium bg-[#0043ce] text-white hover:bg-[#0030a0] transition-colors rounded flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
-              </svg>
-              Demo Data
-            </button>
-            <button id="resetInputs" class="px-6 py-3 text-base font-medium border-2 border-[#0043ce] text-[#0043ce] hover:bg-[#e5f0ff] transition-colors rounded flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              Reset
-            </button>
-          </div>
-        </div>
-        <div class="md:w-2/5">
-          <img src="https://images.unsplash.com/photo-1622547748225-3fc4abd2cca0?q=80&w=500&h=400&auto=format&fit=crop" alt="Land development" class="rounded-lg shadow-lg object-cover h-64 w-full">
+<!-- HEADER -->
+<header class="sticky top-0 z-50 bg-white" style="box-shadow:0 1px 4px rgba(0,0,0,.08);">
+<div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+  <a href="../index.html" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;">
+    <svg width="34" height="34" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
+    <span style="display:flex;align-items:baseline;line-height:1;"><span style="font-size:19px;font-weight:700;color:#0043ce;letter-spacing:-0.3px;">RE</span><span style="font-size:19px;font-weight:300;color:#0043ce;letter-spacing:-0.3px;">Proforma</span></span>
+  </a>
+  <button id="mob-btn" class="md:hidden" style="color:#0043ce;background:none;border:none;cursor:pointer;"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <div class="hidden md:flex items-center" style="gap:28px;">
+    <nav class="flex items-center" style="gap:20px;">
+      <a href="../index.html" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">Home</a>
+      <div class="dd-wrap" id="ddT"><button class="dd-trigger" id="ddTb" style="color:#0043ce;border-bottom:2px solid #0043ce;font-weight:600;">Tools <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="dd-menu" id="ddTm">
+          <div class="dd-label">Pro Tools</div>
+          <a class="dd-item" href="index.html">🏢 Multifamily Acquisition</a>
+          <a class="dd-item" href="index-mixeduse.html">🏬 Commercial &amp; NNN Retail</a>
+          <a class="dd-item act" href="index-land.html">🗺️ Land Development</a>
+          <div class="dd-divider"></div><div class="dd-label">Free Tools</div>
+          <a class="dd-item" href="index-affordability.html">🏠 Home Affordability</a>
+          <a class="dd-item" href="index-rentvsbuy.html">🔄 Rent vs. Buy</a>
+          <a class="dd-item" href="index-mortgage-payoff.html">📅 Mortgage Payoff</a>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- Main content -->
-  <main class="max-w-7xl mx-auto px-4 flex-grow">
-    <!-- Tab Navigation -->
-    <div class="mb-6 border-b border-gray-200">
-      <nav class="flex flex-wrap -mb-px">
-        <button class="tab-button mr-2 py-3 px-4 border-b-2 font-medium text-sm border-[#0043ce] text-[#0043ce]" data-tab="input-tab">
-          Input Parameters
-        </button>
-        <button class="tab-button mr-2 py-3 px-4 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="results-tab">
-          Results & Analysis
-        </button>
-        <button class="tab-button mr-2 py-3 px-4 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="charts-tab">
-          Charts & Projections
-        </button>
-      </nav>
-    </div>
-
-    <!-- Input Tab -->
-    <div id="input-tab" class="tab-content active">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Left Column -->
-        <div class="space-y-6">
-          <!-- Lot Mix & Escalation -->
-          <section class="pro-card bg-white p-6">
-            <div class="flex items-center mb-6">
-              <div class="h-10 w-10 rounded-full bg-[#EBF5FF] flex items-center justify-center mr-3">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#0043ce]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-              </div>
-              <h2 class="text-lg font-medium text-[#393939]">Lot Mix & Escalation</h2>
-            </div>
-            <div class="space-y-5">
-              <div class="border-b pb-4">
-                <h3 class="font-medium text-[#4B5563] mb-3">Single Family Detached (SFD)</h3>
-                <div class="grid grid-cols-1 gap-3">
-                  <label class="block">
-                    <span class="text-[#4B5563] text-sm">Count</span>
-                    <input id="sfdCount" type="number" class="input mt-1" placeholder="0" />
-                  </label>
-                  <label class="block">
-                    <span class="text-[#4B5563] text-sm">Price ($)</span>
-                    <input id="sfdPrice" type="number" class="input mt-1" placeholder="0" />
-                  </label>
-                  <label class="block">
-                    <span class="text-[#4B5563] text-sm">Escalation (%)</span>
-                    <input id="sfdEscalation" type="number" step="0.1" class="input mt-1" placeholder="0.0" />
-                  </label>
-                </div>
-              </div>
-              <div class="border-b pb-4">
-                <h3 class="font-medium text-[#4B5563] mb-3">Twin Homes</h3>
-                <div class="grid grid-cols-1 gap-3">
-                  <label class="block">
-                    <span class="text-[#4B5563] text-sm">Count</span>
-                    <input id="twinCount" type="number" class="input mt-1" placeholder="0" />
-                  </label>
-                  <label class="block">
-                    <span class="text-[#4B5563] text-sm">Price ($)</span>
-                    <input id="twinPrice" type="number" class="input mt-1" placeholder="0" />
-                  </label>
-                  <label class="block">
-                    <span class="text-[#4B5563] text-sm">Escalation (%)</span>
-                    <input id="twinEscalation" type="number" step="0.1" class="input mt-1" placeholder="0.0" />
-                  </label>
-                </div>
-              </div>
-              <div>
-                <h3 class="font-medium text-[#4B5563] mb-3">Single Family Attached (SFA)</h3>
-                <div class="grid grid-cols-1 gap-3">
-                  <label class="block">
-                    <span class="text-[#4B5563] text-sm">Count</span>
-                    <input id="sfaCount" type="number" class="input mt-1" placeholder="0" />
-                  </label>
-                  <label class="block">
-                    <span class="text-[#4B5563] text-sm">Price ($)</span>
-                    <input id="sfaPrice" type="number" class="input mt-1" placeholder="0" />
-                  </label>
-                  <label class="block">
-                    <span class="text-[#4B5563] text-sm">Escalation (%)</span>
-                    <input id="sfaEscalation" type="number" step="0.1" class="input mt-1" placeholder="0.0" />
-                  </label>
-                </div>
-              </div>
-            </div>
-          </section>
+      <div class="dd-wrap" id="ddM"><button class="dd-trigger" id="ddMb">Market Data <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="dd-menu" id="ddMm" style="min-width:200px;">
+          <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank">Market Trends</a>
+          <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank">Research Reports</a>
+          <a class="dd-item" href="https://berkadia.com/properties" target="_blank">Investment Listings</a>
         </div>
-
-        <!-- Middle Column -->
-        <div class="space-y-6">
-          <!-- Development Costs -->
-          <section class="pro-card bg-white p-6">
-            <div class="flex items-center mb-6">
-              <div class="h-10 w-10 rounded-full bg-[#e0f2fe] flex items-center justify-center mr-3">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#0056b3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h2 class="text-lg font-medium text-[#393939]">Development Costs</h2>
-            </div>
-            <div class="space-y-3">
-              <label class="block">
-                <span class="text-[#4B5563] text-sm">Land Cost ($)</span>
-                <input id="landCost" type="number" class="input mt-1" placeholder="0" />
-              </label>
-              <label class="block">
-                <span class="text-[#4B5563] text-sm">Closing Cost (%)</span>
-                <input id="closingCost" type="number" step="0.1" class="input mt-1" placeholder="0.0" />
-              </label>
-              <label class="block">
-                <span class="text-[#4B5563] text-sm">On-site Development ($)</span>
-                <input id="onsiteDev" type="number" class="input mt-1" placeholder="0" />
-              </label>
-              <label class="block">
-                <span class="text-[#4B5563] text-sm">Consulting & Engineering ($)</span>
-                <input id="consulting" type="number" class="input mt-1" placeholder="0" />
-              </label>
-              <label class="block">
-                <span class="text-[#4B5563] text-sm">Delmarva ($)</span>
-                <input id="delmarva" type="number" class="input mt-1" placeholder="0" />
-              </label>
-              <label class="block">
-                <span class="text-[#4B5563] text-sm">Landscaping ($)</span>
-                <input id="landscaping" type="number" class="input mt-1" placeholder="0" />
-              </label>
-              <label class="block">
-                <span class="text-[#4B5563] text-sm">Mailboxes ($)</span>
-                <input id="mailboxes" type="number" class="input mt-1" placeholder="0" />
-              </label>
-              <label class="block">
-                <span class="text-[#4B5563] text-sm">Monuments ($)</span>
-                <input id="monuments" type="number" class="input mt-1" placeholder="0" />
-              </label>
-              <label class="block">
-                <span class="text-[#4B5563] text-sm">Dedication ($)</span>
-                <input id="dedication" type="number" class="input mt-1" placeholder="0" />
-              </label>
-              <label class="block">
-                <span class="text-[#4B5563] text-sm">Escalation ($)</span>
-                <input id="escalation" type="number" class="input mt-1" placeholder="0" />
-              </label>
-              <label class="block">
-                <span class="text-[#4B5563] text-sm">Contingency ($)</span>
-                <input id="contingency" type="number" class="input mt-1" placeholder="0" />
-              </label>
-            </div>
-          </section>
-        </div>
-
-        <!-- Right Column -->
-        <div class="space-y-6">
-          <!-- Soft Costs -->
-          <section class="pro-card bg-white p-6">
-            <div class="flex items-center mb-6">
-              <div class="h-10 w-10 rounded-full bg-[#d0e2ff] flex items-center justify-center mr-3">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#0056b3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <h2 class="text-lg font-medium text-[#393939]">Soft Costs</h2>
-            </div>
-            <div class="space-y-3">
-              <label class="block">
-                <span class="text-[#4B5563] text-sm">Transfer Tax (%)</span>
-                <input id="transferTax" type="number" step="0.1" class="input mt-1" placeholder="0.0" />
-              </label>
-              <label class="block">
-                <span class="text-[#4B5563] text-sm">Property Tax/Lot/Year ($)</span>
-                <input id="propertyTax" type="number" class="input mt-1" placeholder="0" />
-              </label>
-              <label class="block">
-                <span class="text-[#4B5563] text-sm">Bonding (%)</span>
-                <input id="bonding" type="number" step="0.1" class="input mt-1" placeholder="0.0" />
-              </label>
-              <label class="block">
-                <span class="text-[#4B5563] text-sm">HOA Subsidy ($)</span>
-                <input id="hoaSubsidy" type="number" class="input mt-1" placeholder="0" />
-              </label>
-              <label class="block">
-                <span class="text-[#4B5563] text-sm">Due Diligence ($)</span>
-                <input id="dueDiligence" type="number" class="input mt-1" placeholder="0" />
-              </label>
-              <label class="block">
-                <span class="text-[#4B5563] text-sm">Legal / Tax ($)</span>
-                <input id="legalTax" type="number" class="input mt-1" placeholder="0" />
-              </label>
-            </div>
-          </section>
-
-          <!-- Financing -->
-          <section class="pro-card bg-white p-6">
-            <div class="flex items-center mb-6">
-              <div class="h-10 w-10 rounded-full bg-[#fcf4e8] flex items-center justify-center mr-3">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#B54708]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
-                </svg>
-              </div>
-              <h2 class="text-lg font-medium text-[#393939]">Financing</h2>
-            </div>
-            <div class="space-y-3">
-              <label class="block">
-                <span class="text-[#4B5563] text-sm">Loan to Cost (%)</span>
-                <input id="loanToCost" type="number" step="0.1" class="input mt-1" placeholder="0.0" />
-              </label>
-              <label class="block">
-                <span class="text-[#4B5563] text-sm">Interest Rate (%)</span>
-                <input id="interestRate" type="number" step="0.1" class="input mt-1" placeholder="0.0" />
-              </label>
-              <label class="block">
-                <span class="text-[#4B5563] text-sm">Loan Fees (%)</span>
-                <input id="loanFees" type="number" step="0.1" class="input mt-1" placeholder="0.0" />
-              </label>
-              <label class="block">
-                <span class="text-[#4B5563] text-sm">Payoff Rate (% of Lot Rev)</span>
-                <input id="payoffRate" type="number" step="0.1" class="input mt-1" placeholder="0.0" />
-              </label>
-            </div>
-          </section>
       </div>
-         </div>
-
-              <!-- Calculate Button -->
-      <div class="flex justify-center mt-8">
-        <button id="calculate" class="bg-[#0043ce] hover:bg-[#0030a0] text-white font-medium px-8 py-3 rounded transition flex items-center text-lg shadow">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-          </svg>
-          Calculate Proforma
-        </button>
-      </div>
-    <!-- Horizontal Divider with Padding -->
-<div class="w-full max-w-7xl mx-auto px-4">
-  <hr class="my-12 border-t-2 border-gray-300" />
+      <a href="../about.html" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">About</a>
+    </nav>
+    <a href="../about.html" class="px-4 py-2 text-sm font-semibold text-white rounded" style="background:#0043ce;">Let's talk</a>
+  </div>
 </div>
-    </div>
-
-
-
-
-    
-    <!-- Results Tab -->
-    <div id="results-tab" class="tab-content">
-      <div class="pro-card bg-white p-6 mb-6">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-medium text-[#393939]">Proforma Summary</h2>
-          <div class="flex space-x-3">
-            <button id="exportPdf" class="px-4 py-2 font-medium bg-[#262626] text-white hover:bg-black transition-colors rounded flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-              </svg>
-              Export PDF
-            </button>
-            <button id="exportExcel" class="px-4 py-2 font-medium bg-[#166534] text-white hover:bg-[#14532d] transition-colors rounded flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              Export Excel
-            </button>
-          </div>
-        </div>
-
-        <!-- Summary Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" id="summary-cards">
-          <!-- Will be populated by JavaScript -->
-        </div>
-
-        <!-- Detailed Results -->
-        <div id="detailed-results" class="mt-8">
-          <!-- Will be populated by JavaScript -->
-        </div>
-      </div>
-
-      <!-- Scenario Analysis -->
-      <div class="pro-card bg-white p-6">
-        <h2 class="text-xl font-medium text-[#393939] mb-6">Scenario Analysis</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <h3 class="font-medium text-[#4B5563] mb-3">Interest Rate Sensitivity</h3>
-            <div class="bg-[#f9fafb] rounded p-4">
-              <table class="w-full text-sm text-left text-[#4B5563]" id="interest-sensitivity">
-                <!-- Will be populated by JavaScript -->
-              </table>
-            </div>
-          </div>
-          <div>
-            <h3 class="font-medium text-[#4B5563] mb-3">Price Sensitivity</h3>
-            <div class="bg-[#f9fafb] rounded p-4">
-              <table class="w-full text-sm text-left text-[#4B5563]" id="price-sensitivity">
-                <!-- Will be populated by JavaScript -->
-              </table>
-            </div>
-          </div>
-          <div>
-            <h3 class="font-medium text-[#4B5563] mb-3">Absorption Sensitivity</h3>
-            <div class="bg-[#f9fafb] rounded p-4">
-              <table class="w-full text-sm text-left text-[#4B5563]" id="absorption-sensitivity">
-                <!-- Will be populated by JavaScript -->
-              </table>
-            </div>
-          </div>
-        </div>
+<div id="mob-menu" class="hidden bg-white border-t border-gray-100" style="box-shadow:0 4px 12px rgba(0,0,0,.08);">
+  <div class="px-4 py-3 space-y-1 text-sm">
+    <a href="../index.html" class="block py-2 px-3 rounded" style="color:#525252;font-size:13px;">Home</a>
+    <div><button class="mob-toggle flex items-center justify-between w-full py-2 px-3 rounded" style="background:#eff6ff;color:#0043ce;border:none;cursor:pointer;font-size:13px;font-family:inherit;font-weight:600;">Tools <svg class="h-4 w-4 mob-arrow" style="transition:transform .2s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>
+      <div class="mob-sub" style="display:none;padding-left:12px;">
+        <a href="index.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏢 Multifamily</a>
+        <a href="index-mixeduse.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏬 Commercial/Retail</a>
+        <a href="index-land.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;background:#eff6ff;color:#0043ce;border-color:#0043ce;font-weight:600;">🗺️ Land Development</a>
+        <a href="index-affordability.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏠 Home Affordability</a>
+        <a href="index-rentvsbuy.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🔄 Rent vs. Buy</a>
+        <a href="index-mortgage-payoff.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">📅 Mortgage Payoff</a>
       </div>
     </div>
-    
-<!-- Charts & Projections Section -->
-<div id="charts-tab" class="tab-content">
-  <div class="pro-card bg-white p-6 mb-6">
-    <h2 class="text-2xl font-bold text-[#393939] mb-6">Financial Projections</h2>
+    <a href="../about.html" class="block py-2 px-3 rounded" style="color:#525252;font-size:13px;">About</a>
+    <a href="../about.html" class="block mt-2 py-2 text-center font-semibold text-white rounded" style="background:#0043ce;font-size:13px;">Let's talk</a>
+  </div>
+</div>
+</header>
 
-    <!-- Cash Flow Projection -->
-    <div class="bg-[#f9fafb] rounded p-6 w-full h-[500px] mb-8">
-      <h3 class="font-semibold text-[#4B5563] mb-4">Cash Flow Projection</h3>
-      <canvas id="projectionGraph" class="w-full h-full"></canvas>
+<!-- HERO -->
+<section class="bg-gradient-to-r from-blue-50 to-white border-b border-gray-200 py-8">
+<div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+  <div>
+    <div class="flex items-center gap-2 mb-2">
+      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold" style="background:#dbeafe;color:#1d4ed8;">Pro Tool</span>
+      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold" style="background:#dcfce7;color:#166534;">Land Development</span>
     </div>
+    <h1 class="text-2xl font-bold" style="color:#1e293b;">Land Development Proforma</h1>
+    <p class="text-sm mt-1" style="color:#64748b;">Lot mix analysis, development cost modeling, revenue projections, and IRR for residential land deals.</p>
+  </div>
+  <div class="flex gap-2 no-print flex-wrap">
+    <button onclick="loadDemo()" class="px-4 py-2 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer">📋 Demo Deal (200-Lot Subdivision)</button>
+    <button onclick="resetAll()" class="px-4 py-2 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer">↺ Reset</button>
+    <button onclick="exportXLS()" class="px-4 py-2 text-sm font-semibold text-white rounded cursor-pointer" style="background:#166534;">⬇ Excel</button>
+    <button onclick="window.print()" class="px-4 py-2 text-sm font-semibold text-white rounded cursor-pointer" style="background:#1e293b;">🖨 PDF</button>
+  </div>
+</div>
+</section>
 
-    <!-- IRR Curve -->
-    <div class="bg-[#f9fafb] rounded p-6 w-full h-[400px] mb-8">
-      <h3 class="font-semibold text-[#4B5563] mb-4">IRR Curve</h3>
-      <canvas id="irrCurve" class="w-full h-full"></canvas>
-    </div>
-
-    <!-- Lot Absorption -->
-    <div class="bg-[#f9fafb] rounded p-6 w-full h-[400px] mb-8">
-      <h3 class="font-semibold text-[#4B5563] mb-4">Lot Absorption Schedule</h3>
-      <canvas id="lotAbsorption" class="w-full h-full"></canvas>
-    </div>
-
-    <!-- Revenue and Cost Breakdown Side-by-Side -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-      <div class="bg-[#f9fafb] rounded p-6 w-full h-[400px]">
-        <h3 class="font-semibold text-[#4B5563] mb-4">Revenue Breakdown</h3>
-        <canvas id="revenueBreakdown" class="w-full h-full"></canvas>
-      </div>
-      <div class="bg-[#f9fafb] rounded p-6 w-full h-[400px]">
-        <h3 class="font-semibold text-[#4B5563] mb-4">Cost Breakdown</h3>
-        <canvas id="costBreakdown" class="w-full h-full"></canvas>
-      </div>
-    </div>
-
-    <!-- Monthly Cash Flow and Cumulative Return Side-by-Side -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <div class="bg-[#f9fafb] rounded p-6 w-full h-[400px]">
-        <h3 class="font-semibold text-[#4B5563] mb-4">Monthly Net Cash Flow</h3>
-        <canvas id="monthlyCashFlow" class="w-full h-full"></canvas>
-      </div>
-      <div class="bg-[#f9fafb] rounded p-6 w-full h-[400px]">
-        <h3 class="font-semibold text-[#4B5563] mb-4">Cumulative Return</h3>
-        <canvas id="cumulativeReturn" class="w-full h-full"></canvas>
-      </div>
-    </div>
-
+<!-- TABS -->
+<div class="bg-white border-b border-gray-200 no-print" style="overflow-x:auto;">
+  <div class="max-w-7xl mx-auto px-4 flex">
+    <button class="tab-btn active" onclick="switchTab('inputs',this)">📥 Input Parameters</button>
+    <button class="tab-btn" onclick="switchTab('results',this)">📊 Results &amp; Analysis</button>
+    <button class="tab-btn" onclick="switchTab('proforma',this)">📋 Phase Proforma</button>
+    <button class="tab-btn" onclick="switchTab('charts',this)">📈 Charts</button>
   </div>
 </div>
 
+<div class="max-w-7xl mx-auto px-4 py-6">
 
+<!-- ══ INPUTS ══ -->
+<div id="tab-inputs" class="tab-panel active">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
 
-
-    <!-- CTA Section -->
-  <section class="bg-[#0043ce] py-16 text-white">
-    <div class="max-w-5xl mx-auto px-4 text-center">
-      <h2 class="text-3xl font-light mb-6">Ready to optimize your real estate investment strategy?</h2>
-      <p class="text-xl opacity-90 mb-8 max-w-3xl mx-auto">Join thousands of investors using our proforma tools to make better decisions and maximize returns.</p>
-      <div class="flex flex-wrap justify-center gap-4">
-        <a href="#" class="btn-primary bg-white text-[#0056b3] hover:bg-[#e0e0e0]">Get started today</a>
-        <a href="#" class="btn-secondary text-white border-white hover:bg-[#004494]">Schedule a demo</a>
+    <!-- Lot Mix -->
+    <div class="card">
+      <p class="sec">🗺️ Lot Mix &amp; Pricing</p>
+      <div style="border-bottom:1px solid #f1f5f9;padding-bottom:12px;margin-bottom:12px;">
+        <p class="text-xs font-semibold text-gray-500 mb-2">Single-Family Detached (SFD)</p>
+        <div class="mb-2"><label class="lbl"># Lots</label><input class="inp" id="sfdCount" type="number" placeholder="0"></div>
+        <div class="mb-2"><label class="lbl">Price per Lot ($)</label><div class="inp-pre"><span>$</span><input class="inp" id="sfdPrice" type="number" placeholder="0"></div></div>
+        <div><label class="lbl">Annual Price Escalation (%)</label><div class="inp-suf"><input class="inp" id="sfdEsc" type="number" step="0.1" placeholder="0.0"><span>%</span></div></div>
+      </div>
+      <div style="border-bottom:1px solid #f1f5f9;padding-bottom:12px;margin-bottom:12px;">
+        <p class="text-xs font-semibold text-gray-500 mb-2">Townhome / Twin-Home</p>
+        <div class="mb-2"><label class="lbl"># Lots</label><input class="inp" id="twinCount" type="number" placeholder="0"></div>
+        <div class="mb-2"><label class="lbl">Price per Lot ($)</label><div class="inp-pre"><span>$</span><input class="inp" id="twinPrice" type="number" placeholder="0"></div></div>
+        <div><label class="lbl">Annual Price Escalation (%)</label><div class="inp-suf"><input class="inp" id="twinEsc" type="number" step="0.1" placeholder="0.0"><span>%</span></div></div>
+      </div>
+      <div>
+        <p class="text-xs font-semibold text-gray-500 mb-2">Small-Format / Alley-Load (SFA)</p>
+        <div class="mb-2"><label class="lbl"># Lots</label><input class="inp" id="sfaCount" type="number" placeholder="0"></div>
+        <div class="mb-2"><label class="lbl">Price per Lot ($)</label><div class="inp-pre"><span>$</span><input class="inp" id="sfaPrice" type="number" placeholder="0"></div></div>
+        <div><label class="lbl">Annual Price Escalation (%)</label><div class="inp-suf"><input class="inp" id="sfaEsc" type="number" step="0.1" placeholder="0.0"><span>%</span></div></div>
       </div>
     </div>
-  </section>
 
-
-  <!-- Footer -->
-
-    <footer class="py-14 text-white" style="background:#0f172a;">
-    <div class="max-w-7xl mx-auto px-4">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
-        <div>
-          <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;">
-            <svg width="28" height="28" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
-            <span style="font-size:16px;font-weight:700;color:white;">RE<span style="font-weight:300;">Proforma</span></span>
-          </div>
-          <p class="text-sm text-gray-400 mb-4">Advanced analytics for real estate investment professionals.</p>
-          <div class="flex space-x-3">
-            <a href="#" class="text-gray-400 hover:text-white"><svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg></a>
-            <a href="#" class="text-gray-400 hover:text-white"><svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a>
-          </div>
-        </div>
-        <div>
-          <h4 class="text-sm font-semibold mb-3">Tools</h4>
-          <p class="text-xs uppercase tracking-widest text-gray-500 mb-2">Pro</p>
-          <ul class="space-y-2 text-sm text-gray-400 mb-3">
-            <li><a href="index.html" class="hover:text-white">Multifamily Acquisition</a></li>
-            <li><a href="index-mixeduse.html" class="hover:text-white">Commercial &amp; NNN Retail</a></li>
-            <li><a href="index-land.html" class="hover:text-white">Land Development</a></li>
-          </ul>
-          <p class="text-xs uppercase tracking-widest text-gray-500 mb-2 border-t border-gray-800 pt-2">Free</p>
-          <ul class="space-y-2 text-sm text-gray-400">
-            <li><a href="index-affordability.html" class="hover:text-white">🏠 Home Affordability</a></li>
-            <li><a href="index-rentvsbuy.html" class="hover:text-white">🔄 Rent vs. Buy</a></li>
-            <li><a href="index-mortgage-payoff.html" class="hover:text-white">📅 Mortgage Payoff</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="text-sm font-semibold mb-3">Resources</h4>
-          <ul class="space-y-2 text-sm text-gray-400">
-            <li><a href="#" class="hover:text-white">Market Reports</a></li>
-            <li><a href="#" class="hover:text-white">Investment Guide</a></li>
-            <li><a href="#" class="hover:text-white">Case Studies</a></li>
-            <li><a href="#" class="hover:text-white">Blog</a></li>
-            <li><a href="#" class="hover:text-white">Support</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="text-sm font-semibold mb-3">Subscribe</h4>
-          <p class="text-sm text-gray-400 mb-3">Get the latest real estate investment insights.</p>
-          <div class="flex">
-            <input type="email" placeholder="Enter your email" class="px-3 py-2 rounded-l w-full text-sm text-gray-900 focus:outline-none"/>
-            <button class="px-4 py-2 rounded-r text-sm text-white font-semibold" style="background:#0056b3;">Go</button>
-          </div>
-        </div>
+    <!-- Land & Development Costs -->
+    <div class="card">
+      <p class="sec">🏗️ Land &amp; Development Costs</p>
+      <div class="mb-3"><label class="lbl">Raw Land Cost ($)</label><div class="inp-pre"><span>$</span><input class="inp" id="landCost" type="number" placeholder="0"></div></div>
+      <div class="mb-3"><label class="lbl">Closing / Due Diligence (%)</label><div class="inp-suf"><input class="inp" id="closingCost" type="number" step="0.1" placeholder="3.0"><span>%</span></div></div>
+      <div style="border-bottom:1px solid #f1f5f9;padding-bottom:10px;margin-bottom:10px;">
+        <p class="text-xs font-semibold text-gray-500 mb-2">Site Development</p>
+        <div class="mb-2"><label class="lbl">On-site Infrastructure ($)</label><div class="inp-pre"><span>$</span><input class="inp" id="onsiteDev" type="number" placeholder="0"></div></div>
+        <div class="mb-2"><label class="lbl">Off-site / Utility Connections ($)</label><div class="inp-pre"><span>$</span><input class="inp" id="offsiteDev" type="number" placeholder="0"></div></div>
+        <div class="mb-2"><label class="lbl">Landscaping &amp; Common Areas ($)</label><div class="inp-pre"><span>$</span><input class="inp" id="landscaping" type="number" placeholder="0"></div></div>
+        <div><label class="lbl">Contingency (%)</label><div class="inp-suf"><input class="inp" id="contingency" type="number" step="0.1" placeholder="10.0"><span>%</span></div></div>
       </div>
-      <div class="pt-6 border-t border-gray-800 flex flex-col md:flex-row justify-between text-sm text-gray-500">
-        <p>&copy; 2025 REProforma. All rights reserved.</p>
-        <div class="flex gap-5 mt-3 md:mt-0">
-          <a href="../privacy.html" class="hover:text-white">Privacy Policy</a>
-          <a href="../terms.html" class="hover:text-white">Terms of Service</a>
-        </div>
+      <div>
+        <p class="text-xs font-semibold text-gray-500 mb-2">Soft Costs</p>
+        <div class="mb-2"><label class="lbl">Engineering / Consulting ($)</label><div class="inp-pre"><span>$</span><input class="inp" id="consulting" type="number" placeholder="0"></div></div>
+        <div class="mb-2"><label class="lbl">Legal, Permitting &amp; Fees ($)</label><div class="inp-pre"><span>$</span><input class="inp" id="legalFees" type="number" placeholder="0"></div></div>
+        <div><label class="lbl">HOA Setup / Amenities ($)</label><div class="inp-pre"><span>$</span><input class="inp" id="hoaSetup" type="number" placeholder="0"></div></div>
       </div>
     </div>
-  </footer>
-    <!-- Scripts -->
-  
+
+    <!-- Financing -->
+    <div class="card">
+      <p class="sec">🏦 Financing</p>
+      <div class="mb-3"><label class="lbl">Loan-to-Cost (%)</label><div class="inp-suf"><input class="inp" id="loanToCost" type="number" step="0.1" placeholder="65.0"><span>%</span></div></div>
+      <div class="mb-3"><label class="lbl">Interest Rate (%)</label><div class="inp-suf"><input class="inp" id="interestRate" type="number" step="0.01" placeholder="8.0"><span>%</span></div></div>
+      <div class="mb-3"><label class="lbl">Loan Origination Fee (%)</label><div class="inp-suf"><input class="inp" id="loanFees" type="number" step="0.1" placeholder="1.5"><span>%</span></div></div>
+      <div class="mb-3"><label class="lbl">Development Timeline (Months)</label><input class="inp" id="devMonths" type="number" placeholder="24"></div>
+      <div class="mb-3"><label class="lbl">Transfer Tax Rate (%)</label><div class="inp-suf"><input class="inp" id="transferTax" type="number" step="0.1" placeholder="2.0"><span>%</span></div></div>
+      <div class="mb-3"><label class="lbl">Lot Sale Absorption (Lots/Mo)</label><input class="inp" id="absorption" type="number" step="0.1" placeholder="5.0"></div>
+      <div><label class="lbl">Annual Sales &amp; Marketing (%)</label><div class="inp-suf"><input class="inp" id="marketing" type="number" step="0.1" placeholder="2.5"><span>%</span></div></div>
+
+      <!-- Live preview -->
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;margin-top:10px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;"><span style="color:#64748b;">Est. Loan Amount</span><span id="loanDisp" style="font-weight:600;">—</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;"><span style="color:#64748b;">Total Lots</span><span id="totalLotsDisp" style="font-weight:600;">—</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;"><span style="color:#64748b;">Gross Revenue</span><span id="grossRevDisp" style="font-weight:600;">—</span></div>
+      </div>
+
+      <button onclick="calculate()" class="w-full mt-4 py-3 text-base font-semibold text-white rounded-lg cursor-pointer no-print" style="background:#0043ce;border:none;">Calculate Proforma →</button>
+    </div>
+
+    <!-- Sensitivity targets -->
+    <div class="card">
+      <p class="sec">🎯 Return Targets</p>
+      <div class="mb-3"><label class="lbl">Target IRR (%)</label><div class="inp-suf"><input class="inp" id="targetIRR" type="number" step="0.1" placeholder="20.0"><span>%</span></div></div>
+      <div class="mb-3"><label class="lbl">Target Profit Margin (%)</label><div class="inp-suf"><input class="inp" id="targetMargin" type="number" step="0.1" placeholder="20.0"><span>%</span></div></div>
+      <div style="border-bottom:1px solid #f1f5f9;padding-bottom:10px;margin-bottom:10px;">
+        <p class="text-xs font-semibold text-gray-500 mb-2">Phasing (optional)</p>
+        <div class="mb-2"><label class="lbl">Phase 1 — % of Total Lots</label><div class="inp-suf"><input class="inp" id="phase1Pct" type="number" step="1" placeholder="40"><span>%</span></div></div>
+        <div class="mb-2"><label class="lbl">Phase 2 — % of Total Lots</label><div class="inp-suf"><input class="inp" id="phase2Pct" type="number" step="1" placeholder="35"><span>%</span></div></div>
+        <div><label class="lbl">Phase 3 — % of Total Lots</label><div class="inp-suf"><input class="inp" id="phase3Pct" type="number" step="1" placeholder="25"><span>%</span></div></div>
+      </div>
+      <div class="mb-3"><label class="lbl">Monthly Carry Cost ($)</label><div class="inp-pre"><span>$</span><input class="inp" id="carryCost" type="number" placeholder="0"></div></div>
+      <div><label class="lbl">Deal Notes</label><textarea class="inp" id="dealNotes" rows="3" style="resize:vertical;font-size:13px;" placeholder="Location, entitlement status, builder takedown schedule..."></textarea></div>
+    </div>
+  </div>
+</div><!-- /inputs -->
+
+<!-- ══ RESULTS ══ -->
+<div id="tab-results" class="tab-panel">
+  <div id="metricCards" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6"></div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+    <!-- Cost stack -->
+    <div class="card">
+      <p class="sec">Cost Stack</p>
+      <div id="costStack"></div>
+    </div>
+    <!-- Revenue waterfall -->
+    <div class="card">
+      <p class="sec">Revenue &amp; Returns Waterfall</p>
+      <div id="revenueWaterfall"></div>
+    </div>
+  </div>
+
+  <div class="card mb-5">
+    <p class="sec">Full Return Analysis</p>
+    <div class="overflow-x-auto"><table class="pro-table" id="returnsTable"></table></div>
+  </div>
+
+  <!-- Sensitivity -->
+  <div class="card">
+    <p class="sec">Sensitivity Analysis</p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div><p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Lot Price Sensitivity</p><div id="priceSens"></div></div>
+      <div><p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Land Cost Sensitivity</p><div id="landSens"></div></div>
+      <div><p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Absorption Rate Sensitivity</p><div id="absorptionSens"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PROFORMA ══ -->
+<div id="tab-proforma" class="tab-panel">
+  <div class="card overflow-x-auto">
+    <p class="sec">Phase-by-Phase Proforma</p>
+    <table class="pro-table" id="proformaTable">
+      <tbody><tr><td class="py-12 text-center" style="color:#94a3b8;" colspan="5">Run the calculator to see your phase proforma.</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ CHARTS ══ -->
+<div id="tab-charts" class="tab-panel">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <div class="card"><p class="sec">Revenue vs. Cost by Phase</p><div style="position:relative;height:240px;"><canvas id="chartPhases"></canvas></div></div>
+    <div class="card"><p class="sec">Cost Breakdown</p><div style="position:relative;height:240px;"><canvas id="chartCosts"></canvas></div></div>
+    <div class="card"><p class="sec">Lot Absorption Schedule</p><div style="position:relative;height:240px;"><canvas id="chartAbsorption"></canvas></div></div>
+    <div class="card"><p class="sec">Cumulative Cash Flow</p><div style="position:relative;height:240px;"><canvas id="chartCumulative"></canvas></div></div>
+  </div>
+</div>
+
+</div><!-- /max-w -->
+
+<!-- FOOTER -->
+<footer class="py-14 text-white" style="background:#0f172a;">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
+      <div>
+        <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;">
+          <svg width="28" height="28" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
+          <span style="font-size:15px;font-weight:700;color:white;">RE<span style="font-weight:300;">Proforma</span></span>
+        </div>
+        <p class="text-sm text-gray-400">Advanced analytics for real estate investment professionals.</p>
+      </div>
+      <div>
+        <h4 class="text-sm font-semibold mb-3">Tools</h4>
+        <p class="text-xs uppercase tracking-widest text-gray-500 mb-2">Pro</p>
+        <ul class="space-y-2 text-sm text-gray-400 mb-3">
+          <li><a href="index.html" class="hover:text-white">Multifamily Acquisition</a></li>
+          <li><a href="index-mixeduse.html" class="hover:text-white">Commercial &amp; NNN Retail</a></li>
+          <li><a href="index-land.html" class="hover:text-white">Land Development</a></li>
+        </ul>
+        <p class="text-xs uppercase tracking-widest text-gray-500 mb-2 pt-2" style="border-top:1px solid #1e293b;">Free</p>
+        <ul class="space-y-2 text-sm text-gray-400">
+          <li><a href="index-affordability.html" class="hover:text-white">🏠 Home Affordability</a></li>
+          <li><a href="index-rentvsbuy.html" class="hover:text-white">🔄 Rent vs. Buy</a></li>
+          <li><a href="index-mortgage-payoff.html" class="hover:text-white">📅 Mortgage Payoff</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-sm font-semibold mb-3">Resources</h4>
+        <ul class="space-y-2 text-sm text-gray-400">
+          <li><a href="#" class="hover:text-white">Market Reports</a></li>
+          <li><a href="#" class="hover:text-white">Investment Guide</a></li>
+          <li><a href="#" class="hover:text-white">Case Studies</a></li>
+          <li><a href="#" class="hover:text-white">Support</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-sm font-semibold mb-3">Subscribe</h4>
+        <p class="text-sm text-gray-400 mb-3">Latest real estate insights.</p>
+        <div class="flex"><input type="email" placeholder="Enter your email" style="padding:8px 12px;border-radius:6px 0 0 6px;border:none;font-size:13px;width:100%;outline:none;"/><button style="padding:8px 14px;background:#0056b3;color:white;border:none;border-radius:0 6px 6px 0;font-size:13px;font-weight:600;cursor:pointer;">Go</button></div>
+      </div>
+    </div>
+    <div class="pt-6 flex flex-col md:flex-row justify-between text-sm text-gray-500" style="border-top:1px solid #1e293b;">
+      <p>&copy; 2025 REProforma. All rights reserved.</p>
+      <div class="flex gap-5 mt-3 md:mt-0"><a href="../privacy.html" class="hover:text-white">Privacy Policy</a><a href="../terms.html" class="hover:text-white">Terms of Service</a></div>
+    </div>
+  </div>
+</footer>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+// ── Helpers ──────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const num = id => parseFloat($(id)?.value)||0;
+const fmt = v => isNaN(v)||!isFinite(v)?'—':'$'+Math.round(v).toLocaleString();
+const pct = (v,d=2) => isNaN(v)||!isFinite(v)?'—':v.toFixed(d)+'%';
+const CH = {};
+function mkChart(id,cfg){if(CH[id])CH[id].destroy();CH[id]=new Chart($(id),cfg);}
 
-  // Tab navigation
-  const tabButtons = document.querySelectorAll('.tab-button');
-  const tabContents = document.querySelectorAll('.tab-content');
-
-  tabButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      // Remove active class from all buttons and contents
-      tabButtons.forEach(btn => {
-        btn.classList.remove('border-[#0043ce]', 'text-[#0043ce]');
-        btn.classList.add('border-transparent', 'text-gray-500');
-      });
-      tabContents.forEach(content => content.classList.remove('active'));
-
-      // Add active class to clicked button and corresponding content
-      button.classList.remove('border-transparent', 'text-gray-500');
-      button.classList.add('border-[#0043ce]', 'text-[#0043ce]');
-      document.getElementById(button.dataset.tab).classList.add('active');
-    });
-  });
-
-  // Helper function to parse input values
-  const parse = (id) => {
-    const element = document.getElementById(id);
-    if (!element) return 0;
-    
-    const value = element.value.trim().replace(/,/g, '');
-    return parseFloat(value) || 0;
-  };
-
-  // Initialize summary cards
-  initializeSummaryCards();
-  
-  // Initialize charts
-  initCharts();
-
-  // Calculate button event listener
-  document.getElementById('calculate').addEventListener('click', calculateProforma);
-
-  // Demo data button event listener
-  document.getElementById('autofillDemo').addEventListener('click', autofillDemoData);
-
-  // Reset inputs button event listener
-  document.getElementById('resetInputs').addEventListener('click', resetInputs);
-
-  // Main calculation function
-  function calculateProforma() {
-  // Get lot mix values
-  const sfdCount = parse('sfdCount');
-  const sfdPrice = parse('sfdPrice');
-  const twinCount = parse('twinCount');
-  const twinPrice = parse('twinPrice');
-  const sfaCount = parse('sfaCount');
-  const sfaPrice = parse('sfaPrice');
-
-  // Calculate land costs
-  const land = parse('landCost');
-  const closingRate = parse('closingCost') / 100;
-  const closing = land * closingRate;
-
-  // Development costs
-  const devCosts = [
-    parse('onsiteDev'), parse('consulting'), parse('delmarva'),
-    parse('landscaping'), parse('mailboxes'), parse('monuments'),
-    parse('dedication'), parse('escalation'), parse('contingency')
-  ];
-  const totalDev = devCosts.reduce((a, b) => a + b, 0);
-
-  // Soft costs
-  const transferTaxRate = parse('transferTax') / 100;
-  const propertyTax = parse('propertyTax');
-  const bondingRate = parse('bonding') / 100;
-  const transferTax = transferTaxRate * ((sfdCount * sfdPrice) + (twinCount * twinPrice) + (sfaCount * sfaPrice));
-  const propertyTaxTotal = propertyTax * (sfdCount + twinCount + sfaCount);
-  const bondingCost = bondingRate * totalDev;
-  const softCosts = transferTax + propertyTaxTotal + parse('hoaSubsidy') + parse('dueDiligence') + parse('legalTax') + bondingCost;
-
-  // Revenue and costs
-  const totalRevenue = (sfdCount * sfdPrice) + (twinCount * twinPrice) + (sfaCount * sfaPrice);
-  const totalCost = land + closing + totalDev + softCosts;
-  const profit = totalRevenue - totalCost;
-  const margin = (profit / totalRevenue) * 100;
-
-  // Financing calculations
-  const loanToCostRate = parse('loanToCost') / 100;
-  const interestRate = parse('interestRate') / 100;
-  const loanFeesRate = parse('loanFees') / 100;
-  const loanAmount = totalCost * loanToCostRate;
-  const loanInterest = loanAmount * interestRate;
-  const loanFees = loanAmount * loanFeesRate;
-
-  // IRR (simplified)
-  const irr = ((profit / totalCost) * 100).toFixed(1);
-
-  // Update UI
-  updateSummaryCards(totalRevenue, totalCost, profit, margin, irr);
-  updateSensitivityTables(totalRevenue, totalCost);
-
-  // Update charts
-  updateProjectionChart(sfdCount, twinCount, sfaCount, sfdPrice, twinPrice, sfaPrice, parse('sfdEscalation')/100, parse('twinEscalation')/100, parse('sfaEscalation')/100);
-  updateLotAbsorptionChart(sfdCount, twinCount, sfaCount);
-  updateRevenueBreakdownChart(sfdCount, twinCount, sfaCount, sfdPrice, twinPrice, sfaPrice);
-  updateCostBreakdownChart(land, closing, totalDev, softCosts, loanInterest + loanFees);
-  updateMonthlyCashFlowChart(totalRevenue, totalCost);
-  updateCumulativeReturnChart(totalRevenue, totalCost);
-
-  // Switch to results tab
-  document.querySelector('[data-tab="results-tab"]').click();
+// ── Tabs ─────────────────────────────────────────────────────
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  $('tab-'+name).classList.add('active');
 }
 
-  // Initialize summary cards
-  function initializeSummaryCards() {
-    const summaryCards = document.getElementById('summary-cards');
-    summaryCards.innerHTML = `
-      <div class="bg-[#f9f5ff] p-4 rounded border border-[#e9d7fe]">
-        <p class="text-sm text-[#0043ce] font-medium">Total Revenue</p>
-        <p class="text-2xl font-bold text-[#42307d]">$0</p>
-      </div>
-      <div class="bg-[#f0f9ff] p-4 rounded border border-[#b9e6fe]">
-        <p class="text-sm text-[#0056b3] font-medium">Total Costs</p>
-        <p class="text-2xl font-bold text-[#043959]">$0</p>
-      </div>
-      <div class="bg-[#ecfdf3] p-4 rounded border border-[#a6f4c5]">
-        <p class="text-sm text-[#027a48] font-medium">Developer Profit</p>
-        <p class="text-2xl font-bold text-[#054f31]">$0</p>
-      </div>
-      <div class="bg-[#fef3f2] p-4 rounded border border-[#fee4e2]">
-        <p class="text-sm text-[#b42318] font-medium">IRR (Unlevered)</p>
-        <p class="text-2xl font-bold text-[#7a271a]">0%</p>
-      </div>
-    `;
-  }
+// ── Nav ──────────────────────────────────────────────────────
+$('mob-btn').addEventListener('click',()=>$('mob-menu').classList.toggle('hidden'));
+document.querySelectorAll('.mob-toggle').forEach(b=>{
+  b.addEventListener('click',()=>{
+    const s=b.nextElementSibling,a=b.querySelector('.mob-arrow'),o=s.style.display==='block';
+    s.style.display=o?'none':'block';a.style.transform=o?'':'rotate(180deg)';
+  });
+});
+function setupDD(wId,mId,bId){
+  const w=$(wId),m=$(mId),b=$(bId);if(!w||!m)return;let t;
+  w.addEventListener('mouseenter',()=>{clearTimeout(t);m.classList.add('open');b&&b.classList.add('open');});
+  w.addEventListener('mouseleave',()=>{t=setTimeout(()=>{m.classList.remove('open');b&&b.classList.remove('open');},120);});
+  b&&b.addEventListener('click',e=>{e.stopPropagation();const o=m.classList.contains('open');closeAll();if(!o){m.classList.add('open');b.classList.add('open');}});
+}
+function closeAll(){document.querySelectorAll('.dd-menu').forEach(m=>m.classList.remove('open'));document.querySelectorAll('.dd-trigger').forEach(b=>b.classList.remove('open'));}
+setupDD('ddT','ddTm','ddTb');setupDD('ddM','ddMm','ddMb');
+document.addEventListener('click',e=>{if(!e.target.closest('.dd-wrap'))closeAll();});
 
-  // Update summary cards with calculated values
-  function updateSummaryCards(totalRevenue, totalCost, profit, margin, irr) {
-    const summaryCards = document.getElementById('summary-cards');
-    
-    // Format the IRR value
-    const irrValue = parseFloat(irr);
-    const irrClass = irrValue >= 15 ? 'bg-[#ecfdf3] border-[#a6f4c5] text-[#054f31]' : 'bg-[#fef3f2] border-[#fee4e2] text-[#7a271a]';
-    const irrTextClass = irrValue >= 15 ? 'text-[#027a48]' : 'text-[#b42318]';
-    
-    // Format the profit value
-    const profitClass = profit >= 0 ? 'bg-[#ecfdf3] border-[#a6f4c5] text-[#054f31]' : 'bg-[#fef3f2] border-[#fee4e2] text-[#7a271a]';
-    const profitTextClass = profit >= 0 ? 'text-[#027a48]' : 'text-[#b42318]';
-
-    summaryCards.innerHTML = `
-      <div class="bg-[#f9f5ff] p-4 rounded border border-[#e9d7fe]">
-        <p class="text-sm text-[#0043ce] font-medium">Total Revenue</p>
-        <p class="text-2xl font-bold text-[#42307d]">$${totalRevenue.toLocaleString()}</p>
-      </div>
-      <div class="bg-[#f0f9ff] p-4 rounded border border-[#b9e6fe]">
-        <p class="text-sm text-[#0056b3] font-medium">Total Costs</p>
-        <p class="text-2xl font-bold text-[#043959]">$${totalCost.toLocaleString()}</p>
-      </div>
-      <div class="${profitClass} p-4 rounded border">
-        <p class="text-sm ${profitTextClass} font-medium">Developer Profit</p>
-        <p class="text-2xl font-bold">$${profit.toLocaleString()}</p>
-        <p class="text-xs mt-1">${margin.toFixed(1)}% margin</p>
-      </div>
-      <div class="${irrClass} p-4 rounded border">
-        <p class="text-sm ${irrTextClass} font-medium">IRR (Unlevered)</p>
-        <p class="text-2xl font-bold">${irr}%</p>
-      </div>
-    `;
-  }
-
-  // Autofill demo data
-  function autofillDemoData() {
-    const autofillValues = {
-      sfdCount: 100,
-      sfdPrice: 200000,
-      sfdEscalation: 3.5,
-      twinCount: 50,
-      twinPrice: 150000,
-      twinEscalation: 3.8,
-      sfaCount: 50,
-      sfaPrice: 125000,
-      sfaEscalation: 3.0,
-      landCost: 5500000,
-      closingCost: 3.0,
-      onsiteDev: 8500000,
-      consulting: 250000,
-      delmarva: 500000,
-      landscaping: 500000,
-      mailboxes: 50000,
-      monuments: 125000,
-      dedication: 250000,
-      escalation: 250000,
-      contingency: 1500000,
-      transferTax: 2.1,
-      propertyTax: 500,
-      bonding: 2.0,
-      hoaSubsidy: 25000,
-      dueDiligence: 50000,
-      legalTax: 150000,
-      loanToCost: 70,
-      interestRate: 8.0,
-      loanFees: 2.0,
-      payoffRate: 80
-    };
-    
-    Object.entries(autofillValues).forEach(([id, value]) => {
-      const input = document.getElementById(id);
-      if (input) input.value = value;
-    });
-    
-    // Trigger a calculation to update the results
-    calculateProforma();
-  }
-
-  // Reset inputs
-  function resetInputs() {
-    const inputs = document.querySelectorAll('input');
-    inputs.forEach(input => input.value = '');
-    
-    // Reset summary cards
-    initializeSummaryCards();
-    
-    // Reset charts
-    initCharts();
-    
-    // Switch back to input tab
-    document.querySelector('[data-tab="input-tab"]').click();
-  }
-
-  // Chart initialization functions
-  function initCharts() {
-// Only clear canvases, no real chart creation here
-const chartIds = [
-  'projectionGraph', 'irrCurve', 'lotAbsorption',
-  'revenueBreakdown', 'costBreakdown', 'monthlyCashFlow', 'cumulativeReturn'
-];
-chartIds.forEach(id => {
-  const canvas = document.getElementById(id);
-  if (canvas && canvas.getContext) {
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
+// ── Live preview ─────────────────────────────────────────────
+function livePreview(){
+  const sfd=num('sfdCount'),twin=num('twinCount'),sfa=num('sfaCount');
+  const sp=num('sfdPrice'),tp=num('twinPrice'),ap=num('sfaPrice');
+  const totalLots=sfd+twin+sfa;
+  const grossRev=sfd*sp+twin*tp+sfa*ap;
+  const lc=num('landCost'),od=num('onsiteDev'),off=num('offsiteDev'),ls=num('landscaping');
+  const cons=num('consulting'),leg=num('legalFees'),hoa=num('hoaSetup');
+  const contPct=num('contingency')/100;
+  const devCosts=od+off+ls;
+  const totalCost=lc*(1+num('closingCost')/100)+devCosts*(1+contPct)+cons+leg+hoa;
+  const loan=totalCost*(num('loanToCost')/100);
+  $('loanDisp').textContent=fmt(loan);
+  $('totalLotsDisp').textContent=totalLots;
+  $('grossRevDisp').textContent=fmt(grossRev);
+}
+['sfdCount','twinCount','sfaCount','sfdPrice','twinPrice','sfaPrice','landCost','onsiteDev','loanToCost'].forEach(id=>{
+  const e=$(id);if(e)e.addEventListener('input',livePreview);
 });
 
-    // Projection Chart
-    const projectionCtx = document.getElementById('projectionGraph');
-    if (projectionCtx) {
-      new Chart(projectionCtx.getContext('2d'), {
-        type: 'line',
-        data: {
-          labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
-          datasets: [{
-            label: 'Projected Cash Flow',
-            data: [100000, 250000, 350000, 450000, 600000],
-            borderColor: 'rgba(0, 67, 206, 0.7)',
-            backgroundColor: 'rgba(0, 67, 206, 0.1)',
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false
-        }
-      });
-    }
+// ══════════════════════════════════════════════════════════════
+// MAIN CALCULATE
+// ══════════════════════════════════════════════════════════════
+function calculate(){
+  // Lot mix
+  const sfdC=num('sfdCount'),sfdP=num('sfdPrice'),sfdE=num('sfdEsc')/100;
+  const twnC=num('twinCount'),twnP=num('twinPrice'),twnE=num('twinEsc')/100;
+  const sfaC=num('sfaCount'),sfaP=num('sfaPrice'),sfaE=num('sfaEsc')/100;
+  const totalLots=sfdC+twnC+sfaC;
 
-    // IRR Curve Chart
-    const irrCtx = document.getElementById('irrCurve');
-    if (irrCtx) {
-      new Chart(irrCtx.getContext('2d'), {
-        type: 'line',
-        data: {
-          labels: ['5%', '10%', '15%', '20%', '25%'],
-          datasets: [{
-            label: 'IRR Curve',
-            data: [0.5, 1.2, 2.1, 3.5, 5.0],
-            borderColor: 'rgba(22, 163, 74, 0.7)',
-            backgroundColor: 'rgba(22, 163, 74, 0.1)',
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false
-        }
-      });
-    }
+  if(!totalLots){alert('Please enter at least one lot type.');return;}
 
-    // Lot Absorption Chart
-    const lotAbsorptionCtx = document.getElementById('lotAbsorption');
-    if (lotAbsorptionCtx) {
-      new Chart(lotAbsorptionCtx.getContext('2d'), {
-        type: 'bar',
-        data: {
-          labels: ['Q1', 'Q2', 'Q3', 'Q4'],
-          datasets: [{
-            label: 'Lot Absorption',
-            data: [25, 35, 40, 50],
-            backgroundColor: 'rgba(0, 67, 206, 0.7)'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false
-        }
-      });
-    }
+  // Land & dev costs
+  const lc=num('landCost');
+  const closingPct=num('closingCost')/100||0.03;
+  const landTotal=lc*(1+closingPct);
+  const od=num('onsiteDev'),off=num('offsiteDev'),ls=num('landscaping');
+  const devBase=od+off+ls;
+  const contPct=num('contingency')/100||0.10;
+  const devTotal=devBase*(1+contPct);
+  const cons=num('consulting'),leg=num('legalFees'),hoa=num('hoaSetup');
+  const softTotal=cons+leg+hoa;
+  const totalCost=landTotal+devTotal+softTotal;
 
-    // Revenue Breakdown Chart
-    const revenueCtx = document.getElementById('revenueBreakdown');
-    if (revenueCtx) {
-      new Chart(revenueCtx.getContext('2d'), {
-        type: 'doughnut',
-        data: {
-          labels: ['SFD', 'Twin', 'SFA'],
-          datasets: [{
-            data: [60, 25, 15],
-            backgroundColor: [
-              'rgba(0, 67, 206, 0.7)',
-              'rgba(14, 165, 233, 0.7)', 
-              'rgba(245, 158, 11, 0.7)'
-            ]
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false
-        }
-      });
-    }
+  // Financing
+  const ltcPct=num('loanToCost')/100||0.65;
+  const iRate=num('interestRate')/100||0.08;
+  const loanFeesPct=num('loanFees')/100||0.015;
+  const devMonths=num('devMonths')||24;
+  const absorption=num('absorption')||5;
+  const marketingPct=num('marketing')/100||0.025;
+  const tfTaxPct=num('transferTax')/100||0.02;
+  const carryCost=num('carryCost');
 
-    // Cost Breakdown Chart
-    const costCtx = document.getElementById('costBreakdown');
-    if (costCtx) {
-      new Chart(costCtx.getContext('2d'), {
-        type: 'doughnut',
-        data: {
-          labels: ['Land', 'Development', 'Soft Costs', 'Financing'],
-          datasets: [{
-            data: [35, 40, 15, 10],
-            backgroundColor: [
-              'rgba(234, 88, 12, 0.7)',
-              'rgba(22, 163, 74, 0.7)',
-              'rgba(71, 85, 105, 0.7)',
-              'rgba(0, 86, 179, 0.7)'
-            ]
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false
-        }
-      });
-    }
+  const loanAmt=totalCost*ltcPct;
+  const loanFees=loanAmt*loanFeesPct;
+  const interestCost=loanAmt*iRate*(devMonths/12);
+  const financeTotal=loanFees+interestCost;
 
-    // Monthly Cash Flow Chart
-    const cashFlowCtx = document.getElementById('monthlyCashFlow');
-    if (cashFlowCtx) {
-      new Chart(cashFlowCtx.getContext('2d'), {
-        type: 'bar',
-        data: {
-          labels: ['Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6', 'Q7', 'Q8'],
-          datasets: [{
-            label: 'Net Cash Flow',
-            data: [-1800000, -700000, 330000, 880000, 1170000, 770000, 500000, 225000],
-            backgroundColor: function(context) {
-              const value = context.dataset.data[context.dataIndex];
-              return value < 0 ? 'rgba(229, 62, 62, 0.7)' : 'rgba(16, 185, 129, 0.7)';
-            }
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false
-        }
-      });
-    }
+  // Revenue with escalation
+  const grossRev=sfdC*sfdP+twnC*twnP+sfaC*sfaP;
+  const transferTax=grossRev*tfTaxPct;
+  const marketing=grossRev*marketingPct;
+  const totalCarry=carryCost*devMonths;
+  const allCosts=totalCost+financeTotal+transferTax+marketing+totalCarry;
 
-    // Cumulative Return Chart
-    const cumulativeCtx = document.getElementById('cumulativeReturn');
-    if (cumulativeCtx) {
-      new Chart(cumulativeCtx.getContext('2d'), {
-        type: 'line',
-        data: {
-          labels: ['Initial', 'Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
-          datasets: [{
-            label: 'Cumulative Return',
-            data: [-100, -80, -30, 50, 130, 180],
-            borderColor: '#0043ce',
-            backgroundColor: 'rgba(0, 67, 206, 0.1)',
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false
-        }
-      });
-    }
-  }
+  const profit=grossRev-allCosts;
+  const margin=grossRev?profit/grossRev*100:0;
+  const roi=allCosts?profit/allCosts*100:0;
+  const targetIRR=num('targetIRR')||20;
 
-  // Chart update functions
-  function updateProjectionChart(sfdCount, twinCount, sfaCount, sfdPrice, twinPrice, sfaPrice, 
-    sfdEscalation, twinEscalation, sfaEscalation) {
-    const sfdTotal = sfdCount * sfdPrice;
-    const twinTotal = twinCount * twinPrice;
-    const sfaTotal = sfaCount * sfaPrice;
-    const totalRevenue = sfdTotal + twinTotal + sfaTotal;
-    
-    const quarters = 8;
-    const revenueData = [];
-    const expensesData = [];
-    
-    const revenueDistribution = [0, 0.1, 0.2, 0.25, 0.2, 0.15, 0.07, 0.03];
-    const expenseDistribution = [0.3, 0.25, 0.15, 0.1, 0.07, 0.05, 0.05, 0.03];
-    
-    for (let i = 0; i < quarters; i++) {
-      revenueData.push(totalRevenue * revenueDistribution[i]);
-      expensesData.push(totalRevenue * 0.7 * expenseDistribution[i]);
-    }
-    
-    const netCashFlow = revenueData.map((rev, i) => rev - expensesData[i]);
-    const labels = ['Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6', 'Q7', 'Q8'];
-    
-    const canvas = document.getElementById('projectionGraph');
-if (window.projectionChartInstance) window.projectionChartInstance.destroy();
-const ctx = canvas.getContext('2d');
-    window.projectionChartInstance = window.lotAbsorptionChartInstance = window.revenueBreakdownChartInstance = window.costBreakdownChartInstance = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [
-          {
-            label: 'Revenue',
-            data: revenueData,
-            backgroundColor: 'rgba(0, 67, 206, 0.7)'
-          },
-          {
-            label: 'Expenses',
-            data: expensesData,
-            backgroundColor: 'rgba(229, 62, 62, 0.7)'
-          },
-          {
-            label: 'Net Cash Flow',
-            type: 'line',
-            data: netCashFlow,
-            borderColor: 'rgba(22, 163, 74, 1)',
-            borderWidth: 2,
-            fill: false
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            title: {
-              display: true,
-              text: 'Amount ($)'
-            }
-          }
-        }
-      }
-    });
-  }
+  // Simplified IRR: treat equity out at t=0, profit at t=devMonths/12
+  const equity=allCosts*(1-ltcPct);
+  const yearsToComplete=devMonths/12;
+  const irrApprox=equity>0?Math.pow((equity+profit)/equity,1/yearsToComplete)-1:0;
 
-  function updateLotAbsorptionChart(sfdCount, twinCount, sfaCount) {
-    const totalLots = sfdCount + twinCount + sfaCount;
-    const absorptionData = [
-      Math.round(totalLots * 0.2),
-      Math.round(totalLots * 0.25),
-      Math.round(totalLots * 0.25),
-      Math.round(totalLots * 0.2),
-      Math.round(totalLots * 0.1)
-    ];
-    
-    const canvas = document.getElementById('lotAbsorption');
-if (window.lotAbsorptionChartInstance) window.lotAbsorptionChartInstance.destroy();
-const ctx = canvas.getContext('2d');
-    window.projectionChartInstance = window.lotAbsorptionChartInstance = window.revenueBreakdownChartInstance = window.costBreakdownChartInstance = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
-        datasets: [{
-          label: 'Lots Absorbed',
-          data: absorptionData,
-          backgroundColor: 'rgba(16, 185, 129, 0.7)'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            title: {
-              display: true,
-              text: 'Number of Lots'
-            },
-            beginAtZero: true
-          }
-        }
-      }
-    });
-  }
-
-  function updateRevenueBreakdownChart(sfdCount, twinCount, sfaCount, sfdPrice, twinPrice, sfaPrice) {
-    const sfdTotal = sfdCount * sfdPrice;
-    const twinTotal = twinCount * twinPrice;
-    const sfaTotal = sfaCount * sfaPrice;
-    const totalRevenue = sfdTotal + twinTotal + sfaTotal;
-    
-    const sfdPercentage = Math.round((sfdTotal / totalRevenue) * 100);
-    const twinPercentage = Math.round((twinTotal / totalRevenue) * 100);
-    const sfaPercentage = 100 - sfdPercentage - twinPercentage;
-    
-    const canvas = document.getElementById('revenueBreakdown');
-if (window.revenueBreakdownChartInstance) window.revenueBreakdownChartInstance.destroy();
-const ctx = canvas.getContext('2d');
-    window.projectionChartInstance = window.lotAbsorptionChartInstance = window.revenueBreakdownChartInstance = window.costBreakdownChartInstance = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: ['SFD', 'Twin', 'SFA'],
-        datasets: [{
-          data: [sfdPercentage, twinPercentage, sfaPercentage],
-          backgroundColor: [
-            'rgba(0, 67, 206, 0.7)',
-            'rgba(14, 165, 233, 0.7)', 
-            'rgba(245, 158, 11, 0.7)'
-          ]
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false
-      }
-    });
-  }
-
-  function updateCostBreakdownChart(land, closing, totalDev, softCosts, financeCosts) {
-    const landTotal = land + closing;
-    const totalCosts = landTotal + totalDev + softCosts + financeCosts;
-    
-    const landPercentage = Math.round((landTotal / totalCosts) * 100);
-    const devPercentage = Math.round((totalDev / totalCosts) * 100);
-    const softPercentage = Math.round((softCosts / totalCosts) * 100);
-    const financePercentage = 100 - landPercentage - devPercentage - softPercentage;
-    
-    const canvas = document.getElementById('costBreakdown');
-if (window.costBreakdownChartInstance) window.costBreakdownChartInstance.destroy();
-const ctx = canvas.getContext('2d');
-    window.projectionChartInstance = window.lotAbsorptionChartInstance = window.revenueBreakdownChartInstance = window.costBreakdownChartInstance = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Land', 'Development', 'Soft Costs', 'Financing'],
-        datasets: [{
-          data: [landPercentage, devPercentage, softPercentage, financePercentage],
-          backgroundColor: [
-            'rgba(234, 88, 12, 0.7)',
-            'rgba(22, 163, 74, 0.7)',
-            'rgba(71, 85, 105, 0.7)',
-            'rgba(0, 86, 179, 0.7)'
-          ]
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false
-      }
-    });
-  }
-});
-
-function updateSensitivityTables(totalRevenue, totalCost) {
-  // Interest Rate Sensitivity
-  const interestTable = document.getElementById('interest-sensitivity');
-  interestTable.innerHTML = '<tr><th>Rate Change</th><th>Profit</th></tr>';
-  const rates = [0, 1, 2];
-  rates.forEach(rate => {
-    const newCost = totalCost + (rate / 100) * totalCost * 0.5;
-    const profit = totalRevenue - newCost;
-    const rowColor = profit >= 0 ? 'bg-green-100' : 'bg-red-100';
-    interestTable.innerHTML += `<tr class="${rowColor}"><td>+${rate}%</td><td>$${profit.toLocaleString()}</td></tr>`;
+  // Phasing
+  const p1=Math.max(0,Math.min(100,num('phase1Pct')||40))/100;
+  const p2=Math.max(0,Math.min(100,num('phase2Pct')||35))/100;
+  const p3=Math.max(0,1-p1-p2);
+  const phases=[
+    {name:'Phase 1',lotPct:p1},
+    {name:'Phase 2',lotPct:p2},
+    {name:'Phase 3',lotPct:p3}
+  ].map((ph,i)=>{
+    const pLots=Math.round(totalLots*ph.lotPct);
+    const esc=Math.pow(1+sfdE,i);
+    const pRev=Math.round(sfdC*ph.lotPct*sfdP*esc + twnC*ph.lotPct*twnP*(1+twnE*i) + sfaC*ph.lotPct*sfaP*(1+sfaE*i));
+    const pCost=Math.round(allCosts*ph.lotPct);
+    return {...ph,pLots,pRev,pCost,pProfit:pRev-pCost};
   });
 
-  // Price Sensitivity
-  const priceTable = document.getElementById('price-sensitivity');
-  priceTable.innerHTML = '<tr><th>Price Change</th><th>Profit</th></tr>';
-  const changes = [5, -5];
-  changes.forEach(change => {
-    const newRevenue = totalRevenue * (1 + (change / 100));
-    const profit = newRevenue - totalCost;
-    const rowColor = profit >= 0 ? 'bg-green-100' : 'bg-red-100';
-    priceTable.innerHTML += `<tr class="${rowColor}"><td>${change > 0 ? '+' : ''}${change}%</td><td>$${profit.toLocaleString()}</td></tr>`;
-  });
+  // ── Switch to results ────────────────────────────────────────
+  switchTab('results',document.querySelectorAll('.tab-btn')[1]);
 
-  // Absorption Sensitivity
-  const absorptionTable = document.getElementById('absorption-sensitivity');
-  absorptionTable.innerHTML = '<tr><th>Absorption</th><th>Profit</th></tr>';
-  const scenarios = ['Fast', 'Slow'];
-  const multipliers = [0.95, 1.05];
-  scenarios.forEach((scenario, idx) => {
-    const adjCost = totalCost * multipliers[idx];
-    const profit = totalRevenue - adjCost;
-    const rowColor = profit >= 0 ? 'bg-green-100' : 'bg-red-100';
-    absorptionTable.innerHTML += `<tr class="${rowColor}"><td>${scenario}</td><td>$${profit.toLocaleString()}</td></tr>`;
+  const bC=(v,lo,hi)=>v>=hi?'#15803d':v>=lo?'#b45309':'#b91c1c';
+  $('metricCards').innerHTML=[
+    {l:'Total Lots',v:totalLots,c:'#0043ce'},
+    {l:'Gross Revenue',v:fmt(grossRev),c:'#0056b3'},
+    {l:'Total Costs',v:fmt(allCosts),c:'#b91c1c'},
+    {l:'Developer Profit',v:fmt(profit),c:bC(profit,0,grossRev*0.15)},
+    {l:'Profit Margin',v:pct(margin),c:bC(margin,15,20)},
+    {l:'IRR (Est.)',v:pct(irrApprox*100),c:bC(irrApprox*100,15,targetIRR)},
+  ].map(s=>`<div class="metric" style="border-top:3px solid ${s.c};"><div class="metric-val" style="color:${s.c};">${s.v}</div><div class="metric-lbl">${s.l}</div></div>`).join('');
+
+  // ── Cost Stack ────────────────────────────────────────────────
+  const cRow=(l,v,pctOfTotal,bg='')=>`<div style="display:flex;align-items:center;padding:7px 10px;border-radius:6px;font-size:13px;${bg}">
+    <span style="flex:1;">${l}</span><span style="font-weight:600;min-width:90px;text-align:right;">${fmt(v)}</span>
+    <span style="min-width:50px;text-align:right;color:#94a3b8;font-size:11px;">${allCosts?pct(v/allCosts*100,0):''}</span>
+  </div>`;
+  $('costStack').innerHTML=
+    cRow('Land + Closing',landTotal,landTotal/allCosts)+
+    cRow('Site Development',devTotal,devTotal/allCosts)+
+    cRow('Soft Costs',softTotal,softTotal/allCosts)+
+    cRow('Finance (Interest + Fees)',financeTotal,financeTotal/allCosts)+
+    cRow('Transfer Tax',transferTax,transferTax/allCosts)+
+    cRow('Marketing & Sales',marketing,marketing/allCosts)+
+    cRow('Carry Costs',totalCarry,totalCarry/allCosts)+
+    cRow('TOTAL COSTS',allCosts,1,'background:#f1f5f9;font-weight:700;');
+
+  // ── Revenue Waterfall ────────────────────────────────────────
+  const rRow=(l,v,style='')=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:6px;font-size:13px;${style}">${l}<span>${v}</span></div>`;
+  $('revenueWaterfall').innerHTML=
+    rRow('Gross Revenue',fmt(grossRev))+
+    rRow('Total Costs',`<span style="color:#dc2626;">(${fmt(allCosts)})</span>`,'')+
+    rRow('Developer Profit',fmt(profit),'background:#eff6ff;font-weight:700;color:#0043ce;margin-top:4px;')+
+    rRow('Profit Margin',pct(margin),'background:#f8fafc;')+
+    rRow('Return on Cost',pct(roi),'background:#f8fafc;')+
+    rRow('IRR (Est.)',pct(irrApprox*100),'background:#f8fafc;')+
+    rRow('Equity Required',fmt(equity),'background:#f8fafc;');
+
+  // ── Returns table ────────────────────────────────────────────
+  $('returnsTable').innerHTML=`<thead><tr><th>Metric</th><th class="r">Value</th><th>Benchmark</th></tr></thead><tbody>
+    <tr><td>Total Lots</td><td class="r">${totalLots}</td><td style="color:#64748b;font-size:12px;">Depends on project</td></tr>
+    <tr><td>Gross Revenue</td><td class="r">${fmt(grossRev)}</td><td style="color:#64748b;font-size:12px;">Lot price × count</td></tr>
+    <tr><td>Total All-In Costs</td><td class="r">${fmt(allCosts)}</td><td style="color:#64748b;font-size:12px;">Land + dev + finance + selling</td></tr>
+    <tr><td>Revenue / Lot</td><td class="r">${fmt(grossRev/totalLots)}</td><td style="color:#64748b;font-size:12px;">Blended average</td></tr>
+    <tr><td>Cost / Lot</td><td class="r">${fmt(allCosts/totalLots)}</td><td style="color:#64748b;font-size:12px;">Typical $80k–$200k</td></tr>
+    <tr><td>Profit / Lot</td><td class="r">${fmt(profit/totalLots)}</td><td style="color:#64748b;font-size:12px;">$20k–$60k target</td></tr>
+    <tr class="hi"><td>Developer Profit</td><td class="r">${fmt(profit)}</td><td style="color:#64748b;font-size:12px;">—</td></tr>
+    <tr class="hi"><td>Profit Margin</td><td class="r">${pct(margin)}</td><td style="color:#64748b;font-size:12px;">15–25% typical</td></tr>
+    <tr><td>Return on Cost</td><td class="r">${pct(roi)}</td><td style="color:#64748b;font-size:12px;">25–35% strong</td></tr>
+    <tr class="hi"><td>IRR (Est.)</td><td class="r">${pct(irrApprox*100)}</td><td style="color:#64748b;font-size:12px;">Target ≥${pct(targetIRR,0)}</td></tr>
+    <tr><td>Equity Required</td><td class="r">${fmt(equity)}</td><td style="color:#64748b;font-size:12px;">= Total Cost × (1 - LTC)</td></tr>
+    <tr><td>Loan Amount</td><td class="r">${fmt(loanAmt)}</td><td style="color:#64748b;font-size:12px;">= Total Cost × LTC%</td></tr>
+    <tr><td>Finance Costs</td><td class="r">${fmt(financeTotal)}</td><td style="color:#64748b;font-size:12px;">Interest + origination fees</td></tr>
+  </tbody>`;
+
+  // ── Sensitivity tables ───────────────────────────────────────
+  const senTable=(rows)=>`<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr>
+    ${Object.keys(rows[0]).map((k,i)=>`<th style="padding:5px 8px;background:#f8fafc;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0;${i>0?'text-align:right;':''}">${k}</th>`).join('')}
+  </tr></thead><tbody>${rows.map((r,i)=>`<tr style="${i===Math.floor(rows.length/2)?'background:#eff6ff;font-weight:600;':''}">${Object.values(r).map((v,j)=>`<td style="padding:5px 8px;border-bottom:1px solid #f8fafc;${j>0?'text-align:right;font-variant-numeric:tabular-nums;':''}">${v}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+
+  const changes=[-20,-10,-5,0,5,10,20];
+  $('priceSens').innerHTML=senTable(changes.map(c=>{
+    const r=grossRev*(1+c/100),pr=r-allCosts;
+    return {'Price Chg':c>0?'+'+c+'%':c+'%','Profit':fmt(pr),'Margin':pct(pr/r*100)};
+  }));
+  $('landSens').innerHTML=senTable(changes.map(c=>{
+    const newLand=lc*(1+c/100),newLC=newLand*(1+closingPct);
+    const newAll=newLC+devTotal+softTotal+financeTotal+transferTax+marketing+totalCarry;
+    const pr=grossRev-newAll;
+    return {'Land Chg':c>0?'+'+c+'%':c+'%','Profit':fmt(pr),'Margin':pct(pr/grossRev*100)};
+  }));
+  const absRates=[2,3,4,5,6,8,10];
+  $('absorptionSens').innerHTML=senTable(absRates.map(a=>{
+    const months=totalLots/a;
+    const intC=loanAmt*iRate*(months/12);
+    const carry=carryCost*months;
+    const newAll=totalCost+loanFees+intC+transferTax+marketing+carry;
+    const pr=grossRev-newAll;
+    return {'Lots/Mo':a,'Months':Math.round(months),'Profit':fmt(pr)};
+  }));
+
+  // ── Phase proforma ────────────────────────────────────────────
+  $('proformaTable').innerHTML=`<thead><tr>
+    <th>Line Item</th>${phases.map(p=>`<th class="r">${p.name} (${Math.round(p.lotPct*100)}%)</th>`).join('')}<th class="r">Total</th>
+  </tr></thead><tbody>
+    <tr class="sec-row"><td colspan="5">Revenue</td></tr>
+    <tr><td style="padding-left:16px;color:#64748b;">Lots Sold</td>${phases.map(p=>`<td class="r">${p.pLots}</td>`).join('')}<td class="r">${totalLots}</td></tr>
+    <tr><td style="padding-left:16px;color:#64748b;">Gross Revenue</td>${phases.map(p=>`<td class="r">${fmt(p.pRev)}</td>`).join('')}<td class="r">${fmt(grossRev)}</td></tr>
+    <tr class="sec-row"><td colspan="5">Costs</td></tr>
+    <tr><td style="padding-left:16px;color:#64748b;">Allocated Costs</td>${phases.map(p=>`<td class="neg">(${fmt(p.pCost)})</td>`).join('')}<td class="neg">(${fmt(allCosts)})</td></tr>
+    <tr class="hi"><td>Phase Profit</td>${phases.map(p=>`<td class="r">${fmt(p.pProfit)}</td>`).join('')}<td class="r">${fmt(profit)}</td></tr>
+    <tr><td style="color:#64748b;">Profit Margin</td>${phases.map(p=>`<td class="r">${pct(p.pProfit/p.pRev*100)}</td>`).join('')}<td class="r">${pct(margin)}</td></tr>
+  </tbody>`;
+
+  // ── Charts ────────────────────────────────────────────────────
+  const co={responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},
+    scales:{y:{ticks:{font:{size:10},callback:v=>'$'+Math.round(v/1000)+'k'},grid:{color:'#f1f5f9'}},
+            x:{ticks:{font:{size:10}},grid:{display:false}}}};
+
+  mkChart('chartPhases',{type:'bar',data:{labels:phases.map(p=>p.name),datasets:[
+    {label:'Revenue',data:phases.map(p=>p.pRev),backgroundColor:'#3b82f6',borderRadius:4},
+    {label:'Costs',data:phases.map(p=>p.pCost),backgroundColor:'#fca5a5',borderRadius:4},
+    {label:'Profit',data:phases.map(p=>p.pProfit),backgroundColor:'#22c55e',borderRadius:4},
+  ]},options:co});
+
+  mkChart('chartCosts',{type:'doughnut',data:{
+    labels:['Land','Development','Soft','Finance','Selling'],
+    datasets:[{data:[landTotal,devTotal,softTotal,financeTotal,transferTax+marketing],
+      backgroundColor:['#ef4444','#f97316','#f59e0b','#8b5cf6','#3b82f6'],borderWidth:0}]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}}}});
+
+  // Absorption: cumulative lots sold over months
+  const totalMonths=Math.ceil(totalLots/(absorption||5));
+  const absMonths=Array.from({length:Math.min(totalMonths,36)},(_, i)=>i+1);
+  const absCum=absMonths.map(m=>Math.min(totalLots,Math.round((absorption||5)*m)));
+  mkChart('chartAbsorption',{type:'line',data:{labels:absMonths.map(m=>'Mo '+m),datasets:[
+    {label:'Cumulative Lots Sold',data:absCum,borderColor:'#0043ce',backgroundColor:'rgba(0,67,206,.07)',fill:true,tension:.3,pointRadius:2}
+  ]},options:{...co,scales:{...co.scales,y:{...co.scales.y,ticks:{...co.scales.y.ticks,callback:v=>v+' lots'}}}}});
+
+  // Cumulative cash flow (simplified: costs up front, revenue spread over months)
+  const cumCF=absMonths.map(m=>{
+    const rev=(Math.min(totalLots,(absorption||5)*m)/totalLots)*grossRev;
+    const cost=allCosts;
+    return rev-cost;
   });
+  mkChart('chartCumulative',{type:'line',data:{labels:absMonths.map(m=>'Mo '+m),datasets:[
+    {label:'Cumulative P&L',data:cumCF,borderColor:cumCF[cumCF.length-1]>=0?'#15803d':'#dc2626',
+     backgroundColor:cumCF[cumCF.length-1]>=0?'rgba(21,128,61,.07)':'rgba(220,38,38,.07)',fill:true,tension:.3,pointRadius:2}
+  ]},options:co});
 }
 
+// ══════════════════════════════════════════════════════════════
+// DEMO — 200-lot subdivision, Loudoun County VA (realistic 2024)
+// ══════════════════════════════════════════════════════════════
+function loadDemo(){
+  // 120 SFD @ $185k | 50 twin @ $130k | 30 SFA @ $110k = $38.3M revenue
+  [['sfdCount',120],['sfdPrice',185000],['sfdEsc',3.5],
+   ['twinCount',50],['twinPrice',130000],['twinEsc',4.0],
+   ['sfaCount',30],['sfaPrice',110000],['sfaEsc',3.0],
+   ['landCost',5800000],['closingCost',3.0],
+   ['onsiteDev',9200000],['offsiteDev',1100000],
+   ['landscaping',650000],['contingency',10.0],
+   ['consulting',380000],['legalFees',220000],['hoaSetup',75000],
+   ['loanToCost',65],['interestRate',8.5],['loanFees',1.5],
+   ['devMonths',26],['transferTax',2.5],
+   ['absorption',6],['marketing',2.5],
+   ['targetIRR',22],['targetMargin',20],
+   ['phase1Pct',40],['phase2Pct',35],['phase3Pct',25],
+   ['carryCost',45000],
+  ].forEach(([id,v])=>{if($(id))$(id).value=v;});
+  livePreview();
+  calculate();
+}
+
+function resetAll(){
+  document.querySelectorAll('.inp').forEach(e=>e.value='');
+  ['metricCards','costStack','revenueWaterfall','returnsTable','proformaTable','priceSens','landSens','absorptionSens'].forEach(id=>{const e=$(id);if(e)e.innerHTML='';});
+  ['loanDisp','totalLotsDisp','grossRevDisp'].forEach(id=>{const e=$(id);if(e)e.textContent='—';});
+  Object.values(CH).forEach(c=>c.destroy());
+  switchTab('inputs',document.querySelectorAll('.tab-btn')[0]);
+}
+
+function exportXLS(){
+  if(!window.XLSX){alert('XLSX not loaded.');return;}
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet([
+    ['REProforma – Land Development'],[''],
+    ['SFD Lots',num('sfdCount')],['SFD Price',num('sfdPrice')],
+    ['Twin Lots',num('twinCount')],['Twin Price',num('twinPrice')],
+    ['SFA Lots',num('sfaCount')],['SFA Price',num('sfaPrice')],
+    ['Land Cost',num('landCost')],['On-Site Dev',num('onsiteDev')],
+    ['Loan-to-Cost',num('loanToCost')+'%'],['Interest Rate',num('interestRate')+'%'],
+  ]);
+  XLSX.utils.book_append_sheet(wb,ws,'Summary');
+  const t=$('proformaTable');if(t){XLSX.utils.book_append_sheet(wb,XLSX.utils.table_to_sheet(t),'Phases');}
+  XLSX.writeFile(wb,'Land_Development_Proforma.xlsx');
+}
+
+livePreview();
 </script>
-  <script>
-    document.getElementById('mob-btn').addEventListener('click',function(){document.getElementById('mob-menu').classList.toggle('hidden');});
-    document.querySelectorAll('.mob-toggle').forEach(function(b){
-      b.addEventListener('click',function(){
-        var s=b.nextElementSibling,a=b.querySelector('.mob-arrow'),open=s.style.display==='block';
-        s.style.display=open?'none':'block';a.style.transform=open?'rotate(0)':'rotate(180deg)';
-      });
-    });
-    function setupDD(wId,mId,bId){
-      var w=document.getElementById(wId),m=document.getElementById(mId),b=document.getElementById(bId);
-      if(!w||!m)return;var t;
-      w.addEventListener('mouseenter',function(){clearTimeout(t);m.classList.add('open');if(b)b.classList.add('open');});
-      w.addEventListener('mouseleave',function(){t=setTimeout(function(){m.classList.remove('open');if(b)b.classList.remove('open');},120);});
-      if(b)b.addEventListener('click',function(e){e.stopPropagation();var o=m.classList.contains('open');closeAll();if(!o){m.classList.add('open');b.classList.add('open');}});
-    }
-    function closeAll(){document.querySelectorAll('.dd-menu').forEach(function(m){m.classList.remove('open');});document.querySelectorAll('.dd-trigger').forEach(function(b){b.classList.remove('open');});}
-    setupDD('ddTools','ddToolsMenu','ddToolsBtn');
-    setupDD('ddMarket','ddMarketMenu','ddMarketBtn');
-    document.addEventListener('click',function(e){if(!e.target.closest('.dd-wrap'))closeAll();});
-  </script>
-        <!-- Scripts -->
-  <script src="main-land.js"></script>
 </body>
 </html>
