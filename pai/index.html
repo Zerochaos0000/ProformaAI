@@ -1,952 +1,617 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Multifamily Acquisition | REProforma</title>
-  <link href="../favicon.png" rel="icon" type="image/png" />
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multifamily Acquisition | REProforma</title>
+<link rel="icon" type="image/png" href="../favicon.png"/>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;margin:0;}
+.inp{width:100%;padding:8px 11px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;color:#1e293b;background:white;outline:none;transition:border-color .15s,box-shadow .15s;}
+.inp:focus{border-color:#0043ce;box-shadow:0 0 0 3px rgba(0,67,206,.08);}
+.card{background:white;border:1px solid #e2e8f0;border-radius:12px;padding:20px;}
+.sec{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#94a3b8;padding-bottom:8px;border-bottom:1px solid #f1f5f9;margin-bottom:14px;}
+.lbl{font-size:11px;font-weight:600;color:#64748b;letter-spacing:.02em;text-transform:uppercase;display:block;margin-bottom:3px;}
+.tab-btn{border-bottom:2px solid transparent;padding:12px 18px;font-size:13px;font-weight:500;color:#64748b;cursor:pointer;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap;transition:color .15s,border-color .15s;}
+.tab-btn.active{color:#0043ce;border-bottom-color:#0043ce;font-weight:600;}
+.tab-panel{display:none;}.tab-panel.active{display:block;}
+.pro-table{width:100%;border-collapse:collapse;font-size:13px;}
+.pro-table th{background:#f8fafc;padding:8px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0;}
+.pro-table td{padding:8px 12px;border-bottom:1px solid #f8fafc;color:#374151;}
+.pro-table tr.hi td{background:#eff6ff;font-weight:700;color:#0043ce;border-top:1px solid #bfdbfe;}
+.pro-table td.r{text-align:right;font-variant-numeric:tabular-nums;}
+.pro-table td.neg{color:#dc2626;text-align:right;}
+.metric{background:white;border:1px solid #e2e8f0;border-radius:10px;padding:16px 18px;}
+.metric-val{font-size:26px;font-weight:700;color:#1e293b;line-height:1;}
+.metric-lbl{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#94a3b8;margin-top:4px;}
+.dd-menu{display:none;position:absolute;left:0;top:100%;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.12);border:1px solid #f1f5f9;z-index:50;min-width:220px;padding:6px 0;}
+.dd-menu.open{display:block;}
+.dd-wrap{position:relative;}
+.dd-trigger{display:flex;align-items:center;gap:4px;font-size:13px;background:none;border:none;cursor:pointer;padding:20px 0;color:#525252;font-family:inherit;}
+.dd-trigger:hover,.dd-trigger.open{color:#0043ce;}
+.dd-trigger.open svg{transform:rotate(180deg);}
+.dd-item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:#374151;text-decoration:none;border-left:2px solid transparent;}
+.dd-item:hover,.dd-item.act{background:#eff6ff;color:#0043ce;border-left-color:#0043ce;}
+.dd-label{padding:6px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;}
+.dd-divider{height:1px;background:#f1f5f9;margin:4px 16px;}
+.mob-sub{display:none;}.mob-sub.open{display:block;}
+@media print{header,.no-print{display:none!important;}}
+</style>
 </head>
-<body class="bg-white text-gray-900 min-h-screen flex flex-col">
+<body>
 
-<!-- Header -->
-  <style>
-    .dd-menu{display:none;position:absolute;left:0;top:100%;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.12);border:1px solid #f1f5f9;z-index:50;min-width:220px;padding:6px 0;}
-    .dd-menu.open{display:block;}
-    .dd-wrap{position:relative;}
-    .dd-trigger{display:flex;align-items:center;gap:4px;font-size:13px;background:none;border:none;cursor:pointer;padding:20px 0;color:#525252;font-family:inherit;}
-    .dd-trigger:hover,.dd-trigger.open{color:#0043ce;}
-    .dd-trigger svg{transition:transform .2s;}
-    .dd-trigger.open svg{transform:rotate(180deg);}
-    .dd-item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:#374151;text-decoration:none;border-left:2px solid transparent;transition:background .1s,color .1s,border-color .1s;}
-    .dd-item:hover,.dd-item.active{background:#eff6ff;color:#0043ce;border-left-color:#0043ce;}
-    .dd-label{padding:6px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;}
-    .dd-divider{height:1px;background:#f1f5f9;margin:4px 16px;}
-    .mob-sub{display:none;}
-    .mob-sub.open{display:block;}
-  </style>
-  <header class="sticky top-0 z-50 bg-white shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
-      <a href="../index.html" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;">
-        <svg width="34" height="34" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
-        <span style="display:flex;align-items:baseline;line-height:1;"><span style="font-size:19px;font-weight:700;color:#0043ce;letter-spacing:-0.3px;">RE</span><span style="font-size:19px;font-weight:300;color:#0043ce;letter-spacing:-0.3px;">Proforma</span></span>
-      </a>
-      <button id="mob-btn" class="md:hidden" style="color:#0043ce;background:none;border:none;cursor:pointer;">
-        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-      </button>
-      <div class="hidden md:flex items-center" style="gap:32px;">
-        <nav class="flex items-center" style="gap:24px;">
-          <a href="../index.html" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">Home</a>
-          <div class="dd-wrap" id="ddTools">
-            <button class="dd-trigger" id="ddToolsBtn" style="color:#0043ce;border-bottom:2px solid #0043ce;font-weight:600;">Tools <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-            <div class="dd-menu" id="ddToolsMenu">
-              <div class="dd-label">Pro Tools</div>
-              <a class="dd-item  active" href="index.html">🏢 Multifamily Acquisition</a>
-              <a class="dd-item" href="index-mixeduse.html">🏬 Commercial &amp; NNN Retail</a>
-              <a class="dd-item" href="index-land.html">🗺️ Land Development</a>
-              <div class="dd-divider"></div>
-              <div class="dd-label">Free Tools</div>
-              <a class="dd-item" href="index-affordability.html">🏠 Home Affordability</a>
-              <a class="dd-item" href="index-rentvsbuy.html">🔄 Rent vs. Buy</a>
-              <a class="dd-item" href="index-mortgage-payoff.html">📅 Mortgage Payoff</a>
-            </div>
-          </div>
-          <div class="dd-wrap" id="ddMarket">
-            <button class="dd-trigger" id="ddMarketBtn">Market Data <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-            <div class="dd-menu" id="ddMarketMenu" style="min-width:200px;">
-              <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank">Market Trends</a>
-              <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank">Research Reports</a>
-              <a class="dd-item" href="https://berkadia.com/properties" target="_blank">Investment Listings</a>
-            </div>
-          </div>
-          <a href="../about.html" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">About</a>
-        </nav>
-        <a href="../about.html" class="px-4 py-2 text-sm font-semibold text-white rounded" style="background:#0043ce;">Let's talk</a>
-      </div>
-    </div>
-    <div id="mob-menu" class="hidden bg-white border-t border-gray-100" style="box-shadow:0 4px 12px rgba(0,0,0,.08);">
-      <div class="px-4 py-3 space-y-1 text-sm">
-        <a href="../index.html" class="block py-2 px-3 rounded" style="color:#525252;font-size:13px;">Home</a>
-        <div>
-          <button class="mob-toggle flex items-center justify-between w-full py-2 px-3 rounded" style="background:#eff6ff;color:#0043ce;border:none;cursor:pointer;font-size:13px;font-family:inherit;font-weight:600;">
-            Tools <svg class="h-4 w-4 mob-arrow" style="transition:transform .2s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-          </button>
-          <div class="mob-sub" style="display:none;padding-left:12px;">
-            <p style="padding:6px 12px 2px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;">Pro Tools</p>
-            <a href="index.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;background:#eff6ff;color:#0043ce;border-color:#0043ce;font-weight:600;">🏢 Multifamily Acquisition</a>
-            <a href="index-mixeduse.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏬 Commercial/Retail</a>
-            <a href="index-land.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🗺️ Land Development</a>
-            <p style="padding:8px 12px 2px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;border-top:1px solid #f1f5f9;margin-top:4px;">Free Tools</p>
-            <a href="index-affordability.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏠 Home Affordability</a>
-            <a href="index-rentvsbuy.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🔄 Rent vs. Buy</a>
-            <a href="index-mortgage-payoff.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">📅 Mortgage Payoff</a>
-          </div>
-        </div>
-        <div>
-          <button class="mob-toggle flex items-center justify-between w-full py-2 px-3 rounded" style="background:none;color:#525252;border:none;cursor:pointer;font-size:13px;font-family:inherit;">
-            Market Data <svg class="h-4 w-4 mob-arrow" style="transition:transform .2s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-          </button>
-          <div class="mob-sub" style="display:none;padding-left:12px;">
-            <a href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank" class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">Market Trends</a>
-            <a href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank" class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">Research Reports</a>
-            <a href="https://berkadia.com/properties" target="_blank" class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">Investment Listings</a>
-          </div>
-        </div>
-        <a href="../about.html" class="block py-2 px-3 rounded" style="color:#525252;font-size:13px;">About</a>
-        <a href="../about.html" class="block mt-2 py-2 text-center font-semibold text-white rounded" style="background:#0043ce;font-size:13px;">Let's talk</a>
-      </div>
-    </div>
-  </header>
-
-<!-- Hero section -->
-<section class="bg-gradient-to-r from-[#EBF5FF] to-white py-12">
-  <div class="max-w-5xl mx-auto px-4">
-    <div class="flex flex-col md:flex-row items-center gap-8">
-      <div class="md:w-3/5">
-        <h1 class="text-4xl font-light leading-tight mb-4 text-[#0056b3]">Multifamily Acquisition</h1>
-        <p class="text-lg text-[#393939] mb-6">Comprehensive financial modeling for multifamily residential property acquisition, cash flow analysis, and investment return projections.</p>
-        <div class="flex flex-wrap gap-4">
-          <button class="px-6 py-3 text-base font-medium bg-[#0056b3] text-white hover:bg-[#004494] transition-colors rounded flex items-center" id="autofillDemo">
-            <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-            </svg>
-            Demo Data
-          </button>
-          <button class="px-6 py-3 text-base font-medium border-2 border-[#0056b3] text-[#0056b3] hover:bg-[#EBF5FF] transition-colors rounded flex items-center" id="resetInputs">
-            <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-            </svg>
-            Reset
-          </button>
+<!-- HEADER -->
+<header class="sticky top-0 z-50 bg-white" style="box-shadow:0 1px 4px rgba(0,0,0,.08);">
+<div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+  <a href="../index.html" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;">
+    <svg width="34" height="34" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
+    <span style="display:flex;align-items:baseline;line-height:1;"><span style="font-size:19px;font-weight:700;color:#0043ce;letter-spacing:-0.3px;">RE</span><span style="font-size:19px;font-weight:300;color:#0043ce;letter-spacing:-0.3px;">Proforma</span></span>
+  </a>
+  <button id="mob-btn" class="md:hidden" style="color:#0043ce;background:none;border:none;cursor:pointer;"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <div class="hidden md:flex items-center" style="gap:28px;">
+    <nav class="flex items-center" style="gap:20px;">
+      <a href="../index.html" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">Home</a>
+      <div class="dd-wrap" id="ddT"><button class="dd-trigger" id="ddTb" style="color:#0043ce;border-bottom:2px solid #0043ce;font-weight:600;">Tools <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="dd-menu" id="ddTm">
+          <div class="dd-label">Pro Tools</div>
+          <a class="dd-item act" href="index.html">🏢 Multifamily Acquisition</a>
+          <a class="dd-item" href="index-mixeduse.html">🏬 Commercial &amp; NNN Retail</a>
+          <a class="dd-item" href="index-land.html">🗺️ Land Development</a>
+          <div class="dd-divider"></div><div class="dd-label">Free Tools</div>
+          <a class="dd-item" href="index-affordability.html">🏠 Home Affordability</a>
+          <a class="dd-item" href="index-rentvsbuy.html">🔄 Rent vs. Buy</a>
+          <a class="dd-item" href="index-mortgage-payoff.html">📅 Mortgage Payoff</a>
         </div>
       </div>
-      <div class="md:w-2/5">
-        <img alt="Multifamily apartment building" class="rounded-lg shadow-lg object-cover h-64 w-full" src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=500&h=400&auto=format&fit=crop" />
+      <div class="dd-wrap" id="ddM"><button class="dd-trigger" id="ddMb">Market Data <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="dd-menu" id="ddMm" style="min-width:200px;">
+          <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank">Market Trends</a>
+          <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank">Research Reports</a>
+          <a class="dd-item" href="https://berkadia.com/properties" target="_blank">Investment Listings</a>
+        </div>
       </div>
-    </div>
-  </div>
-</section>
-
-<!-- Main content -->
-<main class="max-w-7xl mx-auto px-4 flex-grow">
-
-  <!-- Tab Navigation -->
-  <div class="mb-6 border-b border-gray-200 mt-6">
-    <nav class="flex flex-wrap -mb-px">
-      <button class="tab-button mr-2 py-3 px-4 border-b-2 font-medium text-sm border-[#0056b3] text-[#0056b3]" data-tab="input-tab">
-        Input Parameters
-      </button>
-      <button class="tab-button mr-2 py-3 px-4 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="results-tab">
-        Results &amp; Analysis
-      </button>
-      <button class="tab-button mr-2 py-3 px-4 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="charts-tab">
-        Charts &amp; Projections
-      </button>
+      <a href="../about.html" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">About</a>
     </nav>
+    <a href="../about.html" class="px-4 py-2 text-sm font-semibold text-white rounded" style="background:#0043ce;">Let's talk</a>
   </div>
-
-  <!-- ===== INPUT TAB ===== -->
-  <div class="tab-content active" id="input-tab">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-
-      <!-- Unit Mix & Rents -->
-      <div class="space-y-6">
-        <section class="pro-card bg-white p-6">
-          <div class="flex items-center mb-6">
-            <div class="h-10 w-10 rounded-full bg-[#EBF5FF] flex items-center justify-center mr-3">
-              <svg class="h-5 w-5 text-[#0056b3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-              </svg>
-            </div>
-            <h2 class="text-lg font-medium text-[#393939]">Unit Mix &amp; Monthly Rents</h2>
-          </div>
-          <div class="space-y-4">
-            <div class="border-b pb-4">
-              <h3 class="font-medium text-[#4B5563] mb-3">1-Bedroom Units</h3>
-              <div class="space-y-3">
-                <label class="block">
-                  <span class="text-[#4B5563] text-sm">Number of Units</span>
-                  <input class="input mt-1" id="oneBedUnits" placeholder="0" type="number" />
-                </label>
-                <label class="block">
-                  <span class="text-[#4B5563] text-sm">Monthly Rent ($)</span>
-                  <input class="input mt-1" id="rent1Bed" placeholder="0" type="number" />
-                </label>
-              </div>
-            </div>
-            <div class="border-b pb-4">
-              <h3 class="font-medium text-[#4B5563] mb-3">2-Bedroom Units</h3>
-              <div class="space-y-3">
-                <label class="block">
-                  <span class="text-[#4B5563] text-sm">Number of Units</span>
-                  <input class="input mt-1" id="twoBedUnits" placeholder="0" type="number" />
-                </label>
-                <label class="block">
-                  <span class="text-[#4B5563] text-sm">Monthly Rent ($)</span>
-                  <input class="input mt-1" id="rent2Bed" placeholder="0" type="number" />
-                </label>
-              </div>
-            </div>
-            <div>
-              <h3 class="font-medium text-[#4B5563] mb-3">3-Bedroom Units</h3>
-              <div class="space-y-3">
-                <label class="block">
-                  <span class="text-[#4B5563] text-sm">Number of Units</span>
-                  <input class="input mt-1" id="threeBedUnits" placeholder="0" type="number" />
-                </label>
-                <label class="block">
-                  <span class="text-[#4B5563] text-sm">Monthly Rent ($)</span>
-                  <input class="input mt-1" id="rent3Bed" placeholder="0" type="number" />
-                </label>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <!-- Other Income & Vacancy -->
-      <div class="space-y-6">
-        <section class="pro-card bg-white p-6">
-          <div class="flex items-center mb-6">
-            <div class="h-10 w-10 rounded-full bg-[#e0f2fe] flex items-center justify-center mr-3">
-              <svg class="h-5 w-5 text-[#0056b3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-              </svg>
-            </div>
-            <h2 class="text-lg font-medium text-[#393939]">Other Income &amp; Vacancy</h2>
-          </div>
-          <div class="space-y-3">
-            <label class="block">
-              <span class="text-[#4B5563] text-sm">Other Income ($/yr)</span>
-              <input class="input mt-1" id="otherIncome" placeholder="0" type="number" />
-            </label>
-            <label class="block">
-              <span class="text-[#4B5563] text-sm">Vacancy Rate (%)</span>
-              <input class="input mt-1" id="vacancyRate" placeholder="0.0" step="0.1" type="number" />
-            </label>
-          </div>
-        </section>
-      </div>
-
-      <!-- Operating Expenses -->
-      <div class="space-y-6">
-        <section class="pro-card bg-white p-6">
-          <div class="flex items-center mb-6">
-            <div class="h-10 w-10 rounded-full bg-[#d0e2ff] flex items-center justify-center mr-3">
-              <svg class="h-5 w-5 text-[#0056b3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-              </svg>
-            </div>
-            <h2 class="text-lg font-medium text-[#393939]">Operating Expenses (Annual)</h2>
-          </div>
-          <div class="space-y-3">
-            <label class="block">
-              <span class="text-[#4B5563] text-sm">Property Taxes ($)</span>
-              <input class="input mt-1" id="propertyTaxes" placeholder="0" type="number" />
-            </label>
-            <label class="block">
-              <span class="text-[#4B5563] text-sm">Insurance ($)</span>
-              <input class="input mt-1" id="insurance" placeholder="0" type="number" />
-            </label>
-            <label class="block">
-              <span class="text-[#4B5563] text-sm">Utilities ($)</span>
-              <input class="input mt-1" id="utilities" placeholder="0" type="number" />
-            </label>
-            <label class="block">
-              <span class="text-[#4B5563] text-sm">Maintenance ($)</span>
-              <input class="input mt-1" id="maintenance" placeholder="0" type="number" />
-            </label>
-            <label class="block">
-              <span class="text-[#4B5563] text-sm">Management ($)</span>
-              <input class="input mt-1" id="management" placeholder="0" type="number" />
-            </label>
-            <label class="block">
-              <span class="text-[#4B5563] text-sm">Supplies ($)</span>
-              <input class="input mt-1" id="supplies" placeholder="0" type="number" />
-            </label>
-            <label class="block">
-              <span class="text-[#4B5563] text-sm">Staff ($)</span>
-              <input class="input mt-1" id="staff" placeholder="0" type="number" />
-            </label>
-            <label class="block">
-              <span class="text-[#4B5563] text-sm">Misc &amp; Reserves ($)</span>
-              <input class="input mt-1" id="misc" placeholder="0" type="number" />
-            </label>
-          </div>
-        </section>
-      </div>
-
-      <!-- Acquisition & Loan -->
-      <div class="space-y-6">
-        <section class="pro-card bg-white p-6">
-          <div class="flex items-center mb-6">
-            <div class="h-10 w-10 rounded-full bg-[#fcf4e8] flex items-center justify-center mr-3">
-              <svg class="h-5 w-5 text-[#B54708]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-              </svg>
-            </div>
-            <h2 class="text-lg font-medium text-[#393939]">Acquisition &amp; Loan Details</h2>
-          </div>
-          <div class="space-y-3">
-            <label class="block">
-              <span class="text-[#4B5563] text-sm">Purchase Price ($)</span>
-              <input class="input mt-1" id="purchasePrice" placeholder="0" type="number" />
-            </label>
-            <label class="block">
-              <span class="text-[#4B5563] text-sm">Loan Amount ($)</span>
-              <input class="input mt-1" id="loanAmount" placeholder="0" type="number" />
-            </label>
-            <label class="block">
-              <span class="text-[#4B5563] text-sm">Interest Rate (%)</span>
-              <input class="input mt-1" id="interestRate" placeholder="0.00" step="0.01" type="number" />
-            </label>
-            <label class="block">
-              <span class="text-[#4B5563] text-sm">Loan Term (Years)</span>
-              <input class="input mt-1" id="loanTerm" placeholder="0" type="number" />
-            </label>
-          </div>
-        </section>
-      </div>
-
-    </div><!-- end grid -->
-
-    <!-- Calculate Button -->
-    <div class="flex justify-center mt-8 mb-4">
-      <button class="bg-[#0056b3] hover:bg-[#004494] text-white font-medium px-8 py-3 rounded transition flex items-center text-lg shadow" id="calculate">
-        <svg class="h-6 w-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-        </svg>
-        Calculate Proforma
-      </button>
-    </div>
-
-    <div class="w-full max-w-7xl mx-auto px-4">
-      <hr class="my-12 border-t-2 border-gray-300" />
-    </div>
-  </div><!-- end input-tab -->
-
-  <!-- ===== RESULTS TAB ===== -->
-  <div class="tab-content" id="results-tab">
-    <div class="pro-card bg-white p-6 mb-6">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-medium text-[#393939]">Proforma Summary</h2>
-        <div class="flex space-x-3">
-          <button class="px-4 py-2 font-medium bg-[#262626] text-white hover:bg-black transition-colors rounded flex items-center" id="exportPdf">
-            <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-            </svg>
-            Export PDF
-          </button>
-          <button class="px-4 py-2 font-medium bg-[#166534] text-white hover:bg-[#14532d] transition-colors rounded flex items-center" id="exportXls">
-            <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-            </svg>
-            Export Excel
-          </button>
-        </div>
-      </div>
-
-      <!-- Summary Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6" id="summary-cards">
-        <!-- Populated by JS -->
-      </div>
-
-      <!-- Detailed Results Table -->
-      <div class="mt-8" id="results">
-        <!-- Populated by JS -->
+</div>
+<!-- Mobile nav -->
+<div id="mob-menu" class="hidden bg-white border-t border-gray-100" style="box-shadow:0 4px 12px rgba(0,0,0,.08);">
+  <div class="px-4 py-3 space-y-1 text-sm">
+    <a href="../index.html" class="block py-2 px-3 rounded" style="color:#525252;font-size:13px;">Home</a>
+    <div><button class="mob-toggle flex items-center justify-between w-full py-2 px-3 rounded" style="background:#eff6ff;color:#0043ce;border:none;cursor:pointer;font-size:13px;font-family:inherit;font-weight:600;">Tools <svg class="h-4 w-4 mob-arrow" style="transition:transform .2s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>
+      <div class="mob-sub" style="display:none;padding-left:12px;">
+        <p style="padding:6px 12px 2px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;">Pro Tools</p>
+        <a href="index.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;background:#eff6ff;color:#0043ce;border-color:#0043ce;font-weight:600;">🏢 Multifamily Acquisition</a>
+        <a href="index-mixeduse.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏬 Commercial/Retail</a>
+        <a href="index-land.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🗺️ Land Development</a>
+        <p style="padding:8px 12px 2px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;border-top:1px solid #f1f5f9;margin-top:4px;">Free Tools</p>
+        <a href="index-affordability.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏠 Home Affordability</a>
+        <a href="index-rentvsbuy.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🔄 Rent vs. Buy</a>
+        <a href="index-mortgage-payoff.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">📅 Mortgage Payoff</a>
       </div>
     </div>
-
-    <!-- Investment Metric Definitions -->
-    <div class="pro-card bg-white p-6 mb-6">
-      <div class="flex items-center mb-6">
-        <div class="h-10 w-10 rounded-full bg-[#F0F9FF] flex items-center justify-center mr-3">
-          <svg class="h-5 w-5 text-[#0284C7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-          </svg>
-        </div>
-        <h2 class="text-lg font-medium text-[#393939]">📘 Investment Metric Definitions</h2>
-      </div>
-      <ul class="space-y-3 text-[#4B5563] text-sm pl-2">
-        <li><strong class="text-[#393939]">Cash-on-Cash Return:</strong> Annual cash flow before taxes divided by your initial cash investment (equity). Indicates how efficiently your money is working year-to-year.</li>
-        <li><strong class="text-[#393939]">Cap Rate:</strong> Net Operating Income (NOI) divided by the purchase price. Shows property income potential, useful for comparing properties.</li>
-        <li><strong class="text-[#393939]">Estimated IRR:</strong> The average annual return over time, including cash flow and sale proceeds, adjusted for time value of money.</li>
-      </ul>
-    </div>
-
-    <!-- Cash-on-Cash Quality Table -->
-    <div class="pro-card bg-white p-6 mb-6">
-      <div class="flex items-center mb-6">
-        <div class="h-10 w-10 rounded-full bg-[#EBF5FF] flex items-center justify-center mr-3">
-          <svg class="h-5 w-5 text-[#0056b3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-          </svg>
-        </div>
-        <h2 class="text-lg font-medium text-[#393939]">📈 What Is a Good Cash-on-Cash Return?</h2>
-      </div>
-      <div class="bg-[#f9fafb] rounded p-4">
-        <table class="w-full text-sm text-left text-[#4B5563]">
-          <thead class="bg-gray-100">
-            <tr>
-              <th class="p-2 border-b font-semibold text-[#393939]">Return</th>
-              <th class="p-2 border-b font-semibold text-[#393939]">Quality</th>
-              <th class="p-2 border-b font-semibold text-[#393939]">Typical Deal Type</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td class="p-2 border-b">&lt;8%</td><td class="p-2 border-b text-red-600 font-semibold">❌ Weak</td><td class="p-2 border-b">Overpriced core assets, low yield</td></tr>
-            <tr><td class="p-2 border-b">8–10%</td><td class="p-2 border-b text-yellow-500 font-semibold">🟡 Average</td><td class="p-2 border-b">Stabilized multifamily in primary markets</td></tr>
-            <tr><td class="p-2 border-b">10–12%</td><td class="p-2 border-b text-green-500 font-semibold">🟢 Strong</td><td class="p-2 border-b">Value-add or mixed-use in secondary markets</td></tr>
-            <tr><td class="p-2 border-b">12–15%</td><td class="p-2 border-b text-green-600 font-semibold">🟢 Very Strong</td><td class="p-2 border-b">Opportunistic or repositioning deals</td></tr>
-            <tr><td class="p-2">15%+</td><td class="p-2 text-red-500 font-semibold">🔴 High Risk</td><td class="p-2">Ground-up development, distressed assets</td></tr>
-          </tbody>
-        </table>
+    <div><button class="mob-toggle flex items-center justify-between w-full py-2 px-3 rounded" style="background:none;color:#525252;border:none;cursor:pointer;font-size:13px;font-family:inherit;">Market Data <svg class="h-4 w-4 mob-arrow" style="transition:transform .2s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>
+      <div class="mob-sub" style="display:none;padding-left:12px;">
+        <a href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank" class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">Market Trends</a>
+        <a href="https://berkadia.com/properties" target="_blank" class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">Investment Listings</a>
       </div>
     </div>
-
-    <!-- 5-Year Projection -->
-    <div class="pro-card bg-white p-6 mb-6">
-      <div class="flex items-center mb-6">
-        <div class="h-10 w-10 rounded-full bg-[#EBF5FF] flex items-center justify-center mr-3">
-          <svg class="h-5 w-5 text-[#0056b3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-          </svg>
-        </div>
-        <h2 class="text-lg font-medium text-[#393939]">5-Year Proforma Projection</h2>
-      </div>
-      <div class="bg-[#f9fafb] rounded p-4" id="fiveYearTable">
-        <!-- Populated by JS -->
-      </div>
-    </div>
-  </div><!-- end results-tab -->
-
-  <!-- ===== CHARTS TAB ===== -->
-  <div class="tab-content" id="charts-tab">
-    <div class="pro-card bg-white p-6 mb-6">
-      <h2 class="text-2xl font-bold text-[#393939] mb-6">Financial Projections</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-        <div class="bg-[#f9fafb] rounded p-6 h-80">
-          <h3 class="font-semibold text-[#4B5563] mb-4">Income Overview</h3>
-          <canvas class="w-full h-full" id="incomeChart"></canvas>
-        </div>
-        <div class="bg-[#f9fafb] rounded p-6 h-80">
-          <h3 class="font-semibold text-[#4B5563] mb-4">Expenses Breakdown</h3>
-          <canvas class="w-full h-full" id="expenseChart"></canvas>
-        </div>
-      </div>
-    </div>
-  </div><!-- end charts-tab -->
-
-</main>
-
-<!-- CTA Section -->
-<section class="bg-[#0043ce] py-16 text-white">
-  <div class="max-w-5xl mx-auto px-4 text-center">
-    <h2 class="text-3xl font-light mb-6">Ready to optimize your real estate investment strategy?</h2>
-    <p class="text-xl opacity-90 mb-8 max-w-3xl mx-auto">Join thousands of investors using our proforma tools to make better decisions and maximize returns.</p>
-    <div class="flex flex-wrap justify-center gap-4">
-      <a class="btn-primary bg-white text-[#0056b3] hover:bg-[#e0e0e0] px-6 py-3 font-medium rounded border border-transparent transition" href="#">Get started today</a>
-      <a class="btn-secondary text-white border-white hover:bg-[#004494] px-6 py-3 font-medium rounded border transition" href="#">Schedule a demo</a>
-    </div>
+    <a href="../about.html" class="block py-2 px-3 rounded" style="color:#525252;font-size:13px;">About</a>
+    <a href="../about.html" class="block mt-2 py-2 text-center font-semibold text-white rounded" style="background:#0043ce;font-size:13px;">Let's talk</a>
   </div>
+</div>
+</header>
+
+<!-- HERO -->
+<section class="bg-gradient-to-r from-blue-50 to-white border-b border-gray-200 py-8">
+<div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+  <div>
+    <div class="flex items-center gap-2 mb-2">
+      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold" style="background:#dbeafe;color:#1d4ed8;">Pro Tool</span>
+      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold" style="background:#dcfce7;color:#166534;">Multifamily</span>
+    </div>
+    <h1 class="text-2xl font-bold" style="color:#1e293b;">Multifamily Acquisition Proforma</h1>
+    <p class="text-sm mt-1" style="color:#64748b;">Real-world cash flow, NOI, cap rate, and IRR analysis for apartment acquisitions.</p>
+  </div>
+  <div class="flex gap-2 no-print flex-wrap">
+    <button onclick="loadDemo()" class="px-4 py-2 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer">📋 Demo Deal (72-Unit Apt)</button>
+    <button onclick="resetAll()" class="px-4 py-2 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer">↺ Reset</button>
+    <button onclick="exportXLS()" class="px-4 py-2 text-sm font-semibold text-white rounded cursor-pointer" style="background:#166534;">⬇ Excel</button>
+    <button onclick="window.print()" class="px-4 py-2 text-sm font-semibold text-white rounded cursor-pointer" style="background:#1e293b;">🖨 PDF</button>
+  </div>
+</div>
 </section>
 
-<!-- Footer -->
-  <footer class="py-14 text-white" style="background:#0f172a;">
-    <div class="max-w-7xl mx-auto px-4">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
-        <div>
-          <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;">
-            <svg width="28" height="28" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
-            <span style="font-size:16px;font-weight:700;color:white;">RE<span style="font-weight:300;">Proforma</span></span>
-          </div>
-          <p class="text-sm text-gray-400 mb-4">Advanced analytics for real estate investment professionals.</p>
-          <div class="flex space-x-3">
-            <a href="#" class="text-gray-400 hover:text-white"><svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg></a>
-            <a href="#" class="text-gray-400 hover:text-white"><svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a>
-          </div>
-        </div>
-        <div>
-          <h4 class="text-sm font-semibold mb-3">Tools</h4>
-          <p class="text-xs uppercase tracking-widest text-gray-500 mb-2">Pro</p>
-          <ul class="space-y-2 text-sm text-gray-400 mb-3">
-            <li><a href="index.html" class="hover:text-white">Multifamily Acquisition</a></li>
-            <li><a href="index-mixeduse.html" class="hover:text-white">Commercial &amp; NNN Retail</a></li>
-            <li><a href="index-land.html" class="hover:text-white">Land Development</a></li>
-          </ul>
-          <p class="text-xs uppercase tracking-widest text-gray-500 mb-2 border-t border-gray-800 pt-2">Free</p>
-          <ul class="space-y-2 text-sm text-gray-400">
-            <li><a href="index-affordability.html" class="hover:text-white">🏠 Home Affordability</a></li>
-            <li><a href="index-rentvsbuy.html" class="hover:text-white">🔄 Rent vs. Buy</a></li>
-            <li><a href="index-mortgage-payoff.html" class="hover:text-white">📅 Mortgage Payoff</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="text-sm font-semibold mb-3">Resources</h4>
-          <ul class="space-y-2 text-sm text-gray-400">
-            <li><a href="#" class="hover:text-white">Market Reports</a></li>
-            <li><a href="#" class="hover:text-white">Investment Guide</a></li>
-            <li><a href="#" class="hover:text-white">Case Studies</a></li>
-            <li><a href="#" class="hover:text-white">Blog</a></li>
-            <li><a href="#" class="hover:text-white">Support</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="text-sm font-semibold mb-3">Subscribe</h4>
-          <p class="text-sm text-gray-400 mb-3">Get the latest real estate investment insights.</p>
-          <div class="flex">
-            <input type="email" placeholder="Enter your email" class="px-3 py-2 rounded-l w-full text-sm text-gray-900 focus:outline-none"/>
-            <button class="px-4 py-2 rounded-r text-sm text-white font-semibold" style="background:#0056b3;">Go</button>
-          </div>
-        </div>
+<!-- TABS -->
+<div class="bg-white border-b border-gray-200 no-print" style="overflow-x:auto;">
+  <div class="max-w-7xl mx-auto px-4 flex">
+    <button class="tab-btn active" onclick="switchTab('inputs',this)">📥 Input Parameters</button>
+    <button class="tab-btn" onclick="switchTab('results',this)">📊 Results &amp; Analysis</button>
+    <button class="tab-btn" onclick="switchTab('proforma',this)">📋 5-Year Proforma</button>
+    <button class="tab-btn" onclick="switchTab('charts',this)">📈 Charts</button>
+  </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 py-6">
+
+<!-- ══ INPUTS ══ -->
+<div id="tab-inputs" class="tab-panel active">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+
+    <!-- Unit Mix -->
+    <div class="card">
+      <p class="sec">🏠 Unit Mix &amp; Monthly Rents</p>
+      <div style="border-bottom:1px solid #f1f5f9;padding-bottom:12px;margin-bottom:12px;">
+        <p class="text-xs font-semibold text-gray-500 mb-2">1-Bedroom Units</p>
+        <div class="mb-2"><label class="lbl"># Units</label><input class="inp" id="oneBedUnits" type="number" placeholder="0"></div>
+        <div><label class="lbl">Monthly Rent ($)</label><input class="inp" id="rent1Bed" type="number" placeholder="0"></div>
       </div>
-      <div class="pt-6 border-t border-gray-800 flex flex-col md:flex-row justify-between text-sm text-gray-500">
-        <p>&copy; 2025 REProforma. All rights reserved.</p>
-        <div class="flex gap-5 mt-3 md:mt-0">
-          <a href="../privacy.html" class="hover:text-white">Privacy Policy</a>
-          <a href="../terms.html" class="hover:text-white">Terms of Service</a>
-        </div>
+      <div style="border-bottom:1px solid #f1f5f9;padding-bottom:12px;margin-bottom:12px;">
+        <p class="text-xs font-semibold text-gray-500 mb-2">2-Bedroom Units</p>
+        <div class="mb-2"><label class="lbl"># Units</label><input class="inp" id="twoBedUnits" type="number" placeholder="0"></div>
+        <div><label class="lbl">Monthly Rent ($)</label><input class="inp" id="rent2Bed" type="number" placeholder="0"></div>
+      </div>
+      <div>
+        <p class="text-xs font-semibold text-gray-500 mb-2">3-Bedroom Units</p>
+        <div class="mb-2"><label class="lbl"># Units</label><input class="inp" id="threeBedUnits" type="number" placeholder="0"></div>
+        <div><label class="lbl">Monthly Rent ($)</label><input class="inp" id="rent3Bed" type="number" placeholder="0"></div>
       </div>
     </div>
-  </footer>
 
+    <!-- Income & Vacancy -->
+    <div class="card">
+      <p class="sec">💰 Income &amp; Vacancy</p>
+      <div class="mb-3"><label class="lbl">Other Income ($/yr) <span style="color:#94a3b8;font-size:10px;font-weight:400;text-transform:none;">laundry, parking, etc.</span></label><input class="inp" id="otherIncome" type="number" placeholder="0"></div>
+      <div class="mb-3"><label class="lbl">Vacancy Rate (%)</label><input class="inp" id="vacancyRate" type="number" step="0.1" placeholder="5.0"></div>
+      <div class="mb-3"><label class="lbl">Annual Rent Growth (%)</label><input class="inp" id="rentGrowth" type="number" step="0.1" placeholder="2.0"></div>
+      <div class="mb-3"><label class="lbl">Annual Expense Growth (%)</label><input class="inp" id="expGrowth" type="number" step="0.1" placeholder="2.5"></div>
+      <div class="mb-3"><label class="lbl">Hold Period (Years)</label><input class="inp" id="holdPeriod" type="number" placeholder="5"></div>
+      <div><label class="lbl">Exit Cap Rate (%)</label><input class="inp" id="exitCap" type="number" step="0.01" placeholder="5.5"></div>
+    </div>
 
+    <!-- Operating Expenses -->
+    <div class="card">
+      <p class="sec">📋 Operating Expenses (Annual)</p>
+      <div class="mb-3"><label class="lbl">Property Taxes ($)</label><input class="inp" id="propertyTaxes" type="number" placeholder="0"></div>
+      <div class="mb-3"><label class="lbl">Insurance ($)</label><input class="inp" id="insurance" type="number" placeholder="0"></div>
+      <div class="mb-3"><label class="lbl">Utilities ($)</label><input class="inp" id="utilities" type="number" placeholder="0"></div>
+      <div class="mb-3"><label class="lbl">Repairs &amp; Maintenance ($)</label><input class="inp" id="maintenance" type="number" placeholder="0"></div>
+      <div class="mb-3"><label class="lbl">Property Management ($)</label><input class="inp" id="management" type="number" placeholder="0"></div>
+      <div class="mb-3"><label class="lbl">Payroll / Staff ($)</label><input class="inp" id="staff" type="number" placeholder="0"></div>
+      <div class="mb-3"><label class="lbl">Supplies ($)</label><input class="inp" id="supplies" type="number" placeholder="0"></div>
+      <div><label class="lbl">Reserves &amp; Misc ($)</label><input class="inp" id="misc" type="number" placeholder="0"></div>
+    </div>
+
+    <!-- Acquisition & Financing -->
+    <div class="card">
+      <p class="sec">🏦 Acquisition &amp; Financing</p>
+      <div class="mb-3"><label class="lbl">Purchase Price ($)</label><input class="inp" id="purchasePrice" type="number" placeholder="0"></div>
+      <div class="mb-3"><label class="lbl">Loan Amount ($)</label><input class="inp" id="loanAmount" type="number" placeholder="0"></div>
+      <div class="mb-3"><label class="lbl">Interest Rate (%)</label><input class="inp" id="interestRate" type="number" step="0.01" placeholder="0.00"></div>
+      <div class="mb-3"><label class="lbl">Loan Term (Years)</label><input class="inp" id="loanTerm" type="number" placeholder="25"></div>
+      <div class="mb-3"><label class="lbl">Closing Costs (%)</label><input class="inp" id="closingCostPct" type="number" step="0.1" placeholder="1.5"></div>
+      <!-- Live loan preview -->
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;margin-top:8px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;"><span style="color:#64748b;">Equity Required</span><span id="equityDisp" style="font-weight:600;">—</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;"><span style="color:#64748b;">LTV</span><span id="ltvDisp" style="font-weight:600;">—</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;"><span style="color:#64748b;">Monthly Payment</span><span id="monthlyDisp" style="font-weight:600;">—</span></div>
+      </div>
+
+      <button onclick="calculate()" class="w-full mt-4 py-3 text-base font-semibold text-white rounded-lg cursor-pointer no-print" style="background:#0043ce;border:none;">Calculate Proforma →</button>
+    </div>
+  </div>
+</div><!-- /inputs -->
+
+<!-- ══ RESULTS ══ -->
+<div id="tab-results" class="tab-panel">
+  <!-- Summary metric cards -->
+  <div id="metricCards" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6"></div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+    <!-- Cash flow waterfall -->
+    <div class="card">
+      <p class="sec">Year 1 Cash Flow Waterfall</p>
+      <div id="waterfallDiv"></div>
+    </div>
+    <!-- Investment quality -->
+    <div class="card">
+      <p class="sec">Deal Quality Assessment</p>
+      <div id="dealQuality"></div>
+    </div>
+  </div>
+
+  <!-- Returns table -->
+  <div class="card mb-5">
+    <p class="sec">Full Return Analysis</p>
+    <div class="overflow-x-auto"><table class="pro-table" id="returnsTable"></table></div>
+  </div>
+
+  <!-- Metric definitions -->
+  <div class="card">
+    <p class="sec">📘 Metric Definitions</p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm" style="color:#64748b;">
+      <div><strong style="color:#1e293b;">Cap Rate</strong> — NOI ÷ Purchase Price. Measures property yield before financing. 5–7% is typical for stabilized multifamily.</div>
+      <div><strong style="color:#1e293b;">Cash-on-Cash Return</strong> — Annual levered cash flow ÷ equity invested. Shows your cash yield on actual dollars deployed.</div>
+      <div><strong style="color:#1e293b;">IRR</strong> — Internal rate of return over the full hold period including sale. The most complete return metric. Target 12–18% for value-add.</div>
+    </div>
+  </div>
+</div><!-- /results -->
+
+<!-- ══ PROFORMA ══ -->
+<div id="tab-proforma" class="tab-panel">
+  <div class="card overflow-x-auto">
+    <p class="sec">5-Year Annual Proforma</p>
+    <table class="pro-table" id="proformaTable">
+      <tbody><tr><td class="py-12 text-center" style="color:#94a3b8;" colspan="7">Run the calculator to see your 5-year proforma.</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ CHARTS ══ -->
+<div id="tab-charts" class="tab-panel">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <div class="card"><p class="sec">NOI vs. Debt Service</p><div style="position:relative;height:240px;"><canvas id="chartNOI"></canvas></div></div>
+    <div class="card"><p class="sec">Income vs. Expenses Breakdown</p><div style="position:relative;height:240px;"><canvas id="chartBreakdown"></canvas></div></div>
+    <div class="card"><p class="sec">Cumulative Cash Flow</p><div style="position:relative;height:240px;"><canvas id="chartCumulative"></canvas></div></div>
+    <div class="card"><p class="sec">Equity Build Over Hold Period</p><div style="position:relative;height:240px;"><canvas id="chartEquity"></canvas></div></div>
+  </div>
+</div>
+
+</div><!-- /max-w -->
+
+<!-- FOOTER -->
+<footer class="py-14 text-white" style="background:#0f172a;">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
+      <div>
+        <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;">
+          <svg width="28" height="28" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
+          <span style="font-size:15px;font-weight:700;color:white;">RE<span style="font-weight:300;">Proforma</span></span>
+        </div>
+        <p class="text-sm text-gray-400">Advanced analytics for real estate investment professionals.</p>
+      </div>
+      <div>
+        <h4 class="text-sm font-semibold mb-3">Tools</h4>
+        <p class="text-xs uppercase tracking-widest text-gray-500 mb-2">Pro</p>
+        <ul class="space-y-2 text-sm text-gray-400 mb-3">
+          <li><a href="index.html" class="hover:text-white">Multifamily Acquisition</a></li>
+          <li><a href="index-mixeduse.html" class="hover:text-white">Commercial &amp; NNN Retail</a></li>
+          <li><a href="index-land.html" class="hover:text-white">Land Development</a></li>
+        </ul>
+        <p class="text-xs uppercase tracking-widest text-gray-500 mb-2 pt-2" style="border-top:1px solid #1e293b;">Free</p>
+        <ul class="space-y-2 text-sm text-gray-400">
+          <li><a href="index-affordability.html" class="hover:text-white">🏠 Home Affordability</a></li>
+          <li><a href="index-rentvsbuy.html" class="hover:text-white">🔄 Rent vs. Buy</a></li>
+          <li><a href="index-mortgage-payoff.html" class="hover:text-white">📅 Mortgage Payoff</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-sm font-semibold mb-3">Resources</h4>
+        <ul class="space-y-2 text-sm text-gray-400">
+          <li><a href="#" class="hover:text-white">Market Reports</a></li>
+          <li><a href="#" class="hover:text-white">Investment Guide</a></li>
+          <li><a href="#" class="hover:text-white">Case Studies</a></li>
+          <li><a href="#" class="hover:text-white">Support</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-sm font-semibold mb-3">Subscribe</h4>
+        <p class="text-sm text-gray-400 mb-3">Latest real estate insights.</p>
+        <div class="flex"><input type="email" placeholder="Enter your email" style="padding:8px 12px;border-radius:6px 0 0 6px;border:none;font-size:13px;width:100%;outline:none;"/><button style="padding:8px 14px;background:#0056b3;color:white;border:none;border-radius:0 6px 6px 0;font-size:13px;font-weight:600;cursor:pointer;">Go</button></div>
+      </div>
+    </div>
+    <div class="pt-6 flex flex-col md:flex-row justify-between text-sm text-gray-500" style="border-top:1px solid #1e293b;">
+      <p>&copy; 2025 REProforma. All rights reserved.</p>
+      <div class="flex gap-5 mt-3 md:mt-0"><a href="../privacy.html" class="hover:text-white">Privacy Policy</a><a href="../terms.html" class="hover:text-white">Terms of Service</a></div>
+    </div>
+  </div>
+</footer>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+// ── Helpers ──────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const num = id => parseFloat($(id)?.value) || 0;
+const fmt = v => isNaN(v)||!isFinite(v)?'—':'$'+Math.round(v).toLocaleString();
+const pct = (v,d=2) => isNaN(v)||!isFinite(v)?'—':v.toFixed(d)+'%';
 
-  // ─── Tab Switching ──────────────────────────────────────────────
-  document.querySelectorAll('.tab-button').forEach(button => {
-    button.addEventListener('click', () => {
-      const target = button.getAttribute('data-tab');
-      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-      document.getElementById(target).classList.add('active');
-      document.querySelectorAll('.tab-button').forEach(btn => {
-        btn.classList.remove('border-[#0056b3]', 'text-[#0056b3]');
-        btn.classList.add('border-transparent', 'text-gray-500');
-      });
-      button.classList.remove('border-transparent', 'text-gray-500');
-      button.classList.add('border-[#0056b3]', 'text-[#0056b3]');
+// ── Tab switching ─────────────────────────────────────────────
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  $('tab-'+name).classList.add('active');
+}
 
-      if (target === 'charts-tab') {
-        renderCharts(_lastEgi, _lastNoi, _lastExpenses);
-      }
-    });
+// ── Nav dropdowns ─────────────────────────────────────────────
+$('mob-btn').addEventListener('click',()=>$('mob-menu').classList.toggle('hidden'));
+document.querySelectorAll('.mob-toggle').forEach(b=>{
+  b.addEventListener('click',()=>{
+    const s=b.nextElementSibling,a=b.querySelector('.mob-arrow'),o=s.style.display==='block';
+    s.style.display=o?'none':'block';a.style.transform=o?'':'rotate(180deg)';
   });
+});
+function setupDD(wId,mId,bId){
+  const w=$(wId),m=$(mId),b=$(bId);if(!w||!m)return;let t;
+  w.addEventListener('mouseenter',()=>{clearTimeout(t);m.classList.add('open');b&&b.classList.add('open');});
+  w.addEventListener('mouseleave',()=>{t=setTimeout(()=>{m.classList.remove('open');b&&b.classList.remove('open');},120);});
+  b&&b.addEventListener('click',e=>{e.stopPropagation();const o=m.classList.contains('open');closeAll();if(!o){m.classList.add('open');b.classList.add('open');}});
+}
+function closeAll(){document.querySelectorAll('.dd-menu').forEach(m=>m.classList.remove('open'));document.querySelectorAll('.dd-trigger').forEach(b=>b.classList.remove('open'));}
+setupDD('ddT','ddTm','ddTb');setupDD('ddM','ddMm','ddMb');
+document.addEventListener('click',e=>{if(!e.target.closest('.dd-wrap'))closeAll();});
 
-  // Mobile menu toggle
-  const mobileMenuBtn = document.getElementById('__noop__');
-  const mobileMenu = document.getElementById('mobile-menu');
-  if (mobileMenuBtn && mobileMenu) {
-    mobileMenuBtn.addEventListener('click', () => {
-      mobileMenu.classList.toggle('hidden');
-    });
+// ── Live preview ──────────────────────────────────────────────
+function livePreview(){
+  const price=num('purchasePrice'),loan=num('loanAmount'),rate=num('interestRate'),term=num('loanTerm');
+  if(price&&loan){
+    $('equityDisp').textContent=fmt(price-loan);
+    $('ltvDisp').textContent=pct(loan/price*100,1);
   }
-
-  // ─── State for chart re-render ──────────────────────────────────
-  let _lastEgi = 0, _lastNoi = 0, _lastExpenses = 0;
-  let _incomeChart = null, _expenseChart = null;
-
-  // ─── Helpers ────────────────────────────────────────────────────
-  function parseCurrency(val) {
-    return Number(String(val).replace(/[^0-9.-]+/g, '')) || 0;
+  if(loan&&rate&&term){
+    const mo=rate/100/12,n=term*12;
+    const pmt=loan*mo/(1-Math.pow(1+mo,-n));
+    $('monthlyDisp').textContent=fmt(pmt)+'/mo';
   }
-
-  function getVal(id) {
-    return parseCurrency(document.getElementById(id).value);
-  }
-
-  // ─── Main Calculation ───────────────────────────────────────────
-  document.getElementById('calculate').addEventListener('click', calculateProforma);
-
-  function calculateProforma() {
-    const units = [
-      { count: getVal('oneBedUnits'),   rent: getVal('rent1Bed') },
-      { count: getVal('twoBedUnits'),   rent: getVal('rent2Bed') },
-      { count: getVal('threeBedUnits'), rent: getVal('rent3Bed') }
-    ];
-
-    const otherIncome  = getVal('otherIncome');
-    const vacancyRate  = parseFloat(document.getElementById('vacancyRate').value) / 100 || 0;
-
-    const grossPotentialRent = units.reduce((sum, u) => sum + u.count * u.rent * 12, 0);
-    const vacancyLoss        = grossPotentialRent * vacancyRate;
-    const effectiveGrossIncome = grossPotentialRent + otherIncome - vacancyLoss;
-
-    const expenseIds = ['propertyTaxes','insurance','utilities','maintenance','management','supplies','staff','misc'];
-    const totalExpenses = expenseIds.reduce((sum, id) => sum + getVal(id), 0);
-    const NOI = effectiveGrossIncome - totalExpenses;
-
-    const loanAmount    = getVal('loanAmount');
-    const interestRate  = parseFloat(document.getElementById('interestRate').value) / 100 || 0;
-    const loanTerm      = parseInt(document.getElementById('loanTerm').value) || 0;
-    const monthlyRate   = interestRate / 12;
-    const monthlyPayment = loanAmount && monthlyRate
-      ? loanAmount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -loanTerm * 12))
-      : 0;
-    const annualDebtService = monthlyPayment * 12;
-
-    const purchasePrice    = getVal('purchasePrice');
-    const initialEquity    = purchasePrice - loanAmount;
-    const cashFlowBeforeTax = NOI - annualDebtService;
-    const cashOnCash       = initialEquity ? (cashFlowBeforeTax / initialEquity) * 100 : 0;
-    const capRate          = purchasePrice ? (NOI / purchasePrice) * 100 : 0;
-
-    // IRR (5-year hold, 6% exit cap)
-    const exitCapRate    = 0.06;
-    const salePrice      = NOI * (1 / exitCapRate);
-    const totalPayments  = loanTerm * 12;
-    const paymentsMade   = 5 * 12;
-    const remainingBalance = loanAmount && monthlyRate
-      ? loanAmount * (Math.pow(1+monthlyRate, totalPayments) - Math.pow(1+monthlyRate, paymentsMade)) / (Math.pow(1+monthlyRate, totalPayments) - 1)
-      : 0;
-    const netSaleProceeds = salePrice - remainingBalance;
-    const yearlyCashFlows = Array(4).fill(cashFlowBeforeTax);
-    yearlyCashFlows.push(cashFlowBeforeTax + netSaleProceeds);
-    const irrCashFlows = [-initialEquity, ...yearlyCashFlows];
-    const irr = calculateIRR(irrCashFlows);
-
-    // Decision text
-    let decisionText = '';
-    if (cashOnCash >= 12) {
-      decisionText = `✅ This appears to be a strong investment opportunity (CoC: ${Math.round(cashOnCash)}%)`;
-    } else if (cashOnCash >= 8) {
-      decisionText = `⚠️ Moderate returns. Consider refining assumptions (CoC: ${Math.round(cashOnCash)}%)`;
-    } else {
-      decisionText = `❌ Low investment return. Proceed with caution (CoC: ${Math.round(cashOnCash)}%)`;
-    }
-
-    // Store for chart re-render
-    _lastEgi = effectiveGrossIncome;
-    _lastNoi = NOI;
-    _lastExpenses = totalExpenses;
-
-    // Render all sections
-    renderSummaryCards({ effectiveGrossIncome, NOI, cashFlowBeforeTax, cashOnCash, capRate, irr });
-    renderResultsTable({ grossPotentialRent, vacancyLoss, effectiveGrossIncome, totalExpenses, NOI, annualDebtService, cashFlowBeforeTax, cashOnCash, capRate, irr, decisionText });
-    render5YearProforma(effectiveGrossIncome, totalExpenses, annualDebtService);
-    renderCharts(effectiveGrossIncome, NOI, totalExpenses);
-
-    // Switch to Results tab
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.getElementById('results-tab').classList.add('active');
-    document.querySelectorAll('.tab-button').forEach(btn => {
-      btn.classList.remove('border-[#0056b3]', 'text-[#0056b3]');
-      btn.classList.add('border-transparent', 'text-gray-500');
-    });
-    const resultsBtn = document.querySelector('[data-tab="results-tab"]');
-    if (resultsBtn) {
-      resultsBtn.classList.remove('border-transparent', 'text-gray-500');
-      resultsBtn.classList.add('border-[#0056b3]', 'text-[#0056b3]');
-    }
-  }
-
-  // ─── IRR Calculator ─────────────────────────────────────────────
-  function calculateIRR(cashFlows) {
-    let rate = 0.12;
-    const maxIter = 100;
-    const eps = 1e-6;
-    for (let i = 0; i < maxIter; i++) {
-      let npv = 0, derivative = 0;
-      for (let t = 0; t < cashFlows.length; t++) {
-        const denom = Math.pow(1 + rate, t);
-        npv += cashFlows[t] / denom;
-        if (t > 0) derivative -= t * cashFlows[t] / Math.pow(1 + rate, t + 1);
-      }
-      const newRate = rate - npv / derivative;
-      if (Math.abs(newRate - rate) < eps) break;
-      rate = newRate;
-    }
-    return rate * 100;
-  }
-
-  // ─── Summary Cards (like mixeduse) ──────────────────────────────
-  function renderSummaryCards({ effectiveGrossIncome, NOI, cashFlowBeforeTax, cashOnCash, capRate, irr }) {
-    const container = document.getElementById('summary-cards');
-    if (!container) return;
-    container.innerHTML = `
-      <div class="bg-green-50 p-4 rounded shadow border border-green-200">
-        <h4 class="font-semibold text-green-800 text-sm">Effective Gross Income</h4>
-        <p class="text-green-900 text-xl font-bold mt-1">$${Math.round(effectiveGrossIncome).toLocaleString()}</p>
-      </div>
-      <div class="bg-blue-50 p-4 rounded shadow border border-blue-200">
-        <h4 class="font-semibold text-blue-800 text-sm">Net Operating Income (NOI)</h4>
-        <p class="text-blue-900 text-xl font-bold mt-1">$${Math.round(NOI).toLocaleString()}</p>
-      </div>
-      <div class="bg-yellow-50 p-4 rounded shadow border border-yellow-200">
-        <h4 class="font-semibold text-yellow-800 text-sm">Cash Flow Before Tax</h4>
-        <p class="text-yellow-900 text-xl font-bold mt-1">$${Math.round(cashFlowBeforeTax).toLocaleString()}</p>
-      </div>
-      <div class="bg-purple-50 p-4 rounded shadow border border-purple-200">
-        <h4 class="font-semibold text-purple-800 text-sm">Cash-on-Cash Return</h4>
-        <p class="text-purple-900 text-xl font-bold mt-1">${Math.round(cashOnCash)}%</p>
-      </div>
-      <div class="bg-pink-50 p-4 rounded shadow border border-pink-200">
-        <h4 class="font-semibold text-pink-800 text-sm">Cap Rate</h4>
-        <p class="text-pink-900 text-xl font-bold mt-1">${capRate.toFixed(2)}%</p>
-      </div>
-      <div class="bg-gray-100 p-4 rounded shadow border border-gray-300">
-        <h4 class="font-semibold text-gray-800 text-sm">Estimated IRR</h4>
-        <p class="text-gray-900 text-xl font-bold mt-1">${Math.round(irr)}%</p>
-      </div>
-    `;
-  }
-
-  // ─── Detailed Results Table ──────────────────────────────────────
-  function renderResultsTable({ grossPotentialRent, vacancyLoss, effectiveGrossIncome, totalExpenses, NOI, annualDebtService, cashFlowBeforeTax, cashOnCash, capRate, irr, decisionText }) {
-    const container = document.getElementById('results');
-    if (!container) return;
-    container.innerHTML = `
-      <div class="bg-[#f9fafb] rounded p-4">
-        <table class="w-full text-left" style="border-collapse:collapse;">
-          <tr><td class="py-2 px-3 text-[#374151] font-medium border-b border-gray-100">Total Potential Rent</td><td class="py-2 px-3 text-[#111827] font-semibold border-b border-gray-100 text-right">$${Math.round(grossPotentialRent).toLocaleString()}</td></tr>
-          <tr><td class="py-2 px-3 text-[#374151] font-medium border-b border-gray-100">Vacancy Loss</td><td class="py-2 px-3 text-red-600 font-semibold border-b border-gray-100 text-right">-$${Math.round(vacancyLoss).toLocaleString()}</td></tr>
-          <tr><td class="py-2 px-3 text-[#374151] font-medium border-b border-gray-100">Effective Gross Income</td><td class="py-2 px-3 text-[#111827] font-semibold border-b border-gray-100 text-right">$${Math.round(effectiveGrossIncome).toLocaleString()}</td></tr>
-          <tr><td class="py-2 px-3 text-[#374151] font-medium border-b border-gray-100">Operating Expenses</td><td class="py-2 px-3 text-red-600 font-semibold border-b border-gray-100 text-right">-$${Math.round(totalExpenses).toLocaleString()}</td></tr>
-          <tr><td class="py-2 px-3 text-[#0056b3] font-bold border-b border-blue-100 bg-blue-50">Net Operating Income (NOI)</td><td class="py-2 px-3 text-[#0056b3] font-bold border-b border-blue-100 bg-blue-50 text-right">$${Math.round(NOI).toLocaleString()}</td></tr>
-          <tr><td class="py-2 px-3 text-[#374151] font-medium border-b border-gray-100">Annual Debt Service</td><td class="py-2 px-3 text-red-600 font-semibold border-b border-gray-100 text-right">-$${Math.round(annualDebtService).toLocaleString()}</td></tr>
-          <tr><td class="py-2 px-3 text-[#0056b3] font-bold border-b border-blue-100 bg-blue-50">Cash Flow Before Tax</td><td class="py-2 px-3 text-[#0056b3] font-bold border-b border-blue-100 bg-blue-50 text-right">$${Math.round(cashFlowBeforeTax).toLocaleString()}</td></tr>
-          <tr><td class="py-2 px-3 text-[#374151] font-medium border-b border-gray-100">Cash-on-Cash Return</td><td class="py-2 px-3 text-[#111827] font-semibold border-b border-gray-100 text-right">${Math.round(cashOnCash)}%</td></tr>
-          <tr><td class="py-2 px-3 text-[#374151] font-medium border-b border-gray-100">Cap Rate</td><td class="py-2 px-3 text-[#111827] font-semibold border-b border-gray-100 text-right">${capRate.toFixed(2)}%</td></tr>
-          <tr><td class="py-2 px-3 text-[#374151] font-medium">Estimated IRR</td><td class="py-2 px-3 text-[#111827] font-semibold text-right">${Math.round(irr)}%</td></tr>
-        </table>
-      </div>
-      <div class="mt-4 p-4 rounded-md ${cashOnCash >= 12 ? 'bg-green-50 border border-green-200 text-green-800' : cashOnCash >= 8 ? 'bg-yellow-50 border border-yellow-200 text-yellow-800' : 'bg-red-50 border border-red-200 text-red-800'} font-semibold">
-        ${decisionText}
-      </div>
-    `;
-  }
-
-  // ─── 5-Year Proforma ────────────────────────────────────────────
-  function render5YearProforma(income, expenses, debtService) {
-    const container = document.getElementById('fiveYearTable');
-    if (!container) return;
-    let table = `
-      <table class="w-full text-left text-sm text-[#4B5563]" style="border-collapse:collapse;">
-        <thead>
-          <tr class="bg-gray-100">
-            <th class="p-2 border-b-2 border-gray-200 font-semibold text-[#374151]">Year</th>
-            <th class="p-2 border-b-2 border-gray-200 font-semibold text-[#374151]">Income</th>
-            <th class="p-2 border-b-2 border-gray-200 font-semibold text-[#374151]">Expenses</th>
-            <th class="p-2 border-b-2 border-gray-200 font-semibold text-[#374151]">NOI</th>
-            <th class="p-2 border-b-2 border-gray-200 font-semibold text-[#374151]">Debt Service</th>
-            <th class="p-2 border-b-2 border-gray-200 font-semibold text-[#374151]">Cash Flow</th>
-          </tr>
-        </thead>
-        <tbody>
-    `;
-    for (let y = 1; y <= 5; y++) {
-      const growth       = Math.pow(1.02, y - 1);
-      const yearIncome   = income * growth;
-      const yearExpenses = expenses * growth;
-      const yearNOI      = yearIncome - yearExpenses;
-      const cashFlow     = yearNOI - debtService;
-      const cfColor      = cashFlow >= 0 ? 'text-green-700 font-semibold' : 'text-red-600 font-semibold';
-      table += `
-        <tr class="border-b border-gray-100 hover:bg-blue-50 transition-colors">
-          <td class="p-2 font-medium text-[#374151]">${y}</td>
-          <td class="p-2">$${Math.round(yearIncome).toLocaleString()}</td>
-          <td class="p-2">$${Math.round(yearExpenses).toLocaleString()}</td>
-          <td class="p-2 font-medium text-[#0056b3]">$${Math.round(yearNOI).toLocaleString()}</td>
-          <td class="p-2">$${Math.round(debtService).toLocaleString()}</td>
-          <td class="p-2 ${cfColor}">$${Math.round(cashFlow).toLocaleString()}</td>
-        </tr>
-      `;
-    }
-    table += '</tbody></table>';
-    container.innerHTML = table;
-  }
-
-  // ─── Charts ─────────────────────────────────────────────────────
-  function renderCharts(egi, noi, expenses) {
-    const incomeCtx  = document.getElementById('incomeChart');
-    const expenseCtx = document.getElementById('expenseChart');
-    if (!incomeCtx || !expenseCtx) return;
-
-    // Destroy old charts if they exist
-    if (_incomeChart)  { _incomeChart.destroy();  _incomeChart  = null; }
-    if (_expenseChart) { _expenseChart.destroy(); _expenseChart = null; }
-
-    _incomeChart = new Chart(incomeCtx.getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: ['Effective Gross Income', 'NOI'],
-        datasets: [{
-          data: [egi, noi],
-          backgroundColor: ['#3b82f6', '#22c55e'],
-          borderRadius: 6,
-          borderSkipped: false
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: ctx => '$' + Math.round(ctx.parsed.y).toLocaleString()
-            }
-          }
-        },
-        scales: {
-          y: {
-            ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k' },
-            grid: { color: '#f3f4f6' }
-          }
-        }
-      }
-    });
-
-    _expenseChart = new Chart(expenseCtx.getContext('2d'), {
-      type: 'doughnut',
-      data: {
-        labels: ['Expenses', 'NOI'],
-        datasets: [{
-          data: [expenses, noi],
-          backgroundColor: ['#ef4444', '#22c55e'],
-          borderWidth: 2,
-          borderColor: '#fff'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'bottom' },
-          tooltip: {
-            callbacks: {
-              label: ctx => ctx.label + ': $' + Math.round(ctx.parsed).toLocaleString()
-            }
-          }
-        }
-      }
-    });
-  }
-
-  // ─── Export Excel ───────────────────────────────────────────────
-  document.getElementById('exportXls').addEventListener('click', exportToExcel);
-
-  function exportToExcel() {
-    const wb = XLSX.utils.book_new();
-
-    const title  = [['REProforma - Multifamily Acquisition Proforma']];
-    const spacer = [['']];
-
-    const inputData = [
-      ['Category', 'Field', 'Value'],
-      ['Rental Mix', '1-Bed Units',     document.getElementById('oneBedUnits').value],
-      ['Rental Mix', 'Rent per 1-Bed',  document.getElementById('rent1Bed').value],
-      ['Rental Mix', '2-Bed Units',     document.getElementById('twoBedUnits').value],
-      ['Rental Mix', 'Rent per 2-Bed',  document.getElementById('rent2Bed').value],
-      ['Rental Mix', '3-Bed Units',     document.getElementById('threeBedUnits').value],
-      ['Rental Mix', 'Rent per 3-Bed',  document.getElementById('rent3Bed').value],
-      spacer[0],
-      ['Income', 'Other Income',   document.getElementById('otherIncome').value],
-      ['Income', 'Vacancy Rate (%)', document.getElementById('vacancyRate').value],
-      spacer[0],
-      ['Expenses', 'Property Taxes', document.getElementById('propertyTaxes').value],
-      ['Expenses', 'Insurance',      document.getElementById('insurance').value],
-      ['Expenses', 'Utilities',      document.getElementById('utilities').value],
-      ['Expenses', 'Maintenance',    document.getElementById('maintenance').value],
-      ['Expenses', 'Management',     document.getElementById('management').value],
-      ['Expenses', 'Supplies',       document.getElementById('supplies').value],
-      ['Expenses', 'Staff',          document.getElementById('staff').value],
-      ['Expenses', 'Misc & Reserves',document.getElementById('misc').value],
-      spacer[0],
-      ['Financing', 'Purchase Price',     document.getElementById('purchasePrice').value],
-      ['Financing', 'Loan Amount',        document.getElementById('loanAmount').value],
-      ['Financing', 'Interest Rate (%)',  document.getElementById('interestRate').value],
-      ['Financing', 'Loan Term (Years)',  document.getElementById('loanTerm').value],
-    ];
-
-    const inputSheet = XLSX.utils.aoa_to_sheet([...title, [], ...inputData]);
-    XLSX.utils.book_append_sheet(wb, inputSheet, 'Inputs');
-
-    const resultsTable = document.querySelector('#results table');
-    if (resultsTable) {
-      const summarySheet = XLSX.utils.table_to_sheet(resultsTable);
-      XLSX.utils.book_append_sheet(wb, summarySheet, 'Results');
-    }
-
-    const fiveYearTable = document.querySelector('#fiveYearTable table');
-    if (fiveYearTable) {
-      const projSheet = XLSX.utils.table_to_sheet(fiveYearTable);
-      XLSX.utils.book_append_sheet(wb, projSheet, '5-Year Projection');
-    }
-
-    XLSX.writeFile(wb, 'Multifamily_Proforma_Export.xlsx');
-  }
-
-  // ─── Export PDF ─────────────────────────────────────────────────
-  document.getElementById('exportPdf').addEventListener('click', () => window.print());
-
-  // ─── Reset ──────────────────────────────────────────────────────
-  document.getElementById('resetInputs').addEventListener('click', () => {
-    document.querySelectorAll('input').forEach(input => input.value = '');
-    const sc = document.getElementById('summary-cards');
-    if (sc) sc.innerHTML = '';
-    const res = document.getElementById('results');
-    if (res) res.innerHTML = '';
-    const fy = document.getElementById('fiveYearTable');
-    if (fy) fy.innerHTML = '';
-    if (_incomeChart)  { _incomeChart.destroy();  _incomeChart  = null; }
-    if (_expenseChart) { _expenseChart.destroy(); _expenseChart = null; }
-  });
-
-  // ─── Autofill Demo ───────────────────────────────────────────────
-  document.getElementById('autofillDemo').addEventListener('click', () => {
-    document.getElementById('oneBedUnits').value  = 20;
-    document.getElementById('rent1Bed').value      = 1200;
-    document.getElementById('twoBedUnits').value  = 35;
-    document.getElementById('rent2Bed').value      = 1500;
-    document.getElementById('threeBedUnits').value = 15;
-    document.getElementById('rent3Bed').value      = 1800;
-    document.getElementById('otherIncome').value   = 25000;
-    document.getElementById('vacancyRate').value   = 5;
-    document.getElementById('propertyTaxes').value = 40000;
-    document.getElementById('insurance').value     = 12000;
-    document.getElementById('utilities').value     = 25000;
-    document.getElementById('maintenance').value   = 15000;
-    document.getElementById('management').value    = 20000;
-    document.getElementById('supplies').value      = 5000;
-    document.getElementById('staff').value         = 30000;
-    document.getElementById('misc').value          = 8000;
-    document.getElementById('purchasePrice').value = 5000000;
-    document.getElementById('loanAmount').value    = 3500000;
-    document.getElementById('interestRate').value  = 5;
-    document.getElementById('loanTerm').value      = 25;
-  });
-
+}
+['purchasePrice','loanAmount','interestRate','loanTerm'].forEach(id=>{
+  const e=$(id);if(e)e.addEventListener('input',livePreview);
 });
 
+// ── IRR (bisection + Newton-Raphson) ─────────────────────────
+function calcIRR(flows){
+  const hasPos=flows.some(f=>f>0),hasNeg=flows.some(f=>f<0);
+  if(!hasPos||!hasNeg) return NaN;
+  const npvAt=r=>flows.reduce((s,f,t)=>s+f/Math.pow(1+r,t),0);
+  let lo=-0.9999,hi=5;
+  if(npvAt(lo)*npvAt(hi)>0) return NaN;
+  let mid=0.1;
+  for(let i=0;i<80;i++){mid=(lo+hi)/2;const nm=npvAt(mid);if(Math.abs(nm)<1e-6||(hi-lo)<1e-10)break;nm*npvAt(lo)>0?lo=mid:hi=mid;}
+  let r=mid;
+  for(let i=0;i<80;i++){let npv=0,d=0;flows.forEach((f,t)=>{const disc=Math.pow(1+r,t);npv+=f/disc;d-=t*f/((1+r)*disc);});if(Math.abs(d)<1e-14)break;const rn=r-npv/d;if(!isFinite(rn))break;if(Math.abs(rn-r)<1e-11){r=rn;break;}r=rn;}
+  return isFinite(r)&&r>-0.9999&&r<50?r*100:NaN;
+}
+
+// ── Loan balance ──────────────────────────────────────────────
+function loanBal(loan,rate,term,yrs){
+  if(!loan||!rate||!term) return 0;
+  const mo=rate/100/12,n=term*12,pmt=loan*mo/(1-Math.pow(1+mo,-n));
+  let b=loan;for(let m=0;m<yrs*12;m++)b=b*(1+mo)-pmt;return Math.max(0,b);
+}
+
+// ── Charts registry ───────────────────────────────────────────
+const CH={};
+function mkChart(id,cfg){if(CH[id])CH[id].destroy();CH[id]=new Chart($(id),cfg);}
+
+// ══════════════════════════════════════════════════════════════
+// MAIN CALCULATE
+// ══════════════════════════════════════════════════════════════
+function calculate(){
+  // Read inputs
+  const u1=num('oneBedUnits'),r1=num('rent1Bed');
+  const u2=num('twoBedUnits'),r2=num('rent2Bed');
+  const u3=num('threeBedUnits'),r3=num('rent3Bed');
+  const otherInc=num('otherIncome');
+  const vacRate=num('vacancyRate')/100||0.05;
+  const rentGrowth=num('rentGrowth')/100||0.02;
+  const expGrowth=num('expGrowth')/100||0.025;
+  const hold=Math.min(Math.max(num('holdPeriod')||5,1),15);
+  const exitCap=num('exitCap')/100||0.055;
+  const price=num('purchasePrice');
+  const loan=num('loanAmount');
+  const rate=num('interestRate');
+  const term=num('loanTerm')||25;
+  const closingPct=num('closingCostPct')/100||0.015;
+
+  if(!price){ alert('Please enter a Purchase Price.'); return; }
+  if(!(u1||u2||u3)){ alert('Please enter at least one unit type.'); return; }
+
+  // Income
+  const grossPotentialRent=(u1*r1+u2*r2+u3*r3)*12;
+  const vacancyLoss=grossPotentialRent*vacRate;
+  const egi=grossPotentialRent-vacancyLoss+otherInc;
+
+  // Expenses
+  const expenses=['propertyTaxes','insurance','utilities','maintenance','management','staff','supplies','misc']
+    .reduce((s,id)=>s+num(id),0);
+  const noi=egi-expenses;
+
+  // Financing
+  const equity=price*(1-loan/price)+price*closingPct;
+  const moRate=rate/100/12;
+  const n=term*12;
+  const monthlyPmt=loan&&moRate?loan*moRate/(1-Math.pow(1+moRate,-n)):0;
+  const annDS=monthlyPmt*12;
+
+  const levCF=noi-annDS;
+  const capRate=noi/price*100;
+  const coc=equity?levCF/equity*100:0;
+  const dscr=annDS?noi/annDS:null;
+
+  // Cash flows for IRR
+  const equityOut=price-loan+price*closingPct;
+  const cashFlows=[-equityOut];
+  let rows=[];
+  for(let y=1;y<=hold;y++){
+    const g=Math.pow(1+rentGrowth,y-1),eg=Math.pow(1+expGrowth,y-1);
+    const yEGI=egi*g, yExp=expenses*eg, yNOI=yEGI-yExp;
+    const yLevCF=yNOI-annDS;
+    const b0=loanBal(loan,rate,term,y-1),b1=loanBal(loan,rate,term,y);
+    const prin=b0-b1,intPaid=annDS-prin;
+    rows.push({y,yEGI,yExp,yNOI,annDS,intPaid,prin,yLevCF,b1});
+    cashFlows.push(yLevCF);
+  }
+  // Exit
+  const exitNOI=rows[hold-1].yNOI;
+  const salePrice=exitNOI/exitCap;
+  const saleCost=salePrice*0.02;
+  const finalBal=rows[hold-1].b1;
+  const saleProc=salePrice-saleCost-finalBal;
+  cashFlows[hold]+=saleProc;
+
+  const irr=calcIRR(cashFlows);
+  const em=(cashFlows.slice(1).reduce((a,b)=>a+b,0)+equityOut)/equityOut;
+
+  // ── Switch to results ────────────────────────────────────────
+  switchTab('results', document.querySelectorAll('.tab-btn')[1]);
+
+  // ── Metric cards ──────────────────────────────────────────────
+  const bC=(v,lo,hi)=>v>=hi?'#15803d':v>=lo?'#b45309':'#b91c1c';
+  $('metricCards').innerHTML=[
+    {l:'Purchase Price',v:fmt(price),c:'#0043ce'},
+    {l:'Going-In Cap Rate',v:pct(capRate),c:bC(capRate,5,6.5)},
+    {l:'Year 1 NOI',v:fmt(noi),c:'#0056b3'},
+    {l:'Cash-on-Cash',v:pct(coc),c:bC(coc,6,10)},
+    {l:'Levered IRR',v:isNaN(irr)?'N/A':pct(irr),c:bC(irr||0,12,16)},
+    {l:'Equity Multiple',v:em.toFixed(2)+'×',c:bC(em*10||0,15,18)},
+  ].map(s=>`<div class="metric" style="border-top:3px solid ${s.c};"><div class="metric-val" style="color:${s.c};">${s.v}</div><div class="metric-lbl">${s.l}</div></div>`).join('');
+
+  // ── Waterfall ──────────────────────────────────────────────────
+  const wfRow=(l,v,cls='')=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:6px;font-size:13px;${cls}">${l}<span>${v}</span></div>`;
+  $('waterfallDiv').innerHTML=
+    wfRow('Gross Potential Rent',fmt(grossPotentialRent))+
+    wfRow('Vacancy Loss',`<span style="color:#dc2626;">(${fmt(vacancyLoss)})</span>`,'')+
+    wfRow('Other Income',fmt(otherInc))+
+    wfRow('Effective Gross Income (EGI)',fmt(egi),'background:#f8fafc;font-weight:600;')+
+    wfRow('Operating Expenses',`<span style="color:#dc2626;">(${fmt(expenses)})</span>`,'')+
+    wfRow('Net Operating Income (NOI)',fmt(noi),'background:#eff6ff;font-weight:700;color:#0043ce;')+
+    wfRow('Annual Debt Service',`<span style="color:#dc2626;">(${fmt(annDS)})</span>`,'')+
+    wfRow('Levered Cash Flow',fmt(levCF),'background:#eff6ff;font-weight:700;color:#0043ce;');
+
+  // ── Deal quality ───────────────────────────────────────────────
+  const totalUnits=u1+u2+u3;
+  const expRatio=egi?expenses/egi*100:0;
+  const dscrLabel=dscr?`${dscr.toFixed(2)}× ${dscr>=1.25?'✅ Strong':dscr>=1.1?'⚠️ Adequate':'❌ Thin'}`:'-';
+  $('dealQuality').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;">
+      <div style="background:#f8fafc;border-radius:8px;padding:12px;"><div style="color:#64748b;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Total Units</div><div style="font-size:20px;font-weight:700;margin-top:4px;">${totalUnits}</div></div>
+      <div style="background:#f8fafc;border-radius:8px;padding:12px;"><div style="color:#64748b;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Price / Unit</div><div style="font-size:20px;font-weight:700;margin-top:4px;">${totalUnits?fmt(price/totalUnits):'—'}</div></div>
+      <div style="background:#f8fafc;border-radius:8px;padding:12px;"><div style="color:#64748b;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Expense Ratio</div><div style="font-size:20px;font-weight:700;margin-top:4px;color:${expRatio<50?'#15803d':expRatio<60?'#b45309':'#b91c1c'}">${pct(expRatio,0)}</div></div>
+      <div style="background:#f8fafc;border-radius:8px;padding:12px;"><div style="color:#64748b;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">DSCR</div><div style="font-size:16px;font-weight:700;margin-top:4px;">${dscrLabel}</div></div>
+      <div style="background:#f8fafc;border-radius:8px;padding:12px;grid-column:1/-1;"><div style="color:#64748b;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Exit Sale Price (Yr ${hold})</div><div style="font-size:20px;font-weight:700;margin-top:4px;color:#0043ce;">${fmt(salePrice)}</div></div>
+    </div>`;
+
+  // ── Returns table ──────────────────────────────────────────────
+  const npv=cashFlows.reduce((a,f,t)=>a+f/Math.pow(1.07,t),0);
+  $('returnsTable').innerHTML=`<thead><tr><th>Metric</th><th class="r">Value</th><th>Benchmark</th></tr></thead><tbody>
+    <tr><td>Cap Rate (Going-In)</td><td class="r">${pct(capRate)}</td><td style="color:#64748b;font-size:12px;">5–7% stabilized multifamily</td></tr>
+    <tr><td>Gross Rent Multiplier</td><td class="r">${(price/grossPotentialRent).toFixed(1)}×</td><td style="color:#64748b;font-size:12px;">10–14× typical market</td></tr>
+    <tr><td>Expense Ratio</td><td class="r">${pct(expRatio,0)}</td><td style="color:#64748b;font-size:12px;">40–55% typical</td></tr>
+    <tr><td>DSCR (Year 1)</td><td class="r">${dscr?dscr.toFixed(2)+'×':'N/A'}</td><td style="color:#64748b;font-size:12px;">Lenders require ≥1.25×</td></tr>
+    <tr><td>Cash-on-Cash Return</td><td class="r">${pct(coc)}</td><td style="color:#64748b;font-size:12px;">6–10% good, 12%+ strong</td></tr>
+    <tr class="hi"><td>Levered IRR (${hold}-yr hold)</td><td class="r">${isNaN(irr)?'N/A':pct(irr)}</td><td style="color:#64748b;font-size:12px;">12–18% value-add target</td></tr>
+    <tr class="hi"><td>Equity Multiple</td><td class="r">${em.toFixed(2)}×</td><td style="color:#64748b;font-size:12px;">1.5–2.5× over 5 years</td></tr>
+    <tr><td>NPV @ 7% Discount Rate</td><td class="r">${fmt(npv)}</td><td style="color:#64748b;font-size:12px;">Positive = exceeds hurdle rate</td></tr>
+    <tr><td>Exit Sale Price</td><td class="r">${fmt(salePrice)}</td><td style="color:#64748b;font-size:12px;">Based on ${pct(exitCap*100)} exit cap</td></tr>
+    <tr><td>Equity at Exit</td><td class="r">${fmt(saleProc)}</td><td style="color:#64748b;font-size:12px;">After loan payoff &amp; costs</td></tr>
+  </tbody>`;
+
+  // ── 5-Year Proforma Table ──────────────────────────────────────
+  const lbls=rows.map(r=>'Year '+r.y);
+  const th=`<thead><tr><th>Line Item</th>${lbls.map(l=>`<th class="r">${l}</th>`).join('')}</tr></thead>`;
+  const dr=(l,vals,neg=false)=>`<tr><td style="padding-left:20px;color:#64748b;">${l}</td>${vals.map(v=>`<td class="${neg?'neg':'r'}">${neg&&v>0?'('+fmt(v)+')':fmt(v)}</td>`).join('')}</tr>`;
+  const sr=l=>`<tr><td colspan="${hold+1}" style="background:#f1f5f9;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#475569;padding:5px 12px;">${l}</td></tr>`;
+  const tr=l=>`<tr class="hi"><td>${l}</td>${rows.map(r=>`<td class="r">${fmt(r[Object.keys(r).find(k=>k.startsWith('y')&&r[k]!==undefined&&l.toLowerCase().includes(k.slice(1,4).toLowerCase()))||'yNOI'])}</td>`).join('')}</tr>`;
+
+  $('proformaTable').innerHTML=th+`<tbody>
+    ${sr('Income')}
+    ${dr('Effective Gross Income', rows.map(r=>r.yEGI))}
+    ${dr('Operating Expenses', rows.map(r=>r.yExp), true)}
+    <tr class="hi"><td>Net Operating Income</td>${rows.map(r=>`<td class="r">${fmt(r.yNOI)}</td>`).join('')}</tr>
+    ${sr('Debt Service')}
+    ${dr('Interest', rows.map(r=>r.intPaid), true)}
+    ${dr('Principal', rows.map(r=>r.prin), true)}
+    <tr class="hi"><td>Levered Cash Flow</td>${rows.map(r=>`<td class="r">${fmt(r.yLevCF)}</td>`).join('')}</tr>
+    ${sr('Balance Sheet')}
+    ${dr('Loan Balance (EOY)', rows.map(r=>r.b1))}
+  </tbody>`;
+
+  // ── Charts ────────────────────────────────────────────────────
+  const co={responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},
+    scales:{y:{ticks:{font:{size:10},callback:v=>'$'+Math.round(v/1000)+'k'},grid:{color:'#f1f5f9'}},
+            x:{ticks:{font:{size:10}},grid:{display:false}}}};
+
+  mkChart('chartNOI',{type:'bar',data:{labels:lbls,datasets:[
+    {label:'NOI',data:rows.map(r=>r.yNOI),backgroundColor:'#3b82f6',borderRadius:4},
+    {label:'Debt Service',data:rows.map(r=>r.annDS),backgroundColor:'#fca5a5',borderRadius:4},
+    {label:'Cash Flow',data:rows.map(r=>r.yLevCF),backgroundColor:'#22c55e',borderRadius:4},
+  ]},options:co});
+
+  mkChart('chartBreakdown',{type:'doughnut',data:{
+    labels:['Gross Rent','Operating Expenses','Debt Service','Cash Flow'],
+    datasets:[{data:[grossPotentialRent,expenses,annDS,Math.max(0,levCF)],
+      backgroundColor:['#3b82f6','#ef4444','#f97316','#22c55e'],borderWidth:0}]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}}}});
+
+  mkChart('chartCumulative',{type:'line',data:{labels:lbls,datasets:[
+    {label:'Cumulative Cash Flow',data:rows.reduce((a,r)=>{a.push((a[a.length-1]||0)+r.yLevCF);return a;},[]),
+      borderColor:'#0043ce',backgroundColor:'rgba(0,67,206,.07)',fill:true,tension:.4,pointRadius:4}
+  ]},options:co});
+
+  // Equity build = property value - loan balance
+  mkChart('chartEquity',{type:'bar',data:{labels:lbls,datasets:[
+    {label:'Equity (Value - Loan)',
+     data:rows.map((r,i)=>{const yNOI=r.yNOI;return (yNOI/exitCap)-r.b1;}),
+     backgroundColor:'#0056b3',borderRadius:4}
+  ]},options:co});
+}
+
+// ══════════════════════════════════════════════════════════════
+// DEMO DATA — 72-unit apartment, Austin TX (realistic 2024 deal)
+// ══════════════════════════════════════════════════════════════
+function loadDemo(){
+  // Unit mix: 24 × 1BR @ $1,450 | 36 × 2BR @ $1,800 | 12 × 3BR @ $2,200
+  // $9.6M acquisition, 65% LTV, 6.5% rate, 30yr amort
+  [['oneBedUnits',24],['rent1Bed',1450],
+   ['twoBedUnits',36],['rent2Bed',1800],
+   ['threeBedUnits',12],['rent3Bed',2200],
+   ['otherIncome',42000],['vacancyRate',5],
+   ['rentGrowth',2.5],['expGrowth',3.0],
+   ['holdPeriod',5],['exitCap',5.25],
+   ['propertyTaxes',95000],['insurance',28000],
+   ['utilities',38000],['maintenance',52000],
+   ['management',58000],['staff',72000],
+   ['supplies',8000],['misc',24000],
+   ['purchasePrice',9600000],['loanAmount',6240000],
+   ['interestRate',6.5],['loanTerm',30],['closingCostPct',1.5],
+  ].forEach(([id,v])=>{if($(id))$(id).value=v;});
+  livePreview();
+  calculate();
+}
+
+function resetAll(){
+  document.querySelectorAll('.inp').forEach(e=>e.value='');
+  ['metricCards','waterfallDiv','dealQuality','returnsTable','proformaTable'].forEach(id=>{
+    const e=$(id);if(e)e.innerHTML='';
+  });
+  ['loanAmtDisp','equityDisp','ltvDisp','monthlyDisp'].forEach(id=>{const e=$(id);if(e)e.textContent='—';});
+  Object.values(CH).forEach(c=>c.destroy());
+  switchTab('inputs',document.querySelectorAll('.tab-btn')[0]);
+}
+
+function exportXLS(){
+  if(!window.XLSX){alert('XLSX not loaded.');return;}
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet([
+    ['REProforma – Multifamily Acquisition'],[''],
+    ['1BR Units',num('oneBedUnits')],['1BR Rent',num('rent1Bed')],
+    ['2BR Units',num('twoBedUnits')],['2BR Rent',num('rent2Bed')],
+    ['3BR Units',num('threeBedUnits')],['3BR Rent',num('rent3Bed')],
+    ['Purchase Price',num('purchasePrice')],['Loan Amount',num('loanAmount')],
+    ['Interest Rate',num('interestRate')+'%'],['Loan Term',num('loanTerm')+'yr'],
+  ]);
+  XLSX.utils.book_append_sheet(wb,ws,'Summary');
+  const t=$('proformaTable');
+  if(t){XLSX.utils.book_append_sheet(wb,XLSX.utils.table_to_sheet(t),'Proforma');}
+  XLSX.writeFile(wb,'Multifamily_Proforma.xlsx');
+}
+
+livePreview();
 </script>
-  <script>
-    document.getElementById('mob-btn').addEventListener('click',function(){document.getElementById('mob-menu').classList.toggle('hidden');});
-    document.querySelectorAll('.mob-toggle').forEach(function(b){
-      b.addEventListener('click',function(){
-        var s=b.nextElementSibling,a=b.querySelector('.mob-arrow'),open=s.style.display==='block';
-        s.style.display=open?'none':'block';a.style.transform=open?'rotate(0)':'rotate(180deg)';
-      });
-    });
-    function setupDD(wId,mId,bId){
-      var w=document.getElementById(wId),m=document.getElementById(mId),b=document.getElementById(bId);
-      if(!w||!m)return;var t;
-      w.addEventListener('mouseenter',function(){clearTimeout(t);m.classList.add('open');if(b)b.classList.add('open');});
-      w.addEventListener('mouseleave',function(){t=setTimeout(function(){m.classList.remove('open');if(b)b.classList.remove('open');},120);});
-      if(b)b.addEventListener('click',function(e){e.stopPropagation();var o=m.classList.contains('open');closeAll();if(!o){m.classList.add('open');b.classList.add('open');}});
-    }
-    function closeAll(){document.querySelectorAll('.dd-menu').forEach(function(m){m.classList.remove('open');});document.querySelectorAll('.dd-trigger').forEach(function(b){b.classList.remove('open');});}
-    setupDD('ddTools','ddToolsMenu','ddToolsBtn');
-    setupDD('ddMarket','ddMarketMenu','ddMarketBtn');
-    document.addEventListener('click',function(e){if(!e.target.closest('.dd-wrap'))closeAll();});
-  </script>
 </body>
 </html>
