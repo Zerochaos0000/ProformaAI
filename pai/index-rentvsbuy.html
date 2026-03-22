@@ -47,56 +47,119 @@ a{text-decoration:none;color:inherit;}
 .side-card{border:1px solid #e2e8f0;border-radius:10px;padding:16px;}
 @media print{header,.no-print{display:none!important;}}
 </style>
+<style>
+@media(max-width:768px){
+  .ft-grid{grid-template-columns:1fr 1fr!important;}
+}
+@media(max-width:480px){
+  .ft-grid{grid-template-columns:1fr!important;}
+}
+</style>
 </head>
 <body>
-
+<style>
+/* Nav dropdown — no Tailwind dependency */
+.dd-menu{display:none;position:absolute;left:0;top:100%;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.12);border:1px solid #f1f5f9;z-index:50;min-width:220px;padding:6px 0;}
+.dd-menu.open{display:block;}.dd-wrap{position:relative;}
+.dd-trig{display:flex;align-items:center;gap:4px;font-size:13px;background:none;border:none;cursor:pointer;padding:20px 0;font-family:'Inter',sans-serif;font-weight:500;color:#525252;}
+.dd-trig:hover{color:#0043ce;}
+.dd-item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:#374151;text-decoration:none;border-left:2px solid transparent;transition:background .1s,color .1s,border-color .1s;}
+.dd-item:hover,.dd-item.cur{background:#eff6ff;color:#0043ce;border-left-color:#0043ce;}
+.dd-lbl{padding:6px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;}
+.dd-div{height:1px;background:#f1f5f9;margin:4px 16px;}
+</style>
 <header style="position:sticky;top:0;z-index:50;background:white;box-shadow:0 1px 4px rgba(0,0,0,.08);">
-  <div class="wrap" style="display:flex;justify-content:space-between;align-items:center;height:64px;">
-    <a href="../index.html" style="display:inline-flex;align-items:center;gap:10px;">
-      <svg width="34" height="34" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
-      <span style="display:flex;align-items:baseline;"><span style="font-size:19px;font-weight:700;color:#0043ce;letter-spacing:-.3px;">RE</span><span style="font-size:19px;font-weight:300;color:#0043ce;letter-spacing:-.3px;">Proforma</span></span>
-    </a>
-    <button id="mb" onclick="toggle('mm')" style="display:none;background:none;border:none;cursor:pointer;color:#0043ce;">
-      <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+  <div style="max-width:1280px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;align-items:center;height:64px;">
+
+    <!-- Logo -->
+    <a href="../index" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;"><svg width="34" height="34" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg><span style="display:flex;align-items:baseline;line-height:1;"><span style="font-size:19px;font-weight:700;color:#0043ce;letter-spacing:-.3px;">RE</span><span style="font-size:19px;font-weight:300;color:#0043ce;letter-spacing:-.3px;">Proforma</span></span></a>
+
+    <!-- Hamburger — hidden by default, JS shows on mobile -->
+    <button id="mob-btn" style="display:none;background:none;border:none;cursor:pointer;color:#0043ce;padding:6px;">
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
     </button>
-    <div id="dn" style="display:flex;align-items:center;gap:28px;">
+
+    <!-- Desktop nav — shown by default, JS hides on mobile -->
+    <div id="desk-nav" style="display:flex;align-items:center;gap:28px;">
       <nav style="display:flex;align-items:center;gap:20px;">
-        <a href="../index.html" class="nav-btn">Home</a>
-        <div class="nav-wrap"><button class="nav-btn" onclick="tdd('dt')">Tools ▾</button>
-          <div class="nav-dd" id="dt">
-            <div class="nav-lbl">Pro Tools</div>
-            <a class="nav-item" href="index.html">🏢 Multifamily</a>
-            <a class="nav-item" href="index-mixeduse.html">🏬 Commercial/Retail</a>
-            <a class="nav-item" href="index-land.html">🗺️ Land Development</a>
-            <div class="nav-div"></div>
-            <div class="nav-lbl">Free Tools</div>
-            <a class="nav-item" href="index-affordability.html">🏠 Home Affordability</a>
-            <a class="nav-item cur" href="index-rentvsbuy.html">⚖️ Rent vs. Own</a>
-            <a class="nav-item" href="index-mortgage-payoff.html">📅 Mortgage Payoff</a>
+        <a href="../index" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;font-weight:500;">Home</a>
+
+        <!-- Tools dropdown -->
+        <div class="dd-wrap" id="ddT">
+          <button class="dd-trig" id="ddTb" style="color:#0043ce;border-bottom:2px solid #0043ce;font-weight:600;">Tools
+            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;margin-left:2px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div class="dd-menu" id="ddTm">
+            <div class="dd-lbl">Pro Tools</div>
+            <a class="dd-item" href="index">🏢 Multifamily Acquisition</a>
+            <a class="dd-item" href="index-mixeduse">🏬 Commercial &amp; NNN Retail</a>
+            <a class="dd-item" href="index-land">🗺️ Land Development</a>
+            <div class="dd-div"></div>
+            <div class="dd-lbl">Free Tools</div>
+            <a class="dd-item" href="index-affordability">🏠 Home Affordability</a>
+            <a class="dd-item cur" href="index-rentvsbuy">⚖️ Rent vs. Own</a>
+            <a class="dd-item" href="index-mortgage-payoff">📅 Mortgage Payoff</a>
+            
           </div>
         </div>
-        <div class="nav-wrap"><button class="nav-btn" onclick="tdd('dm')">Market Data ▾</button>
-          <div class="nav-dd" id="dm" style="min-width:195px;">
-            <a class="nav-item" href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank">Market Trends</a>
-            <a class="nav-item" href="https://berkadia.com/properties" target="_blank">Investment Listings</a>
+
+        <!-- Market Data dropdown -->
+        <div class="dd-wrap" id="ddM">
+          <button class="dd-trig" id="ddMb">Market Data
+            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;margin-left:2px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div class="dd-menu" id="ddMm" style="min-width:200px;">
+            <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank">NAR Market Trends</a>
+            <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank">Research Reports</a>
+            <a class="dd-item" href="https://berkadia.com/properties" target="_blank">Investment Listings</a>
           </div>
         </div>
-        <a href="../about.html" class="nav-btn">About</a>
+
+        <a href="../about" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;font-weight:500;">About</a>
       </nav>
-      <a href="../about.html" class="btn-b" style="font-size:13px;padding:8px 18px;">Let's talk</a>
+      <a href="../about" style="background:#0043ce;color:white;padding:9px 20px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap;">Let's talk</a>
     </div>
   </div>
-  <div id="mm" style="display:none;background:white;border-top:1px solid #f1f5f9;padding:12px 16px;">
-    <a href="../index.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;">Home</a>
-    <p style="padding:6px 12px 2px;font-size:10px;font-weight:700;letter-spacing:.07em;color:#9ca3af;text-transform:uppercase;margin-top:6px;">Pro Tools</p>
-    <a href="index.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;">🏢 Multifamily</a>
-    <a href="index-mixeduse.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;">🏬 Commercial/Retail</a>
-    <a href="index-land.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;">🗺️ Land Development</a>
-    <p style="padding:8px 12px 2px;font-size:10px;font-weight:700;letter-spacing:.07em;color:#9ca3af;text-transform:uppercase;border-top:1px solid #f1f5f9;margin-top:6px;">Free Tools</p>
-    <a href="index-affordability.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;">🏠 Home Affordability</a>
-    <a href="index-rentvsbuy.html" style="display:block;padding:7px 12px;font-size:13px;color:#0043ce;font-weight:600;background:#eff6ff;border-radius:6px;">⚖️ Rent vs. Own</a>
-    <a href="index-mortgage-payoff.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;">📅 Mortgage Payoff</a>
-    <a href="../about.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;">About</a>
+
+  <!-- Mobile menu — hidden by default via inline style, NOT Tailwind -->
+  <div id="mob-menu" style="display:none;background:white;border-top:1px solid #f1f5f9;box-shadow:0 4px 12px rgba(0,0,0,.06);">
+    <div style="padding:10px 16px;display:flex;flex-direction:column;gap:2px;">
+      <a href="../index" style="display:block;padding:9px 12px;font-size:13px;color:#475569;text-decoration:none;border-radius:6px;">Home</a>
+
+      <!-- Tools accordion -->
+      <div>
+        <button class="mob-tog" style="display:flex;justify-content:space-between;align-items:center;width:100%;padding:9px 12px;background:#eff6ff;border:none;cursor:pointer;font-size:13px;color:#0043ce;font-weight:600;font-family:'Inter',sans-serif;border-radius:6px;margin-bottom:2px;">
+          Tools <svg class="mob-arr" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div style="display:none;padding-left:10px;padding-bottom:4px;">
+          <p style="padding:6px 12px 4px;font-size:10px;font-weight:700;letter-spacing:.07em;color:#9ca3af;text-transform:uppercase;">Pro Tools</p>
+          <a href="index" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;margin-bottom:2px;text-decoration:none;">🏢 Multifamily Acquisition</a>
+          <a href="index-mixeduse" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;margin-bottom:2px;text-decoration:none;">🏬 Commercial &amp; NNN Retail</a>
+          <a href="index-land" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;margin-bottom:2px;text-decoration:none;">🗺️ Land Development</a>
+          
+          <p style="padding:8px 12px 4px;font-size:10px;font-weight:700;letter-spacing:.07em;color:#9ca3af;text-transform:uppercase;border-top:1px solid #f1f5f9;margin-top:4px;">Free Tools</p>
+          <a href="index-affordability" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;margin-bottom:2px;text-decoration:none;">🏠 Home Affordability</a>
+          <a href="index-rentvsbuy" style="display:block;padding:7px 12px;font-size:13px;font-weight:600;color:#0043ce;background:#eff6ff;border-left:2px solid #0043ce;margin-bottom:2px;text-decoration:none;">⚖️ Rent vs. Own</a>
+          <a href="index-mortgage-payoff" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;margin-bottom:2px;text-decoration:none;">📅 Mortgage Payoff</a>
+          
+        </div>
+      </div>
+
+      <!-- Market Data accordion -->
+      <div>
+        <button class="mob-tog" style="display:flex;justify-content:space-between;align-items:center;width:100%;padding:9px 12px;background:none;border:none;cursor:pointer;font-size:13px;color:#525252;font-family:'Inter',sans-serif;border-radius:6px;margin-bottom:2px;">
+          Market Data <svg class="mob-arr" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div style="display:none;padding-left:10px;padding-bottom:4px;">
+          <a href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;margin-bottom:2px;text-decoration:none;">NAR Market Trends</a>
+          <a href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;margin-bottom:2px;text-decoration:none;">Research Reports</a>
+          <a href="https://berkadia.com/properties" target="_blank" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;text-decoration:none;">Investment Listings</a>
+        </div>
+      </div>
+
+      <a href="../about" style="display:block;padding:9px 12px;font-size:13px;color:#475569;text-decoration:none;border-radius:6px;">About</a>
+      <a href="../about" style="display:block;margin-top:6px;padding:11px;text-align:center;font-size:13px;font-weight:600;color:white;background:#0043ce;border-radius:8px;text-decoration:none;">Let's talk</a>
+    </div>
   </div>
 </header>
 
@@ -207,8 +270,8 @@ a{text-decoration:none;color:inherit;}
   <div id="taxBenCard" class="card" style="margin-bottom:18px;background:#f0fdf4;border:1px solid #bbf7d0;"></div>
 
   <div style="display:flex;gap:8px;" class="no-print">
-    <a href="index-affordability.html" class="btn-o" style="font-size:13px;">🏠 Check Affordability →</a>
-    <a href="index-mortgage-payoff.html" class="btn-o" style="font-size:13px;">📅 Mortgage Payoff →</a>
+    <a href="index-affordability" class="btn-o" style="font-size:13px;">🏠 Check Affordability →</a>
+    <a href="index-mortgage-payoff" class="btn-o" style="font-size:13px;">📅 Mortgage Payoff →</a>
   </div>
 </div>
 
@@ -243,18 +306,74 @@ a{text-decoration:none;color:inherit;}
 
 </div>
 
-<footer style="background:#0f172a;padding:44px 0;color:white;">
-  <div class="wrap">
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-bottom:24px;">
-      <div><div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;"><svg width="26" height="26" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg><span style="font-size:15px;font-weight:700;">RE<span style="font-weight:300;">Proforma</span></span></div><p style="font-size:13px;color:#94a3b8;">Real estate analytics for investors and homebuyers.</p></div>
-      <div><p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Tools</p><div style="display:flex;flex-direction:column;gap:6px;font-size:13px;"><a href="index.html" style="color:#94a3b8;">Multifamily</a><a href="index-mixeduse.html" style="color:#94a3b8;">Commercial/Retail</a><a href="index-land.html" style="color:#94a3b8;">Land Dev.</a><a href="index-affordability.html" style="color:#94a3b8;">Home Affordability</a><a href="index-rentvsbuy.html" style="color:#94a3b8;">Rent vs. Own</a><a href="index-mortgage-payoff.html" style="color:#94a3b8;">Mortgage Payoff</a></div></div>
-      <div><p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Resources</p><div style="display:flex;flex-direction:column;gap:6px;font-size:13px;"><a href="#" style="color:#94a3b8;">Market Reports</a><a href="#" style="color:#94a3b8;">Investment Guide</a><a href="#" style="color:#94a3b8;">Case Studies</a><a href="#" style="color:#94a3b8;">Support</a></div></div>
-      <div><p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Subscribe</p><div style="display:flex;margin-top:6px;"><input type="email" placeholder="Your email" style="flex:1;padding:8px;border-radius:6px 0 0 6px;border:none;font-size:13px;outline:none;"><button style="background:#0056b3;color:white;border:none;padding:8px 12px;border-radius:0 6px 6px 0;cursor:pointer;font-size:13px;">Go</button></div></div>
+<footer style="background:#0f172a;color:white;padding:52px 0;">
+  <div style="max-width:1280px;margin:0 auto;padding:0 20px;">
+
+    <!-- 4-col grid — pure CSS Grid, no Tailwind -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:32px;margin-bottom:36px;">
+
+      <!-- Col 1: Brand -->
+      <div>
+        <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;">
+          <svg width="28" height="28" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
+          <span style="font-size:16px;font-weight:700;color:white;">RE<span style="font-weight:300;">Proforma</span></span>
+        </div>
+        <p style="font-size:13px;color:#94a3b8;line-height:1.6;margin:0;">Advanced analytics for real estate investors and homebuyers.</p>
+        <div style="display:flex;gap:12px;margin-top:14px;">
+          <a href="#" style="color:#64748b;text-decoration:none;" aria-label="Twitter"><svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg></a>
+          <a href="#" style="color:#64748b;text-decoration:none;" aria-label="LinkedIn"><svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a>
+        </div>
+      </div>
+
+      <!-- Col 2: Tools -->
+      <div>
+        <p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin:0 0 12px;">Tools</p>
+        <p style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#475569;margin:0 0 6px;">Pro</p>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+          <a href="index" style="font-size:13px;color:#94a3b8;text-decoration:none;">Multifamily Acquisition</a>
+          <a href="index-mixeduse" style="font-size:13px;color:#94a3b8;text-decoration:none;">Commercial &amp; NNN Retail</a>
+          <a href="index-land" style="font-size:13px;color:#94a3b8;text-decoration:none;">Land Development</a>
+        </div>
+        <p style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#475569;margin:0 0 6px;padding-top:10px;border-top:1px solid #1e293b;">Free</p>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <a href="index-affordability" style="font-size:13px;color:#94a3b8;text-decoration:none;">🏠 Home Affordability</a>
+          <a href="index-rentvsbuy" style="font-size:13px;color:#94a3b8;text-decoration:none;">⚖️ Rent vs. Own</a>
+          <a href="index-mortgage-payoff" style="font-size:13px;color:#94a3b8;text-decoration:none;">📅 Mortgage Payoff</a>
+        </div>
+      </div>
+
+      <!-- Col 3: Resources -->
+      <div>
+        <p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin:0 0 12px;">Resources</p>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Market Reports</a>
+          <a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Investment Guide</a>
+          <a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Case Studies</a>
+          <a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Blog</a>
+          <a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Support</a>
+        </div>
+      </div>
+
+      <!-- Col 4: Subscribe -->
+      <div>
+        <p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin:0 0 12px;">Subscribe</p>
+        <p style="font-size:13px;color:#94a3b8;margin:0 0 12px;line-height:1.5;">Get the latest real estate investment insights.</p>
+        <div style="display:flex;">
+          <input type="email" placeholder="Your email" style="flex:1;padding:9px 12px;border-radius:7px 0 0 7px;border:none;font-size:13px;outline:none;color:#1e293b;min-width:0;">
+          <button style="background:#0056b3;color:white;border:none;padding:9px 16px;border-radius:0 7px 7px 0;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Go</button>
+        </div>
+      </div>
     </div>
-    <div style="border-top:1px solid #1e293b;padding-top:16px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font-size:13px;color:#64748b;">
-      <p>&copy; 2025 REProforma. All rights reserved.</p>
-      <div style="display:flex;gap:18px;"><a href="../privacy.html" style="color:#64748b;">Privacy Policy</a><a href="../terms.html" style="color:#64748b;">Terms</a></div>
+
+    <!-- Bottom bar -->
+    <div style="border-top:1px solid #1e293b;padding-top:20px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;">
+      <p style="font-size:13px;color:#64748b;margin:0;">&copy; 2025 REProforma. All rights reserved.</p>
+      <div style="display:flex;gap:20px;">
+        <a href="../privacy" style="font-size:13px;color:#64748b;text-decoration:none;">Privacy Policy</a>
+        <a href="../terms" style="font-size:13px;color:#64748b;text-decoration:none;">Terms of Service</a>
+      </div>
     </div>
+
   </div>
 </footer>
 
@@ -264,11 +383,7 @@ const num=id=>parseFloat($(id)?.value)||0;
 const set=(id,v)=>{if($(id))$(id).value=v;};
 const fmt=v=>'$'+Math.round(v).toLocaleString();
 const pct=(v,d=1)=>v.toFixed(d)+'%';
-function toggle(id){const e=$(id);e.style.display=e.style.display==='block'?'none':'block';}
-function tdd(id){const m=$(id);if(!m)return;const o=m.classList.contains('open');document.querySelectorAll('.nav-dd').forEach(d=>d.classList.remove('open'));if(!o)m.classList.add('open');}
 document.addEventListener('click',e=>{if(!e.target.closest('.nav-wrap'))document.querySelectorAll('.nav-dd').forEach(d=>d.classList.remove('open'));});
-function ckW(){const mob=window.innerWidth<768;$('dn').style.display=mob?'none':'flex';$('mb').style.display=mob?'block':'none';}
-window.addEventListener('resize',ckW);ckW();
 document.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));
   document.querySelectorAll('.tp').forEach(x=>x.classList.remove('on'));
@@ -450,6 +565,66 @@ function resetAll(){
   ['verdict','rentCost','ownCost','breakEven','taxBenCard','timelineBody'].forEach(id=>{if($(id))$(id).innerHTML='';});
   sw('ti');
 }
+</script><script>
+(function(){
+  // Show/hide desktop nav vs hamburger based on viewport
+  function ckW(){
+    var mob = window.innerWidth < 768;
+    var dn  = document.getElementById('desk-nav');
+    var mb  = document.getElementById('mob-btn');
+    if(dn) dn.style.display = mob ? 'none' : 'flex';
+    if(mb) mb.style.display = mob ? 'block' : 'none';
+  }
+  window.addEventListener('resize', ckW);
+  ckW(); // run immediately on load
+
+  // Hamburger opens/closes mobile menu via style.display (not Tailwind 'hidden')
+  var btn = document.getElementById('mob-btn');
+  var menu = document.getElementById('mob-menu');
+  if(btn && menu) btn.addEventListener('click', function(){
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+  });
+
+  // Mobile sub-accordions
+  document.querySelectorAll('.mob-tog').forEach(function(b){
+    b.addEventListener('click', function(){
+      var sub = b.nextElementSibling;
+      var arr = b.querySelector('.mob-arr');
+      var open = sub.style.display === 'block';
+      sub.style.display = open ? 'none' : 'block';
+      if(arr) arr.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
+    });
+  });
+
+  // Desktop dropdowns
+  function openDD(m, b){ m.classList.add('open'); if(b) b.classList.add('open'); }
+  function closeAll(){
+    document.querySelectorAll('.dd-menu').forEach(function(m){ m.classList.remove('open'); });
+    document.querySelectorAll('.dd-trig').forEach(function(b){ b.classList.remove('open'); });
+  }
+  function setupDD(wId, mId, bId){
+    var w = document.getElementById(wId);
+    var m = document.getElementById(mId);
+    var b = document.getElementById(bId);
+    if(!w || !m) return;
+    var t;
+    w.addEventListener('mouseenter', function(){ clearTimeout(t); openDD(m, b); });
+    w.addEventListener('mouseleave', function(){
+      t = setTimeout(function(){ m.classList.remove('open'); if(b) b.classList.remove('open'); }, 120);
+    });
+    if(b) b.addEventListener('click', function(e){
+      e.stopPropagation();
+      var open = m.classList.contains('open');
+      closeAll();
+      if(!open) openDD(m, b);
+    });
+  }
+  setupDD('ddT', 'ddTm', 'ddTb');
+  setupDD('ddM', 'ddMm', 'ddMb');
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('.dd-wrap')) closeAll();
+  });
+})();
 </script>
 </body>
 </html>
