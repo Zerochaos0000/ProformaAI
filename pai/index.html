@@ -19,12 +19,20 @@ body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;margin:0;}
 .tab-btn{border-bottom:2px solid transparent;padding:12px 18px;font-size:13px;font-weight:500;color:#64748b;cursor:pointer;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap;transition:color .15s,border-color .15s;}
 .tab-btn.active{color:#0043ce;border-bottom-color:#0043ce;font-weight:600;}
 .tab-panel{display:none;}.tab-panel.active{display:block;}
-.pro-table{width:100%;border-collapse:collapse;font-size:13px;}
-.pro-table th{background:#f8fafc;padding:8px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0;}
-.pro-table td{padding:8px 12px;border-bottom:1px solid #f8fafc;color:#374151;}
-.pro-table tr.hi td{background:#eff6ff;font-weight:700;color:#0043ce;border-top:1px solid #bfdbfe;}
-.pro-table td.r{text-align:right;font-variant-numeric:tabular-nums;}
-.pro-table td.neg{color:#dc2626;text-align:right;}
+.pro-table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;}
+.pro-table colgroup col:first-child{width:220px;}
+.pro-table th{background:#f8fafc;padding:9px 14px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;white-space:nowrap;}
+.pro-table th:first-child{text-align:left;}
+.pro-table th:not(:first-child){text-align:right;}
+.pro-table td{padding:9px 14px;border-bottom:1px solid #f8fafc;color:#374151;white-space:nowrap;overflow:hidden;}
+.pro-table td:first-child{text-align:left;color:#475569;}
+.pro-table td:not(:first-child){text-align:right;font-variant-numeric:tabular-nums;}
+.pro-table tr.sec-hd td{background:#f1f5f9;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#475569;padding:6px 14px;border-top:1px solid #e2e8f0;border-bottom:none;}
+.pro-table tr.hi td{background:#eff6ff;font-weight:700;color:#0043ce;border-top:1px solid #bfdbfe;border-bottom:1px solid #bfdbfe;}
+.pro-table tr.hi td:first-child{padding-left:14px;}
+.pro-table td.indent{padding-left:28px;}
+.pro-table td.neg{color:#dc2626;}
+.pro-table tr:hover:not(.sec-hd):not(.hi) td{background:#fafbff;}
 .metric{background:white;border:1px solid #e2e8f0;border-radius:10px;padding:16px 18px;}
 .metric-val{font-size:26px;font-weight:700;color:#1e293b;line-height:1;}
 .metric-lbl{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#94a3b8;margin-top:4px;}
@@ -497,7 +505,7 @@ function calculate(){
 
   // ── Returns table ──────────────────────────────────────────────
   const npv=cashFlows.reduce((a,f,t)=>a+f/Math.pow(1.07,t),0);
-  $('returnsTable').innerHTML=`<thead><tr><th>Metric</th><th class="r">Value</th><th>Benchmark</th></tr></thead><tbody>
+  $('returnsTable').innerHTML=`<thead><tr><th>Metric</th><th>Value</th><th>Benchmark</th></tr></thead><tbody>
     <tr><td>Cap Rate (Going-In)</td><td class="r">${pct(capRate)}</td><td style="color:#64748b;font-size:12px;">5–7% stabilized multifamily</td></tr>
     <tr><td>Gross Rent Multiplier</td><td class="r">${(price/grossPotentialRent).toFixed(1)}×</td><td style="color:#64748b;font-size:12px;">10–14× typical market</td></tr>
     <tr><td>Expense Ratio</td><td class="r">${pct(expRatio,0)}</td><td style="color:#64748b;font-size:12px;">40–55% typical</td></tr>
@@ -512,22 +520,27 @@ function calculate(){
 
   // ── 5-Year Proforma Table ──────────────────────────────────────
   const lbls=rows.map(r=>'Year '+r.y);
-  const th=`<thead><tr><th>Line Item</th>${lbls.map(l=>`<th class="r">${l}</th>`).join('')}</tr></thead>`;
-  const dr=(l,vals,neg=false)=>`<tr><td style="padding-left:20px;color:#64748b;">${l}</td>${vals.map(v=>`<td class="${neg?'neg':'r'}">${neg&&v>0?'('+fmt(v)+')':fmt(v)}</td>`).join('')}</tr>`;
-  const sr=l=>`<tr><td colspan="${hold+1}" style="background:#f1f5f9;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#475569;padding:5px 12px;">${l}</td></tr>`;
-  const tr=l=>`<tr class="hi"><td>${l}</td>${rows.map(r=>`<td class="r">${fmt(r[Object.keys(r).find(k=>k.startsWith('y')&&r[k]!==undefined&&l.toLowerCase().includes(k.slice(1,4).toLowerCase()))||'yNOI'])}</td>`).join('')}</tr>`;
+  const cols=`<colgroup><col style="width:220px">${rows.map(()=>'<col>').join('')}</colgroup>`;
+  const th=`<thead><tr><th>Line Item</th>${lbls.map(l=>`<th>${l}</th>`).join('')}</tr></thead>`;
+  const secRow=l=>`<tr class="sec-hd"><td colspan="${hold+1}">${l}</td></tr>`;
+  const dataRow=(l,vals,neg=false,bold=false)=>`<tr${bold?' class="hi"':''}>
+    <td class="indent">${l}</td>
+    ${vals.map(v=>`<td${neg&&v>0?' class="neg"':''}>${neg&&v>0?'('+fmt(v)+')':fmt(v)}</td>`).join('')}
+  </tr>`;
+  const totRow=(l,vals)=>`<tr class="hi"><td>${l}</td>${vals.map(v=>`<td>${fmt(v)}</td>`).join('')}</tr>`;
 
-  $('proformaTable').innerHTML=th+`<tbody>
-    ${sr('Income')}
-    ${dr('Effective Gross Income', rows.map(r=>r.yEGI))}
-    ${dr('Operating Expenses', rows.map(r=>r.yExp), true)}
-    <tr class="hi"><td>Net Operating Income</td>${rows.map(r=>`<td class="r">${fmt(r.yNOI)}</td>`).join('')}</tr>
-    ${sr('Debt Service')}
-    ${dr('Interest', rows.map(r=>r.intPaid), true)}
-    ${dr('Principal', rows.map(r=>r.prin), true)}
-    <tr class="hi"><td>Levered Cash Flow</td>${rows.map(r=>`<td class="r">${fmt(r.yLevCF)}</td>`).join('')}</tr>
-    ${sr('Balance Sheet')}
-    ${dr('Loan Balance (EOY)', rows.map(r=>r.b1))}
+  $('proformaTable').innerHTML=cols+th+`<tbody>
+    ${secRow('Income')}
+    ${dataRow('Effective Gross Income', rows.map(r=>r.yEGI))}
+    ${dataRow('Operating Expenses', rows.map(r=>r.yExp), true)}
+    ${totRow('Net Operating Income', rows.map(r=>r.yNOI))}
+    ${secRow('Debt Service')}
+    ${dataRow('Interest', rows.map(r=>r.intPaid), true)}
+    ${dataRow('Principal', rows.map(r=>r.prin), true)}
+    ${totRow('Levered Cash Flow', rows.map(r=>r.yLevCF))}
+    ${secRow('Balance Sheet')}
+    ${dataRow('Loan Balance (EOY)', rows.map(r=>r.b1))}
+    ${dataRow('DSCR', rows.map(r=>r.b1?(r.yNOI/annDS).toFixed(2)+'×':'—'))}
   </tbody>`;
 
   // ── Charts ────────────────────────────────────────────────────
