@@ -1,645 +1,426 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mortgage Payoff | REProforma</title>
-  <link href="../favicon.png" rel="icon" type="image/png" />
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-    .input {
-      width: 100%; padding: 8px 12px;
-      border: 1px solid #d1d5db; border-radius: 0.375rem;
-      font-size: 0.875rem; background: #fff; color: #111827;
-      transition: border-color 0.2s, box-shadow 0.2s; margin-top: 4px;
-    }
-    .input:focus { outline: none; border-color: #0056b3; box-shadow: 0 0 0 3px rgba(0,86,179,0.12); }
-    .pro-card { border: 1px solid #e5e7eb; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-    label { display: flex; flex-direction: column; font-weight: 400; }
-    label span { font-size: 0.875rem; color: #4B5563; margin-bottom: 2px; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    .stat-card { border-radius: 0.5rem; padding: 16px 20px; }
-    .amort-row:nth-child(even) { background: #f9fafb; }
-    .amort-row:hover { background: #EBF5FF; }
-    .savings-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; }
-    @media print {
-      header, footer, .cta-section { display: none !important; }
-      .tab-content { display: block !important; }
-    }
-  </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mortgage Payoff | REProforma</title>
+<link rel="icon" type="image/png" href="../favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;}
+a{text-decoration:none;color:inherit;}
+.nav-dd{display:none;position:absolute;left:0;top:100%;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.12);border:1px solid #f1f5f9;z-index:50;min-width:220px;padding:6px 0;}
+.nav-dd.open{display:block;}.nav-wrap{position:relative;}
+.nav-btn{font-size:13px;background:none;border:none;cursor:pointer;padding:20px 0;color:#525252;font-family:'Inter',sans-serif;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:#374151;text-decoration:none;border-left:2px solid transparent;}
+.nav-item:hover,.nav-item.cur{background:#eff6ff;color:#0043ce;border-left-color:#0043ce;}
+.nav-lbl{padding:6px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;}
+.nav-div{height:1px;background:#f1f5f9;margin:4px 16px;}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+@media(max-width:860px){.g3{grid-template-columns:1fr 1fr;}}
+@media(max-width:580px){.g2,.g3{grid-template-columns:1fr;}}
+.card{background:white;border:1px solid #e2e8f0;border-radius:12px;padding:20px;}
+.ch{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #f1f5f9;}
+.ci{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.ct{font-size:14px;font-weight:600;}
+.f{margin-bottom:10px;}
+.lb{display:block;font-size:11px;font-weight:600;color:#64748b;letter-spacing:.03em;text-transform:uppercase;margin-bottom:3px;}
+.inp{width:100%;padding:8px 10px;border:1px solid #cbd5e1;border-radius:7px;font-size:13px;font-family:'Inter',sans-serif;color:#1e293b;background:white;outline:none;}
+.inp:focus{border-color:#0043ce;box-shadow:0 0 0 3px rgba(0,67,206,.08);}
+.p{position:relative;}.p span{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:12px;color:#94a3b8;pointer-events:none;}.p .inp{padding-left:18px;}
+.s{position:relative;}.s span{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:12px;color:#94a3b8;pointer-events:none;}.s .inp{padding-right:22px;}
+.tab-bar{display:flex;border-bottom:1px solid #e2e8f0;background:white;overflow-x:auto;}
+.tb{padding:12px 18px;font-size:13px;font-weight:500;color:#64748b;border:none;border-bottom:2px solid transparent;background:none;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;}
+.tb.on{color:#0043ce;border-bottom-color:#0043ce;font-weight:600;}
+.tp{display:none;}.tp.on{display:block;}
+.btn-b{background:#0043ce;color:white;border:none;border-radius:8px;padding:11px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-o{background:white;color:#475569;border:1px solid #cbd5e1;border-radius:8px;padding:9px 16px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;}
+.sr{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-bottom:1px solid #f8fafc;font-size:13px;}
+.sr:last-child{border-bottom:none;}
+.sr:hover{background:#fafbff;}
+@media print{header,.no-print{display:none!important;}}
+</style>
 </head>
-<body class="bg-white text-gray-900 min-h-screen flex flex-col">
+<body>
 
-<!-- Header -->
-  <style>
-    .dd-menu{display:none;position:absolute;left:0;top:100%;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.12);border:1px solid #f1f5f9;z-index:50;min-width:220px;padding:6px 0;}
-    .dd-menu.open{display:block;}
-    .dd-wrap{position:relative;}
-    .dd-trigger{display:flex;align-items:center;gap:4px;font-size:13px;background:none;border:none;cursor:pointer;padding:20px 0;color:#525252;font-family:inherit;}
-    .dd-trigger:hover,.dd-trigger.open{color:#0043ce;}
-    .dd-trigger svg{transition:transform .2s;}
-    .dd-trigger.open svg{transform:rotate(180deg);}
-    .dd-item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:#374151;text-decoration:none;border-left:2px solid transparent;transition:background .1s,color .1s,border-color .1s;}
-    .dd-item:hover,.dd-item.active{background:#eff6ff;color:#0043ce;border-left-color:#0043ce;}
-    .dd-label{padding:6px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;}
-    .dd-divider{height:1px;background:#f1f5f9;margin:4px 16px;}
-    .mob-sub{display:none;}
-    .mob-sub.open{display:block;}
-  </style>
-  <header class="sticky top-0 z-50 bg-white shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
-      <a href="../index.html" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;">
-        <svg width="34" height="34" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
-        <span style="display:flex;align-items:baseline;line-height:1;"><span style="font-size:19px;font-weight:700;color:#0043ce;letter-spacing:-0.3px;">RE</span><span style="font-size:19px;font-weight:300;color:#0043ce;letter-spacing:-0.3px;">Proforma</span></span>
-      </a>
-      <button id="mob-btn" class="md:hidden" style="color:#0043ce;background:none;border:none;cursor:pointer;">
-        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-      </button>
-      <div class="hidden md:flex items-center" style="gap:32px;">
-        <nav class="flex items-center" style="gap:24px;">
-          <a href="../index.html" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">Home</a>
-          <div class="dd-wrap" id="ddTools">
-            <button class="dd-trigger" id="ddToolsBtn">Tools <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-            <div class="dd-menu" id="ddToolsMenu">
-              <div class="dd-label">Pro Tools</div>
-              <a class="dd-item" href="../pai/index.html">🏢 Multifamily Acquisition</a>
-              <a class="dd-item" href="../pai/index-mixeduse.html">🏬 Commercial &amp; NNN Retail</a>
-              <a class="dd-item" href="../pai/index-land.html">🗺️ Land Development</a>
-              <div class="dd-divider"></div>
-              <div class="dd-label">Free Tools</div>
-              <a class="dd-item" href="../pai/index-affordability.html">🏠 Home Affordability</a>
-              <a class="dd-item" href="../pai/index-rentvsbuy.html">🔄 Rent vs. Buy</a>
-              <a class="dd-item active" href="../pai/index-mortgage-payoff.html">📅 Mortgage Payoff</a>
-            </div>
+<header style="position:sticky;top:0;z-index:50;background:white;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+  <div class="wrap" style="display:flex;justify-content:space-between;align-items:center;height:64px;">
+    <a href="../index.html" style="display:inline-flex;align-items:center;gap:10px;">
+      <svg width="34" height="34" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
+      <span style="display:flex;align-items:baseline;"><span style="font-size:19px;font-weight:700;color:#0043ce;letter-spacing:-.3px;">RE</span><span style="font-size:19px;font-weight:300;color:#0043ce;letter-spacing:-.3px;">Proforma</span></span>
+    </a>
+    <button id="mb" onclick="toggle('mm')" style="display:none;background:none;border:none;cursor:pointer;color:#0043ce;">
+      <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <div id="dn" style="display:flex;align-items:center;gap:28px;">
+      <nav style="display:flex;align-items:center;gap:20px;">
+        <a href="../index.html" class="nav-btn">Home</a>
+        <div class="nav-wrap"><button class="nav-btn" onclick="tdd('dt')">Tools ▾</button>
+          <div class="nav-dd" id="dt">
+            <div class="nav-lbl">Pro Tools</div>
+            <a class="nav-item" href="index.html">🏢 Multifamily</a>
+            <a class="nav-item" href="index-mixeduse.html">🏬 Commercial/Retail</a>
+            <a class="nav-item" href="index-land.html">🗺️ Land Development</a>
+            <div class="nav-div"></div>
+            <div class="nav-lbl">Free Tools</div>
+            <a class="nav-item" href="index-affordability.html">🏠 Home Affordability</a>
+            <a class="nav-item" href="index-rentvsbuy.html">⚖️ Rent vs. Own</a>
+            <a class="nav-item cur" href="index-mortgage-payoff.html">📅 Mortgage Payoff</a>
           </div>
-          <div class="dd-wrap" id="ddMarket">
-            <button class="dd-trigger" id="ddMarketBtn">Market Data <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-            <div class="dd-menu" id="ddMarketMenu" style="min-width:200px;">
-              <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank">Market Trends</a>
-              <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank">Research Reports</a>
-              <a class="dd-item" href="https://berkadia.com/properties" target="_blank">Investment Listings</a>
-            </div>
+        </div>
+        <div class="nav-wrap"><button class="nav-btn" onclick="tdd('dm')">Market Data ▾</button>
+          <div class="nav-dd" id="dm" style="min-width:195px;">
+            <a class="nav-item" href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank">Market Trends</a>
+            <a class="nav-item" href="https://berkadia.com/properties" target="_blank">Investment Listings</a>
           </div>
-          <a href="../about.html" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">About</a>
-        </nav>
-        <a href="../about.html" class="px-4 py-2 text-sm font-semibold text-white rounded" style="background:#0043ce;">Let's talk</a>
+        </div>
+        <a href="../about.html" class="nav-btn">About</a>
+      </nav>
+      <a href="../about.html" class="btn-b" style="font-size:13px;padding:8px 18px;">Let's talk</a>
+    </div>
+  </div>
+  <div id="mm" style="display:none;background:white;border-top:1px solid #f1f5f9;padding:12px 16px;">
+    <a href="../index.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;">Home</a>
+    <p style="padding:6px 12px 2px;font-size:10px;font-weight:700;letter-spacing:.07em;color:#9ca3af;text-transform:uppercase;margin-top:6px;">Pro Tools</p>
+    <a href="index.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;">🏢 Multifamily</a>
+    <a href="index-mixeduse.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;">🏬 Commercial/Retail</a>
+    <a href="index-land.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;">🗺️ Land Development</a>
+    <p style="padding:8px 12px 2px;font-size:10px;font-weight:700;letter-spacing:.07em;color:#9ca3af;text-transform:uppercase;border-top:1px solid #f1f5f9;margin-top:6px;">Free Tools</p>
+    <a href="index-affordability.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;">🏠 Home Affordability</a>
+    <a href="index-rentvsbuy.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;">⚖️ Rent vs. Own</a>
+    <a href="index-mortgage-payoff.html" style="display:block;padding:7px 12px;font-size:13px;color:#0043ce;font-weight:600;background:#eff6ff;border-radius:6px;">📅 Mortgage Payoff</a>
+    <a href="../about.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;">About</a>
+  </div>
+</header>
+
+<div style="background:linear-gradient(to right,#f0fdf4,white);border-bottom:1px solid #e2e8f0;padding:24px 0;">
+  <div class="wrap" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;">
+    <div>
+      <span style="background:#dcfce7;color:#15803d;font-size:11px;font-weight:700;padding:2px 10px;border-radius:99px;display:inline-block;margin-bottom:6px;">Free · No Sign-Up</span>
+      <h1 style="font-size:24px;font-weight:700;color:#0043ce;">📅 Mortgage Payoff Calculator</h1>
+      <p style="font-size:13px;color:#64748b;margin-top:3px;">See how much interest you save and how many years you cut off with extra payments.</p>
+    </div>
+    <div style="display:flex;gap:8px;" class="no-print">
+      <button class="btn-o" onclick="loadDemo()">📋 Demo ($380k loan)</button>
+      <button class="btn-o" onclick="resetAll()">↺ Reset</button>
+    </div>
+  </div>
+</div>
+
+<div class="tab-bar no-print">
+  <button class="tb on" data-t="ti">Your Mortgage</button>
+  <button class="tb" data-t="tr">Results &amp; Savings</button>
+  <button class="tb" data-t="ts">Scenarios</button>
+  <button class="tb" data-t="ta">Amortization</button>
+  <button class="tb" data-t="tc">Chart</button>
+</div>
+
+<div class="wrap" style="padding:22px 0 48px;">
+
+<!-- INPUTS -->
+<div id="ti" class="tp on">
+  <div class="g3" style="margin-bottom:18px;">
+    <!-- Loan Details -->
+    <div class="card">
+      <div class="ch"><div class="ci" style="background:#dbeafe;">🏦</div><span class="ct">Your Mortgage</span></div>
+      <div class="f"><label class="lb">Original Loan Amount ($)</label><div class="p"><span>$</span><input class="inp" id="la" type="number" placeholder="380,000"></div></div>
+      <div class="f"><label class="lb">Current Balance ($) <span style="font-weight:400;text-transform:none;font-size:10px;">leave blank if just starting</span></label><div class="p"><span>$</span><input class="inp" id="bal" type="number" placeholder="0"></div></div>
+      <div class="f"><label class="lb">Interest Rate (%)</label><div class="s"><input class="inp" id="ir" type="number" step="0.01" placeholder="6.75"><span>%</span></div></div>
+      <div class="f"><label class="lb">Original Loan Term</label>
+        <select class="inp" id="lt"><option value="30">30 Years</option><option value="20">20 Years</option><option value="15">15 Years</option><option value="10">10 Years</option></select></div>
+      <div class="f"><label class="lb">Months Already Paid</label><input class="inp" id="mp" type="number" placeholder="0"></div>
+      <!-- Live preview -->
+      <div id="livePrev" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;padding:10px;margin-top:6px;font-size:12px;color:#64748b;display:none;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span>Monthly Payment:</span><span id="lpmt" style="font-weight:600;color:#1e293b;"></span></div>
+        <div style="display:flex;justify-content:space-between;"><span>Total Interest (original):</span><span id="ltint" style="font-weight:600;color:#dc2626;"></span></div>
       </div>
     </div>
-    <div id="mob-menu" class="hidden bg-white border-t border-gray-100" style="box-shadow:0 4px 12px rgba(0,0,0,.08);">
-      <div class="px-4 py-3 space-y-1 text-sm">
-        <a href="../index.html" class="block py-2 px-3 rounded" style="color:#525252;">Home</a>
-        <div>
-          <button class="mob-toggle flex items-center justify-between w-full py-2 px-3 rounded" style="background:#eff6ff;color:#0043ce;border:none;cursor:pointer;font-size:13px;font-family:inherit;">
-            Tools <svg class="h-4 w-4 mob-arrow" style="transition:transform .2s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-          </button>
-          <div class="mob-sub" style="display:none;padding-left:12px;">
-            <p style="padding:6px 12px 2px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;">Pro Tools</p>
-            <a href="../pai/index.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏢 Multifamily Acquisition</a>
-            <a href="../pai/index-mixeduse.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏬 Commercial/Retail</a>
-            <a href="../pai/index-land.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🗺️ Land Development</a>
-            <p style="padding:8px 12px 2px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;border-top:1px solid #f1f5f9;margin-top:4px;">Free Tools</p>
-            <a href="../pai/index-affordability.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏠 Home Affordability</a>
-            <a href="../pai/index-rentvsbuy.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🔄 Rent vs. Buy</a>
-            <a href="../pai/index-mortgage-payoff.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;background:#eff6ff;color:#0043ce;border-color:#0043ce;font-weight:600;">📅 Mortgage Payoff</a>
-          </div>
-        </div>
-        <div>
-          <button class="mob-toggle flex items-center justify-between w-full py-2 px-3 rounded" style="background:none;color:#525252;border:none;cursor:pointer;font-size:13px;font-family:inherit;">
-            Market Data <svg class="h-4 w-4 mob-arrow" style="transition:transform .2s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-          </button>
-          <div class="mob-sub" style="display:none;padding-left:12px;">
-            <a href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank" class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">Market Trends</a>
-            <a href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank" class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">Research Reports</a>
-            <a href="https://berkadia.com/properties" target="_blank" class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">Investment Listings</a>
-          </div>
-        </div>
-        <a href="../about.html" class="block py-2 px-3 rounded" style="color:#525252;;font-size:13px;">About</a>
-        <a href="../about.html" class="block mt-2 py-2 text-center font-semibold text-white rounded" style="background:#0043ce;font-size:13px;">Let's talk</a>
-      </div>
-    </div>
-  </header>
 
-<!-- Hero -->
-<section style="background:linear-gradient(to right,#EBF5FF,#fff)" class="py-12">
-  <div class="max-w-5xl mx-auto px-4">
-    <div class="flex flex-col md:flex-row items-center gap-8">
-      <div class="md:w-3/5">
-        <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold mb-4" style="background:#dbeafe;color:#1d4ed8">FREE TOOL · NO SIGN-UP REQUIRED</div>
-        <h1 class="text-4xl font-light leading-tight mb-4" style="color:#0056b3">📅 Mortgage Payoff Calculator</h1>
-        <p class="text-lg mb-6" style="color:#393939">See exactly how much interest you'll save and how many years you'll cut off your mortgage by making extra payments — monthly, yearly, or a one-time lump sum.</p>
-        <div class="flex flex-wrap gap-3">
-          <button id="autofillDemo" class="px-5 py-2 text-sm font-medium text-white rounded flex items-center" style="background:#0056b3">
-            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
-            Demo Data
-          </button>
-          <button id="resetInputs" class="px-5 py-2 text-sm font-medium rounded flex items-center border-2" style="border-color:#0056b3;color:#0056b3">
-            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
-            Reset
-          </button>
+    <!-- Extra Payments -->
+    <div class="card">
+      <div class="ch"><div class="ci" style="background:#dcfce7;">💰</div><span class="ct">Extra Payments</span></div>
+      <p style="font-size:12px;color:#64748b;margin-bottom:12px;">Adding even small extra payments can save tens of thousands in interest. Try different amounts below.</p>
+      <div class="f"><label class="lb">Extra Monthly Payment ($)</label><div class="p"><span>$</span><input class="inp" id="em" type="number" placeholder="0" oninput="livePrev()"></div></div>
+      <div class="f"><label class="lb">Extra Annual Payment ($) <span style="font-weight:400;text-transform:none;font-size:10px;">e.g. year-end bonus</span></label><div class="p"><span>$</span><input class="inp" id="ea" type="number" placeholder="0"></div></div>
+      <div class="f"><label class="lb">One-Time Lump Sum ($)</label><div class="p"><span>$</span><input class="inp" id="ls" type="number" placeholder="0"></div></div>
+      <div class="f"><label class="lb">Apply Lump Sum in Month #</label><input class="inp" id="lm" type="number" placeholder="1" value="1"></div>
+    </div>
+
+    <!-- Tips -->
+    <div class="card">
+      <div class="ch"><div class="ci" style="background:#fef3c7;">💡</div><span class="ct">Payoff Strategies</span></div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="background:#f8fafc;padding:12px;border-radius:8px;border-left:3px solid #0043ce;">
+          <p style="font-size:12px;font-weight:600;color:#0043ce;margin-bottom:3px;">Round Up Your Payment</p>
+          <p style="font-size:12px;color:#64748b;">If your payment is $1,847, round to $2,000. The extra $153/mo adds up to years off your mortgage.</p>
         </div>
-      </div>
-      <div class="md:w-2/5">
-        <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=500&h=350&auto=format&fit=crop" alt="Mortgage" class="rounded-lg shadow-lg object-cover h-56 w-full" />
+        <div style="background:#f8fafc;padding:12px;border-radius:8px;border-left:3px solid #15803d;">
+          <p style="font-size:12px;font-weight:600;color:#15803d;margin-bottom:3px;">Biweekly Payments</p>
+          <p style="font-size:12px;color:#64748b;">Pay half your monthly payment every 2 weeks. You'll make 26 half-payments = 13 full payments/year — one extra per year.</p>
+        </div>
+        <div style="background:#f8fafc;padding:12px;border-radius:8px;border-left:3px solid #b45309;">
+          <p style="font-size:12px;font-weight:600;color:#b45309;margin-bottom:3px;">Apply Windfalls</p>
+          <p style="font-size:12px;color:#64748b;">Tax refunds, bonuses, and raises applied to principal early in the loan have the biggest impact on total interest.</p>
+        </div>
+        <div style="background:#f8fafc;padding:12px;border-radius:8px;border-left:3px solid #7c3aed;">
+          <p style="font-size:12px;font-weight:600;color:#7c3aed;margin-bottom:3px;">Refinance Consideration</p>
+          <p style="font-size:12px;color:#64748b;">If rates drop 1%+, refinancing to a shorter term can dramatically cut total interest, especially in early years.</p>
+        </div>
       </div>
     </div>
   </div>
-</section>
-
-<main class="max-w-7xl mx-auto px-4 flex-grow py-8">
-
-  <!-- Tabs -->
-  <div class="mb-6 border-b border-gray-200">
-    <nav class="flex flex-wrap -mb-px">
-      <button class="tab-button mr-2 py-3 px-4 border-b-2 font-medium text-sm" data-tab="input-tab" style="border-color:#0056b3;color:#0056b3">Your Mortgage</button>
-      <button class="tab-button mr-2 py-3 px-4 border-b-2 border-transparent font-medium text-sm text-gray-500" data-tab="results-tab">Savings Summary</button>
-      <button class="tab-button mr-2 py-3 px-4 border-b-2 border-transparent font-medium text-sm text-gray-500" data-tab="chart-tab">Payoff Chart</button>
-      <button class="tab-button mr-2 py-3 px-4 border-b-2 border-transparent font-medium text-sm text-gray-500" data-tab="amort-tab">Amortization Schedule</button>
-    </nav>
+  <div style="text-align:center;">
+    <button class="btn-b" onclick="calc()" style="padding:13px 36px;font-size:15px;">Calculate Payoff →</button>
   </div>
+</div>
 
-  <!-- INPUT TAB -->
-  <div class="tab-content active" id="input-tab">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-
-      <!-- Loan Details -->
-      <section class="pro-card bg-white p-6">
-        <div class="flex items-center mb-5">
-          <div class="h-10 w-10 rounded-full flex items-center justify-center mr-3" style="background:#EBF5FF">
-            <svg class="h-5 w-5" style="color:#0056b3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
-          </div>
-          <h2 class="text-base font-semibold" style="color:#393939">Current Mortgage Details</h2>
-        </div>
-        <div class="space-y-4">
-          <label><span>Original Loan Amount ($)</span><input class="input" id="loanAmount" type="number" placeholder="350000" /></label>
-          <label><span>Current Remaining Balance ($) <em class="text-gray-400 font-normal text-xs">leave blank to use original amount</em></span><input class="input" id="remainingBalance" type="number" placeholder="" /></label>
-          <label><span>Interest Rate (%)</span><input class="input" id="interestRate" type="number" step="0.01" placeholder="6.5" /></label>
-          <label><span>Original Loan Term (Years)</span>
-            <select class="input" id="loanTerm"><option value="30">30 Years</option><option value="20">20 Years</option><option value="15">15 Years</option><option value="10">10 Years</option></select>
-          </label>
-          <label><span>Months Already Paid</span><input class="input" id="monthsPaid" type="number" placeholder="0" /></label>
-        </div>
-      </section>
-
-      <!-- Extra Payments -->
-      <section class="pro-card bg-white p-6">
-        <div class="flex items-center mb-5">
-          <div class="h-10 w-10 rounded-full flex items-center justify-center mr-3" style="background:#dcfce7">
-            <svg class="h-5 w-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
-          </div>
-          <h2 class="text-base font-semibold" style="color:#393939">Extra Payment Strategy</h2>
-        </div>
-        <div class="space-y-4">
-          <label><span>Extra Monthly Payment ($)</span><input class="input" id="extraMonthly" type="number" placeholder="0" /></label>
-          <label><span>Extra Annual Payment ($) <em class="text-gray-400 font-normal text-xs">e.g. tax refund each year</em></span><input class="input" id="extraAnnual" type="number" placeholder="0" /></label>
-          <label><span>One-Time Lump Sum Payment ($)</span><input class="input" id="lumpSum" type="number" placeholder="0" /></label>
-          <label><span>Apply Lump Sum in Month #</span><input class="input" id="lumpSumMonth" type="number" placeholder="1" /></label>
-          <div class="bg-blue-50 rounded-lg p-3 text-sm" style="color:#1d4ed8">
-            <p class="font-semibold mb-1">💡 Strategy tip</p>
-            <p style="color:#1e40af">Even $100–$200 extra per month can save you tens of thousands in interest over the life of a 30-year loan.</p>
-          </div>
-        </div>
-      </section>
+<!-- RESULTS -->
+<div id="tr" class="tp">
+  <div id="banner" style="margin-bottom:18px;"></div>
+  <div class="g2" style="margin-bottom:18px;">
+    <div class="card" style="border-top:3px solid #475569;">
+      <p style="font-size:13px;font-weight:700;color:#475569;margin-bottom:12px;">Original Loan</p>
+      <div id="origStats"></div>
     </div>
-
-    <div class="flex justify-center mt-4 mb-4">
-      <button id="calculate" class="text-white font-medium px-8 py-3 rounded flex items-center text-base shadow" style="background:#0056b3">
-        <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
-        Calculate Payoff
-      </button>
-    </div>
-
-    <!-- How it works -->
-    <div class="pro-card bg-white p-6 mt-6">
-      <h3 class="font-semibold text-base mb-4" style="color:#393939">📐 How Extra Payments Work</h3>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm" style="color:#4B5563">
-        <div class="bg-gray-50 rounded p-4"><p class="font-semibold mb-1" style="color:#0056b3">Goes to Principal</p><p>Extra payments are applied directly to your loan principal, reducing the balance faster and cutting future interest charges.</p></div>
-        <div class="bg-gray-50 rounded p-4"><p class="font-semibold mb-1" style="color:#0056b3">Compounding Effect</p><p>Every dollar of principal paid early saves you 20–30 years of interest on that dollar. Small amounts add up dramatically.</p></div>
-        <div class="bg-gray-50 rounded p-4"><p class="font-semibold mb-1" style="color:#0056b3">No Penalty</p><p>Most conventional mortgages have no prepayment penalty. Always confirm with your lender, but for most homeowners it's free to pay extra.</p></div>
-      </div>
+    <div class="card" style="border-top:3px solid #15803d;">
+      <p style="font-size:13px;font-weight:700;color:#15803d;margin-bottom:12px;">With Extra Payments</p>
+      <div id="accelStats"></div>
     </div>
   </div>
+</div>
 
-  <!-- RESULTS TAB -->
-  <div class="tab-content" id="results-tab">
-    <!-- Comparison Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-      <div class="pro-card bg-white p-6">
-        <div class="flex items-center mb-4">
-          <div class="h-8 w-8 rounded-full flex items-center justify-center mr-2" style="background:#fee2e2"><span class="text-sm">📋</span></div>
-          <h3 class="font-semibold" style="color:#393939">Original Schedule</h3>
-        </div>
-        <div id="original-stats" class="space-y-3"></div>
-      </div>
-      <div class="pro-card bg-white p-6">
-        <div class="flex items-center mb-4">
-          <div class="h-8 w-8 rounded-full flex items-center justify-center mr-2" style="background:#dcfce7"><span class="text-sm">🚀</span></div>
-          <h3 class="font-semibold" style="color:#393939">With Extra Payments</h3>
-        </div>
-        <div id="accelerated-stats" class="space-y-3"></div>
-      </div>
+<!-- SCENARIOS -->
+<div id="ts" class="tp">
+  <div class="card" style="overflow-x:auto;">
+    <p style="font-size:13px;font-weight:600;margin-bottom:14px;">Extra Payment Scenarios — Side-by-Side Comparison</p>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead>
+        <tr style="background:#f8fafc;">
+          <th style="padding:9px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Scenario</th>
+          <th style="padding:9px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Payoff Date</th>
+          <th style="padding:9px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Time Saved</th>
+          <th style="padding:9px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#15803d;border-bottom:2px solid #e2e8f0;">Interest Saved</th>
+          <th style="padding:9px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Monthly Payment</th>
+        </tr>
+      </thead>
+      <tbody id="scenBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- AMORTIZATION -->
+<div id="ta" class="tp">
+  <div class="card" style="overflow-x:auto;">
+    <p style="font-size:13px;font-weight:600;margin-bottom:14px;">Accelerated Amortization Schedule</p>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:600px;">
+      <thead>
+        <tr style="background:#f8fafc;">
+          <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Month</th>
+          <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Payment</th>
+          <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#15803d;border-bottom:2px solid #e2e8f0;">Principal</th>
+          <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#dc2626;border-bottom:2px solid #e2e8f0;">Interest</th>
+          <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#0043ce;border-bottom:2px solid #e2e8f0;">Extra</th>
+          <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#475569;border-bottom:2px solid #e2e8f0;">Balance</th>
+        </tr>
+      </thead>
+      <tbody id="amortBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- CHART -->
+<div id="tc" class="tp">
+  <div class="g2">
+    <div class="card"><p style="font-size:13px;font-weight:600;margin-bottom:14px;">Loan Balance Over Time</p><div style="position:relative;height:300px;"><canvas id="cBal"></canvas></div></div>
+    <div class="card"><p style="font-size:13px;font-weight:600;margin-bottom:14px;">Principal vs. Interest Paid Over Time</p><div style="position:relative;height:300px;"><canvas id="cPI"></canvas></div></div>
+  </div>
+</div>
+
+</div>
+
+<footer style="background:#0f172a;padding:44px 0;color:white;">
+  <div class="wrap">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-bottom:24px;">
+      <div><div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;"><svg width="26" height="26" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg><span style="font-size:15px;font-weight:700;">RE<span style="font-weight:300;">Proforma</span></span></div><p style="font-size:13px;color:#94a3b8;">Real estate analytics for investors and homebuyers.</p></div>
+      <div><p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Tools</p><div style="display:flex;flex-direction:column;gap:6px;font-size:13px;"><a href="index.html" style="color:#94a3b8;">Multifamily</a><a href="index-mixeduse.html" style="color:#94a3b8;">Commercial/Retail</a><a href="index-land.html" style="color:#94a3b8;">Land Dev.</a><a href="index-affordability.html" style="color:#94a3b8;">Home Affordability</a><a href="index-rentvsbuy.html" style="color:#94a3b8;">Rent vs. Own</a><a href="index-mortgage-payoff.html" style="color:#94a3b8;">Mortgage Payoff</a></div></div>
+      <div><p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Resources</p><div style="display:flex;flex-direction:column;gap:6px;font-size:13px;"><a href="#" style="color:#94a3b8;">Market Reports</a><a href="#" style="color:#94a3b8;">Investment Guide</a><a href="#" style="color:#94a3b8;">Support</a></div></div>
+      <div><p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Subscribe</p><div style="display:flex;margin-top:6px;"><input type="email" placeholder="Your email" style="flex:1;padding:8px;border-radius:6px 0 0 6px;border:none;font-size:13px;outline:none;"><button style="background:#0056b3;color:white;border:none;padding:8px 12px;border-radius:0 6px 6px 0;cursor:pointer;font-size:13px;">Go</button></div></div>
     </div>
-
-    <!-- Savings Banner -->
-    <div id="savings-banner" class="mb-6"></div>
-
-    <!-- Extra payment strategies comparison -->
-    <div class="pro-card bg-white p-6 mb-6">
-      <h3 class="font-semibold text-base mb-4" style="color:#393939">📊 Quick Comparison: Extra Payment Scenarios</h3>
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm" id="scenarios-table" style="border-collapse:collapse;color:#4B5563">
-          <thead><tr style="background:#f3f4f6">
-            <th class="p-2 border-b text-left font-semibold" style="color:#374151">Extra Payment</th>
-            <th class="p-2 border-b text-right font-semibold" style="color:#374151">Payoff Date</th>
-            <th class="p-2 border-b text-right font-semibold" style="color:#374151">Years Saved</th>
-            <th class="p-2 border-b text-right font-semibold" style="color:#166534">Interest Saved</th>
-          </tr></thead>
-          <tbody id="scenarios-body"></tbody>
-        </table>
-      </div>
+    <div style="border-top:1px solid #1e293b;padding-top:16px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font-size:13px;color:#64748b;">
+      <p>&copy; 2025 REProforma. All rights reserved.</p>
+      <div style="display:flex;gap:18px;"><a href="../privacy.html" style="color:#64748b;">Privacy Policy</a><a href="../terms.html" style="color:#64748b;">Terms</a></div>
     </div>
   </div>
-
-  <!-- CHART TAB -->
-  <div class="tab-content" id="chart-tab">
-    <div class="pro-card bg-white p-6 mb-6">
-      <h2 class="text-xl font-semibold mb-2" style="color:#393939">Loan Balance Over Time</h2>
-      <p class="text-sm mb-6" style="color:#6b7280">See how your loan balance drops faster with extra payments.</p>
-      <div style="height:400px;background:#f9fafb" class="rounded p-4 mb-6">
-        <canvas id="balanceChart"></canvas>
-      </div>
-    </div>
-    <div class="pro-card bg-white p-6">
-      <h3 class="font-semibold text-base mb-4" style="color:#393939">Interest Paid Over Time</h3>
-      <div style="height:350px;background:#f9fafb" class="rounded p-4">
-        <canvas id="interestChart"></canvas>
-      </div>
-    </div>
-  </div>
-
-  <!-- AMORTIZATION TAB -->
-  <div class="tab-content" id="amort-tab">
-    <div class="pro-card bg-white p-6">
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3">
-        <h2 class="text-xl font-semibold" style="color:#393939">Full Amortization Schedule</h2>
-        <div class="flex gap-2 text-xs">
-          <span class="savings-badge" style="background:#dcfce7;color:#166534">🟢 With Extra Payments</span>
-          <span class="savings-badge" style="background:#fee2e2;color:#991b1b">🔴 Without Extra</span>
-        </div>
-      </div>
-      <div class="overflow-x-auto" style="max-height:600px;overflow-y:auto">
-        <table class="w-full text-xs" style="border-collapse:collapse;color:#4B5563">
-          <thead style="position:sticky;top:0;background:#f3f4f6">
-            <tr>
-              <th class="p-2 border-b text-left font-semibold" style="color:#374151">Month</th>
-              <th class="p-2 border-b text-right font-semibold" style="color:#374151">Payment</th>
-              <th class="p-2 border-b text-right font-semibold" style="color:#374151">Principal</th>
-              <th class="p-2 border-b text-right font-semibold" style="color:#dc2626">Interest</th>
-              <th class="p-2 border-b text-right font-semibold" style="color:#374151">Extra</th>
-              <th class="p-2 border-b text-right font-semibold" style="color:#0056b3">Balance</th>
-            </tr>
-          </thead>
-          <tbody id="amort-body"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-</main>
-
-<!-- CTA -->
-<section class="py-16 text-white cta-section" style="background:#0043ce">
-  <div class="max-w-5xl mx-auto px-4 text-center">
-    <h2 class="text-3xl font-light mb-4">Ready to invest in your next property?</h2>
-    <p class="text-lg opacity-90 mb-8 max-w-2xl mx-auto">Building equity faster? Use our professional proforma tools to analyze your next real estate investment.</p>
-    <div class="flex flex-wrap justify-center gap-4">
-      <a href="index.html" class="px-6 py-3 font-medium rounded" style="background:#fff;color:#0056b3">Multifamily Proforma</a>
-      <a href="index-affordability.html" class="px-6 py-3 font-medium rounded border-2 border-white text-white">🏠 Affordability Calculator</a>
-    </div>
-  </div>
-</section>
-
-<!-- Footer -->
-  <footer class="py-14 text-white" style="background:#0f172a;">
-    <div class="max-w-7xl mx-auto px-4">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
-        <div>
-          <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;">
-            <svg width="28" height="28" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
-            <span style="font-size:16px;font-weight:700;color:white;letter-spacing:-0.2px;">RE<span style="font-weight:300;">Proforma</span></span>
-          </div>
-          <p class="text-sm text-gray-400 mb-4">Advanced analytics for real estate investment professionals.</p>
-          <div class="flex space-x-3">
-            <a href="#" class="text-gray-400 hover:text-white"><svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg></a>
-            <a href="#" class="text-gray-400 hover:text-white"><svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a>
-          </div>
-        </div>
-        <div>
-          <h4 class="text-sm font-semibold mb-3 text-white">Tools</h4>
-          <p class="text-xs uppercase tracking-widest text-gray-500 mb-2">Pro</p>
-          <ul class="space-y-2 text-sm text-gray-400 mb-3">
-            <li><a href="../pai/index.html" class="hover:text-white">Multifamily Acquisition</a></li>
-            <li><a href="../pai/index-mixeduse.html" class="hover:text-white">Commercial &amp; NNN Retail</a></li>
-            <li><a href="../pai/index-land.html" class="hover:text-white">Land Development</a></li>
-          </ul>
-          <p class="text-xs uppercase tracking-widest text-gray-500 mb-2 border-t border-gray-800 pt-2">Free</p>
-          <ul class="space-y-2 text-sm text-gray-400">
-            <li><a href="../pai/index-affordability.html" class="hover:text-white">🏠 Home Affordability</a></li>
-            <li><a href="../pai/index-rentvsbuy.html" class="hover:text-white">🔄 Rent vs. Buy</a></li>
-            <li><a href="../pai/index-mortgage-payoff.html" class="hover:text-white">📅 Mortgage Payoff</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="text-sm font-semibold mb-3 text-white">Resources</h4>
-          <ul class="space-y-2 text-sm text-gray-400">
-            <li><a href="#" class="hover:text-white">Market Reports</a></li>
-            <li><a href="#" class="hover:text-white">Investment Guide</a></li>
-            <li><a href="#" class="hover:text-white">Case Studies</a></li>
-            <li><a href="#" class="hover:text-white">Blog</a></li>
-            <li><a href="#" class="hover:text-white">Support</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="text-sm font-semibold mb-3 text-white">Subscribe</h4>
-          <p class="text-sm text-gray-400 mb-3">Get the latest real estate investment insights.</p>
-          <div class="flex">
-            <input type="email" placeholder="Enter your email" class="px-3 py-2 rounded-l w-full text-sm text-gray-900 focus:outline-none"/>
-            <button class="px-4 py-2 rounded-r text-sm text-white font-semibold" style="background:#0056b3;">Go</button>
-          </div>
-        </div>
-      </div>
-      <div class="pt-6 border-t border-gray-800 flex flex-col md:flex-row justify-between text-sm text-gray-500">
-        <p>&copy; 2025 REProforma. All rights reserved.</p>
-        <div class="flex gap-5 mt-3 md:mt-0">
-          <a href="../privacy.html" class="hover:text-white">Privacy Policy</a>
-          <a href="../terms.html" class="hover:text-white">Terms of Service</a>
-        </div>
-      </div>
-    </div>
-  </footer>
+</footer>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  let balanceChart = null, interestChart = null;
+const $=id=>document.getElementById(id);
+const num=id=>parseFloat($(id)?.value)||0;
+const set=(id,v)=>{if($(id))$(id).value=v;};
+const fmt=v=>'$'+Math.round(v).toLocaleString();
+function toggle(id){const e=$(id);e.style.display=e.style.display==='block'?'none':'block';}
+function tdd(id){const m=$(id);if(!m)return;const o=m.classList.contains('open');document.querySelectorAll('.nav-dd').forEach(d=>d.classList.remove('open'));if(!o)m.classList.add('open');}
+document.addEventListener('click',e=>{if(!e.target.closest('.nav-wrap'))document.querySelectorAll('.nav-dd').forEach(d=>d.classList.remove('open'));});
+function ckW(){const mob=window.innerWidth<768;$('dn').style.display=mob?'none':'flex';$('mb').style.display=mob?'block':'none';}
+window.addEventListener('resize',ckW);ckW();
+document.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.tp').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); $(b.dataset.t).classList.add('on');
+  if(b.dataset.t==='tc'&&_orig) renderCharts();
+}));
+function sw(id){document.querySelectorAll('.tb').forEach(x=>x.classList.toggle('on',x.dataset.t===id));document.querySelectorAll('.tp').forEach(x=>x.classList.toggle('on',x.id===id));}
+const CH={};
+function mkC(id,cfg){if(CH[id])CH[id].destroy();CH[id]=new Chart($(id),cfg);}
 
-  document.getElementById('mobile-menu-button').addEventListener('click', () => {
-    document.getElementById('mobile-menu').classList.toggle('hidden');
-  });
+let _orig=null,_accel=null;
 
-  document.querySelectorAll('.tab-button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const target = btn.getAttribute('data-tab');
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      document.getElementById(target).classList.add('active');
-      document.querySelectorAll('.tab-button').forEach(b => { b.style.color='#6b7280'; b.style.borderColor='transparent'; });
-      btn.style.color = '#0056b3'; btn.style.borderColor = '#0056b3';
-      if (target === 'chart-tab') renderCharts();
-    });
-  });
-
-  function n(id) { return parseFloat(document.getElementById(id).value) || 0; }
-
-  let _orig = null, _accel = null;
-
-  function amortize(startBalance, rate, termMonths, extraMonthly, extraAnnual, lumpSum, lumpSumMonth) {
-    let balance = startBalance;
-    const monthlyRate = rate / 12;
-    const stdPayment = startBalance * monthlyRate / (1 - Math.pow(1 + monthlyRate, -termMonths));
-    let totalInterest = 0, totalPrincipal = 0, totalPaid = 0;
-    const schedule = [];
-    for (let m = 1; balance > 0.01 && m <= termMonths + 1; m++) {
-      const interest  = balance * monthlyRate;
-      let principal   = Math.min(stdPayment - interest, balance);
-      let extra       = extraMonthly;
-      if (m % 12 === 0) extra += extraAnnual;
-      if (m === lumpSumMonth) extra += lumpSum;
-      extra = Math.min(extra, balance - principal);
-      const totalPrincipalThisMonth = principal + extra;
-      balance -= totalPrincipalThisMonth;
-      totalInterest += interest;
-      totalPrincipal += totalPrincipalThisMonth;
-      totalPaid += stdPayment + extra;
-      schedule.push({ month: m, payment: stdPayment + extra, principal: totalPrincipalThisMonth, interest, extra, balance: Math.max(0, balance) });
-      if (balance <= 0) break;
-    }
-    return { schedule, totalInterest, totalPrincipal, totalPaid, months: schedule.length, stdPayment };
+function amortize(startBal,rate,termMo,extraMo,extraAnn,lumpSum,lumpMo){
+  let bal=startBal;
+  const mr=rate/12;
+  const std=startBal*mr/(1-Math.pow(1+mr,-termMo));
+  let totInt=0,totPrin=0,totPaid=0;
+  const sched=[];
+  for(let m=1;bal>0.01&&m<=termMo+1;m++){
+    const ip=bal*mr;
+    let pp=Math.min(std-ip,bal);
+    let ex=extraMo;
+    if(m%12===0)ex+=extraAnn;
+    if(m===lumpMo)ex+=lumpSum;
+    ex=Math.min(ex,bal-pp);
+    bal-=(pp+ex); totInt+=ip; totPrin+=(pp+ex); totPaid+=(std+ex);
+    sched.push({m,pmt:std+ex,prin:pp+ex,int:ip,ex,bal:Math.max(0,bal)});
+    if(bal<=0)break;
   }
+  return{sched,totInt,totPrin,totPaid,months:sched.length,std};
+}
 
-  document.getElementById('calculate').addEventListener('click', calculate);
+function livePrev(){
+  const la=num('la'),rate=num('ir')/100,term=parseInt($('lt').value)||30;
+  if(!la||!rate)return;
+  const mr=rate/12,n=term*12;
+  const pmt=la*mr/(1-Math.pow(1+mr,-n));
+  const totInt=pmt*n-la;
+  const p=$('livePrev'),lp=$('lpmt'),lt=$('ltint');
+  if(p){p.style.display='block';if(lp)lp.textContent=fmt(pmt)+'/mo';if(lt)lt.textContent=fmt(totInt);}
+}
+['la','ir','lt'].forEach(id=>{const e=$(id);if(e)e.addEventListener('input',livePrev);});
 
-  function calculate() {
-    const loanAmount  = n('loanAmount');
-    const remaining   = n('remainingBalance') || loanAmount;
-    const rate        = n('interestRate') / 100;
-    const term        = parseInt(document.getElementById('loanTerm').value);
-    const monthsPaid  = n('monthsPaid');
-    const extraMo     = n('extraMonthly');
-    const extraAnn    = n('extraAnnual');
-    const lumpSum     = n('lumpSum');
-    const lumpSumMo   = Math.max(1, n('lumpSumMonth') || 1);
+function calc(){
+  const la=num('la'), bal=num('bal')||la, rate=num('ir')/100;
+  const term=parseInt($('lt').value)||30, mp=num('mp');
+  const em=num('em'), ea=num('ea'), ls=num('ls'), lm=Math.max(1,num('lm')||1);
+  if(!la||!rate){alert('Please enter loan amount and interest rate.');return;}
+  const remTerm=term*12-mp;
+  _orig =amortize(bal,rate,remTerm,0,0,0,1);
+  _accel=amortize(bal,rate,remTerm,em,ea,ls,lm);
 
-    if (!loanAmount || !rate) { alert('Please enter loan amount and interest rate.'); return; }
+  const oY=Math.floor(_orig.months/12),oM=_orig.months%12;
+  const aY=Math.floor(_accel.months/12),aM=_accel.months%12;
+  const savedMo=_orig.months-_accel.months;
+  const sY=Math.floor(savedMo/12),sM=savedMo%12;
+  const iSaved=_orig.totInt-_accel.totInt;
 
-    const remainingTerm = term * 12 - monthsPaid;
-    _orig  = amortize(remaining, rate, remainingTerm, 0, 0, 0, 0);
-    _accel = amortize(remaining, rate, remainingTerm, extraMo, extraAnn, lumpSum, lumpSumMo);
+  const now=new Date();
+  const payoffDate=mo=>{const d=new Date(now.getFullYear(),now.getMonth()+mo,1);return d.toLocaleDateString('en-US',{month:'short',year:'numeric'});};
+  const sr=(l,v,c='')=>`<div class="sr"><span>${l}</span><span style="font-weight:600;color:${c||'#1e293b'}">${v}</span></div>`;
 
-    const origYears   = Math.floor(_orig.months / 12);
-    const origMonths  = _orig.months % 12;
-    const accelYears  = Math.floor(_accel.months / 12);
-    const accelMonths = _accel.months % 12;
-    const savedMonths = _orig.months - _accel.months;
-    const savedYears  = Math.floor(savedMonths / 12);
-    const savedMos    = savedMonths % 12;
-    const interestSaved = _orig.totalInterest - _accel.totalInterest;
+  $('origStats').innerHTML=
+    sr('Monthly Payment',fmt(_orig.std))+
+    sr('Payoff In',oY+'y '+oM+'m')+
+    sr('Payoff Date',payoffDate(_orig.months))+
+    sr('Total Interest',fmt(_orig.totInt),'#dc2626')+
+    sr('Total Paid',fmt(_orig.totPaid));
 
-    function statRow(label, value, color) {
-      return `<div class="flex justify-between items-center py-2 border-b border-gray-100 text-sm">
-        <span style="color:#374151">${label}</span>
-        <span class="font-semibold" style="color:${color || '#111827'}">${value}</span>
-      </div>`;
-    }
+  $('accelStats').innerHTML=
+    sr('Monthly Payment',fmt(_accel.std+em),'#15803d')+
+    sr('Payoff In',aY+'y '+aM+'m','#15803d')+
+    sr('Payoff Date',payoffDate(_accel.months),'#15803d')+
+    sr('Total Interest',fmt(_accel.totInt),'#15803d')+
+    sr('Total Paid',fmt(_accel.totPaid));
 
-    const now = new Date();
-    function payoffDate(months) {
-      const d = new Date(now.getFullYear(), now.getMonth() + months, 1);
-      return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-    }
+  const hasSav=savedMo>0||iSaved>100;
+  $('banner').innerHTML=hasSav
+    ?`<div style="background:linear-gradient(135deg,#dcfce7,#bbf7d0);border:2px solid #16a34a;border-radius:12px;padding:24px;text-align:center;">
+        <p style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#166534;margin-bottom:12px;">💰 Your Extra Payment Savings</p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+          <div><p style="font-size:32px;font-weight:800;color:#15803d;line-height:1;">${fmt(iSaved)}</p><p style="font-size:12px;color:#166534;margin-top:4px;">Interest Saved</p></div>
+          <div><p style="font-size:32px;font-weight:800;color:#15803d;line-height:1;">${sY}y ${sM}m</p><p style="font-size:12px;color:#166534;margin-top:4px;">Time Saved</p></div>
+          <div><p style="font-size:24px;font-weight:800;color:#15803d;line-height:1;">${payoffDate(_accel.months)}</p><p style="font-size:12px;color:#166534;margin-top:4px;">New Payoff Date</p></div>
+        </div>
+      </div>`
+    :`<div style="background:#fef9c3;border:1px solid #fde68a;border-radius:10px;padding:16px;text-align:center;font-size:13px;color:#92400e;">Enter extra payment amounts on the inputs tab to see your savings here.</div>`;
 
-    document.getElementById('original-stats').innerHTML =
-      statRow('Monthly Payment', '$' + Math.round(_orig.stdPayment).toLocaleString()) +
-      statRow('Payoff In', origYears + ' yrs ' + origMonths + ' mos') +
-      statRow('Payoff Date', payoffDate(_orig.months)) +
-      statRow('Total Interest', '$' + Math.round(_orig.totalInterest).toLocaleString(), '#dc2626') +
-      statRow('Total Paid', '$' + Math.round(_orig.totalPaid).toLocaleString());
-
-    document.getElementById('accelerated-stats').innerHTML =
-      statRow('Monthly Payment', '$' + Math.round(_accel.stdPayment + extraMo).toLocaleString(), '#166534') +
-      statRow('Payoff In', accelYears + ' yrs ' + accelMonths + ' mos', '#166534') +
-      statRow('Payoff Date', payoffDate(_accel.months), '#166534') +
-      statRow('Total Interest', '$' + Math.round(_accel.totalInterest).toLocaleString(), '#16a34a') +
-      statRow('Total Paid', '$' + Math.round(_accel.totalPaid).toLocaleString());
-
-    // Savings Banner
-    const hasSavings = savedMonths > 0 || interestSaved > 100;
-    document.getElementById('savings-banner').innerHTML = hasSavings
-      ? `<div class="rounded-xl p-6 text-center" style="background:linear-gradient(135deg,#dcfce7,#bbf7d0);border:2px solid #16a34a">
-          <p class="text-sm font-semibold uppercase tracking-wide mb-2" style="color:#166534">💰 Your Extra Payment Savings</p>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-            <div><p class="text-3xl font-bold" style="color:#166534">$${Math.round(interestSaved).toLocaleString()}</p><p class="text-sm" style="color:#15803d">Interest Saved</p></div>
-            <div><p class="text-3xl font-bold" style="color:#166534">${savedYears}y ${savedMos}m</p><p class="text-sm" style="color:#15803d">Time Saved</p></div>
-            <div><p class="text-3xl font-bold" style="color:#166534">${payoffDate(_accel.months)}</p><p class="text-sm" style="color:#15803d">New Payoff Date</p></div>
-          </div>
-        </div>`
-      : `<div class="rounded-xl p-4 text-center" style="background:#fef9c3;border:1px solid #fde68a"><p style="color:#92400e">Enter extra payment amounts above to see your savings.</p></div>`;
-
-    // Scenarios table
-    const scenarios = [
-      { label: 'No extra payment', extra: 0, annual: 0 },
-      { label: '+$100/month', extra: 100, annual: 0 },
-      { label: '+$200/month', extra: 200, annual: 0 },
-      { label: '+$500/month', extra: 500, annual: 0 },
-      { label: '+$1,000/month', extra: 1000, annual: 0 },
-      { label: '+$5,000/year', extra: 0, annual: 5000 },
-    ];
-    let tbody = '';
-    scenarios.forEach(s => {
-      const res = amortize(remaining, rate, remainingTerm, s.extra, s.annual, 0, 1);
-      const mSaved = _orig.months - res.months;
-      const iSaved = _orig.totalInterest - res.totalInterest;
-      const isSelected = s.extra === extraMo && s.annual === extraAnn;
-      tbody += `<tr style="${isSelected ? 'background:#EBF5FF;' : ''}border-bottom:1px solid #f3f4f6">
-        <td class="p-2 font-medium" style="color:#374151">${s.label}${isSelected ? ' ⭐' : ''}</td>
-        <td class="p-2 text-right">${payoffDate(res.months)}</td>
-        <td class="p-2 text-right" style="color:${mSaved>0?'#166534':'#6b7280'}">${mSaved > 0 ? Math.floor(mSaved/12) + 'y ' + (mSaved%12) + 'm' : '—'}</td>
-        <td class="p-2 text-right font-semibold" style="color:${iSaved>0?'#166534':'#6b7280'}">${iSaved > 0 ? '$' + Math.round(iSaved).toLocaleString() : '—'}</td>
-      </tr>`;
-    });
-    document.getElementById('scenarios-body').innerHTML = tbody;
-
-    // Amortization table — show accelerated schedule
-    let amortHTML = '';
-    _accel.schedule.forEach(row => {
-      amortHTML += `<tr class="amort-row" style="border-bottom:1px solid #f3f4f6">
-        <td class="p-2">${row.month}</td>
-        <td class="p-2 text-right">$${Math.round(row.payment).toLocaleString()}</td>
-        <td class="p-2 text-right" style="color:#166534">$${Math.round(row.principal).toLocaleString()}</td>
-        <td class="p-2 text-right" style="color:#dc2626">$${Math.round(row.interest).toLocaleString()}</td>
-        <td class="p-2 text-right" style="color:#0056b3">${row.extra > 0 ? '$' + Math.round(row.extra).toLocaleString() : '—'}</td>
-        <td class="p-2 text-right font-semibold" style="color:#0056b3">$${Math.round(row.balance).toLocaleString()}</td>
-      </tr>`;
-    });
-    document.getElementById('amort-body').innerHTML = amortHTML;
-
-    // Switch to results
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.getElementById('results-tab').classList.add('active');
-    document.querySelectorAll('.tab-button').forEach(b => { b.style.color='#6b7280'; b.style.borderColor='transparent'; });
-    document.querySelector('[data-tab="results-tab"]').style.color = '#0056b3';
-    document.querySelector('[data-tab="results-tab"]').style.borderColor = '#0056b3';
-  }
-
-  function renderCharts() {
-    if (!_orig || !_accel) return;
-    // Sample every 6 months for chart
-    const origSlice  = _orig.schedule.filter((_, i) => i % 6 === 0 || i === _orig.schedule.length - 1);
-    const accelSlice = _accel.schedule.filter((_, i) => i % 6 === 0 || i === _accel.schedule.length - 1);
-    const maxLen = origSlice.length;
-    const accelBalances = accelSlice.map(r => r.balance);
-    while (accelBalances.length < maxLen) accelBalances.push(0);
-
-    // Balance chart
-    const ctx1 = document.getElementById('balanceChart').getContext('2d');
-    if (balanceChart) balanceChart.destroy();
-    balanceChart = new Chart(ctx1, {
-      type: 'line',
-      data: {
-        labels: origSlice.map(r => 'Mo ' + r.month),
-        datasets: [
-          { label: 'Original Schedule', data: origSlice.map(r => r.balance), borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.06)', fill: true, tension: 0.3, borderWidth: 2 },
-          { label: 'With Extra Payments', data: accelBalances, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.06)', fill: true, tension: 0.3, borderWidth: 2 }
-        ]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': $' + Math.round(ctx.parsed.y).toLocaleString() } } },
-        scales: { y: { ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k' }, grid: { color: '#f3f4f6' } } }
-      }
-    });
-
-    // Cumulative interest chart
-    const ctx2 = document.getElementById('interestChart').getContext('2d');
-    if (interestChart) interestChart.destroy();
-    let cumOrigInt = 0, cumAccelInt = 0;
-    const origCumInt  = origSlice.map(r => { cumOrigInt += r.interest; return cumOrigInt; });
-    const accelCumInt = [];
-    let ai = 0;
-    accelSlice.forEach(r => { ai += r.interest; accelCumInt.push(ai); });
-    while (accelCumInt.length < maxLen) accelCumInt.push(accelCumInt[accelCumInt.length - 1] || ai);
-    interestChart = new Chart(ctx2, {
-      type: 'line',
-      data: {
-        labels: origSlice.map(r => 'Mo ' + r.month),
-        datasets: [
-          { label: 'Interest Paid (Original)', data: origCumInt, borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.08)', fill: true, tension: 0.3, borderWidth: 2 },
-          { label: 'Interest Paid (Accelerated)', data: accelCumInt, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.08)', fill: true, tension: 0.3, borderWidth: 2 }
-        ]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': $' + Math.round(ctx.parsed.y).toLocaleString() } } },
-        scales: { y: { ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k' }, grid: { color: '#f3f4f6' } } }
-      }
-    });
-  }
-
-  document.getElementById('autofillDemo').addEventListener('click', () => {
-    document.getElementById('loanAmount').value   = 350000;
-    document.getElementById('remainingBalance').value = 320000;
-    document.getElementById('interestRate').value = 6.5;
-    document.getElementById('loanTerm').value     = 30;
-    document.getElementById('monthsPaid').value   = 36;
-    document.getElementById('extraMonthly').value = 200;
-    document.getElementById('extraAnnual').value  = 2000;
-    document.getElementById('lumpSum').value      = 10000;
-    document.getElementById('lumpSumMonth').value = 1;
+  // Scenarios
+  const scens=[{l:'No extra payment',e:0,a:0},{l:'+$100/month',e:100,a:0},{l:'+$200/month',e:200,a:0},{l:'+$300/month',e:300,a:0},{l:'+$500/month',e:500,a:0},{l:'+$1,000/month',e:1000,a:0},{l:'+$5,000/year lump',e:0,a:5000},{l:`Your scenario (+${fmt(em)}/mo)`,e:em,a:ea,cur:true}];
+  let sbody='';
+  scens.forEach(s=>{
+    const r=amortize(bal,rate,remTerm,s.e,s.a,0,1);
+    const mSav=_orig.months-r.months, iSav=_orig.totInt-r.totInt;
+    const syR=Math.floor(mSav/12),smR=mSav%12;
+    sbody+=`<tr style="${s.cur?'background:#eff6ff;font-weight:600;':''}border-bottom:1px solid #f8fafc;">
+      <td style="padding:9px 12px;color:#374151;">${s.l}${s.cur?' ⭐':''}</td>
+      <td style="padding:9px 12px;text-align:right;font-size:12px;">${payoffDate(r.months)}</td>
+      <td style="padding:9px 12px;text-align:right;color:${mSav>0?'#15803d':'#94a3b8'};font-size:12px;">${mSav>0?syR+'y '+smR+'m':'—'}</td>
+      <td style="padding:9px 12px;text-align:right;font-weight:600;color:${iSav>0?'#15803d':'#94a3b8'};">${iSav>100?fmt(iSav):'—'}</td>
+      <td style="padding:9px 12px;text-align:right;font-size:12px;">${fmt(r.std+s.e)}/mo</td>
+    </tr>`;
   });
+  $('scenBody').innerHTML=sbody;
 
-  document.getElementById('resetInputs').addEventListener('click', () => {
-    document.querySelectorAll('input').forEach(i => i.value = '');
-    _orig = null; _accel = null;
-    document.getElementById('original-stats').innerHTML = '';
-    document.getElementById('accelerated-stats').innerHTML = '';
-    document.getElementById('savings-banner').innerHTML = '';
-    document.getElementById('scenarios-body').innerHTML = '';
-    document.getElementById('amort-body').innerHTML = '';
-    if (balanceChart) { balanceChart.destroy(); balanceChart = null; }
-    if (interestChart) { interestChart.destroy(); interestChart = null; }
+  // Amortization
+  let abody='';
+  _accel.sched.forEach(r=>{
+    abody+=`<tr style="border-bottom:1px solid #f8fafc;">
+      <td style="padding:7px 10px;">${r.m}</td>
+      <td style="padding:7px 10px;text-align:right;">${fmt(r.pmt)}</td>
+      <td style="padding:7px 10px;text-align:right;color:#15803d;">${fmt(r.prin)}</td>
+      <td style="padding:7px 10px;text-align:right;color:#dc2626;">${fmt(r.int)}</td>
+      <td style="padding:7px 10px;text-align:right;color:#0043ce;">${r.ex>0?fmt(r.ex):'—'}</td>
+      <td style="padding:7px 10px;text-align:right;font-weight:600;">${fmt(r.bal)}</td>
+    </tr>`;
   });
-});
+  $('amortBody').innerHTML=abody;
+
+  renderCharts();
+  sw('tr');
+}
+
+function renderCharts(){
+  if(!_orig||!_accel)return;
+  const sliceOrig=_orig.sched.filter((_,i)=>i%6===0||i===_orig.sched.length-1);
+  const sliceAccel=_accel.sched.filter((_,i)=>i%6===0||i===_accel.sched.length-1);
+  const maxLen=sliceOrig.length;
+  const accelPadded=Array.from({length:maxLen},(_,i)=>sliceAccel[i]?sliceAccel[i].bal:0);
+  const lbls=sliceOrig.map(r=>'Mo '+r.m);
+  const copts={responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:11},boxWidth:10}}},scales:{y:{ticks:{font:{size:10},callback:v=>fmt(v)},grid:{color:'#f8fafc'}},x:{ticks:{font:{size:9}},grid:{display:false}}}};
+  mkC('cBal',{type:'line',data:{labels:lbls,datasets:[{label:'Original Balance',data:sliceOrig.map(r=>r.bal),borderColor:'#94a3b8',backgroundColor:'rgba(148,163,184,.06)',fill:true,tension:.3,borderWidth:2,borderDash:[4,4]},{label:'Accelerated Balance',data:accelPadded,borderColor:'#15803d',backgroundColor:'rgba(21,128,61,.07)',fill:true,tension:.3,borderWidth:2}]},options:copts});
+  // Cumulative principal vs interest
+  let cumPrin=[],cumInt=[],tot=0;
+  _orig.sched.forEach((r,i)=>{
+    tot+=r.int;
+    if(i%6===0||i===_orig.sched.length-1){cumPrin.push(Math.round(_orig.sched.slice(0,i+1).reduce((a,b)=>a+b.prin,0)));cumInt.push(Math.round(tot));}
+  });
+  const lbPI=_orig.sched.filter((_,i)=>i%6===0||i===_orig.sched.length-1).map(r=>'Mo '+r.m);
+  mkC('cPI',{type:'line',data:{labels:lbPI,datasets:[{label:'Cumulative Principal',data:cumPrin,borderColor:'#0043ce',backgroundColor:'rgba(0,67,206,.06)',fill:true,tension:.3,borderWidth:2},{label:'Cumulative Interest',data:cumInt,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.06)',fill:true,tension:.3,borderWidth:2}]},options:copts});
+}
+
+// Demo: $380k loan, 30yr at 6.75%, 24 months paid, $300/mo extra
+function loadDemo(){
+  set('la','380000');set('bal','');set('ir','6.75');$('lt').value='30';
+  set('mp','24');set('em','300');set('ea','2000');set('ls','0');set('lm','1');
+  livePrev(); calc();
+}
+function resetAll(){
+  ['la','bal','ir','mp','em','ea','ls','lm'].forEach(id=>{const e=$(id);if(e)e.value='';});
+  $('lt').value='30'; _orig=null; _accel=null;
+  if($('livePrev'))$('livePrev').style.display='none';
+  ['banner','origStats','accelStats','scenBody','amortBody'].forEach(id=>{if($(id))$(id).innerHTML='';});
+  sw('ti');
+}
 </script>
-  <script>
-    document.getElementById('mob-btn').addEventListener('click',function(){document.getElementById('mob-menu').classList.toggle('hidden');});
-    document.querySelectorAll('.mob-toggle').forEach(function(b){
-      b.addEventListener('click',function(){
-        var s=b.nextElementSibling,a=b.querySelector('.mob-arrow'),open=s.style.display==='block';
-        s.style.display=open?'none':'block';a.style.transform=open?'rotate(0)':'rotate(180deg)';
-      });
-    });
-    function setupDD(wId,mId,bId){
-      var w=document.getElementById(wId),m=document.getElementById(mId),b=document.getElementById(bId);
-      if(!w||!m)return;var t;
-      w.addEventListener('mouseenter',function(){clearTimeout(t);m.classList.add('open');if(b)b.classList.add('open');});
-      w.addEventListener('mouseleave',function(){t=setTimeout(function(){m.classList.remove('open');if(b)b.classList.remove('open');},120);});
-      if(b)b.addEventListener('click',function(e){e.stopPropagation();var o=m.classList.contains('open');closeAll();if(!o){m.classList.add('open');b.classList.add('open');}});
-    }
-    function closeAll(){document.querySelectorAll('.dd-menu').forEach(function(m){m.classList.remove('open');});document.querySelectorAll('.dd-trigger').forEach(function(b){b.classList.remove('open');});}
-    setupDD('ddTools','ddToolsMenu','ddToolsBtn');
-    setupDD('ddMarket','ddMarketMenu','ddMarketBtn');
-    document.addEventListener('click',function(e){if(!e.target.closest('.dd-wrap'))closeAll();});
-  </script>
 </body>
 </html>
