@@ -2,112 +2,204 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Commercial/Retail Proforma  | REProforma</title>
+<title>Commercial/Retail Proforma | REProforma</title>
 <link rel="icon" type="image/png" href="../favicon.png"/>
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 <style>
+:root{
+  --navy:#0043ce;--navy-dk:#002fa7;--blue:#0056b3;
+  --green:#15803d;--green-lt:#dcfce7;
+  --amber:#b45309;--amber-lt:#fef3c7;
+  --red:#b91c1c;--red-lt:#fee2e2;
+  --slate:#1e293b;--muted:#64748b;--border:#e2e8f0;--bg:#f8fafc;
+  --dark:#0f172a;
+}
 *{box-sizing:border-box;}
-body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;margin:0;}
-.inp{width:100%;padding:8px 11px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;color:#1e293b;background:white;outline:none;transition:border-color .15s,box-shadow .15s;}
-.inp:focus{border-color:#0043ce;box-shadow:0 0 0 3px rgba(0,67,206,.08);}
-.inp-suf{position:relative;}.inp-suf span{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:12px;color:#94a3b8;pointer-events:none;}.inp-suf .inp{padding-right:26px;}
-.inp-pre{position:relative;}.inp-pre span{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:#94a3b8;pointer-events:none;}.inp-pre .inp{padding-left:20px;}
-.card{background:white;border:1px solid #e2e8f0;border-radius:12px;padding:20px;}
-.sec{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#94a3b8;padding-bottom:8px;border-bottom:1px solid #f1f5f9;margin-bottom:14px;}
-.lbl{font-size:11px;font-weight:600;color:#64748b;letter-spacing:.02em;text-transform:uppercase;display:block;margin-bottom:3px;}
-.tab-btn{border-bottom:2px solid transparent;padding:12px 18px;font-size:13px;font-weight:500;color:#64748b;cursor:pointer;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap;transition:color .15s,border-color .15s;}
-.tab-btn.active{color:#0043ce;border-bottom-color:#0043ce;font-weight:600;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--slate);margin:0;}
+
+/* ── Tabs ── */
+.tab-bar{display:flex;border-bottom:1px solid var(--border);overflow-x:auto;background:white;}
+.tab-btn{flex-shrink:0;padding:14px 20px;font-size:13px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap;transition:color .15s,border-color .15s;}
+.tab-btn:hover{color:var(--navy);}
+.tab-btn.active{color:var(--navy);border-bottom-color:var(--navy);font-weight:600;}
 .tab-panel{display:none;}.tab-panel.active{display:block;}
-.pro-table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;}
-.pro-table colgroup col:first-child{width:200px;}
-.pro-table th{background:#f8fafc;padding:9px 14px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;white-space:nowrap;}
-.pro-table th:first-child{text-align:left;}
-.pro-table th:not(:first-child){text-align:right;}
-.pro-table td{padding:9px 14px;border-bottom:1px solid #f8fafc;color:#374151;white-space:nowrap;overflow:hidden;}
-.pro-table td:first-child{text-align:left;color:#475569;}
-.pro-table td:not(:first-child){text-align:right;font-variant-numeric:tabular-nums;}
-.pro-table tr.sec-hd td{background:#f1f5f9;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#475569;padding:6px 14px;border-top:1px solid #e2e8f0;border-bottom:none;}
-.pro-table tr.hi td{background:#eff6ff;font-weight:700;color:#0043ce;border-top:1px solid #bfdbfe;border-bottom:1px solid #bfdbfe;}
-.pro-table tr.hi td:first-child{padding-left:14px;}
-.pro-table td.indent{padding-left:28px;}
-.pro-table td.neg{color:#dc2626;}
-.pro-table tr.sec-row td{background:#f1f5f9;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#475569;padding:5px 12px;}
-.pro-table tr:hover:not(.sec-hd):not(.hi):not(.sec-row) td{background:#fafbff;}
-.metric{background:white;border:1px solid #e2e8f0;border-radius:10px;padding:16px 18px;}
-.metric-val{font-size:26px;font-weight:700;color:#1e293b;line-height:1;}
-.metric-lbl{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#94a3b8;margin-top:4px;}
-.dd-menu{display:none;position:absolute;left:0;top:100%;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.12);border:1px solid #f1f5f9;z-index:50;min-width:220px;padding:6px 0;}
-.dd-menu.open{display:block;}
-.dd-wrap{position:relative;}
-.dd-trigger{display:flex;align-items:center;gap:4px;font-size:13px;background:none;border:none;cursor:pointer;padding:20px 0;color:#525252;font-family:inherit;}
-.dd-trigger:hover,.dd-trigger.open{color:#0043ce;}
-.dd-trigger.open svg{transform:rotate(180deg);}
-.dd-item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:#374151;text-decoration:none;border-left:2px solid transparent;}
-.dd-item:hover,.dd-item.act{background:#eff6ff;color:#0043ce;border-left-color:#0043ce;}
-.dd-label{padding:6px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;}
-.dd-divider{height:1px;background:#f1f5f9;margin:4px 16px;}
+
+/* ── Input cards ── */
+.icard{background:white;border:1px solid var(--border);border-radius:12px;padding:20px;}
+.icard-title{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#94a3b8;padding-bottom:10px;border-bottom:1px solid var(--bg);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.icard-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+/* ── Form inputs ── */
+.field{margin-bottom:12px;}
+.lbl{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.02em;text-transform:uppercase;margin-bottom:4px;}
+.inp{width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;color:var(--slate);background:white;outline:none;transition:border-color .15s,box-shadow .15s;}
+.inp:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(0,67,206,.08);}
+.inp:read-only{background:#f8fafc;color:#94a3b8;cursor:default;}
+.inp-prefix{position:relative;}
+.inp-prefix span{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;color:#94a3b8;pointer-events:none;}
+.inp-prefix .inp{padding-left:22px;}
+.inp-suffix{position:relative;}
+.inp-suffix span{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:13px;color:#94a3b8;pointer-events:none;}
+.inp-suffix .inp{padding-right:28px;}
+
+/* ── Segmented control ── */
+.seg{display:inline-flex;background:#f1f5f9;border-radius:8px;padding:3px;gap:2px;}
+.seg-btn{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border:none;background:transparent;transition:all .15s;}
+.seg-btn.active{background:white;color:var(--navy);box-shadow:0 1px 3px rgba(0,0,0,.12);}
+
+/* ── Tooltip ── */
+.tip-wrap{position:relative;display:inline-flex;}
+.tip-icon{width:14px;height:14px;border-radius:50%;background:#e2e8f0;color:#64748b;font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:default;flex-shrink:0;}
+.tip-icon:hover+.tip-box,.tip-wrap:hover .tip-box{opacity:1;visibility:visible;transform:translateY(0);}
+.tip-box{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%) translateY(4px);background:#1e293b;color:white;font-size:11px;font-weight:400;line-height:1.5;padding:8px 10px;border-radius:7px;width:220px;z-index:100;opacity:0;visibility:hidden;transition:opacity .15s,transform .15s;pointer-events:none;white-space:normal;}
+.tip-box::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#1e293b;}
+
+/* ── Results ── */
+.metric-card{background:white;border:1px solid var(--border);border-radius:12px;padding:20px 22px;position:relative;overflow:hidden;}
+.metric-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:3px 0 0 3px;}
+.mc-blue::before{background:var(--navy);}
+.mc-green::before{background:var(--green);}
+.mc-amber::before{background:var(--amber);}
+.mc-red::before{background:var(--red);}
+.metric-val{font-size:28px;font-weight:700;line-height:1;color:var(--slate);}
+.metric-lbl{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#94a3b8;margin-top:5px;}
+.metric-sub{font-size:12px;color:var(--muted);margin-top:4px;}
+
+/* ── Return row ── */
+.ret-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f8fafc;}
+.ret-row:last-child{border-bottom:none;}
+.ret-label{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--muted);}
+.ret-val{font-size:14px;font-weight:600;color:var(--slate);}
+
+/* ── Waterfall ── */
+.wf-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:6px;font-size:13px;}
+.wf-row.indent{padding-left:28px;}
+.wf-row.subtotal{background:#f8fafc;font-weight:600;}
+.wf-row.total{background:#eff6ff;font-weight:700;color:var(--navy);}
+.wf-neg{color:var(--red);}
+
+/* ── Scorecard ── */
+.score-bar{height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin-top:5px;}
+.score-fill{height:100%;border-radius:99px;transition:width .5s ease;}
+
+/* ── Sensitivity table ── */
+.sen-table{width:100%;border-collapse:collapse;font-size:12px;}
+.sen-table th{padding:6px 10px;background:#f8fafc;font-weight:600;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);text-align:right;}
+.sen-table th:first-child{text-align:left;}
+.sen-table td{padding:6px 10px;border-bottom:1px solid #f8fafc;text-align:right;font-variant-numeric:tabular-nums;}
+.sen-table td:first-child{text-align:left;color:var(--muted);}
+.sen-table tr.base td{background:#eff6ff;font-weight:600;color:var(--navy);}
+
+/* ── Proforma table ── */
+.pro-table{width:100%;border-collapse:collapse;font-size:12px;}
+.pro-table th{padding:8px 12px;background:#f8fafc;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);}
+.pro-table th.r,.pro-table td.r{text-align:right;font-variant-numeric:tabular-nums;}
+.pro-table td{padding:7px 12px;border-bottom:1px solid #f8fafc;color:#374151;}
+.pro-table tr.p-sec td{background:#f1f5f9;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#475569;padding:5px 12px;}
+.pro-table tr.p-sub td{background:#f8fafc;font-weight:600;color:var(--slate);}
+.pro-table tr.p-tot td{background:#eff6ff;font-weight:700;color:var(--navy);border-top:2px solid #bfdbfe;}
+.p-neg{color:var(--red);}
+
+/* ── Status badge ── */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;}
+.bg-green{background:var(--green-lt);color:var(--green);}
+.bg-amber{background:var(--amber-lt);color:var(--amber);}
+.bg-red{background:var(--red-lt);color:var(--red);}
+.bg-blue{background:#dbeafe;color:#1d4ed8;}
+
+/* ── Loan preview ── */
+.loan-preview{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:12px;}
+.loan-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:3px 0;}
+.loan-row span:first-child{color:var(--muted);}
+.loan-row span:last-child{font-weight:600;color:var(--slate);}
+
+/* ── Section divider ── */
+.sdiv{height:1px;background:var(--border);margin:6px 0 16px;}
+
+/* ── Mobile sub ── */
 .mob-sub{display:none;}.mob-sub.open{display:block;}
-@media print{header,.no-print{display:none!important;}}
+
+/* ── Buttons ── */
+.btn-navy{background:var(--navy);color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:background .15s;}
+.btn-navy:hover{background:var(--navy-dk);}
+.btn-outline{background:white;color:var(--slate);border:1px solid var(--border);border-radius:8px;font-weight:500;cursor:pointer;transition:background .15s;}
+.btn-outline:hover{background:#f8fafc;}
+.btn-green{background:var(--green);color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:background .15s;}
+.btn-green:hover{background:#166534;}
+.btn-dark{background:#1e293b;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;}
+
+@media(max-width:1024px){
+  .inputs-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+}
+@media(max-width:640px){
+  .inputs-grid{grid-template-columns:1fr!important;}
+}
+@media print{header,.no-print{display:none!important;}.icard,.metric-card{border:1px solid #ccc;}}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header class="sticky top-0 z-50 bg-white" style="box-shadow:0 1px 4px rgba(0,0,0,.08);">
-<div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
-  <a href="../index.html" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;">
-    <svg width="34" height="34" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
-    <span style="display:flex;align-items:baseline;line-height:1;"><span style="font-size:19px;font-weight:700;color:#0043ce;letter-spacing:-0.3px;">RE</span><span style="font-size:19px;font-weight:300;color:#0043ce;letter-spacing:-0.3px;">Proforma</span></span>
-  </a>
-  <button id="mob-btn" class="md:hidden" style="color:#0043ce;background:none;border:none;cursor:pointer;"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-  <div class="hidden md:flex items-center" style="gap:28px;">
-    <nav class="flex items-center" style="gap:20px;">
-      <a href="../index.html" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">Home</a>
-      <div class="dd-wrap" id="ddT"><button class="dd-trigger" id="ddTb" style="color:#0043ce;border-bottom:2px solid #0043ce;font-weight:600;">Tools <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-        <div class="dd-menu" id="ddTm">
-          <div class="dd-label">Pro Tools</div>
-          <a class="dd-item" href="index.html">🏢 Multifamily Acquisition</a>
-          <a class="dd-item" href="index-mixeduse.html">🏬 Commercial &amp; NNN Retail</a>
-          <a class="dd-item act" href="index-land.html">🗺️ Land Development</a>
-          <div class="dd-divider"></div><div class="dd-label">Free Tools</div>
-          <a class="dd-item" href="index-affordability.html">🏠 Home Affordability</a>
-          <a class="dd-item" href="index-rentvsbuy.html">🔄 Rent vs. Buy</a>
-          <a class="dd-item" href="index-mortgage-payoff.html">📅 Mortgage Payoff</a>
+<!-- ══════════════════ HEADER ══════════════════ -->
+<header class="sticky top-0 z-50 bg-white border-b border-gray-200" style="box-shadow:0 1px 4px rgba(0,0,0,.06)">
+  <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+    <a href="../index.html" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;">
+        <svg width="34" height="34" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="36" height="36" rx="8" fill="#0043ce"/>
+          <rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/>
+          <rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/>
+          <rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/>
+        </svg>
+        <span style="display:flex;align-items:baseline;line-height:1;">
+          <span style="font-size:19px;font-weight:700;color:#0043ce;letter-spacing:-0.3px;">RE</span><span style="font-size:19px;font-weight:300;color:#0043ce;letter-spacing:-0.3px;">Proforma</span>
+        </span>
+      </a>
+    <button id="mob-btn" class="md:hidden" style="color:var(--navy);background:none;border:none;cursor:pointer;">
+      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <div class="hidden md:flex items-center gap-6">
+      <a href="../index.html" class="text-sm text-gray-500 hover:text-blue-700">Home</a>
+      <div class="relative group">
+        <button class="flex items-center gap-1 text-sm font-semibold focus:outline-none" style="color:var(--navy);background:none;border:none;cursor:pointer;">
+          Tools <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="absolute left-0 top-full mt-1 bg-white rounded-xl shadow-xl border border-gray-100 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 overflow-hidden" style="min-width:220px;">
+          <div class="px-4 pt-3 pb-1 text-xs font-semibold uppercase tracking-widest text-gray-400">Pro Tools</div>
+          <a href="index.html"            class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-500">🏢 Multifamily Acquisition</a>
+          <a href="index-mixeduse.html"   class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-l-2 border-blue-500" style="background:#eff6ff;color:var(--navy);">🏬 Commercial/Retail</a>
+          <a href="index-land.html"       class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-500">🗺️ Land Development</a>
+          <div class="border-t border-gray-100 mx-4 my-1"></div>
+          <div class="px-4 pt-1 pb-1 text-xs font-semibold uppercase tracking-widest text-gray-400">Free Tools</div>
+          <a href="index-affordability.html"   class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-500">🏠 Home Affordability</a>
+          <a href="index-rentvsbuy.html"       class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-500">🔄 Rent vs. Buy</a>
+          <a href="index-mortgage-payoff.html" class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-500 mb-1">📅 Mortgage Payoff</a>
         </div>
       </div>
-      <div class="dd-wrap" id="ddM"><button class="dd-trigger" id="ddMb">Market Data <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-        <div class="dd-menu" id="ddMm" style="min-width:200px;">
-          <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank">Market Trends</a>
-          <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank">Research Reports</a>
-          <a class="dd-item" href="https://berkadia.com/properties" target="_blank">Investment Listings</a>
-        </div>
-      </div>
-      <a href="../about.html" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">About</a>
-    </nav>
-    <a href="../about.html" class="px-4 py-2 text-sm font-semibold text-white rounded" style="background:#0043ce;">Let's talk</a>
+      <a href="../about.html" class="text-sm text-gray-500 hover:text-blue-700">About</a>
+      <a href="../about.html" class="px-4 py-2 text-sm font-semibold text-white rounded-lg btn-navy">Let's talk</a>
+    </div>
   </div>
-</div>
-<div id="mob-menu" class="hidden bg-white border-t border-gray-100" style="box-shadow:0 4px 12px rgba(0,0,0,.08);">
-  <div class="px-4 py-3 space-y-1 text-sm">
-    <a href="../index.html" class="block py-2 px-3 rounded" style="color:#525252;font-size:13px;">Home</a>
-    <div><button class="mob-toggle flex items-center justify-between w-full py-2 px-3 rounded" style="background:#eff6ff;color:#0043ce;border:none;cursor:pointer;font-size:13px;font-family:inherit;font-weight:600;">Tools <svg class="h-4 w-4 mob-arrow" style="transition:transform .2s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>
-      <div class="mob-sub" style="display:none;padding-left:12px;">
-        <a href="index.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏢 Multifamily</a>
-        <a href="index-mixeduse.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏬 Commercial/Retail</a>
-        <a href="index-land.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;background:#eff6ff;color:#0043ce;border-color:#0043ce;font-weight:600;">🗺️ Land Development</a>
-        <a href="index-affordability.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏠 Home Affordability</a>
-        <a href="index-rentvsbuy.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🔄 Rent vs. Buy</a>
-        <a href="index-mortgage-payoff.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">📅 Mortgage Payoff</a>
+  <div id="mob-menu" class="hidden border-t border-gray-100 bg-white px-4 py-3 space-y-1 text-sm">
+    <a href="../index.html" class="block py-2 px-3 rounded text-gray-600 hover:bg-gray-50">Home</a>
+    <div>
+      <button class="mob-toggle flex justify-between w-full py-2 px-3 rounded font-semibold border-none bg-blue-50 cursor-pointer" style="color:var(--navy);">
+        Tools <svg class="h-4 w-4 mob-arrow transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      </button>
+      <div class="mob-sub pl-3 pt-1 space-y-0.5">
+        <a href="index.html"                 class="block py-2 px-3 rounded text-gray-700 hover:bg-gray-50 border-l-2 border-gray-200">🏢 Multifamily</a>
+        <a href="index-mixeduse.html"         class="block py-2 px-3 rounded font-medium border-l-2 border-blue-500" style="color:var(--navy);background:#eff6ff;">🏬 Commercial/Retail</a>
+        <a href="index-land.html"             class="block py-2 px-3 rounded text-gray-700 hover:bg-gray-50 border-l-2 border-gray-200">🗺️ Land Development</a>
+        <a href="index-affordability.html"   class="block py-2 px-3 rounded text-gray-700 hover:bg-gray-50 border-l-2 border-gray-200">🏠 Home Affordability</a>
+        <a href="index-rentvsbuy.html"       class="block py-2 px-3 rounded text-gray-700 hover:bg-gray-50 border-l-2 border-gray-200">🔄 Rent vs. Buy</a>
+        <a href="index-mortgage-payoff.html" class="block py-2 px-3 rounded text-gray-700 hover:bg-gray-50 border-l-2 border-gray-200">📅 Mortgage Payoff</a>
       </div>
     </div>
-    <a href="../about.html" class="block py-2 px-3 rounded" style="color:#525252;font-size:13px;">About</a>
-    <a href="../about.html" class="block mt-2 py-2 text-center font-semibold text-white rounded" style="background:#0043ce;font-size:13px;">Let's talk</a>
+    <a href="../about.html" class="block py-2 px-3 rounded text-gray-600 hover:bg-gray-50">About</a>
   </div>
-</div>
 </header>
+
 <!-- ══════════════════ HERO STRIP ══════════════════ -->
 <div class="bg-white border-b border-gray-200">
   <div class="max-w-7xl mx-auto px-4 py-4">
