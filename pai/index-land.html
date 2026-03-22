@@ -56,57 +56,84 @@ body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;margin:0;}
 <body>
 
 <!-- HEADER -->
-<header class="sticky top-0 z-50 bg-white" style="box-shadow:0 1px 4px rgba(0,0,0,.08);">
-<div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
-  <a href="../index.html" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;">
-    <svg width="34" height="34" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
-    <span style="display:flex;align-items:baseline;line-height:1;"><span style="font-size:19px;font-weight:700;color:#0043ce;letter-spacing:-0.3px;">RE</span><span style="font-size:19px;font-weight:300;color:#0043ce;letter-spacing:-0.3px;">Proforma</span></span>
-  </a>
-  <button id="mob-btn" class="md:hidden" style="color:#0043ce;background:none;border:none;cursor:pointer;"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-  <div class="hidden md:flex items-center" style="gap:28px;">
-    <nav class="flex items-center" style="gap:20px;">
-      <a href="../index.html" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">Home</a>
-      <div class="dd-wrap" id="ddT"><button class="dd-trigger" id="ddTb" style="color:#0043ce;border-bottom:2px solid #0043ce;font-weight:600;">Tools <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-        <div class="dd-menu" id="ddTm">
-          <div class="dd-label">Pro Tools</div>
-          <a class="dd-item" href="index.html">🏢 Multifamily Acquisition</a>
-          <a class="dd-item" href="index-mixeduse.html">🏬 Commercial &amp; NNN Retail</a>
-          <a class="dd-item act" href="index-land.html">🗺️ Land Development</a>
-          <div class="dd-divider"></div><div class="dd-label">Free Tools</div>
-          <a class="dd-item" href="index-affordability.html">🏠 Home Affordability</a>
-          <a class="dd-item" href="index-rentvsbuy.html">🔄 Rent vs. Buy</a>
-          <a class="dd-item" href="index-mortgage-payoff.html">📅 Mortgage Payoff</a>
+<style>
+.dd-menu{display:none;position:absolute;left:0;top:100%;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.12);border:1px solid #f1f5f9;z-index:50;min-width:220px;padding:6px 0;}
+.dd-menu.open{display:block;}.dd-wrap{position:relative;}
+.dd-trig{display:flex;align-items:center;gap:4px;font-size:13px;background:none;border:none;cursor:pointer;padding:20px 0;color:#525252;font-family:'Inter',sans-serif;}
+.dd-trig:hover{color:#0043ce;}
+.dd-item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:#374151;text-decoration:none;border-left:2px solid transparent;transition:background .1s,color .1s,border-color .1s;}
+.dd-item:hover,.dd-item.cur{background:#eff6ff;color:#0043ce;border-left-color:#0043ce;}
+.dd-lbl{padding:6px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;}
+.dd-div{height:1px;background:#f1f5f9;margin:4px 16px;}
+</style>
+<header style="position:sticky;top:0;z-index:50;background:white;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+  <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+    <a href="../index" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;"><svg width="34" height="34" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg><span style="display:flex;align-items:baseline;line-height:1;"><span style="font-size:19px;font-weight:700;color:#0043ce;letter-spacing:-0.3px;">RE</span><span style="font-size:19px;font-weight:300;color:#0043ce;letter-spacing:-0.3px;">Proforma</span></span></a>
+    <button id="mob-btn" class="md:hidden" style="background:none;border:none;cursor:pointer;color:#0043ce;">
+      <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <div class="hidden md:flex items-center" style="gap:28px;">
+      <nav class="flex items-center" style="gap:20px;">
+        <a href="../index" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">Home</a>
+        <div class="dd-wrap" id="ddT">
+          <button class="dd-trig" id="ddTb" style='color:#0043ce;border-bottom:2px solid #0043ce;font-weight:600;'>Tools <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+          <div class="dd-menu" id="ddTm">
+            <div class="dd-lbl">Pro Tools</div>
+            <a class="dd-item" href="index">🏢 Multifamily Acquisition</a>
+            <a class="dd-item" href="index-mixeduse">🏬 Commercial &amp; NNN Retail</a>
+            <a class="dd-item cur" href="index-land">🗺️ Land Development</a>
+            <div class="dd-div"></div>
+            <div class="dd-lbl">Free Tools</div>
+            <a class="dd-item" href="index-affordability">🏠 Home Affordability</a>
+            <a class="dd-item" href="index-rentvsbuy">⚖️ Rent vs. Own</a>
+            <a class="dd-item" href="index-mortgage-payoff">📅 Mortgage Payoff</a>
+          </div>
         </div>
-      </div>
-      <div class="dd-wrap" id="ddM"><button class="dd-trigger" id="ddMb">Market Data <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-        <div class="dd-menu" id="ddMm" style="min-width:200px;">
-          <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank">Market Trends</a>
-          <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank">Research Reports</a>
-          <a class="dd-item" href="https://berkadia.com/properties" target="_blank">Investment Listings</a>
+        <div class="dd-wrap" id="ddM">
+          <button class="dd-trig" id="ddMb">Market Data <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+          <div class="dd-menu" id="ddMm" style="min-width:200px;">
+            <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank">Market Trends</a>
+            <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank">Research Reports</a>
+            <a class="dd-item" href="https://berkadia.com/properties" target="_blank">Investment Listings</a>
+          </div>
         </div>
-      </div>
-      <a href="../about.html" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">About</a>
-    </nav>
-    <a href="../about.html" class="px-4 py-2 text-sm font-semibold text-white rounded" style="background:#0043ce;">Let's talk</a>
-  </div>
-</div>
-<div id="mob-menu" class="hidden bg-white border-t border-gray-100" style="box-shadow:0 4px 12px rgba(0,0,0,.08);">
-  <div class="px-4 py-3 space-y-1 text-sm">
-    <a href="../index.html" class="block py-2 px-3 rounded" style="color:#525252;font-size:13px;">Home</a>
-    <div><button class="mob-toggle flex items-center justify-between w-full py-2 px-3 rounded" style="background:#eff6ff;color:#0043ce;border:none;cursor:pointer;font-size:13px;font-family:inherit;font-weight:600;">Tools <svg class="h-4 w-4 mob-arrow" style="transition:transform .2s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>
-      <div class="mob-sub" style="display:none;padding-left:12px;">
-        <a href="index.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏢 Multifamily</a>
-        <a href="index-mixeduse.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏬 Commercial/Retail</a>
-        <a href="index-land.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;background:#eff6ff;color:#0043ce;border-color:#0043ce;font-weight:600;">🗺️ Land Development</a>
-        <a href="index-affordability.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏠 Home Affordability</a>
-        <a href="index-rentvsbuy.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🔄 Rent vs. Buy</a>
-        <a href="index-mortgage-payoff.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">📅 Mortgage Payoff</a>
-      </div>
+        <a href="../about" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">About</a>
+      </nav>
+      <a href="../about" style="background:#0043ce;color:white;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">Let's talk</a>
     </div>
-    <a href="../about.html" class="block py-2 px-3 rounded" style="color:#525252;font-size:13px;">About</a>
-    <a href="../about.html" class="block mt-2 py-2 text-center font-semibold text-white rounded" style="background:#0043ce;font-size:13px;">Let's talk</a>
   </div>
-</div>
+  <div id="mob-menu" class="hidden bg-white border-t border-gray-100" style="box-shadow:0 4px 12px rgba(0,0,0,.08);">
+    <div class="px-4 py-3 space-y-1">
+      <a href="../index" style="display:block;padding:7px 12px;font-size:13px;color:#475569;">Home</a>
+      <div>
+        <button class="mob-tog" style="display:flex;justify-content:space-between;align-items:center;width:100%;padding:8px 12px;background:#eff6ff;border:none;cursor:pointer;font-size:13px;color:#0043ce;font-weight:600;font-family:'Inter',sans-serif;">
+          Tools <svg class="mob-arr" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div style="display:none;padding-left:12px;">
+          <p style="padding:4px 12px;font-size:10px;font-weight:700;letter-spacing:.07em;color:#9ca3af;text-transform:uppercase;">Pro Tools</p>
+          <a href="index" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;">🏢 Multifamily Acquisition</a>
+          <a href="index-mixeduse" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;">🏬 Commercial/Retail</a>
+          <a href="index-land" style="display:block;padding:7px 12px;font-size:13px;font-weight:600;color:#0043ce;background:#eff6ff;border-left:2px solid #0043ce;border-radius:0 4px 4px 0;">🗺️ Land Development</a>
+          <p style="padding:8px 12px 4px;font-size:10px;font-weight:700;letter-spacing:.07em;color:#9ca3af;text-transform:uppercase;border-top:1px solid #f1f5f9;margin-top:4px;">Free Tools</p>
+          <a href="index-affordability" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;">🏠 Home Affordability</a>
+          <a href="index-rentvsbuy" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;">⚖️ Rent vs. Own</a>
+          <a href="index-mortgage-payoff" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;">📅 Mortgage Payoff</a>
+        </div>
+      </div>
+      <div>
+        <button class="mob-tog" style="display:flex;justify-content:space-between;align-items:center;width:100%;padding:8px 12px;background:none;border:none;cursor:pointer;font-size:13px;color:#525252;font-family:'Inter',sans-serif;">
+          Market Data <svg class="mob-arr" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div style="display:none;padding-left:12px;">
+          <a href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;">Market Trends</a>
+          <a href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;">Research Reports</a>
+          <a href="https://berkadia.com/properties" target="_blank" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;">Investment Listings</a>
+        </div>
+      </div>
+      <a href="../about" style="display:block;padding:7px 12px;font-size:13px;color:#475569;">About</a>
+      <a href="../about" style="display:block;margin-top:8px;padding:9px;text-align:center;font-size:13px;font-weight:600;color:white;background:#0043ce;border-radius:8px;text-decoration:none;">Let's talk</a>
+    </div>
+  </div>
 </header>
 
 <!-- HERO -->
@@ -282,49 +309,50 @@ body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;margin:0;}
 </div><!-- /max-w -->
 
 <!-- FOOTER -->
-<footer class="py-14 text-white" style="background:#0f172a;">
+<footer style="background:#0f172a;padding:48px 0;color:white;">
   <div class="max-w-7xl mx-auto px-4">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
+      <div><div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;"><svg width="28" height="28" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg><span style="font-size:16px;font-weight:700;color:white;">RE<span style="font-weight:300;">Proforma</span></span></div><p style="font-size:13px;color:#94a3b8;">Advanced analytics for real estate investment professionals.</p></div>
       <div>
-        <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;">
-          <svg width="28" height="28" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
-          <span style="font-size:15px;font-weight:700;color:white;">RE<span style="font-weight:300;">Proforma</span></span>
+        <p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Tools</p>
+        <p style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#475569;margin-bottom:6px;">Pro</p>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
+          <a href="index" style="font-size:13px;color:#94a3b8;text-decoration:none;">Multifamily Acquisition</a>
+          <a href="index-mixeduse" style="font-size:13px;color:#94a3b8;text-decoration:none;">Commercial &amp; NNN Retail</a>
+          <a href="index-land" style="font-size:13px;color:#94a3b8;text-decoration:none;">Land Development</a>
         </div>
-        <p class="text-sm text-gray-400">Advanced analytics for real estate investment professionals.</p>
+        <p style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#475569;margin-bottom:6px;border-top:1px solid #1e293b;padding-top:8px;">Free</p>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <a href="index-affordability" style="font-size:13px;color:#94a3b8;text-decoration:none;">🏠 Home Affordability</a>
+          <a href="index-rentvsbuy" style="font-size:13px;color:#94a3b8;text-decoration:none;">⚖️ Rent vs. Own</a>
+          <a href="index-mortgage-payoff" style="font-size:13px;color:#94a3b8;text-decoration:none;">📅 Mortgage Payoff</a>
+        </div>
       </div>
       <div>
-        <h4 class="text-sm font-semibold mb-3">Tools</h4>
-        <p class="text-xs uppercase tracking-widest text-gray-500 mb-2">Pro</p>
-        <ul class="space-y-2 text-sm text-gray-400 mb-3">
-          <li><a href="index.html" class="hover:text-white">Multifamily Acquisition</a></li>
-          <li><a href="index-mixeduse.html" class="hover:text-white">Commercial &amp; NNN Retail</a></li>
-          <li><a href="index-land.html" class="hover:text-white">Land Development</a></li>
-        </ul>
-        <p class="text-xs uppercase tracking-widest text-gray-500 mb-2 pt-2" style="border-top:1px solid #1e293b;">Free</p>
-        <ul class="space-y-2 text-sm text-gray-400">
-          <li><a href="index-affordability.html" class="hover:text-white">🏠 Home Affordability</a></li>
-          <li><a href="index-rentvsbuy.html" class="hover:text-white">🔄 Rent vs. Buy</a></li>
-          <li><a href="index-mortgage-payoff.html" class="hover:text-white">📅 Mortgage Payoff</a></li>
-        </ul>
+        <p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Resources</p>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Market Reports</a>
+          <a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Investment Guide</a>
+          <a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Case Studies</a>
+          <a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Blog</a>
+          <a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Support</a>
+        </div>
       </div>
       <div>
-        <h4 class="text-sm font-semibold mb-3">Resources</h4>
-        <ul class="space-y-2 text-sm text-gray-400">
-          <li><a href="#" class="hover:text-white">Market Reports</a></li>
-          <li><a href="#" class="hover:text-white">Investment Guide</a></li>
-          <li><a href="#" class="hover:text-white">Case Studies</a></li>
-          <li><a href="#" class="hover:text-white">Support</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="text-sm font-semibold mb-3">Subscribe</h4>
-        <p class="text-sm text-gray-400 mb-3">Latest real estate insights.</p>
-        <div class="flex"><input type="email" placeholder="Enter your email" style="padding:8px 12px;border-radius:6px 0 0 6px;border:none;font-size:13px;width:100%;outline:none;"/><button style="padding:8px 14px;background:#0056b3;color:white;border:none;border-radius:0 6px 6px 0;font-size:13px;font-weight:600;cursor:pointer;">Go</button></div>
+        <p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Subscribe</p>
+        <p style="font-size:13px;color:#94a3b8;margin-bottom:10px;">Get the latest real estate investment insights.</p>
+        <div style="display:flex;">
+          <input type="email" placeholder="Your email" style="flex:1;padding:8px 10px;border-radius:6px 0 0 6px;border:none;font-size:13px;outline:none;color:#1e293b;">
+          <button style="background:#0056b3;color:white;border:none;padding:8px 14px;border-radius:0 6px 6px 0;font-size:13px;font-weight:600;cursor:pointer;">Go</button>
+        </div>
       </div>
     </div>
-    <div class="pt-6 flex flex-col md:flex-row justify-between text-sm text-gray-500" style="border-top:1px solid #1e293b;">
+    <div style="border-top:1px solid #1e293b;padding-top:20px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:13px;color:#64748b;">
       <p>&copy; 2025 REProforma. All rights reserved.</p>
-      <div class="flex gap-5 mt-3 md:mt-0"><a href="../privacy.html" class="hover:text-white">Privacy Policy</a><a href="../terms.html" class="hover:text-white">Terms of Service</a></div>
+      <div style="display:flex;gap:20px;">
+        <a href="../privacy" style="color:#64748b;text-decoration:none;">Privacy Policy</a>
+        <a href="../terms" style="color:#64748b;text-decoration:none;">Terms of Service</a>
+      </div>
     </div>
   </div>
 </footer>
