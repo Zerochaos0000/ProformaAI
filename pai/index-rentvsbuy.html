@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rent vs. Buy Calculator | RE Proforma</title>
+  <title>Rent vs. Buy | REProforma</title>
   <link href="../favicon.png" rel="icon" type="image/png" />
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -33,49 +33,93 @@
 <body class="bg-white text-gray-900 min-h-screen flex flex-col">
 
 <!-- Header -->
-<header class="sticky top-0 z-50 bg-white shadow-sm">
-  <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
-    <a class="text-2xl font-semibold" href="../index.html" style="color:#0043ce">RE Proforma</a>
-    <div class="md:hidden">
-      <button id="mobile-menu-button" class="focus:outline-none" style="color:#0043ce">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+  <style>
+    .dd-menu{display:none;position:absolute;left:0;top:100%;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.12);border:1px solid #f1f5f9;z-index:50;min-width:220px;padding:6px 0;}
+    .dd-menu.open{display:block;}
+    .dd-wrap{position:relative;}
+    .dd-trigger{display:flex;align-items:center;gap:4px;font-size:13px;background:none;border:none;cursor:pointer;padding:20px 0;color:#525252;font-family:inherit;}
+    .dd-trigger:hover,.dd-trigger.open{color:#0043ce;}
+    .dd-trigger svg{transition:transform .2s;}
+    .dd-trigger.open svg{transform:rotate(180deg);}
+    .dd-item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:#374151;text-decoration:none;border-left:2px solid transparent;transition:background .1s,color .1s,border-color .1s;}
+    .dd-item:hover,.dd-item.active{background:#eff6ff;color:#0043ce;border-left-color:#0043ce;}
+    .dd-label{padding:6px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;}
+    .dd-divider{height:1px;background:#f1f5f9;margin:4px 16px;}
+    .mob-sub{display:none;}
+    .mob-sub.open{display:block;}
+  </style>
+  <header class="sticky top-0 z-50 bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+      <a href="../index.html" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;">
+        <svg width="34" height="34" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
+        <span style="display:flex;align-items:baseline;line-height:1;"><span style="font-size:19px;font-weight:700;color:#0043ce;letter-spacing:-0.3px;">RE</span><span style="font-size:19px;font-weight:300;color:#0043ce;letter-spacing:-0.3px;">Proforma</span></span>
+      </a>
+      <button id="mob-btn" class="md:hidden" style="color:#0043ce;background:none;border:none;cursor:pointer;">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>
+      <div class="hidden md:flex items-center" style="gap:32px;">
+        <nav class="flex items-center" style="gap:24px;">
+          <a href="../index.html" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">Home</a>
+          <div class="dd-wrap" id="ddTools">
+            <button class="dd-trigger" id="ddToolsBtn">Tools <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+            <div class="dd-menu" id="ddToolsMenu">
+              <div class="dd-label">Pro Tools</div>
+              <a class="dd-item" href="../pai/index.html">🏢 Multifamily Acquisition</a>
+              <a class="dd-item" href="../pai/index-mixeduse.html">🏬 Commercial &amp; NNN Retail</a>
+              <a class="dd-item" href="../pai/index-land.html">🗺️ Land Development</a>
+              <div class="dd-divider"></div>
+              <div class="dd-label">Free Tools</div>
+              <a class="dd-item" href="../pai/index-affordability.html">🏠 Home Affordability</a>
+              <a class="dd-item active" href="../pai/index-rentvsbuy.html">🔄 Rent vs. Buy</a>
+              <a class="dd-item" href="../pai/index-mortgage-payoff.html">📅 Mortgage Payoff</a>
+            </div>
+          </div>
+          <div class="dd-wrap" id="ddMarket">
+            <button class="dd-trigger" id="ddMarketBtn">Market Data <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+            <div class="dd-menu" id="ddMarketMenu" style="min-width:200px;">
+              <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank">Market Trends</a>
+              <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank">Research Reports</a>
+              <a class="dd-item" href="https://berkadia.com/properties" target="_blank">Investment Listings</a>
+            </div>
+          </div>
+          <a href="../about.html" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">About</a>
+        </nav>
+        <a href="../about.html" class="px-4 py-2 text-sm font-semibold text-white rounded" style="background:#0043ce;">Let's talk</a>
+      </div>
     </div>
-    <div class="hidden md:flex items-center space-x-8">
-      <nav class="flex space-x-8">
-        <a href="../index.html" class="py-5 text-sm" style="color:#525252">Home</a>
-        <div class="relative group">
-          <button class="flex items-center py-5 text-sm font-medium border-b-2 focus:outline-none" style="color:#0043ce;border-color:#0043ce">
-            Tools <svg class="h-4 w-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+    <div id="mob-menu" class="hidden bg-white border-t border-gray-100" style="box-shadow:0 4px 12px rgba(0,0,0,.08);">
+      <div class="px-4 py-3 space-y-1 text-sm">
+        <a href="../index.html" class="block py-2 px-3 rounded" style="color:#525252;">Home</a>
+        <div>
+          <button class="mob-toggle flex items-center justify-between w-full py-2 px-3 rounded" style="background:#eff6ff;color:#0043ce;border:none;cursor:pointer;font-size:13px;font-family:inherit;">
+            Tools <svg class="h-4 w-4 mob-arrow" style="transition:transform .2s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </button>
-          <div class="absolute left-0 mt-1 w-56 bg-white shadow-lg rounded-md overflow-hidden z-20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
-            <a href="index.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-700">Multifamily Acquisition</a>
-            <a href="index-mixeduse.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-700">Commercial/Retail</a>
-            <a href="index-land.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-700">Land Development</a>
-            <div class="border-t border-gray-100 my-1"></div>
-            <a href="index-affordability.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-700">🏠 Home Affordability</a>
-            <a href="index-rentvsbuy.html" class="block px-4 py-3 text-sm bg-gray-50 border-l-2 border-blue-700" style="color:#0043ce">🔄 Rent vs. Buy</a>
-            <a href="index-mortgage-payoff.html" class="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 hover:text-blue-700 border-l-2 border-transparent hover:border-blue-700">📅 Mortgage Payoff</a>
+          <div class="mob-sub" style="display:none;padding-left:12px;">
+            <p style="padding:6px 12px 2px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;">Pro Tools</p>
+            <a href="../pai/index.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏢 Multifamily Acquisition</a>
+            <a href="../pai/index-mixeduse.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏬 Commercial/Retail</a>
+            <a href="../pai/index-land.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🗺️ Land Development</a>
+            <p style="padding:8px 12px 2px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;border-top:1px solid #f1f5f9;margin-top:4px;">Free Tools</p>
+            <a href="../pai/index-affordability.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏠 Home Affordability</a>
+            <a href="../pai/index-rentvsbuy.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;background:#eff6ff;color:#0043ce;border-color:#0043ce;font-weight:600;">🔄 Rent vs. Buy</a>
+            <a href="../pai/index-mortgage-payoff.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">📅 Mortgage Payoff</a>
           </div>
         </div>
-        <a href="../about.html" class="py-5 text-sm" style="color:#525252">About</a>
-      </nav>
-      <button class="px-5 py-2 font-medium text-white rounded transition-colors text-sm" style="background:#0043ce">Let's talk</button>
+        <div>
+          <button class="mob-toggle flex items-center justify-between w-full py-2 px-3 rounded" style="background:none;color:#525252;border:none;cursor:pointer;font-size:13px;font-family:inherit;">
+            Market Data <svg class="h-4 w-4 mob-arrow" style="transition:transform .2s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div class="mob-sub" style="display:none;padding-left:12px;">
+            <a href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank" class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">Market Trends</a>
+            <a href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank" class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">Research Reports</a>
+            <a href="https://berkadia.com/properties" target="_blank" class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">Investment Listings</a>
+          </div>
+        </div>
+        <a href="../about.html" class="block py-2 px-3 rounded" style="color:#525252;;font-size:13px;">About</a>
+        <a href="../about.html" class="block mt-2 py-2 text-center font-semibold text-white rounded" style="background:#0043ce;font-size:13px;">Let's talk</a>
+      </div>
     </div>
-  </div>
-  <div class="hidden bg-white border-t shadow-lg" id="mobile-menu">
-    <div class="px-4 py-3 space-y-1 text-sm">
-      <a href="../index.html" class="block py-2 px-3 rounded text-gray-600 hover:bg-gray-50">Home</a>
-      <a href="index.html" class="block py-2 px-3 text-gray-700">Multifamily Acquisition</a>
-      <a href="index-mixeduse.html" class="block py-2 px-3 text-gray-700">Commercial/Retail</a>
-      <a href="index-land.html" class="block py-2 px-3 text-gray-700">Land Development</a>
-      <a href="index-affordability.html" class="block py-2 px-3 text-gray-700">🏠 Home Affordability</a>
-      <a href="index-rentvsbuy.html" class="block py-2 px-3 font-medium" style="color:#0043ce">🔄 Rent vs. Buy</a>
-      <a href="index-mortgage-payoff.html" class="block py-2 px-3 text-gray-700">📅 Mortgage Payoff</a>
-      <a href="../about.html" class="block py-2 px-3 text-gray-700">About</a>
-    </div>
-  </div>
-</header>
+  </header>
 
 <!-- Hero -->
 <section style="background:linear-gradient(to right,#EBF5FF,#fff)" class="py-12">
@@ -272,15 +316,63 @@
 </section>
 
 <!-- Footer -->
-<footer class="text-white py-12 w-full" style="background:#161616">
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10 px-8">
-    <div><h4 class="text-base font-medium mb-3">RE Proforma</h4><p class="text-sm" style="color:#c6c6c6">Advanced analytics for real estate investment professionals.</p></div>
-    <div><h4 class="text-base font-medium mb-3">Pro Tools</h4><ul class="space-y-2 text-sm" style="color:#c6c6c6"><li><a href="index.html" class="hover:text-white">Multifamily Acquisition</a></li><li><a href="index-mixeduse.html" class="hover:text-white">Commercial/Retail</a></li><li><a href="index-land.html" class="hover:text-white">Land Development</a></li></ul></div>
-    <div><h4 class="text-base font-medium mb-3">Free Tools</h4><ul class="space-y-2 text-sm" style="color:#c6c6c6"><li><a href="index-affordability.html" class="hover:text-white">🏠 Home Affordability</a></li><li><a href="index-rentvsbuy.html" class="text-white font-medium">🔄 Rent vs. Buy</a></li><li><a href="index-mortgage-payoff.html" class="hover:text-white">📅 Mortgage Payoff</a></li></ul></div>
-    <div><h4 class="text-base font-medium mb-3">Company</h4><ul class="space-y-2 text-sm" style="color:#c6c6c6"><li><a href="../about.html" class="hover:text-white">About</a></li><li><a href="../privacy.html" class="hover:text-white">Privacy Policy</a></li><li><a href="../terms.html" class="hover:text-white">Terms of Service</a></li></ul></div>
-  </div>
-  <div class="text-center text-xs px-8" style="color:#c6c6c6">© 2025 RE Proforma. All rights reserved.</div>
-</footer>
+  <footer class="py-14 text-white" style="background:#0f172a;">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
+        <div>
+          <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <svg width="28" height="28" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
+            <span style="font-size:16px;font-weight:700;color:white;letter-spacing:-0.2px;">RE<span style="font-weight:300;">Proforma</span></span>
+          </div>
+          <p class="text-sm text-gray-400 mb-4">Advanced analytics for real estate investment professionals.</p>
+          <div class="flex space-x-3">
+            <a href="#" class="text-gray-400 hover:text-white"><svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg></a>
+            <a href="#" class="text-gray-400 hover:text-white"><svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-sm font-semibold mb-3 text-white">Tools</h4>
+          <p class="text-xs uppercase tracking-widest text-gray-500 mb-2">Pro</p>
+          <ul class="space-y-2 text-sm text-gray-400 mb-3">
+            <li><a href="../pai/index.html" class="hover:text-white">Multifamily Acquisition</a></li>
+            <li><a href="../pai/index-mixeduse.html" class="hover:text-white">Commercial &amp; NNN Retail</a></li>
+            <li><a href="../pai/index-land.html" class="hover:text-white">Land Development</a></li>
+          </ul>
+          <p class="text-xs uppercase tracking-widest text-gray-500 mb-2 border-t border-gray-800 pt-2">Free</p>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><a href="../pai/index-affordability.html" class="hover:text-white">🏠 Home Affordability</a></li>
+            <li><a href="../pai/index-rentvsbuy.html" class="hover:text-white">🔄 Rent vs. Buy</a></li>
+            <li><a href="../pai/index-mortgage-payoff.html" class="hover:text-white">📅 Mortgage Payoff</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-sm font-semibold mb-3 text-white">Resources</h4>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><a href="#" class="hover:text-white">Market Reports</a></li>
+            <li><a href="#" class="hover:text-white">Investment Guide</a></li>
+            <li><a href="#" class="hover:text-white">Case Studies</a></li>
+            <li><a href="#" class="hover:text-white">Blog</a></li>
+            <li><a href="#" class="hover:text-white">Support</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-sm font-semibold mb-3 text-white">Subscribe</h4>
+          <p class="text-sm text-gray-400 mb-3">Get the latest real estate investment insights.</p>
+          <div class="flex">
+            <input type="email" placeholder="Enter your email" class="px-3 py-2 rounded-l w-full text-sm text-gray-900 focus:outline-none"/>
+            <button class="px-4 py-2 rounded-r text-sm text-white font-semibold" style="background:#0056b3;">Go</button>
+          </div>
+        </div>
+      </div>
+      <div class="pt-6 border-t border-gray-800 flex flex-col md:flex-row justify-between text-sm text-gray-500">
+        <p>&copy; 2025 REProforma. All rights reserved.</p>
+        <div class="flex gap-5 mt-3 md:mt-0">
+          <a href="../privacy.html" class="hover:text-white">Privacy Policy</a>
+          <a href="../terms.html" class="hover:text-white">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+  </footer>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -517,5 +609,25 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
+  <script>
+    document.getElementById('mob-btn').addEventListener('click',function(){document.getElementById('mob-menu').classList.toggle('hidden');});
+    document.querySelectorAll('.mob-toggle').forEach(function(b){
+      b.addEventListener('click',function(){
+        var s=b.nextElementSibling,a=b.querySelector('.mob-arrow'),open=s.style.display==='block';
+        s.style.display=open?'none':'block';a.style.transform=open?'rotate(0)':'rotate(180deg)';
+      });
+    });
+    function setupDD(wId,mId,bId){
+      var w=document.getElementById(wId),m=document.getElementById(mId),b=document.getElementById(bId);
+      if(!w||!m)return;var t;
+      w.addEventListener('mouseenter',function(){clearTimeout(t);m.classList.add('open');if(b)b.classList.add('open');});
+      w.addEventListener('mouseleave',function(){t=setTimeout(function(){m.classList.remove('open');if(b)b.classList.remove('open');},120);});
+      if(b)b.addEventListener('click',function(e){e.stopPropagation();var o=m.classList.contains('open');closeAll();if(!o){m.classList.add('open');b.classList.add('open');}});
+    }
+    function closeAll(){document.querySelectorAll('.dd-menu').forEach(function(m){m.classList.remove('open');});document.querySelectorAll('.dd-trigger').forEach(function(b){b.classList.remove('open');});}
+    setupDD('ddTools','ddToolsMenu','ddToolsBtn');
+    setupDD('ddMarket','ddMarketMenu','ddMarketBtn');
+    document.addEventListener('click',function(e){if(!e.target.closest('.dd-wrap'))closeAll();});
+  </script>
 </body>
 </html>
