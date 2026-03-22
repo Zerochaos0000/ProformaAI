@@ -1,613 +1,312 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Home Affordability | REProforma</title>
-  <link href="../favicon.png" rel="icon" type="image/png" />
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-    .input {
-      width: 100%; padding: 8px 12px;
-      border: 1px solid #d1d5db; border-radius: 0.375rem;
-      font-size: 0.875rem; background: #fff; color: #111827;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      margin-top: 4px;
-    }
-    .input:focus { outline: none; border-color: #0056b3; box-shadow: 0 0 0 3px rgba(0,86,179,0.12); }
-    .pro-card { border: 1px solid #e5e7eb; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-    label { display: flex; flex-direction: column; font-weight: 400; }
-    label span { font-size: 0.875rem; color: #4B5563; margin-bottom: 2px; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    .result-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid #f3f4f6; }
-    .result-row:last-child { border-bottom: none; }
-    .result-row:hover { background: #f9fafb; }
-    .result-label { color: #374151; font-weight: 500; font-size: 0.9rem; }
-    .result-value { color: #111827; font-weight: 600; font-size: 0.9rem; }
-    .highlight-row { background: #EBF5FF; }
-    .highlight-row .result-label, .highlight-row .result-value { color: #0056b3; font-weight: 700; font-size: 1rem; }
-    .gauge-bar { height: 12px; border-radius: 6px; background: #e5e7eb; overflow: hidden; margin-top: 6px; }
-    .gauge-fill { height: 100%; border-radius: 6px; transition: width 0.8s ease; }
-    @media print {
-      header, footer, section.cta-section, .tab-nav { display: none !important; }
-      .tab-content { display: block !important; }
-    }
-  </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Affordability | REProforma</title>
+<link rel="icon" type="image/png" href="../favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;}
+a{text-decoration:none;color:inherit;}
+.nav-dd{display:none;position:absolute;left:0;top:100%;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.12);border:1px solid #f1f5f9;z-index:50;min-width:220px;padding:6px 0;}
+.nav-dd.open{display:block;}.nav-wrap{position:relative;}
+.nav-btn{font-size:13px;background:none;border:none;cursor:pointer;padding:20px 0;color:#525252;font-family:'Inter',sans-serif;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:#374151;text-decoration:none;border-left:2px solid transparent;}
+.nav-item:hover,.nav-item.cur{background:#eff6ff;color:#0043ce;border-left-color:#0043ce;}
+.nav-lbl{padding:6px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;}
+.nav-div{height:1px;background:#f1f5f9;margin:4px 16px;}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+@media(max-width:860px){.g3{grid-template-columns:1fr 1fr;}}
+@media(max-width:580px){.g3,.g2{grid-template-columns:1fr;}}
+.card{background:white;border:1px solid #e2e8f0;border-radius:12px;padding:20px;}
+.ch{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #f1f5f9;}
+.ci{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.ct{font-size:14px;font-weight:600;color:#1e293b;}
+.f{margin-bottom:10px;}
+.lb{display:block;font-size:11px;font-weight:600;color:#64748b;letter-spacing:.03em;text-transform:uppercase;margin-bottom:3px;}
+.inp{width:100%;padding:8px 10px;border:1px solid #cbd5e1;border-radius:7px;font-size:13px;font-family:'Inter',sans-serif;color:#1e293b;background:white;outline:none;}
+.inp:focus{border-color:#0043ce;box-shadow:0 0 0 3px rgba(0,67,206,.08);}
+.p{position:relative;}.p span{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:12px;color:#94a3b8;pointer-events:none;}.p .inp{padding-left:18px;}
+.s{position:relative;}.s span{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:12px;color:#94a3b8;pointer-events:none;}.s .inp{padding-right:22px;}
+.tab-bar{display:flex;border-bottom:1px solid #e2e8f0;background:white;overflow-x:auto;}
+.tb{padding:12px 18px;font-size:13px;font-weight:500;color:#64748b;border:none;border-bottom:2px solid transparent;background:none;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;}
+.tb.on{color:#0043ce;border-bottom-color:#0043ce;font-weight:600;}
+.tp{display:none;}.tp.on{display:block;}
+.btn-b{background:#0043ce;color:white;border:none;border-radius:8px;padding:11px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-o{background:white;color:#475569;border:1px solid #cbd5e1;border-radius:8px;padding:9px 16px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;}
+.mc{background:white;border:1px solid #e2e8f0;border-radius:10px;padding:16px 18px;border-top:3px solid #0043ce;}
+.mv{font-size:24px;font-weight:700;line-height:1;}
+.ml{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#94a3b8;margin-top:4px;}
+.rr{display:flex;justify-content:space-between;padding:9px 12px;border-bottom:1px solid #f8fafc;font-size:13px;}
+.rr.tot{background:#eff6ff;font-weight:700;color:#0043ce;border-radius:6px;}
+.gauge{height:10px;border-radius:5px;background:#e2e8f0;overflow:hidden;margin-top:5px;}
+.gf{height:100%;border-radius:5px;transition:width .7s ease;}
+@media print{header,.no-print{display:none!important;}}
+</style>
 </head>
-<body class="bg-white text-gray-900 min-h-screen flex flex-col">
-
-<!-- Header -->
-  <style>
-    .dd-menu{display:none;position:absolute;left:0;top:100%;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.12);border:1px solid #f1f5f9;z-index:50;min-width:220px;padding:6px 0;}
-    .dd-menu.open{display:block;}
-    .dd-wrap{position:relative;}
-    .dd-trigger{display:flex;align-items:center;gap:4px;font-size:13px;background:none;border:none;cursor:pointer;padding:20px 0;color:#525252;font-family:inherit;}
-    .dd-trigger:hover,.dd-trigger.open{color:#0043ce;}
-    .dd-trigger svg{transition:transform .2s;}
-    .dd-trigger.open svg{transform:rotate(180deg);}
-    .dd-item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:#374151;text-decoration:none;border-left:2px solid transparent;transition:background .1s,color .1s,border-color .1s;}
-    .dd-item:hover,.dd-item.active{background:#eff6ff;color:#0043ce;border-left-color:#0043ce;}
-    .dd-label{padding:6px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;}
-    .dd-divider{height:1px;background:#f1f5f9;margin:4px 16px;}
-    .mob-sub{display:none;}
-    .mob-sub.open{display:block;}
-  </style>
-  <header class="sticky top-0 z-50 bg-white shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
-      <a href="../index.html" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;">
-        <svg width="34" height="34" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
-        <span style="display:flex;align-items:baseline;line-height:1;"><span style="font-size:19px;font-weight:700;color:#0043ce;letter-spacing:-0.3px;">RE</span><span style="font-size:19px;font-weight:300;color:#0043ce;letter-spacing:-0.3px;">Proforma</span></span>
-      </a>
-      <button id="mob-btn" class="md:hidden" style="color:#0043ce;background:none;border:none;cursor:pointer;">
-        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-      </button>
-      <div class="hidden md:flex items-center" style="gap:32px;">
-        <nav class="flex items-center" style="gap:24px;">
-          <a href="../index.html" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">Home</a>
-          <div class="dd-wrap" id="ddTools">
-            <button class="dd-trigger" id="ddToolsBtn">Tools <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-            <div class="dd-menu" id="ddToolsMenu">
-              <div class="dd-label">Pro Tools</div>
-              <a class="dd-item" href="../pai/index.html">🏢 Multifamily Acquisition</a>
-              <a class="dd-item" href="../pai/index-mixeduse.html">🏬 Commercial &amp; NNN Retail</a>
-              <a class="dd-item" href="../pai/index-land.html">🗺️ Land Development</a>
-              <div class="dd-divider"></div>
-              <div class="dd-label">Free Tools</div>
-              <a class="dd-item active" href="../pai/index-affordability.html">🏠 Home Affordability</a>
-              <a class="dd-item" href="../pai/index-rentvsbuy.html">🔄 Rent vs. Buy</a>
-              <a class="dd-item" href="../pai/index-mortgage-payoff.html">📅 Mortgage Payoff</a>
-            </div>
-          </div>
-          <div class="dd-wrap" id="ddMarket">
-            <button class="dd-trigger" id="ddMarketBtn">Market Data <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-            <div class="dd-menu" id="ddMarketMenu" style="min-width:200px;">
-              <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank">Market Trends</a>
-              <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank">Research Reports</a>
-              <a class="dd-item" href="https://berkadia.com/properties" target="_blank">Investment Listings</a>
-            </div>
-          </div>
-          <a href="../about.html" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">About</a>
-        </nav>
-        <a href="../about.html" class="px-4 py-2 text-sm font-semibold text-white rounded" style="background:#0043ce;">Let's talk</a>
-      </div>
-    </div>
-    <div id="mob-menu" class="hidden bg-white border-t border-gray-100" style="box-shadow:0 4px 12px rgba(0,0,0,.08);">
-      <div class="px-4 py-3 space-y-1 text-sm">
-        <a href="../index.html" class="block py-2 px-3 rounded" style="color:#525252;">Home</a>
-        <div>
-          <button class="mob-toggle flex items-center justify-between w-full py-2 px-3 rounded" style="background:#eff6ff;color:#0043ce;border:none;cursor:pointer;font-size:13px;font-family:inherit;">
-            Tools <svg class="h-4 w-4 mob-arrow" style="transition:transform .2s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-          </button>
-          <div class="mob-sub" style="display:none;padding-left:12px;">
-            <p style="padding:6px 12px 2px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;">Pro Tools</p>
-            <a href="../pai/index.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏢 Multifamily Acquisition</a>
-            <a href="../pai/index-mixeduse.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏬 Commercial/Retail</a>
-            <a href="../pai/index-land.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🗺️ Land Development</a>
-            <p style="padding:8px 12px 2px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;border-top:1px solid #f1f5f9;margin-top:4px;">Free Tools</p>
-            <a href="../pai/index-affordability.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;background:#eff6ff;color:#0043ce;border-color:#0043ce;font-weight:600;">🏠 Home Affordability</a>
-            <a href="../pai/index-rentvsbuy.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🔄 Rent vs. Buy</a>
-            <a href="../pai/index-mortgage-payoff.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">📅 Mortgage Payoff</a>
+<body>
+<header style="position:sticky;top:0;z-index:50;background:white;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+  <div class="wrap" style="display:flex;justify-content:space-between;align-items:center;height:64px;">
+    <a href="../index.html" style="display:inline-flex;align-items:center;gap:10px;">
+      <svg width="34" height="34" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
+      <span style="display:flex;align-items:baseline;"><span style="font-size:19px;font-weight:700;color:#0043ce;letter-spacing:-.3px;">RE</span><span style="font-size:19px;font-weight:300;color:#0043ce;letter-spacing:-.3px;">Proforma</span></span>
+    </a>
+    <button id="mb" onclick="toggle('mm')" style="display:none;background:none;border:none;cursor:pointer;color:#0043ce;">
+      <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <div id="dn" style="display:flex;align-items:center;gap:28px;">
+      <nav style="display:flex;align-items:center;gap:20px;">
+        <a href="../index.html" class="nav-btn">Home</a>
+        <div class="nav-wrap"><button class="nav-btn" onclick="tdd('dt')">Tools ▾</button>
+          <div class="nav-dd" id="dt">
+            <div class="nav-lbl">Pro Tools</div>
+            <a class="nav-item" href="index.html">🏢 Multifamily</a>
+            <a class="nav-item" href="index-mixeduse.html">🏬 Commercial/Retail</a>
+            <a class="nav-item" href="index-land.html">🗺️ Land Development</a>
+            <div class="nav-div"></div>
+            <div class="nav-lbl">Free Tools</div>
+            <a class="nav-item cur" href="index-affordability.html">🏠 Home Affordability</a>
+            <a class="nav-item" href="index-rentvsbuy.html">⚖️ Rent vs. Own</a>
+            <a class="nav-item" href="index-mortgage-payoff.html">📅 Mortgage Payoff</a>
           </div>
         </div>
-        <div>
-          <button class="mob-toggle flex items-center justify-between w-full py-2 px-3 rounded" style="background:none;color:#525252;border:none;cursor:pointer;font-size:13px;font-family:inherit;">
-            Market Data <svg class="h-4 w-4 mob-arrow" style="transition:transform .2s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-          </button>
-          <div class="mob-sub" style="display:none;padding-left:12px;">
-            <a href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank" class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">Market Trends</a>
-            <a href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank" class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">Research Reports</a>
-            <a href="https://berkadia.com/properties" target="_blank" class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">Investment Listings</a>
+        <div class="nav-wrap"><button class="nav-btn" onclick="tdd('dm')">Market Data ▾</button>
+          <div class="nav-dd" id="dm" style="min-width:195px;">
+            <a class="nav-item" href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank">Market Trends</a>
+            <a class="nav-item" href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank">Research Reports</a>
+            <a class="nav-item" href="https://berkadia.com/properties" target="_blank">Investment Listings</a>
           </div>
         </div>
-        <a href="../about.html" class="block py-2 px-3 rounded" style="color:#525252;;font-size:13px;">About</a>
-        <a href="../about.html" class="block mt-2 py-2 text-center font-semibold text-white rounded" style="background:#0043ce;font-size:13px;">Let's talk</a>
-      </div>
-    </div>
-  </header>
-
-<!-- Hero -->
-<section style="background:linear-gradient(to right,#EBF5FF,#fff)" class="py-12">
-  <div class="max-w-5xl mx-auto px-4">
-    <div class="flex flex-col md:flex-row items-center gap-8">
-      <div class="md:w-3/5">
-        <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold mb-4" style="background:#dbeafe;color:#1d4ed8">FREE TOOL · NO SIGN-UP REQUIRED</div>
-        <h1 class="text-4xl font-light leading-tight mb-4" style="color:#0056b3">🏠 Home Affordability Calculator</h1>
-        <p class="text-lg mb-6" style="color:#393939">Find out exactly how much home you can afford based on your income, debts, and down payment — using the same guidelines lenders use.</p>
-        <div class="flex flex-wrap gap-3">
-          <button id="autofillDemo" class="px-5 py-2 text-sm font-medium text-white rounded flex items-center transition-colors" style="background:#0056b3">
-            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
-            Demo Data
-          </button>
-          <button id="resetInputs" class="px-5 py-2 text-sm font-medium rounded flex items-center border-2 transition-colors" style="border-color:#0056b3;color:#0056b3">
-            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
-            Reset
-          </button>
-        </div>
-      </div>
-      <div class="md:w-2/5">
-        <img src="https://images.unsplash.com/photo-1570129477492-45c003edd2be?q=80&w=500&h=350&auto=format&fit=crop" alt="Home" class="rounded-lg shadow-lg object-cover h-56 w-full" />
-      </div>
+        <a href="../about.html" class="nav-btn">About</a>
+      </nav>
+      <a href="../about.html" class="btn-b" style="font-size:13px;padding:8px 18px;">Let's talk</a>
     </div>
   </div>
-</section>
-
-<!-- Main -->
-<main class="max-w-7xl mx-auto px-4 flex-grow py-8">
-
-  <!-- Tabs -->
-  <div class="mb-6 border-b border-gray-200 tab-nav">
-    <nav class="flex flex-wrap -mb-px">
-      <button class="tab-button mr-2 py-3 px-4 border-b-2 font-medium text-sm" data-tab="input-tab" style="border-color:#0056b3;color:#0056b3">Your Finances</button>
-      <button class="tab-button mr-2 py-3 px-4 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700" data-tab="results-tab">Results</button>
-      <button class="tab-button mr-2 py-3 px-4 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700" data-tab="breakdown-tab">Payment Breakdown</button>
-    </nav>
+  <div id="mm" style="display:none;background:white;border-top:1px solid #f1f5f9;padding:12px 16px;">
+    <a href="../index.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;">Home</a>
+    <p style="padding:6px 12px 2px;font-size:10px;font-weight:700;letter-spacing:.07em;color:#9ca3af;text-transform:uppercase;margin-top:6px;">Pro Tools</p>
+    <a href="index.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;">🏢 Multifamily</a>
+    <a href="index-mixeduse.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;">🏬 Commercial/Retail</a>
+    <a href="index-land.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;">🗺️ Land Development</a>
+    <p style="padding:8px 12px 2px;font-size:10px;font-weight:700;letter-spacing:.07em;color:#9ca3af;text-transform:uppercase;border-top:1px solid #f1f5f9;margin-top:6px;">Free Tools</p>
+    <a href="index-affordability.html" style="display:block;padding:7px 12px;font-size:13px;color:#0043ce;font-weight:600;background:#eff6ff;border-radius:6px;">🏠 Home Affordability</a>
+    <a href="index-rentvsbuy.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;">⚖️ Rent vs. Own</a>
+    <a href="index-mortgage-payoff.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;">📅 Mortgage Payoff</a>
+    <a href="../about.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;">About</a>
   </div>
+</header>
 
-  <!-- INPUT TAB -->
-  <div class="tab-content active" id="input-tab">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-      <!-- Income -->
-      <section class="pro-card bg-white p-6">
-        <div class="flex items-center mb-5">
-          <div class="h-10 w-10 rounded-full flex items-center justify-center mr-3" style="background:#EBF5FF">
-            <svg class="h-5 w-5" style="color:#0056b3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
-          </div>
-          <h2 class="text-base font-semibold" style="color:#393939">Income</h2>
-        </div>
-        <div class="space-y-4">
-          <label><span>Annual Gross Income ($)</span><input class="input" id="annualIncome" type="number" placeholder="75000" /></label>
-          <label><span>Co-Borrower Annual Income ($) <em class="text-gray-400 font-normal">(optional)</em></span><input class="input" id="coBorrowerIncome" type="number" placeholder="0" /></label>
-          <label><span>Other Monthly Income ($) <em class="text-gray-400 font-normal">(rental, etc.)</em></span><input class="input" id="otherMonthlyIncome" type="number" placeholder="0" /></label>
-        </div>
-      </section>
-
-      <!-- Debts -->
-      <section class="pro-card bg-white p-6">
-        <div class="flex items-center mb-5">
-          <div class="h-10 w-10 rounded-full flex items-center justify-center mr-3" style="background:#fef3c7">
-            <svg class="h-5 w-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
-          </div>
-          <h2 class="text-base font-semibold" style="color:#393939">Monthly Debts</h2>
-        </div>
-        <div class="space-y-4">
-          <label><span>Car Payment(s) ($)</span><input class="input" id="carPayment" type="number" placeholder="0" /></label>
-          <label><span>Student Loan Payment ($)</span><input class="input" id="studentLoan" type="number" placeholder="0" /></label>
-          <label><span>Credit Card Min. Payments ($)</span><input class="input" id="creditCard" type="number" placeholder="0" /></label>
-          <label><span>Other Monthly Debts ($)</span><input class="input" id="otherDebts" type="number" placeholder="0" /></label>
-        </div>
-      </section>
-
-      <!-- Loan Details -->
-      <section class="pro-card bg-white p-6">
-        <div class="flex items-center mb-5">
-          <div class="h-10 w-10 rounded-full flex items-center justify-center mr-3" style="background:#d0e2ff">
-            <svg class="h-5 w-5" style="color:#0056b3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
-          </div>
-          <h2 class="text-base font-semibold" style="color:#393939">Loan Details</h2>
-        </div>
-        <div class="space-y-4">
-          <label><span>Down Payment ($)</span><input class="input" id="downPayment" type="number" placeholder="60000" /></label>
-          <label><span>Interest Rate (%)</span><input class="input" id="interestRate" type="number" step="0.01" placeholder="6.75" /></label>
-          <label><span>Loan Term (Years)</span>
-            <select class="input" id="loanTerm">
-              <option value="30">30 Years</option>
-              <option value="20">20 Years</option>
-              <option value="15">15 Years</option>
-              <option value="10">10 Years</option>
-            </select>
-          </label>
-          <label><span>Annual Property Tax Rate (%)</span><input class="input" id="propertyTaxRate" type="number" step="0.01" placeholder="1.2" /></label>
-          <label><span>Annual Home Insurance ($)</span><input class="input" id="homeInsurance" type="number" placeholder="1500" /></label>
-          <label><span>Monthly HOA ($)</span><input class="input" id="hoaFees" type="number" placeholder="0" /></label>
-        </div>
-      </section>
+<div style="background:linear-gradient(to right,#EBF5FF,white);border-bottom:1px solid #e2e8f0;padding:24px 0;">
+  <div class="wrap" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;">
+    <div>
+      <span style="background:#dcfce7;color:#15803d;font-size:11px;font-weight:700;padding:2px 10px;border-radius:99px;display:inline-block;margin-bottom:6px;">Free · No Sign-Up</span>
+      <h1 style="font-size:24px;font-weight:700;color:#0043ce;">🏠 Home Affordability Calculator</h1>
+      <p style="font-size:13px;color:#64748b;margin-top:3px;">Find out exactly how much home you can afford using real lender DTI guidelines.</p>
     </div>
-
-    <div class="flex justify-center mt-8 mb-4">
-      <button id="calculate" class="text-white font-medium px-8 py-3 rounded flex items-center text-base shadow transition-colors" style="background:#0056b3">
-        <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
-        Calculate Affordability
-      </button>
-    </div>
-
-    <!-- How it works -->
-    <div class="pro-card bg-white p-6 mt-8">
-      <h3 class="font-semibold text-base mb-4" style="color:#393939">📐 How This Calculator Works</h3>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm" style="color:#4B5563">
-        <div class="bg-gray-50 rounded p-4">
-          <p class="font-semibold mb-1" style="color:#0056b3">Front-End DTI (28% Rule)</p>
-          <p>Your total housing costs (P&I + taxes + insurance + HOA) should not exceed 28% of gross monthly income. This is the standard lender guideline.</p>
-        </div>
-        <div class="bg-gray-50 rounded p-4">
-          <p class="font-semibold mb-1" style="color:#0056b3">Back-End DTI (36–43% Rule)</p>
-          <p>Your total debt payments including housing must stay under 36–43% of income. FHA loans allow up to 43%, conventional up to 36–45%.</p>
-        </div>
-        <div class="bg-gray-50 rounded p-4">
-          <p class="font-semibold mb-1" style="color:#0056b3">Max Home Price</p>
-          <p>We calculate the maximum loan from your constrained monthly budget, then add your down payment to show the true maximum purchase price.</p>
-        </div>
-      </div>
+    <div style="display:flex;gap:8px;" class="no-print">
+      <button class="btn-o" onclick="loadDemo()">📋 Demo (Charlotte NC)</button>
+      <button class="btn-o" onclick="resetAll()">↺ Reset</button>
     </div>
   </div>
+</div>
 
-  <!-- RESULTS TAB -->
-  <div class="tab-content" id="results-tab">
-    <div class="pro-card bg-white p-6 mb-6">
-      <h2 class="text-xl font-semibold mb-6" style="color:#393939">Your Affordability Summary</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8" id="summary-cards"></div>
-      <div class="bg-gray-50 rounded-lg p-4" id="results-detail"></div>
+<div class="tab-bar no-print">
+  <button class="tb on" data-t="ti">Your Finances</button>
+  <button class="tb" data-t="tr">Results</button>
+  <button class="tb" data-t="tb">Payment Breakdown</button>
+</div>
+
+<div class="wrap" style="padding:22px 0 48px;">
+
+<!-- INPUTS -->
+<div id="ti" class="tp on">
+  <div class="g3">
+    <div class="card">
+      <div class="ch"><div class="ci" style="background:#dbeafe;">💰</div><span class="ct">Income</span></div>
+      <div class="f"><label class="lb">Annual Gross Income ($)</label><div class="p"><span>$</span><input class="inp" id="ai" type="number" placeholder="95,000"></div></div>
+      <div class="f"><label class="lb">Co-Borrower Annual Income ($) <span style="font-weight:400;text-transform:none;">optional</span></label><div class="p"><span>$</span><input class="inp" id="ci2" type="number" placeholder="0"></div></div>
+      <div class="f"><label class="lb">Other Monthly Income ($)</label><div class="p"><span>$</span><input class="inp" id="oi" type="number" placeholder="0"></div></div>
     </div>
-
-    <!-- DTI Gauges -->
-    <div class="pro-card bg-white p-6 mb-6" id="dti-section">
-      <h3 class="font-semibold text-base mb-4" style="color:#393939">Debt-to-Income Ratios</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="dti-gauges"></div>
+    <div class="card">
+      <div class="ch"><div class="ci" style="background:#fef3c7;">💳</div><span class="ct">Monthly Debts</span></div>
+      <div class="f"><label class="lb">Car Payment(s) ($)</label><div class="p"><span>$</span><input class="inp" id="car" type="number" placeholder="0"></div></div>
+      <div class="f"><label class="lb">Student Loan ($)</label><div class="p"><span>$</span><input class="inp" id="sl" type="number" placeholder="0"></div></div>
+      <div class="f"><label class="lb">Credit Card Min. Payments ($)</label><div class="p"><span>$</span><input class="inp" id="cc" type="number" placeholder="0"></div></div>
+      <div class="f"><label class="lb">Other Monthly Debts ($)</label><div class="p"><span>$</span><input class="inp" id="od" type="number" placeholder="0"></div></div>
     </div>
+    <div class="card">
+      <div class="ch"><div class="ci" style="background:#f0fdf4;">🏦</div><span class="ct">Loan Details</span></div>
+      <div class="f"><label class="lb">Down Payment ($)</label><div class="p"><span>$</span><input class="inp" id="dp" type="number" placeholder="60,000" oninput="liveDP()"></div></div>
+      <div id="dpHint" style="font-size:11px;color:#94a3b8;margin:-6px 0 8px;"></div>
+      <div class="f"><label class="lb">Interest Rate (%)</label><div class="s"><input class="inp" id="ir" type="number" step="0.01" placeholder="6.75"><span>%</span></div></div>
+      <div class="f"><label class="lb">Loan Term</label>
+        <select class="inp" id="lt"><option value="30">30 Years</option><option value="20">20 Years</option><option value="15">15 Years</option><option value="10">10 Years</option></select></div>
+      <div class="f"><label class="lb">Annual Property Tax Rate (%)</label><div class="s"><input class="inp" id="tr2" type="number" step="0.01" placeholder="1.20"><span>%</span></div></div>
+      <div class="f"><label class="lb">Annual Home Insurance ($)</label><div class="p"><span>$</span><input class="inp" id="ins" type="number" placeholder="1,800"></div></div>
+      <div class="f"><label class="lb">Monthly HOA ($)</label><div class="p"><span>$</span><input class="inp" id="hoa" type="number" placeholder="0"></div></div>
+    </div>
+  </div>
+  <div style="text-align:center;margin:22px 0 8px;">
+    <button class="btn-b" onclick="calc()" style="padding:13px 36px;font-size:15px;">Calculate Affordability →</button>
+  </div>
+  <div class="card" style="margin-top:18px;">
+    <p style="font-size:13px;font-weight:600;margin-bottom:12px;">📐 How This Calculator Works</p>
+    <div class="g3" style="gap:12px;">
+      <div style="background:#f8fafc;padding:12px;border-radius:8px;border-left:3px solid #0043ce;"><p style="font-size:12px;font-weight:600;color:#0043ce;margin-bottom:3px;">Front-End DTI (28%)</p><p style="font-size:12px;color:#64748b;">Housing costs (P&I + tax + insurance + HOA) ≤ 28% of gross monthly income — standard lender limit.</p></div>
+      <div style="background:#f8fafc;padding:12px;border-radius:8px;border-left:3px solid #15803d;"><p style="font-size:12px;font-weight:600;color:#15803d;margin-bottom:3px;">Back-End DTI (43%)</p><p style="font-size:12px;color:#64748b;">All debts + housing ≤ 43% of income. FHA allows 43%; conventional lenders vary 36–45%.</p></div>
+      <div style="background:#f8fafc;padding:12px;border-radius:8px;border-left:3px solid #b45309;"><p style="font-size:12px;font-weight:600;color:#b45309;margin-bottom:3px;">Max Home Price</p><p style="font-size:12px;color:#64748b;">We solve for the most you can borrow under both DTI limits, then add your down payment.</p></div>
+    </div>
+  </div>
+</div>
 
-    <!-- Guidance table -->
-    <div class="pro-card bg-white p-6 mb-6">
-      <h3 class="font-semibold text-base mb-4" style="color:#393939">📊 DTI Ratio Guide</h3>
-      <div class="bg-gray-50 rounded p-4">
-        <table class="w-full text-sm" style="border-collapse:collapse;color:#4B5563">
-          <thead><tr style="background:#f3f4f6"><th class="p-2 border-b text-left font-semibold" style="color:#374151">DTI</th><th class="p-2 border-b text-left font-semibold" style="color:#374151">Rating</th><th class="p-2 border-b text-left font-semibold" style="color:#374151">Lender View</th></tr></thead>
+<!-- RESULTS -->
+<div id="tr" class="tp">
+  <div id="sumC" class="g3" style="margin-bottom:18px;"></div>
+  <div class="g2" style="margin-bottom:18px;">
+    <div class="card"><p style="font-size:13px;font-weight:600;margin-bottom:12px;">Monthly Payment Breakdown</p><div id="payD"></div></div>
+    <div class="card"><p style="font-size:13px;font-weight:600;margin-bottom:12px;">Debt-to-Income Ratios</p><div id="dtiD"></div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid #f1f5f9;">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <thead><tr><th style="padding:5px 8px;background:#f8fafc;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;letter-spacing:.04em;">DTI</th><th style="padding:5px 8px;background:#f8fafc;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;">Rating</th><th style="padding:5px 8px;background:#f8fafc;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;">Lender View</th></tr></thead>
           <tbody>
-            <tr><td class="p-2 border-b">&lt; 28%</td><td class="p-2 border-b font-semibold" style="color:#16a34a">🟢 Excellent</td><td class="p-2 border-b">Easily approved, best rates</td></tr>
-            <tr><td class="p-2 border-b">28–36%</td><td class="p-2 border-b font-semibold" style="color:#65a30d">🟢 Good</td><td class="p-2 border-b">Strong approval odds</td></tr>
-            <tr><td class="p-2 border-b">36–43%</td><td class="p-2 border-b font-semibold" style="color:#d97706">🟡 Acceptable</td><td class="p-2 border-b">FHA approved, some conventional lenders</td></tr>
-            <tr><td class="p-2 border-b">43–50%</td><td class="p-2 border-b font-semibold" style="color:#dc2626">🔴 Risky</td><td class="p-2 border-b">Hard to qualify; few lenders</td></tr>
-            <tr><td class="p-2">&gt; 50%</td><td class="p-2 font-semibold" style="color:#991b1b">🚫 Too High</td><td class="p-2">Most lenders will decline</td></tr>
+            <tr><td style="padding:6px 8px;">&lt;28%</td><td style="padding:6px 8px;color:#15803d;font-weight:600;">✅ Excellent</td><td style="padding:6px 8px;color:#64748b;">Best rates</td></tr>
+            <tr><td style="padding:6px 8px;">28–36%</td><td style="padding:6px 8px;color:#0369a1;font-weight:600;">✅ Good</td><td style="padding:6px 8px;color:#64748b;">Conventional approved</td></tr>
+            <tr><td style="padding:6px 8px;">36–43%</td><td style="padding:6px 8px;color:#b45309;font-weight:600;">⚠️ Marginal</td><td style="padding:6px 8px;color:#64748b;">FHA only</td></tr>
+            <tr><td style="padding:6px 8px;">&gt;43%</td><td style="padding:6px 8px;color:#b91c1c;font-weight:600;">❌ Too High</td><td style="padding:6px 8px;color:#64748b;">Most lenders decline</td></tr>
           </tbody>
         </table>
       </div>
     </div>
   </div>
-
-  <!-- BREAKDOWN TAB -->
-  <div class="tab-content" id="breakdown-tab">
-    <div class="pro-card bg-white p-6 mb-6">
-      <h2 class="text-xl font-semibold mb-6" style="color:#393939">Monthly Payment Breakdown</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div class="bg-gray-50 rounded p-4" style="height:350px">
-          <canvas id="paymentChart"></canvas>
-        </div>
-        <div id="payment-breakdown-detail" class="space-y-2"></div>
-      </div>
-    </div>
-    <div class="pro-card bg-white p-6">
-      <h3 class="font-semibold text-base mb-4" style="color:#393939">💡 Tips to Improve Affordability</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm" style="color:#4B5563">
-        <div class="bg-blue-50 rounded p-4 border-l-4" style="border-color:#0056b3"><p class="font-semibold mb-1" style="color:#0056b3">Increase Your Down Payment</p><p>A larger down payment reduces your loan amount and monthly payment — and eliminates PMI when you hit 20%.</p></div>
-        <div class="bg-green-50 rounded p-4 border-l-4 border-green-500"><p class="font-semibold mb-1 text-green-700">Pay Down Existing Debt</p><p>Reducing your monthly debt obligations directly increases the home price you can qualify for.</p></div>
-        <div class="bg-yellow-50 rounded p-4 border-l-4 border-yellow-500"><p class="font-semibold mb-1 text-yellow-700">Shop for Better Rates</p><p>Even 0.5% lower interest rate can add tens of thousands to your buying power.</p></div>
-        <div class="bg-purple-50 rounded p-4 border-l-4 border-purple-500"><p class="font-semibold mb-1 text-purple-700">Consider a Longer Term</p><p>A 30-year mortgage has lower monthly payments than a 15-year, increasing what you can afford today.</p></div>
-      </div>
+  <div class="card">
+    <p style="font-size:13px;font-weight:600;margin-bottom:10px;">💡 Tips to Improve Your Buying Power</p>
+    <div class="g2" style="gap:10px;">
+      <div style="background:#eff6ff;padding:12px;border-radius:8px;border-left:3px solid #0043ce;"><p style="font-size:12px;font-weight:600;color:#0043ce;margin-bottom:3px;">Increase Your Down Payment</p><p style="font-size:12px;color:#64748b;">Extra $10k down can add ~$15–20k to buying power and eliminates PMI at 20%.</p></div>
+      <div style="background:#dcfce7;padding:12px;border-radius:8px;border-left:3px solid #15803d;"><p style="font-size:12px;font-weight:600;color:#15803d;margin-bottom:3px;">Pay Down Existing Debt</p><p style="font-size:12px;color:#64748b;">Each $100/mo of debt eliminated adds ~$15–20k to your maximum purchase price.</p></div>
+      <div style="background:#fef3c7;padding:12px;border-radius:8px;border-left:3px solid #b45309;"><p style="font-size:12px;font-weight:600;color:#b45309;margin-bottom:3px;">Shop for a Better Rate</p><p style="font-size:12px;color:#64748b;">0.5% lower rate saves ~$120/mo on a $400k loan — significant over 30 years.</p></div>
+      <div style="background:#fdf4ff;padding:12px;border-radius:8px;border-left:3px solid #7c3aed;"><p style="font-size:12px;font-weight:600;color:#7c3aed;margin-bottom:3px;">Compare 15 vs 30 Year</p><p style="font-size:12px;color:#64748b;">30yr lowers monthly payment; 15yr saves dramatically on total interest paid.</p></div>
     </div>
   </div>
+</div>
 
-</main>
+<!-- BREAKDOWN -->
+<div id="tb" class="tp">
+  <div class="g2">
+    <div class="card"><p style="font-size:13px;font-weight:600;margin-bottom:14px;">Monthly Payment Composition</p><div style="position:relative;height:280px;"><canvas id="cpie"></canvas></div></div>
+    <div class="card"><p style="font-size:13px;font-weight:600;margin-bottom:14px;">Affordability at Different Prices</p><div style="position:relative;height:280px;"><canvas id="cbar"></canvas></div></div>
+  </div>
+</div>
 
-<!-- CTA -->
-<section class="py-16 text-white cta-section" style="background:#0043ce">
-  <div class="max-w-5xl mx-auto px-4 text-center">
-    <h2 class="text-3xl font-light mb-4">Ready to invest in real estate?</h2>
-    <p class="text-lg opacity-90 mb-8 max-w-2xl mx-auto">Once you know what you can afford, explore our professional proforma tools to analyze investment properties.</p>
-    <div class="flex flex-wrap justify-center gap-4">
-      <a href="index.html" class="px-6 py-3 font-medium rounded transition-colors" style="background:#fff;color:#0056b3">Multifamily Proforma</a>
-      <a href="index-rentvsbuy.html" class="px-6 py-3 font-medium rounded border-2 border-white text-white transition-colors hover:bg-blue-800">Rent vs. Buy →</a>
+</div>
+
+<footer style="background:#0f172a;padding:44px 0;color:white;">
+  <div class="wrap">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-bottom:24px;">
+      <div><div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;"><svg width="26" height="26" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg><span style="font-size:15px;font-weight:700;">RE<span style="font-weight:300;">Proforma</span></span></div><p style="font-size:13px;color:#94a3b8;">Real estate analytics for investors and homebuyers.</p></div>
+      <div><p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Tools</p><div style="display:flex;flex-direction:column;gap:6px;font-size:13px;"><a href="index.html" style="color:#94a3b8;">Multifamily</a><a href="index-mixeduse.html" style="color:#94a3b8;">Commercial/Retail</a><a href="index-land.html" style="color:#94a3b8;">Land Development</a><a href="index-affordability.html" style="color:#94a3b8;">Home Affordability</a><a href="index-rentvsbuy.html" style="color:#94a3b8;">Rent vs. Own</a><a href="index-mortgage-payoff.html" style="color:#94a3b8;">Mortgage Payoff</a></div></div>
+      <div><p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Resources</p><div style="display:flex;flex-direction:column;gap:6px;font-size:13px;"><a href="#" style="color:#94a3b8;">Market Reports</a><a href="#" style="color:#94a3b8;">Investment Guide</a><a href="#" style="color:#94a3b8;">Case Studies</a><a href="#" style="color:#94a3b8;">Support</a></div></div>
+      <div><p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Subscribe</p><div style="display:flex;margin-top:6px;"><input type="email" placeholder="Your email" style="flex:1;padding:8px;border-radius:6px 0 0 6px;border:none;font-size:13px;outline:none;"><button style="background:#0056b3;color:white;border:none;padding:8px 12px;border-radius:0 6px 6px 0;cursor:pointer;font-size:13px;">Go</button></div></div>
+    </div>
+    <div style="border-top:1px solid #1e293b;padding-top:16px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font-size:13px;color:#64748b;">
+      <p>&copy; 2025 REProforma. All rights reserved.</p>
+      <div style="display:flex;gap:18px;"><a href="../privacy.html" style="color:#64748b;">Privacy Policy</a><a href="../terms.html" style="color:#64748b;">Terms</a></div>
     </div>
   </div>
-</section>
-
-<!-- Footer -->
-  <footer class="py-14 text-white" style="background:#0f172a;">
-    <div class="max-w-7xl mx-auto px-4">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
-        <div>
-          <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;">
-            <svg width="28" height="28" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
-            <span style="font-size:16px;font-weight:700;color:white;letter-spacing:-0.2px;">RE<span style="font-weight:300;">Proforma</span></span>
-          </div>
-          <p class="text-sm text-gray-400 mb-4">Advanced analytics for real estate investment professionals.</p>
-          <div class="flex space-x-3">
-            <a href="#" class="text-gray-400 hover:text-white"><svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg></a>
-            <a href="#" class="text-gray-400 hover:text-white"><svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a>
-          </div>
-        </div>
-        <div>
-          <h4 class="text-sm font-semibold mb-3 text-white">Tools</h4>
-          <p class="text-xs uppercase tracking-widest text-gray-500 mb-2">Pro</p>
-          <ul class="space-y-2 text-sm text-gray-400 mb-3">
-            <li><a href="../pai/index.html" class="hover:text-white">Multifamily Acquisition</a></li>
-            <li><a href="../pai/index-mixeduse.html" class="hover:text-white">Commercial &amp; NNN Retail</a></li>
-            <li><a href="../pai/index-land.html" class="hover:text-white">Land Development</a></li>
-          </ul>
-          <p class="text-xs uppercase tracking-widest text-gray-500 mb-2 border-t border-gray-800 pt-2">Free</p>
-          <ul class="space-y-2 text-sm text-gray-400">
-            <li><a href="../pai/index-affordability.html" class="hover:text-white">🏠 Home Affordability</a></li>
-            <li><a href="../pai/index-rentvsbuy.html" class="hover:text-white">🔄 Rent vs. Buy</a></li>
-            <li><a href="../pai/index-mortgage-payoff.html" class="hover:text-white">📅 Mortgage Payoff</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="text-sm font-semibold mb-3 text-white">Resources</h4>
-          <ul class="space-y-2 text-sm text-gray-400">
-            <li><a href="#" class="hover:text-white">Market Reports</a></li>
-            <li><a href="#" class="hover:text-white">Investment Guide</a></li>
-            <li><a href="#" class="hover:text-white">Case Studies</a></li>
-            <li><a href="#" class="hover:text-white">Blog</a></li>
-            <li><a href="#" class="hover:text-white">Support</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="text-sm font-semibold mb-3 text-white">Subscribe</h4>
-          <p class="text-sm text-gray-400 mb-3">Get the latest real estate investment insights.</p>
-          <div class="flex">
-            <input type="email" placeholder="Enter your email" class="px-3 py-2 rounded-l w-full text-sm text-gray-900 focus:outline-none"/>
-            <button class="px-4 py-2 rounded-r text-sm text-white font-semibold" style="background:#0056b3;">Go</button>
-          </div>
-        </div>
-      </div>
-      <div class="pt-6 border-t border-gray-800 flex flex-col md:flex-row justify-between text-sm text-gray-500">
-        <p>&copy; 2025 REProforma. All rights reserved.</p>
-        <div class="flex gap-5 mt-3 md:mt-0">
-          <a href="../privacy.html" class="hover:text-white">Privacy Policy</a>
-          <a href="../terms.html" class="hover:text-white">Terms of Service</a>
-        </div>
-      </div>
-    </div>
-  </footer>
+</footer>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  let paymentChart = null;
+const $=id=>document.getElementById(id);
+const num=id=>parseFloat($(id)?.value)||0;
+const set=(id,v)=>{if($(id))$(id).value=v;};
+const fmt=v=>'$'+Math.round(v).toLocaleString();
+const pct=(v,d=1)=>v.toFixed(d)+'%';
+function toggle(id){const e=$(id);e.style.display=e.style.display==='block'?'none':'block';}
+function tdd(id){const m=$(id);if(!m)return;const o=m.classList.contains('open');document.querySelectorAll('.nav-dd').forEach(d=>d.classList.remove('open'));if(!o)m.classList.add('open');}
+document.addEventListener('click',e=>{if(!e.target.closest('.nav-wrap'))document.querySelectorAll('.nav-dd').forEach(d=>d.classList.remove('open'));});
+function ckW(){const mob=window.innerWidth<768;$('dn').style.display=mob?'none':'flex';$('mb').style.display=mob?'block':'none';}
+window.addEventListener('resize',ckW);ckW();
+document.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));document.querySelectorAll('.tp').forEach(x=>x.classList.remove('on'));b.classList.add('on');$(b.dataset.t).classList.add('on');}));
+function sw(id){document.querySelectorAll('.tb').forEach(x=>x.classList.toggle('on',x.dataset.t===id));document.querySelectorAll('.tp').forEach(x=>x.classList.toggle('on',x.id===id));}
+const CH={};
+function mkC(id,cfg){if(CH[id])CH[id].destroy();CH[id]=new Chart($(id),cfg);}
+function liveDP(){const dp=num('dp'),h=$('dpHint');if(!h)return;h.textContent=dp>0?`Down payment: ${fmt(dp)} · ${dp<40000?'⚠️ Under 20% — PMI required':'✅ 20%+ avoids PMI'}`:'';}
 
-  // Mobile menu
-  document.getElementById('mobile-menu-button').addEventListener('click', () => {
-    document.getElementById('mobile-menu').classList.toggle('hidden');
-  });
-
-  // Tab switching
-  document.querySelectorAll('.tab-button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const target = btn.getAttribute('data-tab');
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      document.getElementById(target).classList.add('active');
-      document.querySelectorAll('.tab-button').forEach(b => {
-        b.style.color = '#6b7280'; b.style.borderColor = 'transparent';
-      });
-      btn.style.color = '#0056b3'; btn.style.borderColor = '#0056b3';
-    });
-  });
-
-  function n(id) { return parseFloat(document.getElementById(id).value) || 0; }
-
-  document.getElementById('calculate').addEventListener('click', calculate);
-
-  function calculate() {
-    const annualIncome = n('annualIncome') + n('coBorrowerIncome');
-    const monthlyIncome = annualIncome / 12 + n('otherMonthlyIncome');
-    const existingDebts = n('carPayment') + n('studentLoan') + n('creditCard') + n('otherDebts');
-    const downPayment = n('downPayment');
-    const rate = n('interestRate') / 100 / 12;
-    const term = parseInt(document.getElementById('loanTerm').value) * 12;
-    const taxRate = n('propertyTaxRate') / 100;
-    const insurance = n('homeInsurance') / 12;
-    const hoa = n('hoaFees');
-
-    if (!monthlyIncome || !rate) { alert('Please enter your income and interest rate.'); return; }
-
-    // Max housing payment by front-end DTI (28%)
-    const maxHousingFrontEnd = monthlyIncome * 0.28;
-    // Max housing payment by back-end DTI (43%)
-    const maxHousingBackEnd = monthlyIncome * 0.43 - existingDebts;
-    // Take lower of the two
-    const maxHousingPayment = Math.min(maxHousingFrontEnd, maxHousingBackEnd);
-
-    // Available for P&I (subtract tax, insurance, HOA placeholder)
-    // We'll iterate: estimate home price, compute tax, refine
-    let maxLoan = 0;
-    let homePriceEstimate = downPayment;
-    for (let i = 0; i < 20; i++) {
-      const monthlyTax = homePriceEstimate * taxRate / 12;
-      const availablePI = maxHousingPayment - monthlyTax - insurance - hoa;
-      if (availablePI <= 0) { homePriceEstimate = 0; break; }
-      maxLoan = availablePI * (1 - Math.pow(1 + rate, -term)) / rate;
-      homePriceEstimate = maxLoan + downPayment;
-    }
-
-    const maxHomePrice = Math.max(0, homePriceEstimate);
-    const actualLoan = maxHomePrice - downPayment;
-    const monthlyPI = actualLoan * rate / (1 - Math.pow(1 + rate, -term));
-    const monthlyTax = maxHomePrice * taxRate / 12;
-    const totalMonthlyPayment = monthlyPI + monthlyTax + insurance + hoa;
-    const frontEndDTI = (totalMonthlyPayment / monthlyIncome) * 100;
-    const backEndDTI = ((totalMonthlyPayment + existingDebts) / monthlyIncome) * 100;
-    const downPct = maxHomePrice > 0 ? (downPayment / maxHomePrice) * 100 : 0;
-    const pmi = downPct < 20 ? (actualLoan * 0.005 / 12) : 0;
-    const totalWithPMI = totalMonthlyPayment + pmi;
-
-    let affordStatus, statusColor, statusBg;
-    if (backEndDTI <= 36) { affordStatus = '✅ Excellent — you are in great shape to buy'; statusColor = '#166534'; statusBg = '#dcfce7'; }
-    else if (backEndDTI <= 43) { affordStatus = '🟡 Good — you qualify with most lenders'; statusColor = '#854d0e'; statusBg = '#fef9c3'; }
-    else if (backEndDTI <= 50) { affordStatus = '⚠️ Tight — consider reducing debt first'; statusColor = '#9a3412'; statusBg = '#ffedd5'; }
-    else { affordStatus = '❌ Too high — reduce debts before applying'; statusColor = '#991b1b'; statusBg = '#fee2e2'; }
-
-    // Summary cards
-    document.getElementById('summary-cards').innerHTML = `
-      <div class="rounded-lg p-4 border" style="background:#EBF5FF;border-color:#bfdbfe">
-        <p class="text-xs font-semibold uppercase tracking-wide mb-1" style="color:#1d4ed8">Max Home Price</p>
-        <p class="text-2xl font-bold" style="color:#1e40af">$${Math.round(maxHomePrice).toLocaleString()}</p>
-      </div>
-      <div class="rounded-lg p-4 border" style="background:#f0fdf4;border-color:#bbf7d0">
-        <p class="text-xs font-semibold uppercase tracking-wide mb-1" style="color:#166534">Max Loan Amount</p>
-        <p class="text-2xl font-bold" style="color:#166534">$${Math.round(actualLoan).toLocaleString()}</p>
-      </div>
-      <div class="rounded-lg p-4 border" style="background:#fefce8;border-color:#fde68a">
-        <p class="text-xs font-semibold uppercase tracking-wide mb-1" style="color:#92400e">Est. Monthly Payment</p>
-        <p class="text-2xl font-bold" style="color:#92400e">$${Math.round(totalWithPMI).toLocaleString()}</p>
-        ${pmi > 0 ? '<p class="text-xs mt-1" style="color:#b45309">Includes ~$' + Math.round(pmi) + '/mo PMI</p>' : ''}
-      </div>
-    `;
-
-    // Detail rows
-    document.getElementById('results-detail').innerHTML = `
-      <div class="result-row"><span class="result-label">Combined Annual Income</span><span class="result-value">$${Math.round(annualIncome).toLocaleString()}</span></div>
-      <div class="result-row"><span class="result-label">Monthly Gross Income</span><span class="result-value">$${Math.round(monthlyIncome).toLocaleString()}</span></div>
-      <div class="result-row"><span class="result-label">Existing Monthly Debts</span><span class="result-value" style="color:#dc2626">$${Math.round(existingDebts).toLocaleString()}</span></div>
-      <div class="result-row highlight-row"><span class="result-label">Max Home Price</span><span class="result-value">$${Math.round(maxHomePrice).toLocaleString()}</span></div>
-      <div class="result-row"><span class="result-label">Down Payment</span><span class="result-value">$${Math.round(downPayment).toLocaleString()} (${downPct.toFixed(1)}%)</span></div>
-      <div class="result-row"><span class="result-label">Loan Amount</span><span class="result-value">$${Math.round(actualLoan).toLocaleString()}</span></div>
-      <div class="result-row"><span class="result-label">Monthly Principal & Interest</span><span class="result-value">$${Math.round(monthlyPI).toLocaleString()}</span></div>
-      <div class="result-row"><span class="result-label">Monthly Property Tax</span><span class="result-value">$${Math.round(monthlyTax).toLocaleString()}</span></div>
-      <div class="result-row"><span class="result-label">Monthly Insurance</span><span class="result-value">$${Math.round(insurance).toLocaleString()}</span></div>
-      ${hoa > 0 ? `<div class="result-row"><span class="result-label">Monthly HOA</span><span class="result-value">$${Math.round(hoa).toLocaleString()}</span></div>` : ''}
-      ${pmi > 0 ? `<div class="result-row"><span class="result-label">PMI (< 20% down)</span><span class="result-value" style="color:#d97706">$${Math.round(pmi).toLocaleString()}</span></div>` : ''}
-      <div class="result-row highlight-row"><span class="result-label">Total Monthly Payment</span><span class="result-value">$${Math.round(totalWithPMI).toLocaleString()}</span></div>
-      <div class="mt-4 p-3 rounded-lg text-sm font-semibold" style="background:${statusBg};color:${statusColor}">${affordStatus}</div>
-    `;
-
-    // DTI Gauges
-    function dtiColor(pct) { return pct < 28 ? '#16a34a' : pct < 36 ? '#65a30d' : pct < 43 ? '#d97706' : '#dc2626'; }
-    document.getElementById('dti-gauges').innerHTML = `
-      <div>
-        <div class="flex justify-between text-sm mb-1"><span class="font-medium" style="color:#374151">Front-End DTI (Housing Only)</span><span class="font-bold" style="color:${dtiColor(frontEndDTI)}">${frontEndDTI.toFixed(1)}%</span></div>
-        <div class="gauge-bar"><div class="gauge-fill" style="width:${Math.min(frontEndDTI,100)}%;background:${dtiColor(frontEndDTI)}"></div></div>
-        <p class="text-xs mt-1" style="color:#6b7280">Guideline: ≤ 28% of gross income</p>
-      </div>
-      <div>
-        <div class="flex justify-between text-sm mb-1"><span class="font-medium" style="color:#374151">Back-End DTI (All Debts)</span><span class="font-bold" style="color:${dtiColor(backEndDTI)}">${backEndDTI.toFixed(1)}%</span></div>
-        <div class="gauge-bar"><div class="gauge-fill" style="width:${Math.min(backEndDTI,100)}%;background:${dtiColor(backEndDTI)}"></div></div>
-        <p class="text-xs mt-1" style="color:#6b7280">Guideline: ≤ 43% of gross income</p>
-      </div>
-    `;
-
-    // Payment breakdown detail
-    document.getElementById('payment-breakdown-detail').innerHTML = `
-      <h3 class="font-semibold text-base mb-4" style="color:#393939">Monthly Payment Components</h3>
-      ${[
-        ['Principal & Interest', monthlyPI, '#3b82f6'],
-        ['Property Taxes', monthlyTax, '#f59e0b'],
-        ['Home Insurance', insurance, '#10b981'],
-        ...(hoa > 0 ? [['HOA Fees', hoa, '#8b5cf6']] : []),
-        ...(pmi > 0 ? [['PMI', pmi, '#ef4444']] : []),
-      ].map(([label, val, color]) => `
-        <div class="flex items-center justify-between py-2 border-b border-gray-100">
-          <div class="flex items-center gap-2">
-            <div class="w-3 h-3 rounded-full" style="background:${color}"></div>
-            <span class="text-sm" style="color:#374151">${label}</span>
-          </div>
-          <span class="font-semibold text-sm" style="color:#111827">$${Math.round(val).toLocaleString()}/mo</span>
-        </div>
-      `).join('')}
-      <div class="flex items-center justify-between py-2 mt-2">
-        <span class="font-bold text-sm" style="color:#0056b3">Total Monthly</span>
-        <span class="font-bold" style="color:#0056b3">$${Math.round(totalWithPMI).toLocaleString()}/mo</span>
-      </div>
-    `;
-
-    // Chart
-    const ctx = document.getElementById('paymentChart').getContext('2d');
-    if (paymentChart) paymentChart.destroy();
-    const chartData = [
-      { label: 'Principal & Interest', value: monthlyPI, color: '#3b82f6' },
-      { label: 'Property Taxes', value: monthlyTax, color: '#f59e0b' },
-      { label: 'Home Insurance', value: insurance, color: '#10b981' },
-    ];
-    if (hoa > 0) chartData.push({ label: 'HOA', value: hoa, color: '#8b5cf6' });
-    if (pmi > 0) chartData.push({ label: 'PMI', value: pmi, color: '#ef4444' });
-    paymentChart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: chartData.map(d => d.label),
-        datasets: [{ data: chartData.map(d => d.value), backgroundColor: chartData.map(d => d.color), borderWidth: 2, borderColor: '#fff' }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } },
-          tooltip: { callbacks: { label: ctx => ctx.label + ': $' + Math.round(ctx.parsed).toLocaleString() + '/mo' } }
-        }
-      }
-    });
-
-    // Switch to results
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.getElementById('results-tab').classList.add('active');
-    document.querySelectorAll('.tab-button').forEach(b => { b.style.color = '#6b7280'; b.style.borderColor = 'transparent'; });
-    document.querySelector('[data-tab="results-tab"]').style.color = '#0056b3';
-    document.querySelector('[data-tab="results-tab"]').style.borderColor = '#0056b3';
+function calc(){
+  const annInc=num('ai')+num('ci2'), moInc=annInc/12+num('oi');
+  const moDebts=num('car')+num('sl')+num('cc')+num('od');
+  const dp=num('dp'), rate=num('ir')/100, term=parseInt($('lt').value)||30;
+  const txRate=num('tr2')/100, insAnn=num('ins'), moHOA=num('hoa');
+  if(!annInc||!rate){alert('Please enter at least your income and interest rate.');return;}
+  const moRate=rate/12, n=term*12, moIns=insAnn/12;
+  // Solve max price: budget = PI + tax/12 + ins + HOA
+  // PI = (P-dp)*moRate/(1-(1+moRate)^-n)
+  // budget_front = moInc*0.28 - moIns - moHOA
+  // budget_back  = moInc*0.43 - moDebts - moIns - moHOA
+  function solveMax(budget){
+    if(budget<=0)return 0;
+    const f=moRate/(1-Math.pow(1+moRate,-n));
+    const denom=f+txRate/12;
+    return denom>0?(budget+dp*f)/denom:0;
   }
+  const maxFront=solveMax(moInc*0.28-moIns-moHOA);
+  const maxBack =solveMax(moInc*0.43-moDebts-moIns-moHOA);
+  const maxP=Math.max(0,Math.min(maxFront,maxBack));
+  const loan=Math.max(0,maxP-dp);
+  const moPI=loan&&moRate?loan*moRate/(1-Math.pow(1+moRate,-n)):0;
+  const moTax=maxP*txRate/12;
+  const pmi=dp>0&&maxP>0&&dp/maxP<0.20?loan*0.005/12:0;
+  const moTotal=moPI+moTax+moIns+moHOA+pmi;
+  const fDTI=moInc?moTotal/moInc*100:0;
+  const bDTI=moInc?(moTotal+moDebts)/moInc*100:0;
+  const bC=(v,g,w)=>v<=g?'#15803d':v<=w?'#b45309':'#b91c1c';
 
-  document.getElementById('autofillDemo').addEventListener('click', () => {
-    document.getElementById('annualIncome').value = 95000;
-    document.getElementById('coBorrowerIncome').value = 55000;
-    document.getElementById('otherMonthlyIncome').value = 0;
-    document.getElementById('carPayment').value = 450;
-    document.getElementById('studentLoan').value = 300;
-    document.getElementById('creditCard').value = 150;
-    document.getElementById('otherDebts').value = 0;
-    document.getElementById('downPayment').value = 80000;
-    document.getElementById('interestRate').value = 6.75;
-    document.getElementById('loanTerm').value = 30;
-    document.getElementById('propertyTaxRate').value = 1.2;
-    document.getElementById('homeInsurance').value = 1800;
-    document.getElementById('hoaFees').value = 250;
-  });
+  $('sumC').innerHTML=[
+    {l:'Max Home Price',v:fmt(maxP),c:'#0043ce'},
+    {l:'Max Loan Amount',v:fmt(loan),c:'#0056b3'},
+    {l:'Monthly Payment (PITI)',v:fmt(moTotal),c:'#475569'},
+    {l:'Front-End DTI',v:pct(fDTI),c:bC(fDTI,28,36)},
+    {l:'Back-End DTI',v:pct(bDTI),c:bC(bDTI,36,43)},
+    {l:'Down Payment %',v:maxP>0?pct(dp/maxP*100):'-',c:maxP>0&&dp/maxP>=0.2?'#15803d':'#b45309'},
+  ].map(c=>`<div class="mc" style="border-top-color:${c.c};"><div class="mv" style="color:${c.c};">${c.v}</div><div class="ml">${c.l}</div></div>`).join('');
 
-  document.getElementById('resetInputs').addEventListener('click', () => {
-    document.querySelectorAll('input').forEach(i => i.value = '');
-    document.getElementById('summary-cards').innerHTML = '';
-    document.getElementById('results-detail').innerHTML = '';
-    document.getElementById('dti-gauges').innerHTML = '';
-    document.getElementById('payment-breakdown-detail').innerHTML = '';
-    if (paymentChart) { paymentChart.destroy(); paymentChart = null; }
-  });
-});
+  const rr=(l,v,hi=false)=>`<div class="rr${hi?' tot':''}"><span>${l}</span><span>${v}</span></div>`;
+  $('payD').innerHTML=
+    rr('Principal & Interest',fmt(moPI))+
+    rr('Property Tax (monthly)',fmt(moTax))+
+    rr('Home Insurance (monthly)',fmt(moIns))+
+    (moHOA>0?rr('HOA',fmt(moHOA)):'')+
+    (pmi>0?`<div class="rr"><span style="color:#b45309;">⚠️ PMI (req. &lt;20% down)</span><span style="color:#b45309;">${fmt(pmi)}</span></div>`:'')+
+    rr('Total Monthly Payment',fmt(moTotal),true)+
+    `<div style="margin-top:10px;padding:10px;background:#f8fafc;border-radius:7px;font-size:12px;color:#64748b;line-height:1.7;">
+      Annual housing cost: <strong>${fmt(moTotal*12)}</strong><br>
+      Over ${term} years (P&I only): <strong>${fmt(moPI*12*term)}</strong><br>
+      Total interest paid: <strong>${fmt(moPI*12*term - loan)}</strong>
+    </div>`;
+
+  const gRow=(lbl,val,lim,c)=>`<div style="margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+      <span style="font-weight:600;color:#475569;">${lbl}</span>
+      <span style="font-weight:700;color:${c};">${pct(val)} <span style="font-weight:400;color:#94a3b8;">/ ${pct(lim)} limit</span></span>
+    </div>
+    <div class="gauge"><div class="gf" style="width:${Math.min(val/lim*100,100)}%;background:${c};"></div></div>
+  </div>`;
+  $('dtiD').innerHTML=gRow('Front-End DTI (housing only)',fDTI,28,bC(fDTI,28,36))+gRow('Back-End DTI (all debts)',bDTI,43,bC(bDTI,36,43));
+
+  mkC('cpie',{type:'doughnut',data:{labels:['P&I','Property Tax','Insurance','HOA','PMI'],datasets:[{data:[moPI,moTax,moIns,moHOA,pmi].map(v=>Math.round(v)),backgroundColor:['#0043ce','#f97316','#22c55e','#a855f7','#ef4444'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:10}}}}});
+
+  const prices=[maxP*0.7,maxP*0.85,maxP,maxP*1.1,maxP*1.2];
+  mkC('cbar',{type:'bar',data:{labels:prices.map(p=>fmt(Math.round(p))),datasets:[{label:'Monthly Payment',data:prices.map(p=>{const l=Math.max(0,p-dp),pi=l&&moRate?l*moRate/(1-Math.pow(1+moRate,-n)):0;return Math.round(pi+p*txRate/12+moIns+moHOA);}),backgroundColor:prices.map((_,i)=>i===2?'#0043ce':'#93c5fd'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{font:{size:10},callback:v=>fmt(v)},grid:{color:'#f8fafc'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}});
+
+  sw('tr');
+}
+
+// Demo: Charlotte NC couple 2024
+function loadDemo(){set('ai','88000');set('ci2','42000');set('oi','0');set('car','480');set('sl','320');set('cc','150');set('od','0');set('dp','75000');set('ir','6.875');$('lt').value='30';set('tr2','0.95');set('ins','1650');set('hoa','0');liveDP();calc();}
+function resetAll(){['ai','ci2','oi','car','sl','cc','od','dp','ir','tr2','ins','hoa'].forEach(id=>{const e=$(id);if(e)e.value='';});$('lt').value='30';if($('dpHint'))$('dpHint').textContent='';$('sumC').innerHTML='';$('payD').innerHTML='';$('dtiD').innerHTML='';sw('ti');}
 </script>
-  <script>
-    document.getElementById('mob-btn').addEventListener('click',function(){document.getElementById('mob-menu').classList.toggle('hidden');});
-    document.querySelectorAll('.mob-toggle').forEach(function(b){
-      b.addEventListener('click',function(){
-        var s=b.nextElementSibling,a=b.querySelector('.mob-arrow'),open=s.style.display==='block';
-        s.style.display=open?'none':'block';a.style.transform=open?'rotate(0)':'rotate(180deg)';
-      });
-    });
-    function setupDD(wId,mId,bId){
-      var w=document.getElementById(wId),m=document.getElementById(mId),b=document.getElementById(bId);
-      if(!w||!m)return;var t;
-      w.addEventListener('mouseenter',function(){clearTimeout(t);m.classList.add('open');if(b)b.classList.add('open');});
-      w.addEventListener('mouseleave',function(){t=setTimeout(function(){m.classList.remove('open');if(b)b.classList.remove('open');},120);});
-      if(b)b.addEventListener('click',function(e){e.stopPropagation();var o=m.classList.contains('open');closeAll();if(!o){m.classList.add('open');b.classList.add('open');}});
-    }
-    function closeAll(){document.querySelectorAll('.dd-menu').forEach(function(m){m.classList.remove('open');});document.querySelectorAll('.dd-trigger').forEach(function(b){b.classList.remove('open');});}
-    setupDD('ddTools','ddToolsMenu','ddToolsBtn');
-    setupDD('ddMarket','ddMarketMenu','ddMarketBtn');
-    document.addEventListener('click',function(e){if(!e.target.closest('.dd-wrap'))closeAll();});
-  </script>
 </body>
 </html>
