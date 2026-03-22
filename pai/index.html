@@ -52,67 +52,55 @@ body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;margin:0;}
 </head>
 <body>
 
-<!-- HEADER -->
-<header class="sticky top-0 z-50 bg-white" style="box-shadow:0 1px 4px rgba(0,0,0,.08);">
-<div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
-  <a href="../index.html" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;">
-    <svg width="34" height="34" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
-    <span style="display:flex;align-items:baseline;line-height:1;"><span style="font-size:19px;font-weight:700;color:#0043ce;letter-spacing:-0.3px;">RE</span><span style="font-size:19px;font-weight:300;color:#0043ce;letter-spacing:-0.3px;">Proforma</span></span>
-  </a>
-  <button id="mob-btn" class="md:hidden" style="color:#0043ce;background:none;border:none;cursor:pointer;"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-  <div class="hidden md:flex items-center" style="gap:28px;">
-    <nav class="flex items-center" style="gap:20px;">
-      <a href="../index.html" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">Home</a>
-      <div class="dd-wrap" id="ddT"><button class="dd-trigger" id="ddTb" style="color:#0043ce;border-bottom:2px solid #0043ce;font-weight:600;">Tools <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-        <div class="dd-menu" id="ddTm">
-          <div class="dd-label">Pro Tools</div>
-          <a class="dd-item act" href="index.html">🏢 Multifamily Acquisition</a>
-          <a class="dd-item" href="index-mixeduse.html">🏬 Commercial &amp; NNN Retail</a>
-          <a class="dd-item" href="index-land.html">🗺️ Land Development</a>
-          <div class="dd-divider"></div><div class="dd-label">Free Tools</div>
-          <a class="dd-item" href="index-affordability.html">🏠 Home Affordability</a>
-          <a class="dd-item" href="index-rentvsbuy.html">🔄 Rent vs. Buy</a>
-          <a class="dd-item" href="index-mortgage-payoff.html">📅 Mortgage Payoff</a>
+<!-- HEADER --><header style="position:sticky;top:0;z-index:50;background:white;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+  <div style="max-width:1280px;margin:0 auto;padding:0 16px;display:flex;justify-content:space-between;align-items:center;height:64px;">
+    <a href="../index" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;"><svg width="34" height="34" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg><span style="display:flex;align-items:baseline;line-height:1;"><span style="font-size:19px;font-weight:700;color:#0043ce;letter-spacing:-.3px;">RE</span><span style="font-size:19px;font-weight:300;color:#0043ce;letter-spacing:-.3px;">Proforma</span></span></a>
+    <button id="mob-btn" style="background:none;border:none;cursor:pointer;color:#0043ce;padding:4px;display:none;"><svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <div id="desk-nav" style="display:flex;align-items:center;gap:28px;">
+      <nav style="display:flex;align-items:center;gap:20px;">
+        <a href="../index" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;font-weight:500;">Home</a>
+        <div class="dd-wrap" id="ddT"><button class="dd-trig" id="ddTb" style='color:#0043ce;border-bottom:2px solid #0043ce;font-weight:600;'>Tools <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+          <div class="dd-menu" id="ddTm">
+            <div class="dd-lbl">Pro Tools</div>
+            <a class="dd-item cur" href="indexindex">🏢 Multifamily Acquisition</a><a class="dd-item" href="indexindex-mixeduse">🏬 Commercial &amp; NNN Retail</a><a class="dd-item" href="indexindex-land">🗺️ Land Development</a>
+            <div class="dd-div"></div><div class="dd-lbl">Free Tools</div>
+            <a class="dd-item" href="indexindex-affordability">🏠 Home Affordability</a><a class="dd-item" href="indexindex-rentvsbuy">⚖️ Rent vs. Own</a><a class="dd-item" href="indexindex-mortgage-payoff">📅 Mortgage Payoff</a>
+          </div>
+        </div>
+        <div class="dd-wrap" id="ddM"><button class="dd-trig" id="ddMb">Market Data <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+          <div class="dd-menu" id="ddMm" style="min-width:200px;">
+            <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank">NAR Market Trends</a>
+            <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank">Research Reports</a>
+            <a class="dd-item" href="https://berkadia.com/properties" target="_blank">Investment Listings</a>
+          </div>
+        </div>
+        <a href="../about" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;font-weight:500;">About</a>
+      </nav>
+      <a href="../about" style="background:#0043ce;color:white;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap;">Let's talk</a>
+    </div>
+  </div>
+  <div id="mob-menu" class="hidden" style="background:white;border-top:1px solid #f1f5f9;box-shadow:0 4px 12px rgba(0,0,0,.08);">
+    <div style="padding:12px 16px;display:flex;flex-direction:column;gap:2px;">
+      <a href="../index" style="display:block;padding:8px 12px;font-size:13px;color:#475569;text-decoration:none;border-radius:6px;">Home</a>
+      <div><button class="mob-tog" style="display:flex;justify-content:space-between;align-items:center;width:100%;padding:8px 12px;background:#eff6ff;color:#0043ce;font-weight:600;border:none;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;border-radius:6px;">Tools <svg class="mob-arr" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>
+        <div style="display:none;padding-left:12px;padding-top:4px;">
+          <p style="padding:4px 12px;font-size:10px;font-weight:700;letter-spacing:.07em;color:#9ca3af;text-transform:uppercase;">Pro Tools</p>
+          <a href="indexindex" style="display:block;padding:7px 12px;font-size:13px;font-weight:600;color:#0043ce;background:#eff6ff;border-left:2px solid #0043ce;border-radius:0 4px 4px 0;text-decoration:none;">🏢 Multifamily Acquisition</a><a href="indexindex-mixeduse" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;text-decoration:none;">🏬 Commercial/Retail</a><a href="indexindex-land" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;text-decoration:none;">🗺️ Land Development</a>
+          <p style="padding:8px 12px 4px;font-size:10px;font-weight:700;letter-spacing:.07em;color:#9ca3af;text-transform:uppercase;border-top:1px solid #f1f5f9;margin-top:6px;">Free Tools</p>
+          <a href="indexindex-affordability" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;text-decoration:none;">🏠 Home Affordability</a><a href="indexindex-rentvsbuy" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;text-decoration:none;">⚖️ Rent vs. Own</a><a href="indexindex-mortgage-payoff" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;text-decoration:none;">📅 Mortgage Payoff</a>
         </div>
       </div>
-      <div class="dd-wrap" id="ddM"><button class="dd-trigger" id="ddMb">Market Data <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-        <div class="dd-menu" id="ddMm" style="min-width:200px;">
-          <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank">Market Trends</a>
-          <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank">Research Reports</a>
-          <a class="dd-item" href="https://berkadia.com/properties" target="_blank">Investment Listings</a>
+      <div><button class="mob-tog" style="display:flex;justify-content:space-between;align-items:center;width:100%;padding:8px 12px;background:none;border:none;cursor:pointer;font-size:13px;color:#525252;font-family:'Inter',sans-serif;border-radius:6px;">Market Data <svg class="mob-arr" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>
+        <div style="display:none;padding-left:12px;padding-top:4px;">
+          <a href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;text-decoration:none;">NAR Market Trends</a>
+          <a href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;text-decoration:none;">Research Reports</a>
+          <a href="https://berkadia.com/properties" target="_blank" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;text-decoration:none;">Investment Listings</a>
         </div>
       </div>
-      <a href="../about.html" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">About</a>
-    </nav>
-    <a href="../about.html" class="px-4 py-2 text-sm font-semibold text-white rounded" style="background:#0043ce;">Let's talk</a>
-  </div>
-</div>
-<!-- Mobile nav -->
-<div id="mob-menu" class="hidden bg-white border-t border-gray-100" style="box-shadow:0 4px 12px rgba(0,0,0,.08);">
-  <div class="px-4 py-3 space-y-1 text-sm">
-    <a href="../index.html" class="block py-2 px-3 rounded" style="color:#525252;font-size:13px;">Home</a>
-    <div><button class="mob-toggle flex items-center justify-between w-full py-2 px-3 rounded" style="background:#eff6ff;color:#0043ce;border:none;cursor:pointer;font-size:13px;font-family:inherit;font-weight:600;">Tools <svg class="h-4 w-4 mob-arrow" style="transition:transform .2s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>
-      <div class="mob-sub" style="display:none;padding-left:12px;">
-        <p style="padding:6px 12px 2px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;">Pro Tools</p>
-        <a href="index.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;background:#eff6ff;color:#0043ce;border-color:#0043ce;font-weight:600;">🏢 Multifamily Acquisition</a>
-        <a href="index-mixeduse.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏬 Commercial/Retail</a>
-        <a href="index-land.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🗺️ Land Development</a>
-        <p style="padding:8px 12px 2px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;border-top:1px solid #f1f5f9;margin-top:4px;">Free Tools</p>
-        <a href="index-affordability.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🏠 Home Affordability</a>
-        <a href="index-rentvsbuy.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">🔄 Rent vs. Buy</a>
-        <a href="index-mortgage-payoff.html" class="block py-2 px-3 rounded border-l-2" style="font-size:13px;color:#374151;border-color:#e5e7eb;">📅 Mortgage Payoff</a>
-      </div>
+      <a href="../about" style="display:block;padding:8px 12px;font-size:13px;color:#475569;text-decoration:none;border-radius:6px;">About</a>
+      <a href="../about" style="display:block;margin-top:6px;padding:10px;text-align:center;font-size:13px;font-weight:600;color:white;background:#0043ce;border-radius:8px;text-decoration:none;">Let's talk</a>
     </div>
-    <div><button class="mob-toggle flex items-center justify-between w-full py-2 px-3 rounded" style="background:none;color:#525252;border:none;cursor:pointer;font-size:13px;font-family:inherit;">Market Data <svg class="h-4 w-4 mob-arrow" style="transition:transform .2s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>
-      <div class="mob-sub" style="display:none;padding-left:12px;">
-        <a href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank" class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">Market Trends</a>
-        <a href="https://berkadia.com/properties" target="_blank" class="block py-2 px-3 rounded border-l-2 border-gray-200" style="color:#374151;font-size:13px;">Investment Listings</a>
-      </div>
-    </div>
-    <a href="../about.html" class="block py-2 px-3 rounded" style="color:#525252;font-size:13px;">About</a>
-    <a href="../about.html" class="block mt-2 py-2 text-center font-semibold text-white rounded" style="background:#0043ce;font-size:13px;">Let's talk</a>
   </div>
-</div>
 </header>
 
 <!-- HERO -->
@@ -153,56 +141,56 @@ body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;margin:0;}
 
     <!-- Unit Mix -->
     <div class="card">
-      <p class="sec">🏠 Unit Mix &amp; Monthly Rents</p>
+      <p class="sec">🏠 Unit Mix &amp; Monthly Rents per Unit</p>
       <div style="border-bottom:1px solid #f1f5f9;padding-bottom:12px;margin-bottom:12px;">
         <p class="text-xs font-semibold text-gray-500 mb-2">1-Bedroom Units</p>
-        <div class="mb-2"><label class="lbl"># Units</label><input class="inp" id="oneBedUnits" type="number" placeholder="0"></div>
-        <div><label class="lbl">Monthly Rent ($)</label><input class="inp" id="rent1Bed" type="number" placeholder="0"></div>
+        <div class="mb-2"><label class="lbl"># Units</label><input class="inp" id="oneBedUnits" type="number" placeholder="0" oninput="liveCalc()"></div>
+        <div><label class="lbl">Monthly Rent / Unit ($)</label><input class="inp" id="rent1Bed" type="number" placeholder="0" oninput="liveCalc()"></div>
       </div>
       <div style="border-bottom:1px solid #f1f5f9;padding-bottom:12px;margin-bottom:12px;">
         <p class="text-xs font-semibold text-gray-500 mb-2">2-Bedroom Units</p>
-        <div class="mb-2"><label class="lbl"># Units</label><input class="inp" id="twoBedUnits" type="number" placeholder="0"></div>
-        <div><label class="lbl">Monthly Rent ($)</label><input class="inp" id="rent2Bed" type="number" placeholder="0"></div>
+        <div class="mb-2"><label class="lbl"># Units</label><input class="inp" id="twoBedUnits" type="number" placeholder="0" oninput="liveCalc()"></div>
+        <div><label class="lbl">Monthly Rent / Unit ($)</label><input class="inp" id="rent2Bed" type="number" placeholder="0" oninput="liveCalc()"></div>
       </div>
       <div>
         <p class="text-xs font-semibold text-gray-500 mb-2">3-Bedroom Units</p>
-        <div class="mb-2"><label class="lbl"># Units</label><input class="inp" id="threeBedUnits" type="number" placeholder="0"></div>
-        <div><label class="lbl">Monthly Rent ($)</label><input class="inp" id="rent3Bed" type="number" placeholder="0"></div>
+        <div class="mb-2"><label class="lbl"># Units</label><input class="inp" id="threeBedUnits" type="number" placeholder="0" oninput="liveCalc()"></div>
+        <div><label class="lbl">Monthly Rent / Unit ($)</label><input class="inp" id="rent3Bed" type="number" placeholder="0" oninput="liveCalc()"></div>
       </div>
     </div>
 
     <!-- Income & Vacancy -->
     <div class="card">
       <p class="sec">💰 Income &amp; Vacancy</p>
-      <div class="mb-3"><label class="lbl">Other Income ($/yr) <span style="color:#94a3b8;font-size:10px;font-weight:400;text-transform:none;">laundry, parking, etc.</span></label><input class="inp" id="otherIncome" type="number" placeholder="0"></div>
-      <div class="mb-3"><label class="lbl">Vacancy Rate (%)</label><input class="inp" id="vacancyRate" type="number" step="0.1" placeholder="5.0"></div>
-      <div class="mb-3"><label class="lbl">Annual Rent Growth (%)</label><input class="inp" id="rentGrowth" type="number" step="0.1" placeholder="2.0"></div>
-      <div class="mb-3"><label class="lbl">Annual Expense Growth (%)</label><input class="inp" id="expGrowth" type="number" step="0.1" placeholder="2.5"></div>
-      <div class="mb-3"><label class="lbl">Hold Period (Years)</label><input class="inp" id="holdPeriod" type="number" placeholder="5"></div>
-      <div><label class="lbl">Exit Cap Rate (%)</label><input class="inp" id="exitCap" type="number" step="0.01" placeholder="5.5"></div>
+      <div class="mb-3"><label class="lbl">Other Income ($/yr) <span style="color:#94a3b8;font-size:10px;font-weight:400;text-transform:none;">laundry, parking, etc.</span></label><input class="inp" id="otherIncome" type="number" oninput="liveCalc()" placeholder="0"></div>
+      <div class="mb-3"><label class="lbl">Vacancy Rate (%)</label><input class="inp" id="vacancyRate" type="number" oninput="liveCalc()" step="0.1" placeholder="5.0"></div>
+      <div class="mb-3"><label class="lbl">Annual Rent Growth (%)</label><input class="inp" id="rentGrowth" type="number" oninput="liveCalc()" step="0.1" placeholder="2.0"></div>
+      <div class="mb-3"><label class="lbl">Annual Expense Growth (%)</label><input class="inp" id="expGrowth" type="number" oninput="liveCalc()" step="0.1" placeholder="2.5"></div>
+      <div class="mb-3"><label class="lbl">Hold Period (Years)</label><input class="inp" id="holdPeriod" type="number" oninput="liveCalc()" placeholder="5"></div>
+      <div><label class="lbl">Exit Cap Rate (%)</label><input class="inp" id="exitCap" type="number" oninput="liveCalc()" step="0.01" placeholder="5.5"></div>
     </div>
 
     <!-- Operating Expenses -->
     <div class="card">
       <p class="sec">📋 Operating Expenses (Annual)</p>
-      <div class="mb-3"><label class="lbl">Property Taxes ($)</label><input class="inp" id="propertyTaxes" type="number" placeholder="0"></div>
-      <div class="mb-3"><label class="lbl">Insurance ($)</label><input class="inp" id="insurance" type="number" placeholder="0"></div>
-      <div class="mb-3"><label class="lbl">Utilities ($)</label><input class="inp" id="utilities" type="number" placeholder="0"></div>
-      <div class="mb-3"><label class="lbl">Repairs &amp; Maintenance ($)</label><input class="inp" id="maintenance" type="number" placeholder="0"></div>
-      <div class="mb-3"><label class="lbl">Property Management ($)</label><input class="inp" id="management" type="number" placeholder="0"></div>
-      <div class="mb-3"><label class="lbl">Payroll / Staff ($)</label><input class="inp" id="staff" type="number" placeholder="0"></div>
-      <div class="mb-3"><label class="lbl">Supplies ($)</label><input class="inp" id="supplies" type="number" placeholder="0"></div>
-      <div><label class="lbl">Reserves &amp; Misc ($)</label><input class="inp" id="misc" type="number" placeholder="0"></div>
+      <div class="mb-3"><label class="lbl">Property Taxes ($)</label><input class="inp" id="propertyTaxes" type="number" oninput="liveCalc()" placeholder="0"></div>
+      <div class="mb-3"><label class="lbl">Insurance ($)</label><input class="inp" id="insurance" type="number" oninput="liveCalc()" placeholder="0"></div>
+      <div class="mb-3"><label class="lbl">Utilities ($)</label><input class="inp" id="utilities" type="number" oninput="liveCalc()" placeholder="0"></div>
+      <div class="mb-3"><label class="lbl">Repairs &amp; Maintenance ($)</label><input class="inp" id="maintenance" type="number" oninput="liveCalc()" placeholder="0"></div>
+      <div class="mb-3"><label class="lbl">Property Management ($)</label><input class="inp" id="management" type="number" oninput="liveCalc()" placeholder="0"></div>
+      <div class="mb-3"><label class="lbl">Payroll / Staff ($)</label><input class="inp" id="staff" type="number" oninput="liveCalc()" placeholder="0"></div>
+      <div class="mb-3"><label class="lbl">Supplies ($)</label><input class="inp" id="supplies" type="number" oninput="liveCalc()" placeholder="0"></div>
+      <div><label class="lbl">Reserves &amp; Misc ($)</label><input class="inp" id="misc" type="number" oninput="liveCalc()" placeholder="0"></div>
     </div>
 
     <!-- Acquisition & Financing -->
     <div class="card">
       <p class="sec">🏦 Acquisition &amp; Financing</p>
-      <div class="mb-3"><label class="lbl">Purchase Price ($)</label><input class="inp" id="purchasePrice" type="number" placeholder="0"></div>
-      <div class="mb-3"><label class="lbl">Loan Amount ($)</label><input class="inp" id="loanAmount" type="number" placeholder="0"></div>
-      <div class="mb-3"><label class="lbl">Interest Rate (%)</label><input class="inp" id="interestRate" type="number" step="0.01" placeholder="0.00"></div>
-      <div class="mb-3"><label class="lbl">Loan Term (Years)</label><input class="inp" id="loanTerm" type="number" placeholder="25"></div>
-      <div class="mb-3"><label class="lbl">Closing Costs (%)</label><input class="inp" id="closingCostPct" type="number" step="0.1" placeholder="1.5"></div>
+      <div class="mb-3"><label class="lbl">Purchase Price ($)</label><input class="inp" id="purchasePrice" type="number" oninput="liveCalc()" placeholder="0"></div>
+      <div class="mb-3"><label class="lbl">Loan Amount ($)</label><input class="inp" id="loanAmount" type="number" oninput="liveCalc()" placeholder="0"></div>
+      <div class="mb-3"><label class="lbl">Interest Rate (%)</label><input class="inp" id="interestRate" type="number" oninput="liveCalc()" step="0.01" placeholder="0.00"></div>
+      <div class="mb-3"><label class="lbl">Loan Term (Years)</label><input class="inp" id="loanTerm" type="number" oninput="liveCalc()" placeholder="25"></div>
+      <div class="mb-3"><label class="lbl">Closing Costs (%)</label><input class="inp" id="closingCostPct" type="number" oninput="liveCalc()" step="0.1" placeholder="1.5"></div>
       <!-- Live loan preview -->
       <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;margin-top:8px;">
         <div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;"><span style="color:#64748b;">Equity Required</span><span id="equityDisp" style="font-weight:600;">—</span></div>
@@ -273,50 +261,15 @@ body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;margin:0;}
 </div><!-- /max-w -->
 
 <!-- FOOTER -->
-<footer class="py-14 text-white" style="background:#0f172a;">
-  <div class="max-w-7xl mx-auto px-4">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
-      <div>
-        <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;">
-          <svg width="28" height="28" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
-          <span style="font-size:15px;font-weight:700;color:white;">RE<span style="font-weight:300;">Proforma</span></span>
-        </div>
-        <p class="text-sm text-gray-400">Advanced analytics for real estate investment professionals.</p>
-      </div>
-      <div>
-        <h4 class="text-sm font-semibold mb-3">Tools</h4>
-        <p class="text-xs uppercase tracking-widest text-gray-500 mb-2">Pro</p>
-        <ul class="space-y-2 text-sm text-gray-400 mb-3">
-          <li><a href="index.html" class="hover:text-white">Multifamily Acquisition</a></li>
-          <li><a href="index-mixeduse.html" class="hover:text-white">Commercial &amp; NNN Retail</a></li>
-          <li><a href="index-land.html" class="hover:text-white">Land Development</a></li>
-        </ul>
-        <p class="text-xs uppercase tracking-widest text-gray-500 mb-2 pt-2" style="border-top:1px solid #1e293b;">Free</p>
-        <ul class="space-y-2 text-sm text-gray-400">
-          <li><a href="index-affordability.html" class="hover:text-white">🏠 Home Affordability</a></li>
-          <li><a href="index-rentvsbuy.html" class="hover:text-white">🔄 Rent vs. Buy</a></li>
-          <li><a href="index-mortgage-payoff.html" class="hover:text-white">📅 Mortgage Payoff</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="text-sm font-semibold mb-3">Resources</h4>
-        <ul class="space-y-2 text-sm text-gray-400">
-          <li><a href="#" class="hover:text-white">Market Reports</a></li>
-          <li><a href="#" class="hover:text-white">Investment Guide</a></li>
-          <li><a href="#" class="hover:text-white">Case Studies</a></li>
-          <li><a href="#" class="hover:text-white">Support</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="text-sm font-semibold mb-3">Subscribe</h4>
-        <p class="text-sm text-gray-400 mb-3">Latest real estate insights.</p>
-        <div class="flex"><input type="email" placeholder="Enter your email" style="padding:8px 12px;border-radius:6px 0 0 6px;border:none;font-size:13px;width:100%;outline:none;"/><button style="padding:8px 14px;background:#0056b3;color:white;border:none;border-radius:0 6px 6px 0;font-size:13px;font-weight:600;cursor:pointer;">Go</button></div>
-      </div>
+<footer style="background:#0f172a;padding:52px 0;color:white;">
+  <div style="max-width:1280px;margin:0 auto;padding:0 16px;">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:28px;margin-bottom:28px;">
+      <div><div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;"><svg width="28" height="28" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg><span style="font-size:16px;font-weight:700;color:white;">RE<span style="font-weight:300;">Proforma</span></span></div><p style="font-size:13px;color:#94a3b8;line-height:1.6;">Advanced analytics for real estate investors and homebuyers.</p></div>
+      <div><p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Tools</p><p style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#475569;margin-bottom:6px;">Pro</p><div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;"><a href="index" style="font-size:13px;color:#94a3b8;text-decoration:none;">Multifamily Acquisition</a><a href="index-mixeduse" style="font-size:13px;color:#94a3b8;text-decoration:none;">Commercial &amp; NNN Retail</a><a href="index-land" style="font-size:13px;color:#94a3b8;text-decoration:none;">Land Development</a></div><p style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#475569;margin-bottom:6px;border-top:1px solid #1e293b;padding-top:8px;">Free</p><div style="display:flex;flex-direction:column;gap:6px;"><a href="index-affordability" style="font-size:13px;color:#94a3b8;text-decoration:none;">🏠 Home Affordability</a><a href="index-rentvsbuy" style="font-size:13px;color:#94a3b8;text-decoration:none;">⚖️ Rent vs. Own</a><a href="index-mortgage-payoff" style="font-size:13px;color:#94a3b8;text-decoration:none;">📅 Mortgage Payoff</a></div></div>
+      <div><p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Resources</p><div style="display:flex;flex-direction:column;gap:6px;"><a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Market Reports</a><a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Investment Guide</a><a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Case Studies</a><a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Blog</a><a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Support</a></div></div>
+      <div><p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Subscribe</p><p style="font-size:13px;color:#94a3b8;margin-bottom:10px;">Get the latest real estate insights.</p><div style="display:flex;"><input type="email" placeholder="Your email" style="flex:1;padding:9px 12px;border-radius:7px 0 0 7px;border:none;font-size:13px;outline:none;color:#1e293b;"><button style="background:#0056b3;color:white;border:none;padding:9px 16px;border-radius:0 7px 7px 0;font-size:13px;font-weight:600;cursor:pointer;">Go</button></div></div>
     </div>
-    <div class="pt-6 flex flex-col md:flex-row justify-between text-sm text-gray-500" style="border-top:1px solid #1e293b;">
-      <p>&copy; 2025 REProforma. All rights reserved.</p>
-      <div class="flex gap-5 mt-3 md:mt-0"><a href="../privacy.html" class="hover:text-white">Privacy Policy</a><a href="../terms.html" class="hover:text-white">Terms of Service</a></div>
-    </div>
+    <div style="border-top:1px solid #1e293b;padding-top:18px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:13px;color:#64748b;"><p>&copy; 2025 REProforma. All rights reserved.</p><div style="display:flex;gap:20px;"><a href="../privacy" style="color:#64748b;text-decoration:none;">Privacy Policy</a><a href="../terms" style="color:#64748b;text-decoration:none;">Terms of Service</a></div></div>
   </div>
 </footer>
 
@@ -337,9 +290,9 @@ function switchTab(name, btn) {
 
 // ── Nav dropdowns ─────────────────────────────────────────────
 $('mob-btn').addEventListener('click',()=>$('mob-menu').classList.toggle('hidden'));
-document.querySelectorAll('.mob-toggle').forEach(b=>{
+document.querySelectorAll('.mob-tog').forEach(b=>{
   b.addEventListener('click',()=>{
-    const s=b.nextElementSibling,a=b.querySelector('.mob-arrow'),o=s.style.display==='block';
+    const s=b.nextElementSibling,a=b.querySelector('.mob-arr'),o=s.style.display==='block';
     s.style.display=o?'none':'block';a.style.transform=o?'':'rotate(180deg)';
   });
 });
@@ -354,6 +307,19 @@ setupDD('ddT','ddTm','ddTb');setupDD('ddM','ddMm','ddMb');
 document.addEventListener('click',e=>{if(!e.target.closest('.dd-wrap'))closeAll();});
 
 // ── Live preview ──────────────────────────────────────────────
+
+// ── Live realtime recalculation ──────────────────────────────────────────────
+function liveCalc(){
+  // Only auto-calc if we have the minimum required inputs
+  const price=num('purchasePrice');
+  const u1=num('oneBedUnits'),u2=num('twoBedUnits'),u3=num('threeBedUnits');
+  const r1=num('rent1Bed'),r2=num('rent2Bed'),r3=num('rent3Bed');
+  livePreview(); // always update loan preview
+  if(price>0 && (u1*r1+u2*r2+u3*r3)>0 && num('interestRate')>0){
+    calculate(); // silently recalculate
+  }
+}
+
 function livePreview(){
   const price=num('purchasePrice'),loan=num('loanAmount'),rate=num('interestRate'),term=num('loanTerm');
   if(price&&loan){
@@ -625,6 +591,20 @@ function exportXLS(){
 }
 
 livePreview();
+</script>
+<script>
+(function(){
+  function ckW(){var mob=window.innerWidth<768;var dn=document.getElementById('desk-nav');var mb=document.getElementById('mob-btn');if(dn)dn.style.display=mob?'none':'flex';if(mb)mb.style.display=mob?'block':'none';}
+  window.addEventListener('resize',ckW);ckW();
+  var mb=document.getElementById('mob-btn');
+  if(mb)mb.addEventListener('click',function(){document.getElementById('mob-menu').classList.toggle('hidden');});
+  document.querySelectorAll('.mob-tog').forEach(function(b){b.addEventListener('click',function(){var s=b.nextElementSibling,a=b.querySelector('.mob-arr'),open=s.style.display==='block';s.style.display=open?'none':'block';if(a)a.style.transform=open?'rotate(0)':'rotate(180deg)';});});
+  function openDD(m,b){m.classList.add('open');if(b)b.classList.add('open');}
+  function closeAll(){document.querySelectorAll('.dd-menu').forEach(function(m){m.classList.remove('open');});document.querySelectorAll('.dd-trig').forEach(function(b){b.classList.remove('open');});}
+  function setupDD(wId,mId,bId){var w=document.getElementById(wId),m=document.getElementById(mId),b=document.getElementById(bId);if(!w||!m)return;var t;w.addEventListener('mouseenter',function(){clearTimeout(t);openDD(m,b);});w.addEventListener('mouseleave',function(){t=setTimeout(function(){m.classList.remove('open');if(b)b.classList.remove('open');},120);});if(b)b.addEventListener('click',function(e){e.stopPropagation();var o=m.classList.contains('open');closeAll();if(!o)openDD(m,b);});}
+  setupDD('ddT','ddTm','ddTb');setupDD('ddM','ddMm','ddMb');
+  document.addEventListener('click',function(e){if(!e.target.closest('.dd-wrap'))closeAll();});
+})();
 </script>
 </body>
 </html>
