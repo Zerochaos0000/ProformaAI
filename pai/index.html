@@ -1,610 +1,1182 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Multifamily Acquisition | REProforma</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Multifamily Acquisition Proforma | REProforma</title>
 <link rel="icon" type="image/png" href="../favicon.ico"/>
-<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 <style>
-*{box-sizing:border-box;}
-body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;margin:0;}
-.inp{width:100%;padding:8px 11px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;color:#1e293b;background:white;outline:none;transition:border-color .15s,box-shadow .15s;}
-.inp:focus{border-color:#0043ce;box-shadow:0 0 0 3px rgba(0,67,206,.08);}
-.card{background:white;border:1px solid #e2e8f0;border-radius:12px;padding:20px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;font-size:13px;}
+a{text-decoration:none;color:inherit;}
+/* ── Nav ── */
+.dd-menu{display:none;position:absolute;left:0;top:100%;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.12);border:1px solid #f1f5f9;z-index:50;min-width:220px;padding:6px 0;}
+.dd-menu.open{display:block;}.dd-wrap{position:relative;}
+.dd-trig{display:flex;align-items:center;gap:4px;font-size:13px;background:none;border:none;cursor:pointer;padding:20px 0;color:#525252;font-family:'Inter',sans-serif;font-weight:500;}
+.dd-trig:hover{color:#0043ce;}.dd-item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:#374151;text-decoration:none;border-left:2px solid transparent;}
+.dd-item:hover,.dd-item.cur{background:#eff6ff;color:#0043ce;border-left-color:#0043ce;}
+.dd-lbl{padding:6px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;}
+.dd-div{height:1px;background:#f1f5f9;margin:4px 16px;}
+/* ── Layout ── */
+.wrap{max-width:1280px;margin:0 auto;padding:0 16px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.g8{display:grid;grid-template-columns:repeat(8,1fr);gap:10px;}
+@media(max-width:1100px){.g4{grid-template-columns:repeat(2,1fr);}.g8{grid-template-columns:repeat(4,1fr);}}
+@media(max-width:700px){.g2,.g3,.g4,.g8{grid-template-columns:1fr;}}
+/* ── Cards ── */
+.card{background:white;border:1px solid #e2e8f0;border-radius:12px;padding:18px;}
 .sec{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#94a3b8;padding-bottom:8px;border-bottom:1px solid #f1f5f9;margin-bottom:14px;}
-.lbl{font-size:11px;font-weight:600;color:#64748b;letter-spacing:.02em;text-transform:uppercase;display:block;margin-bottom:3px;}
-.tab-btn{border-bottom:2px solid transparent;padding:12px 18px;font-size:13px;font-weight:500;color:#64748b;cursor:pointer;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap;transition:color .15s,border-color .15s;}
+/* ── Form ── */
+.f{margin-bottom:10px;}
+.lbl{font-size:10px;font-weight:700;color:#64748b;letter-spacing:.04em;text-transform:uppercase;display:block;margin-bottom:3px;}
+.inp{width:100%;padding:7px 10px;border:1px solid #cbd5e1;border-radius:7px;font-size:13px;font-family:'Inter',sans-serif;color:#1e293b;background:white;outline:none;transition:border-color .15s;}
+.inp:focus{border-color:#0043ce;box-shadow:0 0 0 3px rgba(0,67,206,.08);}
+.inp-p{position:relative;}.inp-p span{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:11px;color:#94a3b8;pointer-events:none;}.inp-p .inp{padding-left:18px;}
+.inp-s{position:relative;}.inp-s span{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:11px;color:#94a3b8;pointer-events:none;}.inp-s .inp{padding-right:24px;}
+.hint{font-size:10px;color:#94a3b8;margin-top:2px;line-height:1.3;}
+/* ── Tabs ── */
+.tab-bar{display:flex;border-bottom:1px solid #e2e8f0;background:white;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.tab-btn{padding:12px 18px;font-size:12px;font-weight:500;color:#64748b;border:none;border-bottom:2px solid transparent;background:none;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;flex-shrink:0;}
 .tab-btn.active{color:#0043ce;border-bottom-color:#0043ce;font-weight:600;}
 .tab-panel{display:none;}.tab-panel.active{display:block;}
-.pro-table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;}
-.pro-table colgroup col:first-child{width:220px;}
-.pro-table th{background:#f8fafc;padding:9px 14px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;white-space:nowrap;}
-.pro-table th:first-child{text-align:left;}
+/* ── KPI ── */
+.kpi{background:white;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;}
+.kpi-val{font-size:20px;font-weight:700;line-height:1;margin-bottom:3px;}
+.kpi-lbl{font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#94a3b8;}
+.kpi-sub{font-size:10px;color:#94a3b8;margin-top:2px;}
+.pbar{height:4px;background:#e2e8f0;border-radius:2px;margin-top:6px;overflow:hidden;}
+.pbar-f{height:100%;border-radius:2px;transition:width .5s;}
+/* ── Proforma table ── */
+.pro-table{width:100%;border-collapse:collapse;font-size:12px;}
+.pro-table th{background:#f8fafc;padding:8px 12px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;white-space:nowrap;}
+.pro-table th:first-child{text-align:left;min-width:200px;}
 .pro-table th:not(:first-child){text-align:right;}
-.pro-table td{padding:9px 14px;border-bottom:1px solid #f8fafc;color:#374151;white-space:nowrap;overflow:hidden;}
+.pro-table td{padding:7px 12px;border-bottom:1px solid #f8fafc;white-space:nowrap;}
 .pro-table td:first-child{text-align:left;color:#475569;}
 .pro-table td:not(:first-child){text-align:right;font-variant-numeric:tabular-nums;}
-.pro-table tr.sec-hd td{background:#f1f5f9;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#475569;padding:6px 14px;border-top:1px solid #e2e8f0;border-bottom:none;}
-.pro-table tr.hi td{background:#eff6ff;font-weight:700;color:#0043ce;border-top:1px solid #bfdbfe;border-bottom:1px solid #bfdbfe;}
-.pro-table tr.hi td:first-child{padding-left:14px;}
-.pro-table td.indent{padding-left:28px;}
-.pro-table td.neg{color:#dc2626;}
+.pro-table tr.sec-hd td{background:#f1f5f9;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#475569;padding:5px 12px;border-top:1px solid #e2e8f0;}
+.pro-table tr.hi td{background:#eff6ff;font-weight:700;color:#0043ce;border-top:1px solid #bfdbfe;}
+.pro-table td.neg{color:#dc2626;}.pro-table td.ind{padding-left:22px;}
 .pro-table tr:hover:not(.sec-hd):not(.hi) td{background:#fafbff;}
-.metric{background:white;border:1px solid #e2e8f0;border-radius:10px;padding:16px 18px;}
-.metric-val{font-size:26px;font-weight:700;color:#1e293b;line-height:1;}
-.metric-lbl{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#94a3b8;margin-top:4px;}
-.dd-menu{display:none;position:absolute;left:0;top:100%;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.12);border:1px solid #f1f5f9;z-index:50;min-width:220px;padding:6px 0;}
-.dd-menu.open{display:block;}
-.dd-wrap{position:relative;}
-.dd-trigger{display:flex;align-items:center;gap:4px;font-size:13px;background:none;border:none;cursor:pointer;padding:20px 0;color:#525252;font-family:inherit;}
-.dd-trigger:hover,.dd-trigger.open{color:#0043ce;}
-.dd-trigger.open svg{transform:rotate(180deg);}
-.dd-item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:#374151;text-decoration:none;border-left:2px solid transparent;}
-.dd-item:hover,.dd-item.act{background:#eff6ff;color:#0043ce;border-left-color:#0043ce;}
-.dd-label{padding:6px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;}
-.dd-divider{height:1px;background:#f1f5f9;margin:4px 16px;}
-.mob-sub{display:none;}.mob-sub.open{display:block;}
-@media print{header,.no-print{display:none!important;}}
+/* ── Sensitivity table ── */
+.sen-tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.sen-tbl th{padding:6px 10px;background:#f8fafc;font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0;}
+.sen-tbl td{padding:6px 10px;border-bottom:1px solid #f8fafc;font-variant-numeric:tabular-nums;}
+.sen-tbl td:not(:first-child),.sen-tbl th:not(:first-child){text-align:right;}
+.sen-tbl tr.base td{background:#eff6ff;font-weight:600;color:#0043ce;}
+/* ── Waterfall ── */
+.wf{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-radius:5px;font-size:13px;}
+/* ── Buttons ── */
+.btn-p{background:#0043ce;color:white;border:none;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-p:hover{background:#0035a8;}
+.btn-o{background:white;color:#475569;border:1px solid #cbd5e1;border-radius:8px;padding:7px 14px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-g{background:#15803d;color:white;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;}
+.btn-d{background:#1e293b;color:white;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;}
+/* ── Badges ── */
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:600;}
+/* ── Score bar ── */
+.sb{height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden;margin-top:4px;}
+.sb-f{height:100%;border-radius:3px;transition:width .5s;}
+/* ── Live preview box ── */
+.lpv{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;}
+.lpv-row{display:flex;justify-content:space-between;font-size:12px;padding:2px 0;}
+.lpv-row span:first-child{color:#64748b;}.lpv-row span:last-child{font-weight:600;}
+/* ── Unit mix sub-section ── */
+.unit-sec{border-bottom:1px solid #f1f5f9;padding-bottom:10px;margin-bottom:10px;}
+.unit-sec:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+/* ── Print ── */
+@media print{
+  header,.no-print,button,nav{display:none!important;}
+  body{font-size:10pt;background:white!important;}
+  .tab-panel{display:block!important;}
+  .tab-bar{display:none!important;}
+  .card{border:1px solid #ccc!important;break-inside:avoid;}
+  #tab-inputs{display:none!important;}
+  #tab-results,#tab-proforma{display:block!important;page-break-after:always;}
+  #tab-charts,#tab-sensitivity{display:none!important;}
+  .g2,.g3,.g4,.g8{display:block!important;}
+  .g2>*,.g3>*,.g4>*{margin-bottom:12px;}
+  .pro-table{font-size:9pt;}
+  .wrap{padding:0!important;}
+}
+/* ── Responsive footer ── */
+@media(max-width:768px){.ft-grid{grid-template-columns:1fr 1fr!important;}}
+@media(max-width:480px){.ft-grid{grid-template-columns:1fr!important;}}
 </style>
 </head>
-<body>
 
-<!-- HEADER --><header style="position:sticky;top:0;z-index:50;background:white;box-shadow:0 1px 4px rgba(0,0,0,.08);">
-  <div style="max-width:1280px;margin:0 auto;padding:0 16px;display:flex;justify-content:space-between;align-items:center;height:64px;">
-    <a href="../index" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;"><svg width="34" height="34" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg><span style="display:flex;align-items:baseline;line-height:1;"><span style="font-size:19px;font-weight:700;color:#0043ce;letter-spacing:-.3px;">RE</span><span style="font-size:19px;font-weight:300;color:#0043ce;letter-spacing:-.3px;">Proforma</span></span></a>
-    <button id="mob-btn" style="background:none;border:none;cursor:pointer;color:#0043ce;padding:4px;display:none;"><svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+<body>
+<!-- HEADER -->
+<header style="position:sticky;top:0;z-index:50;background:white;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+  <div class="wrap" style="display:flex;justify-content:space-between;align-items:center;height:64px;">
+    <a href="../index" style="display:inline-flex;align-items:center;gap:10px;flex-shrink:0;">
+      <svg width="34" height="34" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
+      <span style="display:flex;align-items:baseline;"><span style="font-size:19px;font-weight:700;color:#0043ce;letter-spacing:-.3px;">RE</span><span style="font-size:19px;font-weight:300;color:#0043ce;letter-spacing:-.3px;">Proforma</span></span>
+    </a>
+    <button id="mob-btn" style="display:none;background:none;border:none;cursor:pointer;color:#0043ce;padding:4px;"><svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
     <div id="desk-nav" style="display:flex;align-items:center;gap:28px;">
       <nav style="display:flex;align-items:center;gap:20px;">
-        <a href="../index" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;font-weight:500;">Home</a>
-        <div class="dd-wrap" id="ddT"><button class="dd-trig" id="ddTb" style='color:#0043ce;border-bottom:2px solid #0043ce;font-weight:600;'>Tools <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+        <a href="../index" style="color:#525252;padding:20px 0;font-size:13px;font-weight:500;">Home</a>
+        <div class="dd-wrap" id="ddT"><button class="dd-trig" id="ddTb" style="color:#0043ce;border-bottom:2px solid #0043ce;font-weight:600;">Tools <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
           <div class="dd-menu" id="ddTm">
             <div class="dd-lbl">Pro Tools</div>
-            <a class="dd-item cur" href="index">🏢 Multifamily Acquisition</a><a class="dd-item" href="index-mixeduse">🏬 Commercial &amp; NNN Retail</a><a class="dd-item" href="index-land">🗺️ Land Development</a>
+            <a class="dd-item cur" href="index">🏢 Multifamily Acquisition</a>
+            <a class="dd-item" href="index-mixeduse">🏬 Commercial &amp; NNN Retail</a>
+            <a class="dd-item" href="index-land">🗺️ Land Development</a>
             <div class="dd-div"></div><div class="dd-lbl">Free Tools</div>
-            <a class="dd-item" href="index-affordability">🏠 Home Affordability</a><a class="dd-item" href="index-rentvsbuy">⚖️ Rent vs. Own</a><a class="dd-item" href="index-mortgage-payoff">📅 Mortgage Payoff</a>
+            <a class="dd-item" href="index-affordability">🏠 Home Affordability</a>
+            <a class="dd-item" href="index-rentvsbuy">⚖️ Rent vs. Own</a>
+            <a class="dd-item" href="index-mortgage-payoff">📅 Mortgage Payoff</a>
           </div>
         </div>
-        <div class="dd-wrap" id="ddM"><button class="dd-trig" id="ddMb">Market Data <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="dd-wrap" id="ddM"><button class="dd-trig" id="ddMb">Market Data <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
           <div class="dd-menu" id="ddMm" style="min-width:200px;">
             <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank">NAR Market Trends</a>
             <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank">Research Reports</a>
             <a class="dd-item" href="https://berkadia.com/properties" target="_blank">Investment Listings</a>
           </div>
         </div>
-        <a href="../about" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;font-weight:500;">About</a>
+        <a href="../about" style="color:#525252;padding:20px 0;font-size:13px;font-weight:500;">About</a>
       </nav>
-      <a href="../about" style="background:#0043ce;color:white;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap;">Let's talk</a>
+      <a href="../about" style="background:#0043ce;color:white;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;">Let's talk</a>
     </div>
   </div>
-  <div id="mob-menu" class="hidden" style="background:white;border-top:1px solid #f1f5f9;box-shadow:0 4px 12px rgba(0,0,0,.08);">
-    <div style="padding:12px 16px;display:flex;flex-direction:column;gap:2px;">
-      <a href="../index" style="display:block;padding:8px 12px;font-size:13px;color:#475569;text-decoration:none;border-radius:6px;">Home</a>
-      <div><button class="mob-tog" style="display:flex;justify-content:space-between;align-items:center;width:100%;padding:8px 12px;background:#eff6ff;color:#0043ce;font-weight:600;border:none;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;border-radius:6px;">Tools <svg class="mob-arr" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>
-        <div style="display:none;padding-left:12px;padding-top:4px;">
+  <div id="mob-menu" style="display:none;background:white;border-top:1px solid #f1f5f9;box-shadow:0 4px 12px rgba(0,0,0,.06);">
+    <div style="padding:10px 16px;display:flex;flex-direction:column;gap:2px;">
+      <a href="../index" style="display:block;padding:9px 12px;font-size:13px;color:#475569;border-radius:6px;">Home</a>
+      <div><button class="mob-tog" style="display:flex;justify-content:space-between;align-items:center;width:100%;padding:9px 12px;background:#eff6ff;border:none;cursor:pointer;font-size:13px;color:#0043ce;font-weight:600;font-family:'Inter',sans-serif;border-radius:6px;">Tools <svg class="mob-arr" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>
+        <div style="display:none;padding-left:10px;padding-top:4px;">
           <p style="padding:4px 12px;font-size:10px;font-weight:700;letter-spacing:.07em;color:#9ca3af;text-transform:uppercase;">Pro Tools</p>
-          <a href="index" style="display:block;padding:7px 12px;font-size:13px;font-weight:600;color:#0043ce;background:#eff6ff;border-left:2px solid #0043ce;border-radius:0 4px 4px 0;text-decoration:none;">🏢 Multifamily Acquisition</a><a href="index-mixeduse" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;text-decoration:none;">🏬 Commercial/Retail</a><a href="index-land" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;text-decoration:none;">🗺️ Land Development</a>
-          <p style="padding:8px 12px 4px;font-size:10px;font-weight:700;letter-spacing:.07em;color:#9ca3af;text-transform:uppercase;border-top:1px solid #f1f5f9;margin-top:6px;">Free Tools</p>
-          <a href="index-affordability" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;text-decoration:none;">🏠 Home Affordability</a><a href="index-rentvsbuy" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;text-decoration:none;">⚖️ Rent vs. Own</a><a href="index-mortgage-payoff" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;text-decoration:none;">📅 Mortgage Payoff</a>
+          <a href="index" style="display:block;padding:7px 12px;font-size:13px;font-weight:600;color:#0043ce;background:#eff6ff;border-left:2px solid #0043ce;">🏢 Multifamily</a>
+          <a href="index-mixeduse" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;">🏬 Commercial/Retail</a>
+          <a href="index-land" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;">🗺️ Land Dev</a>
+          <p style="padding:8px 12px 4px;font-size:10px;font-weight:700;letter-spacing:.07em;color:#9ca3af;text-transform:uppercase;border-top:1px solid #f1f5f9;margin-top:4px;">Free Tools</p>
+          <a href="index-affordability" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;">🏠 Home Affordability</a>
+          <a href="index-rentvsbuy" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;">⚖️ Rent vs. Own</a>
+          <a href="index-mortgage-payoff" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;">📅 Mortgage Payoff</a>
         </div>
       </div>
-      <div><button class="mob-tog" style="display:flex;justify-content:space-between;align-items:center;width:100%;padding:8px 12px;background:none;border:none;cursor:pointer;font-size:13px;color:#525252;font-family:'Inter',sans-serif;border-radius:6px;">Market Data <svg class="mob-arr" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>
-        <div style="display:none;padding-left:12px;padding-top:4px;">
-          <a href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;text-decoration:none;">NAR Market Trends</a>
-          <a href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;text-decoration:none;">Research Reports</a>
-          <a href="https://berkadia.com/properties" target="_blank" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;text-decoration:none;">Investment Listings</a>
-        </div>
-      </div>
-      <a href="../about" style="display:block;padding:8px 12px;font-size:13px;color:#475569;text-decoration:none;border-radius:6px;">About</a>
-      <a href="../about" style="display:block;margin-top:6px;padding:10px;text-align:center;font-size:13px;font-weight:600;color:white;background:#0043ce;border-radius:8px;text-decoration:none;">Let's talk</a>
+      <a href="../about" style="display:block;padding:9px 12px;font-size:13px;color:#475569;border-radius:6px;">About</a>
+      <a href="../about" style="display:block;margin-top:6px;padding:10px;text-align:center;font-size:13px;font-weight:600;color:white;background:#0043ce;border-radius:8px;">Let's talk</a>
     </div>
   </div>
 </header>
 
 <!-- HERO -->
-<section class="bg-gradient-to-r from-blue-50 to-white border-b border-gray-200 py-8">
-<div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-  <div>
-    <div class="flex items-center gap-2 mb-2">
-      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold" style="background:#dbeafe;color:#1d4ed8;">Pro Tool</span>
-      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold" style="background:#dcfce7;color:#166534;">Multifamily</span>
+<div style="background:linear-gradient(135deg,#eff6ff 0%,#f8fafc 60%,white 100%);border-bottom:1px solid #e2e8f0;padding:20px 0;">
+  <div class="wrap" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:14px;">
+    <div>
+      <div style="display:flex;gap:6px;margin-bottom:6px;">
+        <span class="badge" style="background:#dbeafe;color:#1d4ed8;">Pro Tool</span>
+        <span class="badge" style="background:#dcfce7;color:#15803d;">Multifamily</span>
+        <span class="badge" style="background:#fef3c7;color:#b45309;">Acquisition Proforma</span>
+      </div>
+      <h1 style="font-size:22px;font-weight:700;color:#1e293b;margin-bottom:4px;">🏢 Multifamily Acquisition Proforma</h1>
+      <p style="font-size:13px;color:#64748b;max-width:560px;line-height:1.5;">Full-cycle apartment underwriting — unit mix, NOI, IRR, DSCR, breakeven occupancy, sensitivity analysis, and 10-year proforma.</p>
     </div>
-    <h1 class="text-2xl font-bold" style="color:#1e293b;">Multifamily Acquisition Proforma</h1>
-    <p class="text-sm mt-1" style="color:#64748b;">Real-world cash flow, NOI, cap rate, and IRR analysis for apartment acquisitions.</p>
-  </div>
-  <div class="flex gap-2 no-print flex-wrap">
-    <button onclick="loadDemo()" class="px-4 py-2 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer">📋 Demo Deal (72-Unit Apt)</button>
-    <button onclick="resetAll()" class="px-4 py-2 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer">↺ Reset</button>
-    <button onclick="exportXLS()" class="px-4 py-2 text-sm font-semibold text-white rounded cursor-pointer" style="background:#166534;">⬇ Excel</button>
-    <button onclick="window.print()" class="px-4 py-2 text-sm font-semibold text-white rounded cursor-pointer" style="background:#1e293b;">🖨 PDF</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;" class="no-print">
+      <button class="btn-o" onclick="loadDemo()">📋 Demo Deal</button>
+      <button class="btn-o" onclick="resetAll()">↺ Reset</button>
+      <button class="btn-g" onclick="exportXLS()">⬇ Excel</button>
+      <button class="btn-d" onclick="window.print()">🖨 Print / PDF</button>
+    </div>
   </div>
 </div>
-</section>
 
 <!-- TABS -->
-<div class="bg-white border-b border-gray-200 no-print" style="overflow-x:auto;">
-  <div class="max-w-7xl mx-auto px-4 flex">
-    <button class="tab-btn active" onclick="switchTab('inputs',this)">📥 Input Parameters</button>
-    <button class="tab-btn" onclick="switchTab('results',this)">📊 Results &amp; Analysis</button>
-    <button class="tab-btn" onclick="switchTab('proforma',this)">📋 5-Year Proforma</button>
-    <button class="tab-btn" onclick="switchTab('charts',this)">📈 Charts</button>
-  </div>
+<div class="tab-bar no-print" style="position:sticky;top:64px;z-index:40;">
+  <button class="tab-btn active" onclick="switchTab('inputs',this)">📥 Inputs</button>
+  <button class="tab-btn" onclick="switchTab('results',this)">📊 Summary Dashboard</button>
+  <button class="tab-btn" onclick="switchTab('proforma',this)">📋 Annual Proforma</button>
+  <button class="tab-btn" onclick="switchTab('sensitivity',this)">🎯 Sensitivity</button>
+  <button class="tab-btn" onclick="switchTab('charts',this)">📈 Charts</button>
 </div>
 
-<div class="max-w-7xl mx-auto px-4 py-6">
+<div class="wrap" style="padding:20px 0 60px;">
 
 <!-- ══ INPUTS ══ -->
 <div id="tab-inputs" class="tab-panel active">
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+  <div class="g4">
 
     <!-- Unit Mix -->
     <div class="card">
-      <p class="sec">🏠 Unit Mix &amp; Monthly Rents per Unit</p>
-      <div style="border-bottom:1px solid #f1f5f9;padding-bottom:12px;margin-bottom:12px;">
-        <p class="text-xs font-semibold text-gray-500 mb-2">1-Bedroom Units</p>
-        <div class="mb-2"><label class="lbl"># Units</label><input class="inp" id="oneBedUnits" type="number" placeholder="0" oninput="liveCalc()"></div>
-        <div><label class="lbl">Monthly Rent / Unit ($)</label><input class="inp" id="rent1Bed" type="number" placeholder="0" oninput="liveCalc()"></div>
+      <p class="sec">🏠 Unit Mix &amp; Rents</p>
+      <div id="unitMixLive" style="background:#eff6ff;border-radius:7px;padding:10px;margin-bottom:12px;font-size:12px;display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <div><span style="color:#64748b;">Total Units</span><br><strong id="pvTotalUnits" style="font-size:16px;">—</strong></div>
+        <div><span style="color:#64748b;">Avg Rent/Unit</span><br><strong id="pvAvgRent" style="font-size:16px;">—</strong></div>
+        <div><span style="color:#64748b;">Gross Pot. Rent</span><br><strong id="pvGPR" style="font-size:14px;color:#0043ce;">—</strong></div>
+        <div><span style="color:#64748b;">Sellout Period</span><br><strong id="pvEGI" style="font-size:14px;color:#15803d;">—</strong></div>
       </div>
-      <div style="border-bottom:1px solid #f1f5f9;padding-bottom:12px;margin-bottom:12px;">
-        <p class="text-xs font-semibold text-gray-500 mb-2">2-Bedroom Units</p>
-        <div class="mb-2"><label class="lbl"># Units</label><input class="inp" id="twoBedUnits" type="number" placeholder="0" oninput="liveCalc()"></div>
-        <div><label class="lbl">Monthly Rent / Unit ($)</label><input class="inp" id="rent2Bed" type="number" placeholder="0" oninput="liveCalc()"></div>
+
+      <div class="unit-sec">
+        <p style="font-size:11px;font-weight:700;color:#0043ce;margin-bottom:8px;">Studio / Efficiency</p>
+        <div class="g2" style="gap:8px;">
+          <div class="f"><label class="lbl"># Units</label><input class="inp" id="studioUnits" type="number" placeholder="0" oninput="liveCalc()"></div>
+          <div class="f"><label class="lbl">Rent/Unit/Mo ($)</label><div class="inp-p"><span>$</span><input class="inp" id="studioRent" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+        </div>
       </div>
-      <div>
-        <p class="text-xs font-semibold text-gray-500 mb-2">3-Bedroom Units</p>
-        <div class="mb-2"><label class="lbl"># Units</label><input class="inp" id="threeBedUnits" type="number" placeholder="0" oninput="liveCalc()"></div>
-        <div><label class="lbl">Monthly Rent / Unit ($)</label><input class="inp" id="rent3Bed" type="number" placeholder="0" oninput="liveCalc()"></div>
+      <div class="unit-sec">
+        <p style="font-size:11px;font-weight:700;color:#0043ce;margin-bottom:8px;">1-Bedroom</p>
+        <div class="g2" style="gap:8px;">
+          <div class="f"><label class="lbl"># Units</label><input class="inp" id="oneBedUnits" type="number" placeholder="0" oninput="liveCalc()"></div>
+          <div class="f"><label class="lbl">Rent/Unit/Mo ($)</label><div class="inp-p"><span>$</span><input class="inp" id="rent1Bed" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+        </div>
       </div>
+      <div class="unit-sec">
+        <p style="font-size:11px;font-weight:700;color:#0043ce;margin-bottom:8px;">2-Bedroom</p>
+        <div class="g2" style="gap:8px;">
+          <div class="f"><label class="lbl"># Units</label><input class="inp" id="twoBedUnits" type="number" placeholder="0" oninput="liveCalc()"></div>
+          <div class="f"><label class="lbl">Rent/Unit/Mo ($)</label><div class="inp-p"><span>$</span><input class="inp" id="rent2Bed" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+        </div>
+      </div>
+      <div class="unit-sec">
+        <p style="font-size:11px;font-weight:700;color:#0043ce;margin-bottom:8px;">3-Bedroom+</p>
+        <div class="g2" style="gap:8px;">
+          <div class="f"><label class="lbl"># Units</label><input class="inp" id="threeBedUnits" type="number" placeholder="0" oninput="liveCalc()"></div>
+          <div class="f"><label class="lbl">Rent/Unit/Mo ($)</label><div class="inp-p"><span>$</span><input class="inp" id="rent3Bed" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+        </div>
+      </div>
+      <div class="f"><label class="lbl">Property Name / Address</label><input class="inp" id="propName" type="text" placeholder="e.g. Riverside Apartments – Austin, TX"></div>
+      <div class="f"><label class="lbl">Other Income ($/yr) <span style="font-weight:400;text-transform:none;font-size:9px;">parking, laundry, storage</span></label><div class="inp-p"><span>$</span><input class="inp" id="otherIncome" type="number" placeholder="0" oninput="liveCalc()"></div></div>
     </div>
 
-    <!-- Income & Vacancy -->
+    <!-- Income, Vacancy & Hold -->
     <div class="card">
-      <p class="sec">💰 Income &amp; Vacancy</p>
-      <div class="mb-3"><label class="lbl">Other Income ($/yr) <span style="color:#94a3b8;font-size:10px;font-weight:400;text-transform:none;">laundry, parking, etc.</span></label><input class="inp" id="otherIncome" type="number" oninput="liveCalc()" placeholder="0"></div>
-      <div class="mb-3"><label class="lbl">Vacancy Rate (%)</label><input class="inp" id="vacancyRate" type="number" oninput="liveCalc()" step="0.1" placeholder="5.0"></div>
-      <div class="mb-3"><label class="lbl">Annual Rent Growth (%)</label><input class="inp" id="rentGrowth" type="number" oninput="liveCalc()" step="0.1" placeholder="2.0"></div>
-      <div class="mb-3"><label class="lbl">Annual Expense Growth (%)</label><input class="inp" id="expGrowth" type="number" oninput="liveCalc()" step="0.1" placeholder="2.5"></div>
-      <div class="mb-3"><label class="lbl">Hold Period (Years)</label><input class="inp" id="holdPeriod" type="number" oninput="liveCalc()" placeholder="5"></div>
-      <div><label class="lbl">Exit Cap Rate (%)</label><input class="inp" id="exitCap" type="number" oninput="liveCalc()" step="0.01" placeholder="5.5"></div>
+      <p class="sec">💰 Income &amp; Hold Assumptions</p>
+      <div class="f"><label class="lbl">Vacancy Rate (%)</label><div class="inp-s"><input class="inp" id="vacancyRate" type="number" step="0.5" placeholder="5.0" oninput="liveCalc()"><span>%</span></div><p class="hint">5–7% stabilized · 10–15% value-add</p></div>
+      <div class="f"><label class="lbl">Annual Rent Growth (%)</label><div class="inp-s"><input class="inp" id="rentGrowth" type="number" step="0.25" placeholder="3.0" oninput="liveCalc()"><span>%</span></div><p class="hint">Yardi Matrix 2025 forecast: 2.4% A/B, 1.7% C</p></div>
+      <div class="f"><label class="lbl">Annual Expense Growth (%)</label><div class="inp-s"><input class="inp" id="expGrowth" type="number" step="0.25" placeholder="3.0" oninput="liveCalc()"><span>%</span></div><p class="hint">2025: insurance &amp; taxes driving costs up</p></div>
+      <div class="f"><label class="lbl">Hold Period (Years)</label><input class="inp" id="holdPeriod" type="number" placeholder="5" oninput="liveCalc()"></div>
+      <div class="f"><label class="lbl">Exit Cap Rate (%)</label><div class="inp-s"><input class="inp" id="exitCap" type="number" step="0.25" placeholder="5.50" oninput="liveCalc()"><span>%</span></div><p class="hint">Usually 25–50 bps above going-in</p></div>
+      <div class="f"><label class="lbl">Selling Costs at Exit (%)</label><div class="inp-s"><input class="inp" id="sellCosts" type="number" step="0.25" placeholder="2.0" oninput="liveCalc()"><span>%</span></div></div>
+      <div class="f"><label class="lbl">Discount Rate (NPV) (%)</label><div class="inp-s"><input class="inp" id="discRate" type="number" step="0.25" placeholder="7.0"><span>%</span></div></div>
+      <div class="f"><label class="lbl">Target IRR (%)</label><div class="inp-s"><input class="inp" id="targetIRR" type="number" step="0.5" placeholder="15.0"><span>%</span></div><p class="hint">Value-add: 12–18% · Core: 8–12%</p></div>
     </div>
 
     <!-- Operating Expenses -->
     <div class="card">
-      <p class="sec">📋 Operating Expenses (Annual)</p>
-      <div class="mb-3"><label class="lbl">Property Taxes ($)</label><input class="inp" id="propertyTaxes" type="number" oninput="liveCalc()" placeholder="0"></div>
-      <div class="mb-3"><label class="lbl">Insurance ($)</label><input class="inp" id="insurance" type="number" oninput="liveCalc()" placeholder="0"></div>
-      <div class="mb-3"><label class="lbl">Utilities ($)</label><input class="inp" id="utilities" type="number" oninput="liveCalc()" placeholder="0"></div>
-      <div class="mb-3"><label class="lbl">Repairs &amp; Maintenance ($)</label><input class="inp" id="maintenance" type="number" oninput="liveCalc()" placeholder="0"></div>
-      <div class="mb-3"><label class="lbl">Property Management ($)</label><input class="inp" id="management" type="number" oninput="liveCalc()" placeholder="0"></div>
-      <div class="mb-3"><label class="lbl">Payroll / Staff ($)</label><input class="inp" id="staff" type="number" oninput="liveCalc()" placeholder="0"></div>
-      <div class="mb-3"><label class="lbl">Supplies ($)</label><input class="inp" id="supplies" type="number" oninput="liveCalc()" placeholder="0"></div>
-      <div><label class="lbl">Reserves &amp; Misc ($)</label><input class="inp" id="misc" type="number" oninput="liveCalc()" placeholder="0"></div>
+      <p class="sec">📋 Operating Expenses ($/yr)</p>
+      <p style="font-size:10px;color:#94a3b8;margin-bottom:10px;">Total annual amounts. Per-unit benchmarks shown in results. Target OER: 40–55% of EGI.</p>
+      <div class="f"><label class="lbl">Property Taxes</label><div class="inp-p"><span>$</span><input class="inp" id="propertyTaxes" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+      <div class="f"><label class="lbl">Insurance</label><div class="inp-p"><span>$</span><input class="inp" id="insurance" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+      <div class="f"><label class="lbl">Utilities (Common Area)</label><div class="inp-p"><span>$</span><input class="inp" id="utilities" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+      <div class="f"><label class="lbl">Repairs &amp; Maintenance</label><div class="inp-p"><span>$</span><input class="inp" id="maintenance" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+      <div class="f"><label class="lbl">Property Management</label><div class="inp-p"><span>$</span><input class="inp" id="management" type="number" placeholder="0" oninput="liveCalc()"></div><p class="hint">Or use 6–10% of EGI as guideline</p></div>
+      <div class="f"><label class="lbl">Payroll / Staff</label><div class="inp-p"><span>$</span><input class="inp" id="staff" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+      <div class="f"><label class="lbl">Supplies / Marketing</label><div class="inp-p"><span>$</span><input class="inp" id="supplies" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+      <div class="f"><label class="lbl">Reserves &amp; Misc</label><div class="inp-p"><span>$</span><input class="inp" id="misc" type="number" placeholder="0" oninput="liveCalc()"></div><p class="hint">~$250–500/unit/yr for older properties</p></div>
     </div>
 
     <!-- Acquisition & Financing -->
     <div class="card">
       <p class="sec">🏦 Acquisition &amp; Financing</p>
-      <div class="mb-3"><label class="lbl">Purchase Price ($)</label><input class="inp" id="purchasePrice" type="number" oninput="liveCalc()" placeholder="0"></div>
-      <div class="mb-3"><label class="lbl">Loan Amount ($)</label><input class="inp" id="loanAmount" type="number" oninput="liveCalc()" placeholder="0"></div>
-      <div class="mb-3"><label class="lbl">Interest Rate (%)</label><input class="inp" id="interestRate" type="number" oninput="liveCalc()" step="0.01" placeholder="0.00"></div>
-      <div class="mb-3"><label class="lbl">Loan Term (Years)</label><input class="inp" id="loanTerm" type="number" oninput="liveCalc()" placeholder="25"></div>
-      <div class="mb-3"><label class="lbl">Closing Costs (%)</label><input class="inp" id="closingCostPct" type="number" oninput="liveCalc()" step="0.1" placeholder="1.5"></div>
-      <!-- Live loan preview -->
-      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;margin-top:8px;">
-        <div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;"><span style="color:#64748b;">Equity Required</span><span id="equityDisp" style="font-weight:600;">—</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;"><span style="color:#64748b;">LTV</span><span id="ltvDisp" style="font-weight:600;">—</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;"><span style="color:#64748b;">Monthly Payment</span><span id="monthlyDisp" style="font-weight:600;">—</span></div>
+      <div class="f"><label class="lbl">Purchase Price ($)</label><div class="inp-p"><span>$</span><input class="inp" id="purchasePrice" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+      <div class="f"><label class="lbl">Loan Amount ($)</label><div class="inp-p"><span>$</span><input class="inp" id="loanAmount" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+      <div class="f"><label class="lbl">Interest Rate (%/yr)</label><div class="inp-s"><input class="inp" id="interestRate" type="number" step="0.25" placeholder="6.50" oninput="liveCalc()"><span>%</span></div><p class="hint">Agency (Fannie/Freddie) ~6.0–7.0% 2025</p></div>
+      <div class="g2" style="gap:8px;">
+        <div class="f"><label class="lbl">Amortization (Yrs)</label><input class="inp" id="amortYears" type="number" placeholder="30" oninput="liveCalc()"></div>
+        <div class="f"><label class="lbl">Loan Term (Yrs)</label><input class="inp" id="loanTerm" type="number" placeholder="10"></div>
       </div>
-
-      <button onclick="calculate()" class="w-full mt-4 py-3 text-base font-semibold text-white rounded-lg cursor-pointer no-print" style="background:#0043ce;border:none;">Calculate Proforma →</button>
+      <div class="g2" style="gap:8px;">
+        <div class="f"><label class="lbl">Closing Costs (%)</label><div class="inp-s"><input class="inp" id="closingCostPct" type="number" step="0.25" placeholder="1.5" oninput="liveCalc()"><span>%</span></div></div>
+        <div class="f"><label class="lbl">CapEx Budget ($)</label><div class="inp-p"><span>$</span><input class="inp" id="capexBudget" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+      </div>
+      <!-- Live loan preview -->
+      <div class="lpv">
+        <div class="lpv-row"><span>Equity Required</span><span id="equityDisp">—</span></div>
+        <div class="lpv-row"><span>LTV</span><span id="ltvDisp">—</span></div>
+        <div class="lpv-row"><span>Monthly Payment</span><span id="monthlyDisp">—</span></div>
+        <div class="lpv-row"><span>Annual Debt Service</span><span id="annDSDisp">—</span></div>
+        <div class="lpv-row"><span>Loan Constant</span><span id="loanConstDisp">—</span></div>
+      </div>
+      <div style="margin-top:14px;text-align:center;">
+        <button class="btn-p" onclick="calculate()" style="padding:12px 36px;font-size:14px;width:100%;">Calculate Proforma →</button>
+      </div>
     </div>
-  </div>
+  </div><!-- /g4 -->
 </div><!-- /inputs -->
 
 <!-- ══ RESULTS ══ -->
 <div id="tab-results" class="tab-panel">
-  <!-- Summary metric cards -->
-  <div id="metricCards" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6"></div>
-
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
-    <!-- Cash flow waterfall -->
-    <div class="card">
-      <p class="sec">Year 1 Cash Flow Waterfall</p>
-      <div id="waterfallDiv"></div>
-    </div>
-    <!-- Investment quality -->
-    <div class="card">
-      <p class="sec">Deal Quality Assessment</p>
-      <div id="dealQuality"></div>
-    </div>
+  <!-- Deal verdict -->
+  <div id="dealVerdict" style="margin-bottom:16px;"></div>
+  <!-- KPI Cards -->
+  <div id="kpiCards" class="g8" style="margin-bottom:16px;"></div>
+  <!-- Two column: waterfall + scorecard -->
+  <div class="g2" style="margin-bottom:16px;">
+    <div class="card"><p class="sec">💧 Year 1 Cash Flow Waterfall</p><div id="waterfallDiv"></div></div>
+    <div class="card"><p class="sec">🎯 Deal Quality Scorecard</p><div id="scorecard"></div></div>
   </div>
-
-  <!-- Returns table -->
-  <div class="card mb-5">
-    <p class="sec">Full Return Analysis</p>
-    <div class="overflow-x-auto"><table class="pro-table" id="returnsTable"></table></div>
+  <!-- Returns + Debt side by side -->
+  <div class="g2" style="margin-bottom:16px;">
+    <div class="card"><p class="sec">📈 Investment Returns</p><div id="returnsGrid"></div></div>
+    <div class="card"><p class="sec">🏦 Debt &amp; Lender Metrics</p><div id="debtGrid"></div></div>
   </div>
-
-  <!-- Metric definitions -->
-  <div class="card">
-    <p class="sec">📘 Metric Definitions</p>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm" style="color:#64748b;">
-      <div><strong style="color:#1e293b;">Cap Rate</strong> — NOI ÷ Purchase Price. Measures property yield before financing. 5–7% is typical for stabilized multifamily.</div>
-      <div><strong style="color:#1e293b;">Cash-on-Cash Return</strong> — Annual levered cash flow ÷ equity invested. Shows your cash yield on actual dollars deployed.</div>
-      <div><strong style="color:#1e293b;">IRR</strong> — Internal rate of return over the full hold period including sale. The most complete return metric. Target 12–18% for value-add.</div>
+  <!-- Unit mix stats -->
+  <div class="card" style="margin-bottom:16px;"><p class="sec">🏠 Unit Mix Breakdown</p><div id="unitMixStats"></div></div>
+  <!-- How to read -->
+  <div class="card"><p class="sec">📘 How to Read These Results</p>
+    <div class="g3" style="gap:12px;">
+      <div style="background:#f8fafc;border-radius:7px;padding:12px;border-left:3px solid #0043ce;"><p style="font-size:11px;font-weight:700;color:#0043ce;margin-bottom:4px;">Cap Rate</p><p style="font-size:11px;color:#64748b;line-height:1.5;">NOI ÷ Purchase Price. Measures property yield before financing. 2025 benchmarks: Class A 4.7%, Class B 4.9%, Class C 5.4% stabilized. Value-add entry: 6–9%.</p></div>
+      <div style="background:#f8fafc;border-radius:7px;padding:12px;border-left:3px solid #7c3aed;"><p style="font-size:11px;font-weight:700;color:#7c3aed;margin-bottom:4px;">DSCR &amp; Debt Yield</p><p style="font-size:11px;color:#64748b;line-height:1.5;">DSCR = NOI ÷ ADS. Lenders require ≥1.25×. Debt Yield = NOI ÷ Loan — lenders target ≥8–10%. Both measure ability to service debt.</p></div>
+      <div style="background:#f8fafc;border-radius:7px;padding:12px;border-left:3px solid #15803d;"><p style="font-size:11px;font-weight:700;color:#15803d;margin-bottom:4px;">Breakeven Occupancy</p><p style="font-size:11px;color:#64748b;line-height:1.5;">(OpEx + Debt Service) ÷ GPR. The minimum occupancy needed to cover all costs. Lower is safer — target &lt;80%. At 90%+ breakeven, the deal has little cushion.</p></div>
+      <div style="background:#f8fafc;border-radius:7px;padding:12px;border-left:3px solid #f97316;"><p style="font-size:11px;font-weight:700;color:#f97316;margin-bottom:4px;">Expense Ratio (OER)</p><p style="font-size:11px;color:#64748b;line-height:1.5;">Total OpEx ÷ EGI. Industry range: 35–55%. &lt;35% = highly efficient. &gt;55% = warning sign. Key benchmark for comparing properties of similar type and age.</p></div>
+      <div style="background:#f8fafc;border-radius:7px;padding:12px;border-left:3px solid #0043ce;"><p style="font-size:11px;font-weight:700;color:#0043ce;margin-bottom:4px;">Levered IRR</p><p style="font-size:11px;color:#64748b;line-height:1.5;">Total return on equity including cash flows + appreciation over the hold period. Core target: 8–12%. Value-add: 12–18%. Strong value-add: 18%+.</p></div>
+      <div style="background:#f8fafc;border-radius:7px;padding:12px;border-left:3px solid #15803d;"><p style="font-size:11px;font-weight:700;color:#15803d;margin-bottom:4px;">Equity Multiple</p><p style="font-size:11px;color:#64748b;line-height:1.5;">Total cash returned ÷ equity invested. 2.0× = doubled your money. Target 1.5–2.5× over 5 years. Tells you total return, not speed. Compare alongside IRR.</p></div>
     </div>
   </div>
-</div><!-- /results -->
+</div>
 
 <!-- ══ PROFORMA ══ -->
 <div id="tab-proforma" class="tab-panel">
-  <div class="card overflow-x-auto">
-    <p class="sec">5-Year Annual Proforma</p>
+  <div class="card" style="overflow-x:auto;margin-bottom:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+      <p class="sec" style="margin:0;">Annual Proforma</p>
+      <span id="proformaTitle" style="font-size:11px;color:#94a3b8;"></span>
+    </div>
     <table class="pro-table" id="proformaTable">
-      <tbody><tr><td class="py-12 text-center" style="color:#94a3b8;" colspan="7">Run the calculator to see your 5-year proforma.</td></tr></tbody>
+      <tbody><tr><td colspan="7" style="padding:40px;text-align:center;color:#94a3b8;">Run the calculator to see the annual proforma.</td></tr></tbody>
     </table>
+  </div>
+  <div class="card" style="overflow-x:auto;">
+    <p class="sec">Sources &amp; Uses of Funds</p>
+    <div id="sourcesUses"></div>
+  </div>
+</div>
+
+<!-- ══ SENSITIVITY ══ -->
+<div id="tab-sensitivity" class="tab-panel">
+  <div class="card" style="margin-bottom:16px;">
+    <p class="sec">🔄 3-Scenario Quick Compare — Bear / Base / Bull</p>
+    <p style="font-size:11px;color:#64748b;margin-bottom:12px;">Bear = rents −5%, expenses +5%. Bull = rents +5%, expenses −5%.</p>
+    <div id="scenarioDiv"></div>
+  </div>
+  <div class="g2" style="margin-bottom:16px;">
+    <div class="card"><p class="sec">Exit Cap Rate Sensitivity</p><div style="overflow-x:auto;" id="capSens"></div></div>
+    <div class="card"><p class="sec">Rent Growth Sensitivity</p><div style="overflow-x:auto;" id="rentSens"></div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><p class="sec">Vacancy Rate Sensitivity</p><div style="overflow-x:auto;" id="vacSens"></div></div>
+    <div class="card"><p class="sec">Interest Rate Sensitivity</p><div style="overflow-x:auto;" id="rateSens"></div></div>
   </div>
 </div>
 
 <!-- ══ CHARTS ══ -->
 <div id="tab-charts" class="tab-panel">
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+  <div class="g2" style="margin-bottom:16px;">
     <div class="card"><p class="sec">NOI vs. Debt Service</p><div style="position:relative;height:240px;"><canvas id="chartNOI"></canvas></div></div>
-    <div class="card"><p class="sec">Income vs. Expenses Breakdown</p><div style="position:relative;height:240px;"><canvas id="chartBreakdown"></canvas></div></div>
-    <div class="card"><p class="sec">Cumulative Cash Flow</p><div style="position:relative;height:240px;"><canvas id="chartCumulative"></canvas></div></div>
-    <div class="card"><p class="sec">Equity Build Over Hold Period</p><div style="position:relative;height:240px;"><canvas id="chartEquity"></canvas></div></div>
+    <div class="card"><p class="sec">Revenue Breakdown (Year 1)</p><div style="position:relative;height:240px;"><canvas id="chartBreakdown"></canvas></div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><p class="sec">Cumulative Cash Flow &amp; Equity</p><div style="position:relative;height:240px;"><canvas id="chartCumulative"></canvas></div></div>
+    <div class="card"><p class="sec">Rent Roll — All Unit Types</p><div style="position:relative;height:240px;"><canvas id="chartRent"></canvas></div></div>
   </div>
 </div>
 
-</div><!-- /max-w -->
+</div><!-- /wrap -->
 
 <!-- FOOTER -->
-<footer style="background:#0f172a;padding:52px 0;color:white;">
-  <div style="max-width:1280px;margin:0 auto;padding:0 16px;">
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:28px;margin-bottom:28px;">
-      <div><div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;"><svg width="28" height="28" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg><span style="font-size:16px;font-weight:700;color:white;">RE<span style="font-weight:300;">Proforma</span></span></div><p style="font-size:13px;color:#94a3b8;line-height:1.6;">Advanced analytics for real estate investors and homebuyers.</p></div>
-      <div><p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Tools</p><p style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#475569;margin-bottom:6px;">Pro</p><div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;"><a href="index" style="font-size:13px;color:#94a3b8;text-decoration:none;">Multifamily Acquisition</a><a href="index-mixeduse" style="font-size:13px;color:#94a3b8;text-decoration:none;">Commercial &amp; NNN Retail</a><a href="index-land" style="font-size:13px;color:#94a3b8;text-decoration:none;">Land Development</a></div><p style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#475569;margin-bottom:6px;border-top:1px solid #1e293b;padding-top:8px;">Free</p><div style="display:flex;flex-direction:column;gap:6px;"><a href="index-affordability" style="font-size:13px;color:#94a3b8;text-decoration:none;">🏠 Home Affordability</a><a href="index-rentvsbuy" style="font-size:13px;color:#94a3b8;text-decoration:none;">⚖️ Rent vs. Own</a><a href="index-mortgage-payoff" style="font-size:13px;color:#94a3b8;text-decoration:none;">📅 Mortgage Payoff</a></div></div>
-      <div><p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Resources</p><div style="display:flex;flex-direction:column;gap:6px;"><a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Market Reports</a><a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Investment Guide</a><a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Case Studies</a><a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Blog</a><a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Support</a></div></div>
-      <div><p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Subscribe</p><p style="font-size:13px;color:#94a3b8;margin-bottom:10px;">Get the latest real estate insights.</p><div style="display:flex;"><input type="email" placeholder="Your email" style="flex:1;padding:9px 12px;border-radius:7px 0 0 7px;border:none;font-size:13px;outline:none;color:#1e293b;"><button style="background:#0056b3;color:white;border:none;padding:9px 16px;border-radius:0 7px 7px 0;font-size:13px;font-weight:600;cursor:pointer;">Go</button></div></div>
+<footer style="background:#0f172a;color:white;padding:48px 0;">
+  <div class="wrap">
+    <div class="ft-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:28px;margin-bottom:28px;">
+      <div><div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;"><svg width="28" height="28" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg><span style="font-size:15px;font-weight:700;color:white;">RE<span style="font-weight:300;">Proforma</span></span></div><p style="font-size:12px;color:#94a3b8;line-height:1.6;">Advanced analytics for real estate investors and developers.</p></div>
+      <div><p style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Tools</p><p style="font-size:10px;text-transform:uppercase;color:#475569;margin-bottom:5px;">Pro</p><div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;"><a href="index" style="font-size:12px;color:#94a3b8;">Multifamily Acquisition</a><a href="index-mixeduse" style="font-size:12px;color:#94a3b8;">Commercial &amp; NNN Retail</a><a href="index-land" style="font-size:12px;color:#94a3b8;">Land Development</a></div><p style="font-size:10px;text-transform:uppercase;color:#475569;margin-bottom:5px;border-top:1px solid #1e293b;padding-top:8px;">Free</p><div style="display:flex;flex-direction:column;gap:6px;"><a href="index-affordability" style="font-size:12px;color:#94a3b8;">🏠 Home Affordability</a><a href="index-rentvsbuy" style="font-size:12px;color:#94a3b8;">⚖️ Rent vs. Own</a><a href="index-mortgage-payoff" style="font-size:12px;color:#94a3b8;">📅 Mortgage Payoff</a></div></div>
+      <div><p style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Resources</p><div style="display:flex;flex-direction:column;gap:6px;"><a href="#" style="font-size:12px;color:#94a3b8;">Market Reports</a><a href="#" style="font-size:12px;color:#94a3b8;">Investment Guide</a><a href="#" style="font-size:12px;color:#94a3b8;">Case Studies</a><a href="#" style="font-size:12px;color:#94a3b8;">Support</a></div></div>
+      <div><p style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Subscribe</p><p style="font-size:12px;color:#94a3b8;margin-bottom:10px;">Get the latest real estate insights.</p><div style="display:flex;"><input type="email" placeholder="Your email" style="flex:1;padding:9px 12px;border-radius:7px 0 0 7px;border:none;font-size:12px;outline:none;color:#1e293b;min-width:0;"><button style="background:#0056b3;color:white;border:none;padding:9px 16px;border-radius:0 7px 7px 0;font-size:12px;font-weight:600;cursor:pointer;">Go</button></div></div>
     </div>
-    <div style="border-top:1px solid #1e293b;padding-top:18px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:13px;color:#64748b;"><p>&copy; 2025 REProforma. All rights reserved.</p><div style="display:flex;gap:20px;"><a href="../privacy" style="color:#64748b;text-decoration:none;">Privacy Policy</a><a href="../terms" style="color:#64748b;text-decoration:none;">Terms of Service</a></div></div>
+    <div style="border-top:1px solid #1e293b;padding-top:18px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:12px;color:#64748b;">
+      <p>&copy; 2025 REProforma. All rights reserved.</p>
+      <div style="display:flex;gap:20px;"><a href="../privacy" style="color:#64748b;">Privacy Policy</a><a href="../terms" style="color:#64748b;">Terms of Service</a></div>
+    </div>
   </div>
 </footer>
 
 <script>
-// ── Helpers ──────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
 const num = id => parseFloat($(id)?.value) || 0;
-const fmt = v => isNaN(v)||!isFinite(v)?'—':'$'+Math.round(v).toLocaleString();
-const pct = (v,d=2) => isNaN(v)||!isFinite(v)?'—':v.toFixed(d)+'%';
+const set = (id,v) => { if($(id)) $(id).value = v; };
+const fmt = v => (v==null||isNaN(v)||!isFinite(v)) ? '—' : '$'+Math.round(v).toLocaleString();
+const pct = (v,d=1) => (v==null||isNaN(v)||!isFinite(v)) ? '—' : v.toFixed(d)+'%';
+const fmtX = v => (v==null||isNaN(v)||!isFinite(v)) ? '—' : v.toFixed(2)+'×';
 
-// ── Tab switching ─────────────────────────────────────────────
+// Color helpers
+const bC = (v,lo,hi) => v>=hi?'#15803d':v>=lo?'#b45309':'#b91c1c';
+const bCls = (v,lo,hi) => v>=hi?'good':v>=lo?'warn':'bad';
+
+// ── Nav ──────────────────────────────────────────────────────────────────────
+(function(){
+  function ckW(){
+    var mob=window.innerWidth<768, dn=$('desk-nav'), mb=$('mob-btn');
+    if(dn) dn.style.display=mob?'none':'flex';
+    if(mb) mb.style.display=mob?'block':'none';
+  }
+  window.addEventListener('resize',ckW); ckW();
+  var btn=$('mob-btn'), menu=$('mob-menu');
+  if(btn&&menu) btn.addEventListener('click',function(){ menu.style.display=menu.style.display==='block'?'none':'block'; });
+  document.querySelectorAll('.mob-tog').forEach(function(b){
+    b.addEventListener('click',function(){
+      var s=b.nextElementSibling, a=b.querySelector('.mob-arr'), open=s.style.display==='block';
+      s.style.display=open?'none':'block'; if(a) a.style.transform=open?'rotate(0)':'rotate(180deg)';
+    });
+  });
+  function openDD(m,b){ closeAllDD(); var mm=$(m); if(mm) mm.classList.add('open'); }
+  function closeAllDD(){ document.querySelectorAll('.dd-menu').forEach(m=>m.classList.remove('open')); }
+  [['ddT','ddTm','ddTb'],['ddM','ddMm','ddMb']].forEach(function([w,m,b]){
+    var ww=$(w),mm=$(m),bb=$(b); if(!ww||!mm) return; var t;
+    ww.addEventListener('mouseenter',function(){ clearTimeout(t); openDD(m,b); });
+    ww.addEventListener('mouseleave',function(){ t=setTimeout(function(){ var mm2=$(m); if(mm2) mm2.classList.remove('open'); },120); });
+    if(bb) bb.addEventListener('click',function(e){ e.stopPropagation(); var o=$(m)?.classList.contains('open'); closeAllDD(); if(!o) openDD(m,b); });
+  });
+  document.addEventListener('click',function(e){ if(!e.target.closest('.dd-wrap')) closeAllDD(); });
+})();
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
 function switchTab(name, btn) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   if(btn) btn.classList.add('active');
   $('tab-'+name).classList.add('active');
 }
 
-// ── Nav dropdowns ─────────────────────────────────────────────
-$('mob-btn').addEventListener('click',()=>$('mob-menu').classList.toggle('hidden'));
-document.querySelectorAll('.mob-tog').forEach(b=>{
-  b.addEventListener('click',()=>{
-    const s=b.nextElementSibling,a=b.querySelector('.mob-arr'),o=s.style.display==='block';
-    s.style.display=o?'none':'block';a.style.transform=o?'':'rotate(180deg)';
-  });
-});
-function setupDD(wId,mId,bId){
-  const w=$(wId),m=$(mId),b=$(bId);if(!w||!m)return;let t;
-  w.addEventListener('mouseenter',()=>{clearTimeout(t);m.classList.add('open');b&&b.classList.add('open');});
-  w.addEventListener('mouseleave',()=>{t=setTimeout(()=>{m.classList.remove('open');b&&b.classList.remove('open');},120);});
-  b&&b.addEventListener('click',e=>{e.stopPropagation();const o=m.classList.contains('open');closeAll();if(!o){m.classList.add('open');b.classList.add('open');}});
-}
-function closeAll(){document.querySelectorAll('.dd-menu').forEach(m=>m.classList.remove('open'));document.querySelectorAll('.dd-trigger').forEach(b=>b.classList.remove('open'));}
-setupDD('ddT','ddTm','ddTb');setupDD('ddM','ddMm','ddMb');
-document.addEventListener('click',e=>{if(!e.target.closest('.dd-wrap'))closeAll();});
-
-// ── Live preview ──────────────────────────────────────────────
-
-// ── Live realtime recalculation ──────────────────────────────────────────────
-function liveCalc(){
-  // Only auto-calc if we have the minimum required inputs
-  const price=num('purchasePrice');
-  const u1=num('oneBedUnits'),u2=num('twoBedUnits'),u3=num('threeBedUnits');
-  const r1=num('rent1Bed'),r2=num('rent2Bed'),r3=num('rent3Bed');
-  livePreview(); // always update loan preview
-  if(price>0 && (u1*r1+u2*r2+u3*r3)>0 && num('interestRate')>0){
-    calculate(); // silently recalculate
-  }
-}
-
-function livePreview(){
-  const price=num('purchasePrice'),loan=num('loanAmount'),rate=num('interestRate'),term=num('loanTerm');
-  if(price&&loan){
-    $('equityDisp').textContent=fmt(price-loan);
-    $('ltvDisp').textContent=pct(loan/price*100,1);
-  }
-  if(loan&&rate&&term){
-    const mo=rate/100/12,n=term*12;
-    const pmt=loan*mo/(1-Math.pow(1+mo,-n));
-    $('monthlyDisp').textContent=fmt(pmt)+'/mo';
-  }
-}
-['purchasePrice','loanAmount','interestRate','loanTerm'].forEach(id=>{
-  const e=$(id);if(e)e.addEventListener('input',livePreview);
-});
-
-// ── IRR (bisection + Newton-Raphson) ─────────────────────────
+// ── IRR solver ────────────────────────────────────────────────────────────────
 function calcIRR(flows){
-  const hasPos=flows.some(f=>f>0),hasNeg=flows.some(f=>f<0);
+  const hasPos=flows.some(f=>f>0), hasNeg=flows.some(f=>f<0);
   if(!hasPos||!hasNeg) return NaN;
   const npvAt=r=>flows.reduce((s,f,t)=>s+f/Math.pow(1+r,t),0);
-  let lo=-0.9999,hi=5;
+  let lo=-0.9999, hi=10;
   if(npvAt(lo)*npvAt(hi)>0) return NaN;
   let mid=0.1;
-  for(let i=0;i<80;i++){mid=(lo+hi)/2;const nm=npvAt(mid);if(Math.abs(nm)<1e-6||(hi-lo)<1e-10)break;nm*npvAt(lo)>0?lo=mid:hi=mid;}
+  for(let i=0;i<80;i++){ mid=(lo+hi)/2; const nm=npvAt(mid); if(Math.abs(nm)<1e-6||(hi-lo)<1e-10) break; nm*npvAt(lo)>0?lo=mid:hi=mid; }
   let r=mid;
-  for(let i=0;i<80;i++){let npv=0,d=0;flows.forEach((f,t)=>{const disc=Math.pow(1+r,t);npv+=f/disc;d-=t*f/((1+r)*disc);});if(Math.abs(d)<1e-14)break;const rn=r-npv/d;if(!isFinite(rn))break;if(Math.abs(rn-r)<1e-11){r=rn;break;}r=rn;}
-  return isFinite(r)&&r>-0.9999&&r<50?r*100:NaN;
+  for(let i=0;i<80;i++){
+    let npv=0,d=0;
+    flows.forEach((f,t)=>{ const disc=Math.pow(1+r,t); npv+=f/disc; d-=t*f/((1+r)*disc); });
+    if(Math.abs(d)<1e-14) break;
+    const rn=r-npv/d; if(!isFinite(rn)) break;
+    if(Math.abs(rn-r)<1e-11){ r=rn; break; } r=rn;
+  }
+  return isFinite(r)&&r>-0.9999&&r<50 ? r*100 : NaN;
 }
 
-// ── Loan balance ──────────────────────────────────────────────
-function loanBal(loan,rate,term,yrs){
-  if(!loan||!rate||!term) return 0;
-  const mo=rate/100/12,n=term*12,pmt=loan*mo/(1-Math.pow(1+mo,-n));
-  let b=loan;for(let m=0;m<yrs*12;m++)b=b*(1+mo)-pmt;return Math.max(0,b);
+// ── Loan utils ────────────────────────────────────────────────────────────────
+function loanBal(loan,rate,amort,yrs){
+  if(!loan||!rate||!amort) return 0;
+  const mo=rate/100/12, n=amort*12, pmt=loan*mo/(1-Math.pow(1+mo,-n));
+  let b=loan; for(let m=0;m<yrs*12;m++) b=b*(1+mo)-pmt; return Math.max(0,b);
+}
+function annualDS(loan,rate,amort){
+  if(!loan||!rate||!amort) return 0;
+  const mo=rate/100/12, n=amort*12;
+  return loan*mo/(1-Math.pow(1+mo,-n))*12;
 }
 
-// ── Charts registry ───────────────────────────────────────────
+// ── Charts registry ───────────────────────────────────────────────────────────
 const CH={};
-function mkChart(id,cfg){if(CH[id])CH[id].destroy();CH[id]=new Chart($(id),cfg);}
+function mkChart(id,cfg){ if(CH[id]) CH[id].destroy(); CH[id]=new Chart($(id),cfg); }
 
-// ══════════════════════════════════════════════════════════════
+// ── State ─────────────────────────────────────────────────────────────────────
+let _xls = null;
+
+// ── Live preview ──────────────────────────────────────────────────────────────
+function liveCalc(){
+  const s0=num('studioUnits'), rs=num('studioRent') || 0;
+  const u1=num('oneBedUnits'), r1=num('rent1Bed') || 0;
+  const u2=num('twoBedUnits'), r2=num('rent2Bed') || 0;
+  const u3=num('threeBedUnits'), r3=num('rent3Bed') || 0;
+  const totalUnits = s0+u1+u2+u3;
+  const GPR = (s0*rs+u1*r1+u2*r2+u3*r3)*12;
+  const totalRent = (s0*rs+u1*r1+u2*r2+u3*r3);
+  const avgRent = totalUnits>0 ? totalRent/totalUnits : 0;
+  const vac = num('vacancyRate')||5;
+  const other = num('otherIncome')||0;
+  const egi = GPR*(1-vac/100)+other;
+
+  if($('pvTotalUnits')) $('pvTotalUnits').textContent = totalUnits||'—';
+  if($('pvAvgRent')) $('pvAvgRent').textContent = avgRent>0?fmt(avgRent)+'/mo':'—';
+  if($('pvGPR')) $('pvGPR').textContent = GPR>0?fmt(GPR)+'/yr':'—';
+  if($('pvEGI')) $('pvEGI').textContent = egi>0?fmt(egi)+' EGI':'—';
+
+  // Loan preview
+  const price=num('purchasePrice'), loan=num('loanAmount'), rate=num('interestRate'), amort=num('amortYears')||30;
+  if(price&&loan){ $('equityDisp').textContent=fmt(price-loan+price*(num('closingCostPct')/100||0.015)); $('ltvDisp').textContent=pct(loan/price*100); }
+  if(loan&&rate&&amort){
+    const mo=rate/100/12,n=amort*12;
+    const pmt=loan*mo/(1-Math.pow(1+mo,-n));
+    const ads=pmt*12;
+    $('monthlyDisp').textContent = fmt(pmt)+'/mo';
+    $('annDSDisp').textContent = fmt(ads)+'/yr';
+    $('loanConstDisp').textContent = loan>0 ? pct(ads/loan*100) : '—';
+  }
+
+  // Auto-calculate when enough inputs present
+  if(price>0 && GPR>0 && num('interestRate')>0 && num('vacancyRate')>0){
+    calculate();
+  }
+}
+['studioUnits','studioRent','oneBedUnits','rent1Bed','twoBedUnits','rent2Bed','threeBedUnits','rent3Bed',
+ 'otherIncome','vacancyRate','rentGrowth','expGrowth','holdPeriod','exitCap',
+ 'purchasePrice','loanAmount','interestRate','amortYears','closingCostPct','capexBudget',
+ 'propertyTaxes','insurance','utilities','maintenance','management','staff','supplies','misc']
+  .forEach(id=>{ const e=$(id); if(e) e.addEventListener('input',liveCalc); });
+
+// ══════════════════════════════════════════════════════════════════════════════
 // MAIN CALCULATE
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
 function calculate(){
-  // Read inputs
-  const u1=num('oneBedUnits'),r1=num('rent1Bed');
-  const u2=num('twoBedUnits'),r2=num('rent2Bed');
-  const u3=num('threeBedUnits'),r3=num('rent3Bed');
-  const otherInc=num('otherIncome');
-  const vacRate=num('vacancyRate')/100||0.05;
-  const rentGrowth=num('rentGrowth')/100||0.02;
-  const expGrowth=num('expGrowth')/100||0.025;
-  const hold=Math.min(Math.max(num('holdPeriod')||5,1),15);
-  const exitCap=num('exitCap')/100||0.055;
-  const price=num('purchasePrice');
-  const loan=num('loanAmount');
-  const rate=num('interestRate');
-  const term=num('loanTerm')||25;
-  const closingPct=num('closingCostPct')/100||0.015;
-
-  if(!price){ alert('Please enter a Purchase Price.'); return; }
-  if(!(u1||u2||u3)){ alert('Please enter at least one unit type.'); return; }
+  // Unit mix
+  const s0=num('studioUnits'), rs=num('studioRent');
+  const u1=num('oneBedUnits'), r1=num('rent1Bed');
+  const u2=num('twoBedUnits'), r2=num('rent2Bed');
+  const u3=num('threeBedUnits'), r3=num('rent3Bed');
+  const totalUnits=s0+u1+u2+u3;
+  if(!totalUnits||!( (s0&&rs)||(u1&&r1)||(u2&&r2)||(u3&&r3) )) return;
 
   // Income
-  const grossPotentialRent=(u1*r1+u2*r2+u3*r3)*12;
-  const vacancyLoss=grossPotentialRent*vacRate;
-  const egi=grossPotentialRent-vacancyLoss+otherInc;
+  const GPR=(s0*rs+u1*r1+u2*r2+u3*r3)*12;
+  const vacRate=num('vacancyRate')/100||0.05;
+  const vacancyLoss=GPR*vacRate;
+  const otherInc=num('otherIncome');
+  const EGI=GPR-vacancyLoss+otherInc;
 
   // Expenses
-  const expenses=['propertyTaxes','insurance','utilities','maintenance','management','staff','supplies','misc']
-    .reduce((s,id)=>s+num(id),0);
-  const noi=egi-expenses;
+  const expItems={
+    'Property Taxes':num('propertyTaxes'),
+    'Insurance':num('insurance'),
+    'Utilities':num('utilities'),
+    'Repairs & Maintenance':num('maintenance'),
+    'Property Management':num('management'),
+    'Payroll / Staff':num('staff'),
+    'Supplies / Marketing':num('supplies'),
+    'Reserves & Misc':num('misc'),
+  };
+  const totalExp=Object.values(expItems).reduce((a,b)=>a+b,0);
+  const NOI=EGI-totalExp;
 
   // Financing
-  const equity=price*(1-loan/price)+price*closingPct;
-  const moRate=rate/100/12;
-  const n=term*12;
-  const monthlyPmt=loan&&moRate?loan*moRate/(1-Math.pow(1+moRate,-n)):0;
-  const annDS=monthlyPmt*12;
+  const price=num('purchasePrice'); if(!price) return;
+  const loan=num('loanAmount');
+  const rate=num('interestRate');
+  const amort=num('amortYears')||30;
+  const loanTerm=num('loanTerm')||10;
+  const closingPct=num('closingCostPct')/100||0.015;
+  const capex=num('capexBudget');
+  const closing=price*closingPct;
+  const equityOut=price-loan+closing+capex;
+  const ADS=annualDS(loan,rate,amort);
+  const loanConst=loan>0?ADS/loan*100:0;
+  const levCF=NOI-ADS;
+  const capRate=price>0?NOI/price*100:0;
+  const CoC=equityOut>0?levCF/equityOut*100:0;
+  const DSCR=ADS>0?NOI/ADS:null;
+  const debtYield=loan>0?NOI/loan*100:0;
+  const GRM=GPR>0?price/GPR:null;
+  const pricePU=totalUnits>0?price/totalUnits:0;
+  const expPU=totalUnits>0?totalExp/totalUnits:0;
+  const OER=EGI>0?totalExp/EGI*100:0;
+  const breakEvenOcc=(totalExp+ADS)/GPR*100;
 
-  const levCF=noi-annDS;
-  const capRate=noi/price*100;
-  const coc=equity?levCF/equity*100:0;
-  const dscr=annDS?noi/annDS:null;
+  // Hold period
+  const hold=Math.min(Math.max(num('holdPeriod')||5,1),25);
+  const exitCapRate=num('exitCap')/100||0.055;
+  const sellCosts=num('sellCosts')/100||0.02;
+  const rentG=num('rentGrowth')/100||0.03;
+  const expG=num('expGrowth')/100||0.03;
+  const discR=num('discRate')/100||0.07;
+  const tIRR=num('targetIRR')||15;
 
-  // Cash flows for IRR
-  const equityOut=price-loan+price*closingPct;
-  const cashFlows=[-equityOut];
-  let rows=[];
+  // Cash flows per year
+  let rows=[], cashFlowsLev=[-equityOut];
   for(let y=1;y<=hold;y++){
-    const g=Math.pow(1+rentGrowth,y-1),eg=Math.pow(1+expGrowth,y-1);
-    const yEGI=egi*g, yExp=expenses*eg, yNOI=yEGI-yExp;
-    const yLevCF=yNOI-annDS;
-    const b0=loanBal(loan,rate,term,y-1),b1=loanBal(loan,rate,term,y);
-    const prin=b0-b1,intPaid=annDS-prin;
-    rows.push({y,yEGI,yExp,yNOI,annDS,intPaid,prin,yLevCF,b1});
-    cashFlows.push(yLevCF);
+    const g=Math.pow(1+rentG,y-1), eg=Math.pow(1+expG,y-1);
+    const yGPR=GPR*g, yVac=yGPR*vacRate, yOther=otherInc;
+    const yEGI=yGPR-yVac+yOther;
+    const yExp=totalExp*eg;
+    const yNOI=yEGI-yExp;
+    const yLevCF=yNOI-ADS;
+    const b0=loanBal(loan,rate,amort,y-1), b1=loanBal(loan,rate,amort,y);
+    const prin=b0-b1, intPaid=ADS-prin;
+    const dscr_y=ADS>0?yNOI/ADS:null;
+    const capRateY=price>0?yNOI/price*100:null;
+    const dyY=loan>0?yNOI/loan*100:null;
+    const beOccY=(yExp+ADS)/yGPR*100;
+    rows.push({y,yGPR,yVac,yOther,yEGI,yExp,yNOI,ADS,intPaid,prin,yLevCF,b0,b1,dscr_y,capRateY,dyY,beOccY,OER_y:yEGI>0?yExp/yEGI*100:0});
+    cashFlowsLev.push(yLevCF);
   }
-  // Exit
   const exitNOI=rows[hold-1].yNOI;
-  const salePrice=exitNOI/exitCap;
-  const saleCost=salePrice*0.02;
+  const salePrice=exitNOI/exitCapRate;
+  const saleCost=salePrice*sellCosts;
   const finalBal=rows[hold-1].b1;
   const saleProc=salePrice-saleCost-finalBal;
-  cashFlows[hold]+=saleProc;
+  cashFlowsLev[hold]+=saleProc;
 
-  const irr=calcIRR(cashFlows);
-  const em=(cashFlows.slice(1).reduce((a,b)=>a+b,0)+equityOut)/equityOut;
+  const levIRR=calcIRR(cashFlowsLev);
+  const EM=(cashFlowsLev.slice(1).reduce((a,b)=>a+b,0)+equityOut)/equityOut;
+  const NPV=cashFlowsLev.reduce((a,f,t)=>a+f/Math.pow(1+discR,t),0);
 
-  // ── Switch to results ────────────────────────────────────────
+  // Unlevered IRR
+  const ufCFs=[-(price+closing+capex),...rows.map(r=>r.yNOI)];
+  ufCFs[hold]+=salePrice-saleCost;
+  const unlevIRR=calcIRR(ufCFs);
+  const unlevEM=(ufCFs.slice(1).reduce((a,b)=>a+b,0)+(price+closing+capex))/(price+closing+capex);
+
+  // ── Switch to results ──────────────────────────────────────────────────────
   switchTab('results', document.querySelectorAll('.tab-btn')[1]);
 
-  // ── Metric cards ──────────────────────────────────────────────
-  const bC=(v,lo,hi)=>v>=hi?'#15803d':v>=lo?'#b45309':'#b91c1c';
-  $('metricCards').innerHTML=[
-    {l:'Purchase Price',v:fmt(price),c:'#0043ce'},
-    {l:'Going-In Cap Rate',v:pct(capRate),c:bC(capRate,5,6.5)},
-    {l:'Year 1 NOI',v:fmt(noi),c:'#0056b3'},
-    {l:'Cash-on-Cash',v:pct(coc),c:bC(coc,6,10)},
-    {l:'Levered IRR',v:isNaN(irr)?'N/A':pct(irr),c:bC(irr||0,12,16)},
-    {l:'Equity Multiple',v:em.toFixed(2)+'×',c:bC(em*10||0,15,18)},
-  ].map(s=>`<div class="metric" style="border-top:3px solid ${s.c};"><div class="metric-val" style="color:${s.c};">${s.v}</div><div class="metric-lbl">${s.l}</div></div>`).join('');
+  // ── Deal Verdict ───────────────────────────────────────────────────────────
+  const checks=[capRate>=5, (levIRR||0)>=tIRR, (DSCR||0)>=1.25, debtYield>=8, breakEvenOcc<=80];
+  const passCount=checks.filter(Boolean).length;
+  const v = passCount>=4?{l:'✅ Strong Deal — Returns Meet Thresholds',bg:'#dcfce7',bd:'#15803d',c:'#15803d'}
+           :passCount>=3?{l:'⚠️ Acceptable — Review Key Assumptions',bg:'#fef9c3',bd:'#b45309',c:'#b45309'}
+                        :{l:'❌ Weak — Renegotiate Price or Pass',bg:'#fee2e2',bd:'#b91c1c',c:'#b91c1c'};
+  $('dealVerdict').innerHTML=`<div style="background:${v.bg};border:2px solid ${v.bd};border-radius:10px;padding:14px 20px;display:flex;align-items:center;flex-wrap:wrap;gap:10px;">
+    <span style="font-size:15px;font-weight:700;color:${v.c};">${v.l}</span>
+    <span style="margin-left:auto;font-size:12px;color:${v.c};">${passCount}/5 checks passed · Cap: ${pct(capRate)} · DSCR: ${DSCR?DSCR.toFixed(2)+'×':'—'} · IRR: ${isNaN(levIRR)?'N/A':pct(levIRR)}</span>
+  </div>`;
 
-  // ── Waterfall ──────────────────────────────────────────────────
-  const wfRow=(l,v,cls='')=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:6px;font-size:13px;${cls}">${l}<span>${v}</span></div>`;
+  // ── KPI Cards ──────────────────────────────────────────────────────────────
+  const kpis=[
+    {l:'Purchase Price',    v:fmt(price),         c:'#0043ce',  sub:totalUnits?fmt(pricePU)+'/unit':''},
+    {l:'Going-In Cap Rate', v:pct(capRate),        c:bC(capRate,5,6.5), sub:'NOI ÷ Price'},
+    {l:'Year 1 NOI',        v:fmt(NOI),            c:'#0056b3',  sub:totalUnits?fmt(NOI/totalUnits)+'/unit':''},
+    {l:'Cash-on-Cash',      v:pct(CoC),            c:bC(CoC,6,10),   sub:'Levered Yr 1 CF ÷ Equity'},
+    {l:'Levered IRR',       v:isNaN(levIRR)?'N/A':pct(levIRR), c:bC(levIRR||0,tIRR-3,tIRR), sub:`Target: ${tIRR}%`},
+    {l:'Equity Multiple',   v:fmtX(EM),            c:bC(EM*10,15,20),sub:`${hold}-yr hold`},
+    {l:'DSCR (Yr 1)',       v:DSCR?fmtX(DSCR):'N/A', c:bC(DSCR||0,1.1,1.35), sub:'Min: 1.25×'},
+    {l:'Breakeven Occ.',    v:pct(breakEvenOcc),   c:bC(100-breakEvenOcc,10,20), sub:'Lower = safer'},
+  ];
+  $('kpiCards').innerHTML=kpis.map(k=>`<div class="kpi" style="border-top:3px solid ${k.c};">
+    <div class="kpi-val" style="color:${k.c};">${k.v}</div>
+    <div class="kpi-lbl">${k.l}</div>
+    <div class="kpi-sub">${k.sub||''}</div>
+    <div class="pbar"><div class="pbar-f" style="background:${k.c};width:60%;"></div></div>
+  </div>`).join('');
+
+  // ── Waterfall ──────────────────────────────────────────────────────────────
+  const wRow=(l,v,s='')=>`<div class="wf" style="${s}"><span>${l}</span><span style="font-weight:600;">${v}</span></div>`;
+  const wNeg=(l,v)=>`<div class="wf" style="padding-left:22px;"><span style="color:#64748b;">${l}</span><span style="color:#dc2626;">(${fmt(v)})</span></div>`;
   $('waterfallDiv').innerHTML=
-    wfRow('Gross Potential Rent',fmt(grossPotentialRent))+
-    wfRow('Vacancy Loss',`<span style="color:#dc2626;">(${fmt(vacancyLoss)})</span>`,'')+
-    wfRow('Other Income',fmt(otherInc))+
-    wfRow('Effective Gross Income (EGI)',fmt(egi),'background:#f8fafc;font-weight:600;')+
-    wfRow('Operating Expenses',`<span style="color:#dc2626;">(${fmt(expenses)})</span>`,'')+
-    wfRow('Net Operating Income (NOI)',fmt(noi),'background:#eff6ff;font-weight:700;color:#0043ce;')+
-    wfRow('Annual Debt Service',`<span style="color:#dc2626;">(${fmt(annDS)})</span>`,'')+
-    wfRow('Levered Cash Flow',fmt(levCF),'background:#eff6ff;font-weight:700;color:#0043ce;');
+    wRow('Gross Potential Rent',fmt(GPR),'background:#f0fdf4;')+
+    wNeg('Vacancy Loss',vacancyLoss)+
+    (otherInc?wRow('+ Other Income',fmt(otherInc)):'') +
+    wRow('Effective Gross Income (EGI)',fmt(EGI),'background:#f8fafc;font-weight:600;')+
+    wNeg('Total Operating Expenses',totalExp)+
+    wRow('Net Operating Income (NOI)',fmt(NOI),'background:#eff6ff;color:#0043ce;font-weight:700;')+
+    `<div style="font-size:10px;color:#64748b;padding:4px 10px;">${totalUnits} units · ${fmt(NOI/totalUnits)}/unit · OER ${pct(OER,0)}</div>`+
+    wNeg('Annual Debt Service',ADS)+
+    wRow('Levered Cash Flow (Yr 1)',fmt(levCF),'background:'+( levCF>=0?'#eff6ff':'#fee2e2' )+';font-weight:700;color:'+(levCF>=0?'#0043ce':'#dc2626')+';');
 
-  // ── Deal quality ───────────────────────────────────────────────
-  const totalUnits=u1+u2+u3;
-  const expRatio=egi?expenses/egi*100:0;
-  const dscrLabel=dscr?`${dscr.toFixed(2)}× ${dscr>=1.25?'✅ Strong':dscr>=1.1?'⚠️ Adequate':'❌ Thin'}`:'-';
-  $('dealQuality').innerHTML=`
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;">
-      <div style="background:#f8fafc;border-radius:8px;padding:12px;"><div style="color:#64748b;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Total Units</div><div style="font-size:20px;font-weight:700;margin-top:4px;">${totalUnits}</div></div>
-      <div style="background:#f8fafc;border-radius:8px;padding:12px;"><div style="color:#64748b;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Price / Unit</div><div style="font-size:20px;font-weight:700;margin-top:4px;">${totalUnits?fmt(price/totalUnits):'—'}</div></div>
-      <div style="background:#f8fafc;border-radius:8px;padding:12px;"><div style="color:#64748b;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Expense Ratio</div><div style="font-size:20px;font-weight:700;margin-top:4px;color:${expRatio<50?'#15803d':expRatio<60?'#b45309':'#b91c1c'}">${pct(expRatio,0)}</div></div>
-      <div style="background:#f8fafc;border-radius:8px;padding:12px;"><div style="color:#64748b;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">DSCR</div><div style="font-size:16px;font-weight:700;margin-top:4px;">${dscrLabel}</div></div>
-      <div style="background:#f8fafc;border-radius:8px;padding:12px;grid-column:1/-1;"><div style="color:#64748b;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Exit Sale Price (Yr ${hold})</div><div style="font-size:20px;font-weight:700;margin-top:4px;color:#0043ce;">${fmt(salePrice)}</div></div>
-    </div>`;
+  // ── Scorecard ──────────────────────────────────────────────────────────────
+  const scores=[
+    {l:'Cap Rate',       s:capRate>=7?5:capRate>=6?4:capRate>=5?3:2,   m:5, n:pct(capRate)+' (target ≥6%)'},
+    {l:'DSCR',           s:DSCR>=1.5?5:DSCR>=1.35?4:DSCR>=1.25?3:1,  m:5, n:DSCR?DSCR.toFixed(2)+'× (min 1.25×)':'N/A'},
+    {l:'Debt Yield',     s:debtYield>=12?5:debtYield>=10?4:debtYield>=8?3:1,m:5,n:pct(debtYield)+' (target ≥8%)'},
+    {l:'Expense Ratio',  s:OER<40?5:OER<45?4:OER<55?3:2,               m:5, n:pct(OER,0)+' (target 40–55%)'},
+    {l:'Breakeven Occ',  s:breakEvenOcc<70?5:breakEvenOcc<80?4:breakEvenOcc<90?3:1, m:5, n:pct(breakEvenOcc)+' (target <80%)'},
+    {l:'Cash-on-Cash',   s:CoC>=12?5:CoC>=8?4:CoC>=6?3:2,              m:5, n:pct(CoC)+' (target ≥6%)'},
+  ];
+  const totS=scores.reduce((a,s)=>a+s.s,0), mxS=scores.reduce((a,s)=>a+s.m,0);
+  $('scorecard').innerHTML=scores.map(s=>`<div style="margin-bottom:10px;">
+    <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+      <span style="font-size:12px;font-weight:500;">${s.l}</span>
+      <span style="font-size:10px;color:#64748b;">${s.s}/${s.m} · ${s.n}</span>
+    </div>
+    <div class="sb"><div class="sb-f" style="width:${s.s/s.m*100}%;background:${s.s>=4?'#15803d':s.s>=3?'#b45309':'#b91c1c'}"></div></div>
+  </div>`).join('')+
+  `<div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid #e2e8f0;align-items:center;">
+    <span style="font-weight:600;font-size:14px;">Overall Score</span>
+    <span style="font-size:18px;font-weight:700;color:${totS/mxS>=.8?'#15803d':totS/mxS>=.6?'#b45309':'#b91c1c'}">${totS}/${mxS} · ${Math.round(totS/mxS*100)}%</span>
+  </div>`;
 
-  // ── Returns table ──────────────────────────────────────────────
-  const npv=cashFlows.reduce((a,f,t)=>a+f/Math.pow(1.07,t),0);
-  $('returnsTable').innerHTML=`<thead><tr><th>Metric</th><th>Value</th><th>Benchmark</th></tr></thead><tbody>
-    <tr><td>Cap Rate (Going-In)</td><td class="r">${pct(capRate)}</td><td style="color:#64748b;font-size:12px;">5–7% stabilized multifamily</td></tr>
-    <tr><td>Gross Rent Multiplier</td><td class="r">${(price/grossPotentialRent).toFixed(1)}×</td><td style="color:#64748b;font-size:12px;">10–14× typical market</td></tr>
-    <tr><td>Expense Ratio</td><td class="r">${pct(expRatio,0)}</td><td style="color:#64748b;font-size:12px;">40–55% typical</td></tr>
-    <tr><td>DSCR (Year 1)</td><td class="r">${dscr?dscr.toFixed(2)+'×':'N/A'}</td><td style="color:#64748b;font-size:12px;">Lenders require ≥1.25×</td></tr>
-    <tr><td>Cash-on-Cash Return</td><td class="r">${pct(coc)}</td><td style="color:#64748b;font-size:12px;">6–10% good, 12%+ strong</td></tr>
-    <tr class="hi"><td>Levered IRR (${hold}-yr hold)</td><td class="r">${isNaN(irr)?'N/A':pct(irr)}</td><td style="color:#64748b;font-size:12px;">12–18% value-add target</td></tr>
-    <tr class="hi"><td>Equity Multiple</td><td class="r">${em.toFixed(2)}×</td><td style="color:#64748b;font-size:12px;">1.5–2.5× over 5 years</td></tr>
-    <tr><td>NPV @ 7% Discount Rate</td><td class="r">${fmt(npv)}</td><td style="color:#64748b;font-size:12px;">Positive = exceeds hurdle rate</td></tr>
-    <tr><td>Exit Sale Price</td><td class="r">${fmt(salePrice)}</td><td style="color:#64748b;font-size:12px;">Based on ${pct(exitCap*100)} exit cap</td></tr>
-    <tr><td>Equity at Exit</td><td class="r">${fmt(saleProc)}</td><td style="color:#64748b;font-size:12px;">After loan payoff &amp; costs</td></tr>
-  </tbody>`;
+  // ── Returns Grid ───────────────────────────────────────────────────────────
+  const rRow=(l,v,bench,c)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f8fafc;">
+    <div><span style="font-size:12px;color:#475569;">${l}</span>${bench?`<br><span style="font-size:10px;color:#94a3b8;">${bench}</span>`:''}</div>
+    <strong style="color:${c||'#1e293b'};">${v}</strong>
+  </div>`;
+  $('returnsGrid').innerHTML=[
+    ['Unlevered IRR',isNaN(unlevIRR)?'N/A':pct(unlevIRR),'All-cash return',bC(unlevIRR||0,8,12)],
+    ['Levered IRR',isNaN(levIRR)?'N/A':pct(levIRR),`Target: ${tIRR}%`,bC(levIRR||0,tIRR-3,tIRR)],
+    ['Equity Multiple (Levered)',fmtX(EM),'Target: 1.5–2.5×',bC(EM*10,15,20)],
+    ['Equity Multiple (Unlev)',fmtX(unlevEM),'All-cash',bC(unlevEM*10,12,15)],
+    ['NPV @ '+pct(discR*100),fmt(NPV),'Positive = exceeds hurdle',''],
+    ['Year 1 Cash-on-Cash',pct(CoC),'Target: 6–10%+',bC(CoC,6,10)],
+    ['Exit Sale Price',fmt(salePrice),'Exit @ '+pct(exitCapRate*100),''],
+    ['Net Sale Proceeds',fmt(saleProc),'After loan payoff',''],
+    ['Total Distributions',fmt(cashFlowsLev.slice(1).reduce((a,b)=>a+b,0)),'CFs + exit proceeds',''],
+    ['GRM',GRM?GRM.toFixed(1)+'×':'N/A','Price ÷ Annual Rent',''],
+  ].map(([l,v,b,c])=>rRow(l,v,b,c)).join('');
 
-  // ── 5-Year Proforma Table ──────────────────────────────────────
+  // ── Debt Grid ──────────────────────────────────────────────────────────────
+  const dRow=(l,v,bench,c)=>rRow(l,v,bench,c);
+  $('debtGrid').innerHTML=[
+    ['Loan Amount',fmt(loan),'',bC(loan/price*100,60,75)?'':''],
+    ['Equity Required',fmt(equityOut),'Down pmt + closing + CapEx',''],
+    ['LTV',loan&&price?pct(loan/price*100):'N/A','Agency: 65–75% LTV',bC(100-(loan/price*100),25,35)],
+    ['Annual Debt Service',fmt(ADS),'P + I annually',''],
+    ['DSCR (Year 1)',DSCR?fmtX(DSCR):'N/A','Lenders require ≥1.25×',bC(DSCR||0,1.1,1.35)],
+    ['Debt Yield (Yr 1)',pct(debtYield),'Target: 8–10%+',bC(debtYield,8,12)],
+    ['Loan Constant',pct(loanConst),'ADS ÷ Loan',''],
+    ['Loan Balance at Exit',fmt(finalBal),'Remaining at Yr '+hold,''],
+    ['Breakeven Occupancy',pct(breakEvenOcc),'(OpEx+DS)÷GPR · Target <80%',bC(100-breakEvenOcc,10,20)],
+  ].map(([l,v,b,c])=>dRow(l,v,b,c)).join('');
+
+  // ── Unit Mix Breakdown ─────────────────────────────────────────────────────
+  const unitTypes=[
+    {n:'Studio',units:s0,rent:rs},
+    {n:'1-Bedroom',units:u1,rent:r1},
+    {n:'2-Bedroom',units:u2,rent:r2},
+    {n:'3-Bedroom+',units:u3,rent:r3},
+  ].filter(t=>t.units>0);
+  $('unitMixStats').innerHTML=`<div style="overflow-x:auto;"><table class="pro-table">
+    <thead><tr><th>Type</th><th># Units</th><th>% Mix</th><th>Monthly Rent</th><th>Annual GPR</th><th>% of GPR</th><th>Price/Unit</th></tr></thead>
+    <tbody>
+    ${unitTypes.map(t=>`<tr><td>${t.n}</td><td>${t.units}</td><td>${pct(t.units/totalUnits*100,0)}</td><td>${fmt(t.rent)}/mo</td><td>${fmt(t.units*t.rent*12)}</td><td>${pct(t.units*t.rent*12/GPR*100,0)}</td><td>${fmt(price/t.units)}</td></tr>`).join('')}
+    <tr class="hi"><td>TOTAL / BLENDED</td><td>${totalUnits}</td><td>100%</td><td>${fmt((s0*rs+u1*r1+u2*r2+u3*r3)/totalUnits)}/mo avg</td><td>${fmt(GPR)}</td><td>100%</td><td>${fmt(pricePU)}</td></tr>
+    </tbody>
+  </table>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px;font-size:12px;">
+    <div style="background:#f8fafc;border-radius:7px;padding:10px;"><div style="font-size:10px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">Expense Ratio (OER)</div><div style="font-size:18px;font-weight:700;color:${bC(55-OER,-5,10)};margin-top:3px;">${pct(OER,0)}</div><div style="font-size:10px;color:#94a3b8;">Target: 40–55%</div></div>
+    <div style="background:#f8fafc;border-radius:7px;padding:10px;"><div style="font-size:10px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">Expense / Unit / Yr</div><div style="font-size:18px;font-weight:700;margin-top:3px;">${fmt(expPU)}</div><div style="font-size:10px;color:#94a3b8;">Benchmark: $4k–8k/unit</div></div>
+    <div style="background:#f8fafc;border-radius:7px;padding:10px;"><div style="font-size:10px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">Levered CF / Unit / Yr</div><div style="font-size:18px;font-weight:700;color:${levCF>=0?'#15803d':'#dc2626'};margin-top:3px;">${fmt(levCF/totalUnits)}</div><div style="font-size:10px;color:#94a3b8;">After debt service</div></div>
+    <div style="background:#f8fafc;border-radius:7px;padding:10px;"><div style="font-size:10px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">NOI / Unit / Yr</div><div style="font-size:18px;font-weight:700;color:#0043ce;margin-top:3px;">${fmt(NOI/totalUnits)}</div><div style="font-size:10px;color:#94a3b8;">Before debt service</div></div>
+  </div></div>`;
+
+  // ── Annual Proforma ────────────────────────────────────────────────────────
+  $('proformaTitle').textContent = 'Hold: '+hold+' Years · Exit Cap: '+pct(exitCapRate*100)+' · Rent Growth: +'+pct(rentG*100)+'/yr';
   const lbls=rows.map(r=>'Year '+r.y);
-  const cols=`<colgroup><col style="width:220px">${rows.map(()=>'<col>').join('')}</colgroup>`;
+  const cols=`<colgroup><col style="min-width:200px">${rows.map(()=>'<col style="min-width:90px">').join('')}</colgroup>`;
   const th=`<thead><tr><th>Line Item</th>${lbls.map(l=>`<th>${l}</th>`).join('')}</tr></thead>`;
-  const secRow=l=>`<tr class="sec-hd"><td colspan="${hold+1}">${l}</td></tr>`;
-  const dataRow=(l,vals,neg=false,bold=false)=>`<tr${bold?' class="hi"':''}>
-    <td class="indent">${l}</td>
-    ${vals.map(v=>`<td${neg&&v>0?' class="neg"':''}>${neg&&v>0?'('+fmt(v)+')':fmt(v)}</td>`).join('')}
+  const sR=l=>`<tr class="sec-hd"><td colspan="${hold+1}">${l}</td></tr>`;
+  const dR=(l,vals,neg=false,ind=true)=>`<tr>
+    <td class="${ind?'ind':''}">${l}</td>
+    ${vals.map(v=>`<td class="${neg&&v>0?'neg':''}">${neg&&v>0?'('+fmt(v)+')':fmt(v)}</td>`).join('')}
   </tr>`;
-  const totRow=(l,vals)=>`<tr class="hi"><td>${l}</td>${vals.map(v=>`<td>${fmt(v)}</td>`).join('')}</tr>`;
+  const tR=(l,vals)=>`<tr class="hi"><td>${l}</td>${vals.map(v=>`<td>${fmt(v)}</td>`).join('')}</tr>`;
+  const txR=(l,vals)=>`<tr class="hi"><td>${l}</td>${vals.map(v=>`<td>${v}</td>`).join('')}</tr>`;
 
   $('proformaTable').innerHTML=cols+th+`<tbody>
-    ${secRow('Income')}
-    ${dataRow('Effective Gross Income', rows.map(r=>r.yEGI))}
-    ${dataRow('Operating Expenses', rows.map(r=>r.yExp), true)}
-    ${totRow('Net Operating Income', rows.map(r=>r.yNOI))}
-    ${secRow('Debt Service')}
-    ${dataRow('Interest', rows.map(r=>r.intPaid), true)}
-    ${dataRow('Principal', rows.map(r=>r.prin), true)}
-    ${totRow('Levered Cash Flow', rows.map(r=>r.yLevCF))}
-    ${secRow('Balance Sheet')}
-    ${dataRow('Loan Balance (EOY)', rows.map(r=>r.b1))}
-    ${dataRow('DSCR', rows.map(r=>r.b1?(r.yNOI/annDS).toFixed(2)+'×':'—'))}
+    ${sR('INCOME')}
+    ${dR('Gross Potential Rent', rows.map(r=>r.yGPR))}
+    ${dR('Vacancy Loss', rows.map(r=>r.yVac), true)}
+    ${dR('Other Income', rows.map(r=>r.yOther))}
+    ${tR('Effective Gross Income (EGI)', rows.map(r=>r.yEGI))}
+    ${sR('EXPENSES')}
+    ${Object.entries(expItems).filter(([,v])=>v>0).map(([k,v])=>dR(k,rows.map((r,i)=>Math.round(v*Math.pow(1+expG,i))),true)).join('')}
+    ${dR('Total Operating Expenses', rows.map(r=>r.yExp), true, false)}
+    ${txR('Operating Expense Ratio', rows.map(r=>pct(r.OER_y,0)))}
+    ${tR('Net Operating Income (NOI)', rows.map(r=>r.yNOI))}
+    ${txR('Cap Rate (NOI/Price)', rows.map(r=>r.capRateY!=null?pct(r.capRateY):'—'))}
+    ${txR('Debt Yield (NOI/Loan)', rows.map(r=>r.dyY!=null?pct(r.dyY):'—'))}
+    ${sR('DEBT SERVICE')}
+    ${dR('Interest', rows.map(r=>r.intPaid), true)}
+    ${dR('Principal', rows.map(r=>r.prin), true)}
+    ${tR('Levered Cash Flow', rows.map(r=>r.yLevCF))}
+    ${sR('METRICS')}
+    ${dR('Loan Balance (EOY)', rows.map(r=>r.b1))}
+    ${txR('DSCR', rows.map(r=>r.dscr_y!=null?r.dscr_y.toFixed(2)+'×':'—'))}
+    ${txR('Cash-on-Cash', rows.map(r=>pct(r.yLevCF/equityOut*100)))}
+    ${txR('Breakeven Occupancy', rows.map(r=>pct(r.beOccY,0)))}
   </tbody>`;
 
-  // ── Charts ────────────────────────────────────────────────────
+  // Sources & Uses
+  $('sourcesUses').innerHTML=`<div class="g2" style="gap:16px;">
+    <div><p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;margin-bottom:10px;">USES OF FUNDS</p>
+      ${[['Purchase Price',price],['Closing Costs ('+pct(closingPct*100,1)+')',closing],['CapEx Budget',capex]].filter(([,v])=>v>0).map(([l,v])=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f8fafc;font-size:12px;"><span>${l}</span><strong>${fmt(v)}</strong></div>`).join('')}
+      <div style="display:flex;justify-content:space-between;padding:7px 12px;background:#eff6ff;border-radius:6px;font-weight:700;margin-top:4px;font-size:12px;"><span style="color:#0043ce;">Total Uses</span><strong style="color:#0043ce;">${fmt(price+closing+capex)}</strong></div>
+    </div>
+    <div><p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;margin-bottom:10px;">SOURCES OF FUNDS</p>
+      ${[['Loan Amount ('+(loan&&price?pct(loan/price*100,0):'—')+'% LTV)',loan],['Developer Equity',equityOut]].filter(([,v])=>v>0).map(([l,v])=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f8fafc;font-size:12px;"><span>${l}</span><strong>${fmt(v)}</strong></div>`).join('')}
+      <div style="display:flex;justify-content:space-between;padding:7px 12px;background:#eff6ff;border-radius:6px;font-weight:700;margin-top:4px;font-size:12px;"><span style="color:#0043ce;">Total Sources</span><strong style="color:#0043ce;">${fmt(price+closing+capex)}</strong></div>
+    </div>
+  </div>`;
+
+  // ── Sensitivity ────────────────────────────────────────────────────────────
+  function runWithOverrides(rentMult, expMult, vacOvr, rateOvr){
+    const voc = vacOvr!=null?vacOvr:vacRate;
+    const r2 = rateOvr!=null?rateOvr:rate;
+    const EGI2 = GPR*(1-voc)+otherInc;
+    const exp2 = totalExp*expMult;
+    const NOI2 = EGI2*rentMult - exp2;
+    const ADS2 = annualDS(loan,r2,amort);
+    const lev2 = NOI2-ADS2;
+    const coc2 = equityOut>0?lev2/equityOut*100:0;
+    const dscr2 = ADS2>0?NOI2/ADS2:null;
+    // simple multi-year hold
+    let cfs=[-equityOut];
+    for(let y=1;y<=hold;y++){
+      const g=Math.pow(1+rentG,y-1), eg=Math.pow(1+expG,y-1);
+      const yEGI2=GPR*(1-voc)*g*rentMult+otherInc;
+      const yExp2=exp2*eg;
+      cfs.push(yEGI2-yExp2-ADS2);
+    }
+    const exitN2=((GPR*(1-voc)*Math.pow(1+rentG,hold-1)*rentMult+otherInc)-exp2*Math.pow(1+expG,hold-1));
+    const sp2=exitN2/exitCapRate; const fb2=loanBal(loan,r2,amort,hold);
+    cfs[hold]+=sp2-sp2*sellCosts-fb2;
+    const irr2=calcIRR(cfs), em2=(cfs.slice(1).reduce((a,b)=>a+b,0)+equityOut)/equityOut;
+    return {noi:Math.round(NOI2),capR:price>0?NOI2/price*100:0,coc:coc2,dscr:dscr2,irr:irr2,em:em2,lev:lev2};
+  }
+
+  function senTbl(headers, rows2){
+    return `<table class="sen-tbl"><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>
+    ${rows2.map((r,i)=>`<tr${i===Math.floor(rows2.length/2)?' class="base"':''}>${r.map((v,ci)=>`<td${ci>0?' style="color:'+( typeof v==='string'&&v.startsWith('N')? '#94a3b8':'inherit')+'"':''}>${v}</td>`).join('')}</tr>`).join('')}
+    </tbody></table>`;
+  }
+
+  // 3-Scenario
+  const scenarios=[
+    {l:'🐻 Bear',rm:0.95,em:1.05},{l:'⚖️ Base',rm:1.0,em:1.0},{l:'🐂 Bull',rm:1.05,em:0.95}
+  ].map(sc=>{const d=runWithOverrides(sc.rm,sc.em,null,null);return{...sc,...d};});
+  $('scenarioDiv').innerHTML=`<div class="g3" style="gap:12px;">${scenarios.map((s,i)=>`<div style="border:2px solid ${i===0?'#b91c1c':i===2?'#15803d':'#0043ce'};border-radius:8px;padding:14px;background:${i===1?'#eff6ff':'#f8fafc'};">
+    <p style="font-size:12px;font-weight:700;color:${i===0?'#b91c1c':i===2?'#15803d':'#0043ce'};margin-bottom:8px;">${s.l}</p>
+    ${[['NOI',fmt(s.noi)],['Cap Rate',pct(s.capR)],['DSCR',s.dscr?fmtX(s.dscr):'—'],['CoC',pct(s.coc)],['Levered IRR',isNaN(s.irr)?'N/A':pct(s.irr)],['EM',fmtX(s.em)]].map(([l,v])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:11px;border-bottom:1px solid rgba(0,0,0,.05);"><span>${l}</span><strong>${v}</strong></div>`).join('')}
+  </div>`).join('')}</div>`;
+
+  // Cap sensitivity
+  const capVals=[4.0,4.5,5.0,5.25,5.5,5.75,6.0,6.5,7.0];
+  $('capSens').innerHTML=senTbl(['Exit Cap','Sale Price','Net Proceeds','Levered IRR'],
+    capVals.map(c=>{const sp=rows[hold-1].yNOI/c*100,proc=sp-sp*sellCosts-finalBal,cf2=[...cashFlowsLev.slice(0,-1),cashFlowsLev[hold-1]+proc];return[c.toFixed(2)+'%',fmt(sp),fmt(proc),isNaN(calcIRR(cf2))?'N/A':pct(calcIRR(cf2))]}));
+
+  // Rent growth sensitivity
+  const rgVals=[0,0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,5.0];
+  $('rentSens').innerHTML=senTbl(['Rent Growth','Exit NOI','IRR','CoC Yr1'],
+    rgVals.map(g=>{
+      const rs2=buildRows(GPR,otherInc,vacRate,totalExp,loan,rate,amort,ADS,g/100,expG,hold);
+      const xNOI=rs2[hold-1].yNOI, sp2=xNOI/exitCapRate, fb2=loanBal(loan,rate,amort,hold);
+      const cf2=[-equityOut,...rs2.map(r=>r.yLevCF)]; cf2[hold]+=sp2-sp2*sellCosts-fb2;
+      return[g.toFixed(1)+'%',fmt(xNOI),isNaN(calcIRR(cf2))?'N/A':pct(calcIRR(cf2)),pct(rs2[0].yLevCF/equityOut*100)];
+    }));
+
+  // Vacancy sensitivity
+  const vacVals=[2,3,4,5,6,7,8,10,12,15];
+  $('vacSens').innerHTML=senTbl(['Vacancy','Year 1 NOI','DSCR','Levered IRR'],
+    vacVals.map(v=>{
+      const egi2=GPR*(1-v/100)+otherInc, noi2=egi2-totalExp, lev2=noi2-ADS;
+      const dscr2=ADS>0?noi2/ADS:null;
+      const cf2=[-equityOut,...Array(hold).fill(lev2)]; cf2[hold]+=saleProc;
+      return[v+'%',fmt(noi2),dscr2?fmtX(dscr2):'N/A',isNaN(calcIRR(cf2))?'N/A':pct(calcIRR(cf2))];
+    }));
+
+  // Interest rate sensitivity
+  const rateVals=[5.0,5.5,6.0,6.25,6.5,6.75,7.0,7.5,8.0];
+  $('rateSens').innerHTML=senTbl(['Int Rate','Ann DS','DSCR','Levered IRR'],
+    rateVals.map(rt=>{
+      const ads2=annualDS(loan,rt,amort), lev2=NOI-ads2, dscr2=ads2>0?NOI/ads2:null;
+      const fb2=loanBal(loan,rt,amort,hold);
+      const cf2=[-equityOut,...Array(hold).fill(lev2)]; cf2[hold]+=salePrice-saleCost-fb2;
+      return[pct(rt,1),fmt(ads2),dscr2?fmtX(dscr2):'N/A',isNaN(calcIRR(cf2))?'N/A':pct(calcIRR(cf2))];
+    }));
+
+  // ── Charts ─────────────────────────────────────────────────────────────────
   const co={responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},
-    scales:{y:{ticks:{font:{size:10},callback:v=>'$'+Math.round(v/1000)+'k'},grid:{color:'#f1f5f9'}},
-            x:{ticks:{font:{size:10}},grid:{display:false}}}};
+    plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10,padding:10}}},
+    scales:{y:{ticks:{font:{size:9},callback:v=>'$'+Math.round(v/1000)+'k'},grid:{color:'#f1f5f9'}},
+            x:{ticks:{font:{size:9}},grid:{display:false}}}};
 
   mkChart('chartNOI',{type:'bar',data:{labels:lbls,datasets:[
     {label:'NOI',data:rows.map(r=>r.yNOI),backgroundColor:'#3b82f6',borderRadius:4},
-    {label:'Debt Service',data:rows.map(r=>r.annDS),backgroundColor:'#fca5a5',borderRadius:4},
+    {label:'Debt Service',data:rows.map(r=>r.ADS),backgroundColor:'#fca5a5',borderRadius:4},
     {label:'Cash Flow',data:rows.map(r=>r.yLevCF),backgroundColor:'#22c55e',borderRadius:4},
   ]},options:co});
 
   mkChart('chartBreakdown',{type:'doughnut',data:{
-    labels:['Gross Rent','Operating Expenses','Debt Service','Cash Flow'],
-    datasets:[{data:[grossPotentialRent,expenses,annDS,Math.max(0,levCF)],
-      backgroundColor:['#3b82f6','#ef4444','#f97316','#22c55e'],borderWidth:0}]
+    labels:['Gross Rent','Vacancy','Expenses','Debt Service','Cash Flow'],
+    datasets:[{data:[GPR,vacancyLoss,totalExp,ADS,Math.max(0,levCF)].map(Math.round),
+      backgroundColor:['#3b82f6','#94a3b8','#ef4444','#f97316','#22c55e'],borderWidth:0}]
   },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}}}});
 
+  const cumArr=[]; let cum=0;
+  rows.forEach(r=>{ cum+=r.yLevCF; cumArr.push(Math.round(cum)); });
   mkChart('chartCumulative',{type:'line',data:{labels:lbls,datasets:[
-    {label:'Cumulative Cash Flow',data:rows.reduce((a,r)=>{a.push((a[a.length-1]||0)+r.yLevCF);return a;},[]),
-      borderColor:'#0043ce',backgroundColor:'rgba(0,67,206,.07)',fill:true,tension:.4,pointRadius:4}
+    {label:'Cumulative CF',data:cumArr,borderColor:'#0043ce',backgroundColor:'rgba(0,67,206,.07)',fill:true,tension:.4,pointRadius:4},
+    {label:'Equity (Value−Loan)',data:rows.map(r=>Math.max(0,Math.round(r.yNOI/exitCapRate)-r.b1)),borderColor:'#15803d',backgroundColor:'transparent',tension:.4,pointRadius:4,borderDash:[4,4]},
   ]},options:co});
 
-  // Equity build = property value - loan balance
-  mkChart('chartEquity',{type:'bar',data:{labels:lbls,datasets:[
-    {label:'Equity (Value - Loan)',
-     data:rows.map((r,i)=>{const yNOI=r.yNOI;return (yNOI/exitCap)-r.b1;}),
-     backgroundColor:'#0056b3',borderRadius:4}
-  ]},options:co});
+  const unitTypeData=[
+    {n:'Studio',u:s0,r:rs},{n:'1BR',u:u1,r:r1},{n:'2BR',u:u2,r:r2},{n:'3BR+',u:u3,r:r3}
+  ].filter(t=>t.u>0);
+  mkChart('chartRent',{type:'bar',data:{labels:unitTypeData.map(t=>t.n),datasets:[
+    {label:'Rent/Unit/Mo',data:unitTypeData.map(t=>t.r),backgroundColor:['#0043ce','#7c3aed','#f97316','#22c55e'].slice(0,unitTypeData.length),borderRadius:6},
+  ]},options:{...co,scales:{y:{ticks:{font:{size:9},callback:v=>'$'+v.toLocaleString()},grid:{color:'#f1f5f9'}},x:{ticks:{font:{size:9}},grid:{display:false}}}}});
+
+  // ── Store for export ───────────────────────────────────────────────────────
+  _xls={
+    propName:($('propName')?.value)||'Multifamily Property',
+    totalUnits,s0,rs,u1,r1,u2,r2,u3,r3,
+    GPR,vacancyLoss,otherInc,EGI,totalExp,NOI,ADS,levCF,
+    expItems,capRate,CoC,DSCR,debtYield,loanConst,OER,
+    breakEvenOcc,GRM,pricePU,expPU,
+    price,loan,rate,amort,loanTerm,closingPct,capex,equityOut,
+    hold,exitCapRate,sellCosts,rentG,expG,discR,tIRR,
+    levIRR,unlevIRR,EM,unlevEM,NPV,
+    salePrice,saleCost,finalBal,saleProc,exitNOI,
+    rows,cashFlowsLev,unitTypes,
+  };
 }
 
-// ══════════════════════════════════════════════════════════════
-// DEMO DATA — 72-unit apartment, Austin TX (realistic 2024 deal)
-// ══════════════════════════════════════════════════════════════
+// Helper: rebuild rows with different rent growth
+function buildRows(GPR,otherInc,vacRate,totalExp,loan,rate,amort,ADS,rentG,expG,hold){
+  let rows2=[];
+  for(let y=1;y<=hold;y++){
+    const g=Math.pow(1+rentG,y-1), eg=Math.pow(1+expG,y-1);
+    const yGPR=GPR*g, yVac=yGPR*vacRate, yEGI=yGPR-yVac+otherInc, yExp=totalExp*eg, yNOI=yEGI-yExp;
+    const b1=loanBal(loan,rate,amort,y);
+    rows2.push({y,yNOI,yLevCF:yNOI-ADS,b1});
+  }
+  return rows2;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// EXPORT EXCEL — Fully formatted professional workbook
+// ══════════════════════════════════════════════════════════════════════════════
+function exportXLS(){
+  if(!window.XLSX){ alert('XLSX library not loaded.'); return; }
+  if(!_xls){ alert('Please run the calculator first.'); return; }
+  const D=_xls, wb=XLSX.utils.book_new();
+
+  const NAVY='FF002060',BLUE='FF0043CE',DBLUE='FF1E3A5F',LBLUE='FFEFF6FF';
+  const GREEN='FF15803D',LGREEN='FFDCFCE7',LGREENB='FFF0FDF4';
+  const AMBER='FFB45309',RED='FFB91C1C',COST='FFDC2626';
+  const GRAY1='FFF8FAFC',GRAY2='FFF1F5F9',DGRAY='FF64748B',WHITE='FFFFFFFF';
+  const FMT_C='$#,##0;($#,##0);"-"', FMT_P='0.0%;(0.0%);"-"', FMT_X='0.00"×"', FMT_N='#,##0';
+
+  function sc(ws,r,c,v,type,fmt,style){
+    const addr=XLSX.utils.encode_cell({r:r-1,c:c-1});
+    ws[addr]={v,t:type||(typeof v==='number'?'n':'s')};
+    if(fmt) ws[addr].z=fmt;
+    if(style) ws[addr].s=style;
+  }
+  function hdr(bg,fg,bold,sz,ha){
+    return{font:{bold:bold!==false,color:{rgb:fg||WHITE},sz:sz||10,name:'Calibri'},
+      fill:{fgColor:{rgb:bg},patternType:'solid'},alignment:{horizontal:ha||'left',vertical:'center',wrapText:true},
+      border:{top:{style:'thin',color:{rgb:'FFCBD5E1'}},bottom:{style:'thin',color:{rgb:'FFCBD5E1'}},left:{style:'thin',color:{rgb:'FFCBD5E1'}},right:{style:'thin',color:{rgb:'FFCBD5E1'}}}};
+  }
+  function dat(bg,fc,bold,ha){
+    return{font:{bold:!!bold,color:{rgb:fc||'FF000000'},sz:10,name:'Calibri'},
+      fill:{fgColor:{rgb:bg||WHITE},patternType:'solid'},alignment:{horizontal:ha||'right',vertical:'center'},
+      border:{top:{style:'thin',color:{rgb:'FFCBD5E1'}},bottom:{style:'thin',color:{rgb:'FFCBD5E1'}},left:{style:'thin',color:{rgb:'FFCBD5E1'}},right:{style:'thin',color:{rgb:'FFCBD5E1'}}}};
+  }
+  function tot(bg,fc){
+    return{font:{bold:true,color:{rgb:fc||BLUE},sz:10,name:'Calibri'},
+      fill:{fgColor:{rgb:bg||LBLUE},patternType:'solid'},alignment:{horizontal:'right',vertical:'center'},
+      border:{top:{style:'medium',color:{rgb:BLUE}},bottom:{style:'medium',color:{rgb:BLUE}},left:{style:'thin',color:{rgb:'FFCBD5E1'}},right:{style:'thin',color:{rgb:'FFCBD5E1'}}}};
+  }
+
+  // ══ SHEET 1: SUMMARY ══
+  const ws1={}; ws1['!merges']=[]; let r=1;
+  sc(ws1,r,1,'MULTIFAMILY ACQUISITION PROFORMA — SUMMARY','s',null,hdr(NAVY,WHITE,true,14,'center'));
+  ws1['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:3}}); r++;
+  sc(ws1,r,1,(D.propName||'Property')+' · '+D.totalUnits+' Units · $'+Math.round(D.pricePU).toLocaleString()+'/unit','s',null,hdr('FFF0F4FF',DGRAY,false,10,'center'));
+  ws1['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:3}}); r+=2;
+  sc(ws1,r,1,'KEY PERFORMANCE INDICATORS','s',null,hdr(BLUE,WHITE,true,11,'center')); ws1['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:3}}); r++;
+  ['Metric','Value','Benchmark','Status'].forEach((h,i)=>sc(ws1,r,i+1,h,'s',null,hdr(DBLUE,WHITE,true,9,'center'))); r++;
+
+  const kpiData=[
+    ['Purchase Price',D.price,FMT_C,'',''],
+    ['Total Units',D.totalUnits,FMT_N,'',''],
+    ['Price / Unit',D.pricePU,FMT_C,'Market comps',''],
+    ['Going-In Cap Rate',D.capRate/100,FMT_P,'Stabilized B-class: ~4.9%',D.capRate>=5?'✅ At/above market':'⚠ Below market'],
+    ['Year 1 NOI',D.NOI,FMT_C,'',''],
+    ['Expense Ratio (OER)',D.OER/100,FMT_P,'Target: 40–55%',D.OER>=35&&D.OER<=55?'✅ In range':'⚠ Review'],
+    ['DSCR (Year 1)',D.DSCR||0,FMT_X,'Lenders require ≥1.25×',(D.DSCR||0)>=1.25?'✅ Bankable':'❌ Below min'],
+    ['Debt Yield (Yr 1)',D.debtYield/100,FMT_P,'Target ≥8%',D.debtYield>=8?'✅ Strong':'⚠ Thin'],
+    ['Breakeven Occupancy',D.breakEvenOcc/100,FMT_P,'Target <80%',D.breakEvenOcc<80?'✅ Good cushion':'⚠ Tight'],
+    ['Cash-on-Cash (Yr 1)',D.CoC/100,FMT_P,'Target: 6–10%+',D.CoC>=6?'✅ '+D.CoC.toFixed(1)+'%':'⚠ '+D.CoC.toFixed(1)+'%'],
+    ['Levered IRR',isNaN(D.levIRR)?0:D.levIRR/100,FMT_P,'Value-add: 12–18%',(!isNaN(D.levIRR)&&D.levIRR>=D.tIRR)?'✅ Meets target':'⚠ Below target'],
+    ['Unlevered IRR',isNaN(D.unlevIRR)?0:D.unlevIRR/100,FMT_P,'Target: 8–12%',''],
+    ['Equity Multiple (Lev)',D.EM,FMT_X,'Target: 1.5–2.5×',D.EM>=1.5?'✅ Good':'⚠ Review'],
+    ['NPV @ '+(D.discR*100).toFixed(0)+'%',D.NPV,FMT_C,'Positive = exceeds hurdle',D.NPV>0?'✅ Positive NPV':'❌ Negative NPV'],
+    ['Exit Sale Price',D.salePrice,FMT_C,'At '+((D.exitCapRate*100).toFixed(2))+'% exit cap',''],
+    ['Net Sale Proceeds',D.saleProc,FMT_C,'After loan + costs',''],
+    ['GRM',D.GRM||0,FMT_X,'Price ÷ Annual Rent',''],
+  ];
+  kpiData.forEach((row,i)=>{
+    const bg=i%2===0?GRAY1:WHITE;
+    const iG=row[4].startsWith('✅'),iB=row[4].startsWith('❌');
+    sc(ws1,r,1,row[0],'s',null,{...dat(bg,'FF000000',true,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+    sc(ws1,r,2,row[1],'n',row[2],dat(bg,BLUE,true,'right'));
+    sc(ws1,r,3,row[3],'s',null,{...dat(bg,DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
+    sc(ws1,r,4,row[4],'s',null,dat(bg,iG?GREEN:iB?RED:AMBER,iG||iB,'left'));
+    r++;
+  });
+  r++;
+  sc(ws1,r,1,'UNIT MIX','s',null,hdr(BLUE,WHITE,true,11,'center')); ws1['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:3}}); r++;
+  ['Type','# Units','Rent/Mo','Annual GPR'].forEach((h,i)=>sc(ws1,r,i+1,h,'s',null,hdr(DBLUE,WHITE,true,9,'center'))); r++;
+  D.unitTypes.filter(t=>t.units>0).forEach((t,i)=>{
+    const bg=i%2===0?GRAY1:WHITE;
+    sc(ws1,r,1,t.n,'s',null,{...dat(bg,'FF000000',false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+    sc(ws1,r,2,t.units,'n',FMT_N,dat(bg,'FF000000',false,'right'));
+    sc(ws1,r,3,t.rent,'n',FMT_C,dat(bg,'FF000000',false,'right'));
+    sc(ws1,r,4,t.units*t.rent*12,'n',FMT_C,dat(bg,BLUE,false,'right'));
+    r++;
+  });
+  ['TOTAL',D.totalUnits,D.GPR/D.totalUnits/12,D.GPR].forEach((v,i)=>{
+    sc(ws1,r,i+1,v,i===0?'s':'n',i===0?null:i===2?FMT_C:i===3?FMT_C:FMT_N,tot(LBLUE,BLUE));
+  });
+  ws1['!ref']=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:r+2,c:4}});
+  ws1['!cols']=[{wch:32},{wch:18},{wch:24},{wch:24}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Summary');
+
+  // ══ SHEET 2: ANNUAL PROFORMA ══
+  const ws2={}; ws2['!merges']=[]; r=1;
+  sc(ws2,r,1,'ANNUAL PROFORMA','s',null,hdr(NAVY,WHITE,true,13,'center')); ws2['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:D.hold+1}}); r++;
+  sc(ws2,r,1,D.totalUnits+' Units · '+D.hold+'-Year Hold · Exit Cap '+((D.exitCapRate*100).toFixed(2))+'% · Rent Growth +'+(D.rentG*100).toFixed(1)+'%/yr','s',null,hdr('FFF0F4FF',DGRAY,false,10,'center'));
+  ws2['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:D.hold+1}}); r+=2;
+
+  sc(ws2,r,1,'Line Item','s',null,hdr(DBLUE,WHITE,true,9,'left'));
+  D.rows.forEach((rw,i)=>sc(ws2,r,i+2,'Year '+rw.y,'s',null,hdr(DBLUE,WHITE,true,9,'center')));
+  sc(ws2,r,D.hold+2,'Exit/Sale','s',null,hdr('FF4B0082',WHITE,true,9,'center')); r++;
+
+  function proSec2(ws,row,label){ sc(ws,row,1,'▸  '+label,'s',null,hdr(BLUE,WHITE,true,10,'left')); ws['!merges'].push({s:{r:row-1,c:0},e:{r:row-1,c:D.hold+1}}); return row+1; }
+  function proRow2(ws,row,label,vals,exitVal,isCost,isTot){
+    const bg=isTot?LBLUE:row%2===0?GRAY1:WHITE;
+    sc(ws,row,1,label,'s',null,{...dat(bg,isTot?BLUE:'FF000000',isTot,'left'),alignment:{horizontal:'left',vertical:'center',indent:isTot?0:1}});
+    vals.forEach((v,i)=>sc(ws,row,i+2,v,'n',FMT_C,isTot?tot(bg,isCost?COST:BLUE):dat(bg,isCost?COST:'FF000000',false,'right')));
+    if(exitVal!==undefined) sc(ws,row,vals.length+2,typeof exitVal==='number'?exitVal:null,typeof exitVal==='number'?'n':'s',FMT_C,dat('FFFFF8F0','FF4B0082',true,'right'));
+    return row+1;
+  }
+
+  r=proSec2(ws2,r,'INCOME');
+  r=proRow2(ws2,r,'Gross Potential Rent',D.rows.map(rw=>rw.yGPR),undefined,false,false); 
+  r=proRow2(ws2,r,'Vacancy Loss',D.rows.map(rw=>-rw.yVac),undefined,true,false);
+  r=proRow2(ws2,r,'Other Income',D.rows.map(rw=>rw.yOther),undefined,false,false);
+  r=proRow2(ws2,r,'Effective Gross Income (EGI)',D.rows.map(rw=>rw.yEGI),undefined,false,true);
+  r=proSec2(ws2,r,'OPERATING EXPENSES');
+  Object.entries(D.expItems).filter(([,v])=>v>0).forEach(([k,v])=>{
+    r=proRow2(ws2,r,k,D.rows.map((_,i)=>-Math.round(v*Math.pow(1+D.expG,i))),undefined,true,false);
+  });
+  r=proRow2(ws2,r,'Total Operating Expenses',D.rows.map(rw=>-rw.yExp),undefined,true,true);
+  r=proRow2(ws2,r,'Net Operating Income (NOI)',D.rows.map(rw=>rw.yNOI),D.exitNOI,false,true);
+  // Cap rate & debt yield text rows
+  sc(ws2,r,1,'Cap Rate (NOI/Price)','s',null,{...dat(GRAY1,DGRAY,false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+  D.rows.forEach((rw,i)=>sc(ws2,r,i+2,rw.capRateY!=null?rw.capRateY/100:0,'n',FMT_P,dat(GRAY1,'FF000000',false,'right'))); r++;
+  sc(ws2,r,1,'Debt Yield (NOI/Loan)','s',null,{...dat(WHITE,DGRAY,false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+  D.rows.forEach((rw,i)=>sc(ws2,r,i+2,rw.dyY!=null?rw.dyY/100:0,'n',FMT_P,dat(WHITE,'FF000000',false,'right'))); r++;
+  r=proSec2(ws2,r,'DEBT SERVICE');
+  r=proRow2(ws2,r,'Interest',D.rows.map(rw=>-rw.intPaid),undefined,true,false);
+  r=proRow2(ws2,r,'Principal',D.rows.map(rw=>-rw.prin),undefined,true,false);
+  r=proRow2(ws2,r,'Levered Cash Flow',D.rows.map(rw=>rw.yLevCF),D.saleProc,false,true);
+  r=proSec2(ws2,r,'METRICS');
+  sc(ws2,r,1,'DSCR','s',null,{...dat(GRAY1,DGRAY,false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+  D.rows.forEach((rw,i)=>sc(ws2,r,i+2,rw.dscr_y||0,'n','0.00"×"',dat(GRAY1,(rw.dscr_y||0)>=1.25?GREEN:RED,false,'right'))); r++;
+  sc(ws2,r,1,'Cash-on-Cash','s',null,{...dat(WHITE,DGRAY,false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+  D.rows.forEach((rw,i)=>sc(ws2,r,i+2,rw.yLevCF/D.equityOut,'n',FMT_P,dat(WHITE,'FF000000',false,'right'))); r++;
+  sc(ws2,r,1,'Loan Balance (EOY)','s',null,{...dat(GRAY1,DGRAY,false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+  D.rows.forEach((rw,i)=>sc(ws2,r,i+2,rw.b1,'n',FMT_C,dat(GRAY1,COST,false,'right'))); r++;
+  r=proSec2(ws2,r,'EXIT ANALYSIS');
+  ['Exit NOI','Sale Price ('+((D.exitCapRate*100).toFixed(2))+'% cap)','Selling Costs','Loan Payoff','NET SALE PROCEEDS'].forEach((lbl,i)=>{
+    const vals=[D.exitNOI,D.salePrice,-D.saleCost,-D.finalBal,D.saleProc];
+    sc(ws2,r,1,lbl,'s',null,{...dat('FFFFF8F0',i===4?'FF4B0082':'FF000000',i===4,'left'),alignment:{horizontal:'left',vertical:'center',indent:i<4?1:0}});
+    D.rows.forEach((_,ci)=>sc(ws2,r,ci+2,'','s',null,dat('FFFFF8F0',DGRAY,false,'right')));
+    sc(ws2,r,D.hold+2,vals[i],'n',FMT_C,dat('FFFFF8F0',vals[i]<0?COST:i===4?'FF4B0082':GREEN,i===4,'right'));
+    r++;
+  });
+
+  ws2['!ref']=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:r+2,c:D.hold+2}});
+  ws2['!cols']=[{wch:32},...Array(D.hold).fill({wch:14}),{wch:16}];
+  XLSX.utils.book_append_sheet(wb,ws2,'Annual Proforma');
+
+  // ══ SHEET 3: INPUTS ══
+  const ws3={}; ws3['!merges']=[]; r=1;
+  sc(ws3,r,1,'DEAL INPUTS & ASSUMPTIONS','s',null,hdr(NAVY,WHITE,true,13,'center')); ws3['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:2}}); r++;
+  sc(ws3,r,1,'Blue = user input · Yellow = key assumption to review','s',null,{...dat('FFF0F4FF',DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}}); ws3['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:2}}); r+=2;
+  ['Input','Value','Notes'].forEach((h,i)=>sc(ws3,r,i+1,h,'s',null,hdr(DBLUE,WHITE,true,9,i===1?'right':'left'))); r++;
+  const INPUT_BLUE='FF0000FF';
+  function inS(ws,row,t){ sc(ws,row,1,'▸  '+t,'s',null,hdr(BLUE,WHITE,true,10,'left')); ws['!merges'].push({s:{r:row-1,c:0},e:{r:row-1,c:2}}); return row+1; }
+  function inR(ws,row,l,v,fmt2,note,hl){
+    const bg=hl?'FFFFFFF0':row%2===0?GRAY1:WHITE;
+    sc(ws,row,1,l,'s',null,{...dat(bg,'FF000000',false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+    sc(ws,row,2,v,typeof v==='number'?'n':'s',fmt2,{...dat(bg,INPUT_BLUE,true,'right'),font:{bold:true,color:{rgb:INPUT_BLUE},sz:10,name:'Calibri'}});
+    if(note) sc(ws,row,3,note,'s',null,{...dat(bg,DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
+    return row+1;
+  }
+  r=inS(ws3,r,'UNIT MIX');
+  if(D.s0) r=inR(ws3,r,'Studio Units',D.s0,FMT_N,''); if(D.rs) r=inR(ws3,r,'Studio Rent/Mo',D.rs,FMT_C,'');
+  if(D.u1) r=inR(ws3,r,'1BR Units',D.u1,FMT_N,''); if(D.r1) r=inR(ws3,r,'1BR Rent/Mo',D.r1,FMT_C,'');
+  if(D.u2) r=inR(ws3,r,'2BR Units',D.u2,FMT_N,''); if(D.r2) r=inR(ws3,r,'2BR Rent/Mo',D.r2,FMT_C,'');
+  if(D.u3) r=inR(ws3,r,'3BR+ Units',D.u3,FMT_N,''); if(D.r3) r=inR(ws3,r,'3BR+ Rent/Mo',D.r3,FMT_C,'');
+  r=inR(ws3,r,'Other Income ($/yr)',D.otherInc,FMT_C,''); r++;
+  r=inS(ws3,r,'INCOME ASSUMPTIONS');
+  r=inR(ws3,r,'Vacancy Rate',D.vacRate,FMT_P,'5–7% stabilized',true);
+  r=inR(ws3,r,'Annual Rent Growth',D.rentG,FMT_P,'Yardi 2025: 2.4%',true);
+  r=inR(ws3,r,'Annual Expense Growth',D.expG,FMT_P,'');
+  r=inR(ws3,r,'Hold Period',D.hold,FMT_N,'');
+  r=inR(ws3,r,'Exit Cap Rate',D.exitCapRate,FMT_P,'',true);
+  r=inR(ws3,r,'Selling Costs at Exit',D.sellCosts,FMT_P,'');
+  r=inR(ws3,r,'Discount Rate (NPV)',D.discR,FMT_P,'');
+  r=inR(ws3,r,'Target IRR',D.tIRR/100,FMT_P,''); r++;
+  r=inS(ws3,r,'OPERATING EXPENSES');
+  Object.entries(D.expItems).forEach(([k,v])=>{ if(v>0) r=inR(ws3,r,k,v,FMT_C,''); });
+  r++;
+  r=inS(ws3,r,'ACQUISITION & FINANCING');
+  r=inR(ws3,r,'Purchase Price',D.price,FMT_C,'',true);
+  r=inR(ws3,r,'Loan Amount',D.loan,FMT_C,'');
+  r=inR(ws3,r,'LTV',D.price>0?D.loan/D.price:0,FMT_P,'');
+  r=inR(ws3,r,'Interest Rate',D.rate/100,FMT_P,'',true);
+  r=inR(ws3,r,'Amortization',D.amort,FMT_N,'');
+  r=inR(ws3,r,'Loan Term',D.loanTerm,FMT_N,'');
+  r=inR(ws3,r,'Closing Costs',D.closingPct,FMT_P,'');
+  r=inR(ws3,r,'CapEx Budget',D.capex,FMT_C,''); r+=2;
+  r=inS(ws3,r,'CALCULATED RESULTS (Reference)');
+  [['Total Units',D.totalUnits,FMT_N],['GPR (Annual)',D.GPR,FMT_C],['EGI (Year 1)',D.EGI,FMT_C],
+   ['NOI (Year 1)',D.NOI,FMT_C],['Cap Rate',D.capRate/100,FMT_P],['OER',D.OER/100,FMT_P],
+   ['Annual DS',D.ADS,FMT_C],['Levered CF Yr1',D.levCF,FMT_C],['DSCR Yr1',D.DSCR||0,FMT_X],
+   ['Debt Yield',D.debtYield/100,FMT_P],['Breakeven Occ',D.breakEvenOcc/100,FMT_P],
+   ['Levered IRR',isNaN(D.levIRR)?0:D.levIRR/100,FMT_P],['Equity Multiple',D.EM,FMT_X],
+   ['Exit Sale Price',D.salePrice,FMT_C],['Net Proceeds',D.saleProc,FMT_C]
+  ].forEach((ci,i)=>{
+    const bg=i%2===0?LGREEN:LGREENB;
+    sc(ws3,r,1,ci[0],'s',null,{...dat(bg,'FF000000',false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+    sc(ws3,r,2,ci[1],'n',ci[2],dat(bg,GREEN,true,'right'));
+    r++;
+  });
+  ws3['!ref']=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:r+2,c:3}});
+  ws3['!cols']=[{wch:36},{wch:20},{wch:32}];
+  XLSX.utils.book_append_sheet(wb,ws3,'Inputs');
+
+  const fname=(D.propName||'Multifamily').replace(/[^a-zA-Z0-9_\-]/g,'_')+'_Proforma.xlsx';
+  XLSX.writeFile(wb,fname);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// DEMO & RESET
+// ══════════════════════════════════════════════════════════════════════════════
 function loadDemo(){
-  // Unit mix: 24 × 1BR @ $1,450 | 36 × 2BR @ $1,800 | 12 × 3BR @ $2,200
-  // $9.6M acquisition, 65% LTV, 6.5% rate, 30yr amort
-  [['oneBedUnits',24],['rent1Bed',1450],
-   ['twoBedUnits',36],['rent2Bed',1800],
-   ['threeBedUnits',12],['rent3Bed',2200],
-   ['otherIncome',42000],['vacancyRate',5],
-   ['rentGrowth',2.5],['expGrowth',3.0],
-   ['holdPeriod',5],['exitCap',5.25],
-   ['propertyTaxes',95000],['insurance',28000],
-   ['utilities',38000],['maintenance',52000],
-   ['management',58000],['staff',72000],
-   ['supplies',8000],['misc',24000],
-   ['purchasePrice',9600000],['loanAmount',6240000],
-   ['interestRate',6.5],['loanTerm',30],['closingCostPct',1.5],
-  ].forEach(([id,v])=>{if($(id))$(id).value=v;});
-  livePreview();
-  calculate();
+  // Austin TX value-add: 72-unit Class B, 24×1BR@$1,250 | 36×2BR@$1,600 | 12×3BR@$2,000
+  // $9.6M purchase, 65% LTV, 6.5% rate, 30yr amort — realistic 2025 value-add deal
+  [
+    ['studioUnits',0],['oneBedUnits',24],['rent1Bed',1250],
+    ['twoBedUnits',36],['rent2Bed',1600],['threeBedUnits',12],['rent3Bed',2000],
+    ['otherIncome',36000],['vacancyRate',5.0],
+    ['rentGrowth',3.0],['expGrowth',3.0],['holdPeriod',5],['exitCap',5.50],
+    ['sellCosts',2.0],['discRate',7.0],['targetIRR',15.0],
+    ['propertyTaxes',130000],['insurance',58000],['utilities',62000],
+    ['maintenance',68000],['management',104000],['staff',80000],
+    ['supplies',12000],['misc',22000],
+    ['purchasePrice',9600000],['loanAmount',6240000],
+    ['interestRate',6.50],['amortYears',30],['loanTerm',10],
+    ['closingCostPct',1.5],['capexBudget',0],
+  ].forEach(([id,v])=>{ if($(id)) $(id).value=v; });
+  liveCalc();
 }
 
 function resetAll(){
   document.querySelectorAll('.inp').forEach(e=>e.value='');
-  ['metricCards','waterfallDiv','dealQuality','returnsTable','proformaTable'].forEach(id=>{
-    const e=$(id);if(e)e.innerHTML='';
-  });
-  ['loanAmtDisp','equityDisp','ltvDisp','monthlyDisp'].forEach(id=>{const e=$(id);if(e)e.textContent='—';});
-  Object.values(CH).forEach(c=>c.destroy());
+  ['kpiCards','waterfallDiv','scorecard','returnsGrid','debtGrid','unitMixStats',
+   'dealVerdict','proformaTable','sourcesUses','scenarioDiv','capSens','rentSens','vacSens','rateSens']
+    .forEach(id=>{ const e=$(id); if(e) e.innerHTML=''; });
+  ['equityDisp','ltvDisp','monthlyDisp','annDSDisp','loanConstDisp',
+   'pvTotalUnits','pvAvgRent','pvGPR','pvEGI'].forEach(id=>{ const e=$(id); if(e) e.textContent='—'; });
+  Object.keys(CH).forEach(k=>{try{if(CH[k]&&typeof CH[k].destroy==='function') CH[k].destroy(); delete CH[k];}catch(e){}});
+  _xls=null;
   switchTab('inputs',document.querySelectorAll('.tab-btn')[0]);
 }
 
-function exportXLS(){
-  if(!window.XLSX){alert('XLSX not loaded.');return;}
-  const wb=XLSX.utils.book_new();
-  const ws=XLSX.utils.aoa_to_sheet([
-    ['REProforma – Multifamily Acquisition'],[''],
-    ['1BR Units',num('oneBedUnits')],['1BR Rent',num('rent1Bed')],
-    ['2BR Units',num('twoBedUnits')],['2BR Rent',num('rent2Bed')],
-    ['3BR Units',num('threeBedUnits')],['3BR Rent',num('rent3Bed')],
-    ['Purchase Price',num('purchasePrice')],['Loan Amount',num('loanAmount')],
-    ['Interest Rate',num('interestRate')+'%'],['Loan Term',num('loanTerm')+'yr'],
-  ]);
-  XLSX.utils.book_append_sheet(wb,ws,'Summary');
-  const t=$('proformaTable');
-  if(t){XLSX.utils.book_append_sheet(wb,XLSX.utils.table_to_sheet(t),'Proforma');}
-  XLSX.writeFile(wb,'Multifamily_Proforma.xlsx');
-}
+liveCalc();
+</script>
 
-livePreview();
-</script>
-<script>
-(function(){
-  function ckW(){var mob=window.innerWidth<768;var dn=document.getElementById('desk-nav');var mb=document.getElementById('mob-btn');if(dn)dn.style.display=mob?'none':'flex';if(mb)mb.style.display=mob?'block':'none';}
-  window.addEventListener('resize',ckW);ckW();
-  var mb=document.getElementById('mob-btn');
-  if(mb)mb.addEventListener('click',function(){document.getElementById('mob-menu').classList.toggle('hidden');});
-  document.querySelectorAll('.mob-tog').forEach(function(b){b.addEventListener('click',function(){var s=b.nextElementSibling,a=b.querySelector('.mob-arr'),open=s.style.display==='block';s.style.display=open?'none':'block';if(a)a.style.transform=open?'rotate(0)':'rotate(180deg)';});});
-  function openDD(m,b){m.classList.add('open');if(b)b.classList.add('open');}
-  function closeAll(){document.querySelectorAll('.dd-menu').forEach(function(m){m.classList.remove('open');});document.querySelectorAll('.dd-trig').forEach(function(b){b.classList.remove('open');});}
-  function setupDD(wId,mId,bId){var w=document.getElementById(wId),m=document.getElementById(mId),b=document.getElementById(bId);if(!w||!m)return;var t;w.addEventListener('mouseenter',function(){clearTimeout(t);openDD(m,b);});w.addEventListener('mouseleave',function(){t=setTimeout(function(){m.classList.remove('open');if(b)b.classList.remove('open');},120);});if(b)b.addEventListener('click',function(e){e.stopPropagation();var o=m.classList.contains('open');closeAll();if(!o)openDD(m,b);});}
-  setupDD('ddT','ddTm','ddTb');setupDD('ddM','ddMm','ddMb');
-  document.addEventListener('click',function(e){if(!e.target.closest('.dd-wrap'))closeAll();});
-})();
-</script>
 </body>
 </html>
