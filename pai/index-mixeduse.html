@@ -137,7 +137,23 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--slate);marg
 @media(max-width:640px){
   .inputs-grid{grid-template-columns:1fr!important;}
 }
-@media print{header,.no-print{display:none!important;}.icard,.metric-card{border:1px solid #ccc;}}
+@media print{
+  header,.no-print,button,nav,.tab-bar,.seg,footer,section.py-12{display:none!important;}
+  body{font-size:11pt;background:white!important;}
+  .tab-panel{display:block!important;page-break-inside:avoid;}
+  .icard,.metric-card{border:1px solid #ccc!important;box-shadow:none!important;break-inside:avoid;}
+  #tab-inputs{display:none!important;}
+  #tab-results,#tab-proforma{display:block!important;}
+  #tab-charts{display:none!important;}
+  .grid,.inputs-grid{display:block!important;}
+  .grid>*,.inputs-grid>*{margin-bottom:16px;break-inside:avoid;}
+  .max-w-7xl{max-width:100%!important;padding:0 10px!important;}
+  .pro-table{font-size:9pt;}
+  .metric-card{display:inline-block;width:23%;margin:2px;}
+  h1{font-size:18pt;}
+  #summaryCards{display:flex!important;flex-wrap:wrap;gap:8px;}
+  #summaryCards .metric-card{flex:1;min-width:160px;}
+}
 </style>
 </head>
 <body>
@@ -159,20 +175,20 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--slate);marg
   <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
 
     <!-- Logo -->
-    <a href="../index.html" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;">
+    <a href="../index" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;">
       <svg width="34" height="34" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
       <span style="display:flex;align-items:baseline;line-height:1;"><span style="font-size:19px;font-weight:700;color:#0043ce;letter-spacing:-0.3px;">RE</span><span style="font-size:19px;font-weight:300;color:#0043ce;letter-spacing:-0.3px;">Proforma</span></span>
     </a>
 
     <!-- Mobile hamburger -->
-    <button id="mob-btn" onclick="document.getElementById('mob-menu').classList.toggle('hidden')" style="display:none;background:none;border:none;cursor:pointer;color:#0043ce;" class="md:hidden">
+    <button id="mob-btn" style="display:none;background:none;border:none;cursor:pointer;color:#0043ce;">
       <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
     </button>
 
     <!-- Desktop nav -->
     <div id="desk-nav" style="display:flex;align-items:center;gap:28px;">
       <nav style="display:flex;align-items:center;gap:20px;">
-        <a href="../index.html" class="dd-btn">Home</a>
+        <a href="../index" class="dd-btn">Home</a>
 
         <!-- Tools dropdown -->
         <div class="dd-wrap" id="ddT">
@@ -181,14 +197,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--slate);marg
           </button>
           <div class="dd-menu" id="ddTMenu">
             <div class="dd-lbl">Pro Tools</div>
-            <a class="dd-item" href="index.html">🏢 Multifamily Acquisition</a>
-            <a class="dd-item cur" href="index-mixeduse.html">🏬 Commercial &amp; NNN Retail</a>
-            <a class="dd-item" href="index-land.html">🗺️ Land Development</a>
+            <a class="dd-item" href="index">🏢 Multifamily Acquisition</a>
+            <a class="dd-item cur" href="index-mixeduse">🏬 Commercial &amp; NNN Retail</a>
+            <a class="dd-item" href="index-land">🗺️ Land Development</a>
             <div class="dd-div"></div>
             <div class="dd-lbl">Free Tools</div>
-            <a class="dd-item" href="index-affordability.html">🏠 Home Affordability</a>
-            <a class="dd-item" href="index-rentvsbuy.html">⚖️ Rent vs. Own</a>
-            <a class="dd-item" href="index-mortgage-payoff.html">📅 Mortgage Payoff</a>
+            <a class="dd-item" href="index-affordability">🏠 Home Affordability</a>
+            <a class="dd-item" href="index-rentvsbuy">⚖️ Rent vs. Own</a>
+            <a class="dd-item" href="index-mortgage-payoff">📅 Mortgage Payoff</a>
           </div>
         </div>
 
@@ -204,32 +220,32 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--slate);marg
           </div>
         </div>
 
-        <a href="../about.html" class="dd-btn">About</a>
+        <a href="../about" class="dd-btn">About</a>
       </nav>
-      <a href="../about.html" class="btn-navy" style="padding:8px 18px;font-size:13px;border-radius:8px;">Let's talk</a>
+      <a href="../about" class="btn-navy" style="padding:8px 18px;font-size:13px;border-radius:8px;">Let's talk</a>
     </div>
   </div>
 
   <!-- Mobile menu -->
-  <div id="mob-menu" class="hidden" style="background:white;border-top:1px solid #f1f5f9;padding:12px 16px;box-shadow:0 4px 12px rgba(0,0,0,.08);">
-    <a href="../index.html" style="display:block;padding:7px 12px;font-size:13px;color:#475569;">Home</a>
+  <div id="mob-menu" style="display:none;background:white;border-top:1px solid #f1f5f9;padding:12px 16px;box-shadow:0 4px 12px rgba(0,0,0,.08);">
+    <a href="../index" style="display:block;padding:7px 12px;font-size:13px;color:#475569;">Home</a>
     <div style="margin-top:4px;">
       <button onclick="toggleMobSub('mob-tools','mob-tools-arrow')" style="display:flex;justify-content:space-between;align-items:center;width:100%;padding:8px 12px;background:#eff6ff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;color:#0043ce;font-family:'Inter',sans-serif;">
         Tools <svg id="mob-tools-arrow" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
       </button>
       <div id="mob-tools" style="display:none;padding-left:12px;margin-top:4px;">
         <p style="padding:4px 12px;font-size:10px;font-weight:700;letter-spacing:.07em;color:#9ca3af;text-transform:uppercase;">Pro Tools</p>
-        <a href="index.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;">🏢 Multifamily Acquisition</a>
-        <a href="index-mixeduse.html" style="display:block;padding:7px 12px;font-size:13px;font-weight:600;color:#0043ce;background:#eff6ff;border-left:2px solid #0043ce;border-radius:0 4px 4px 0;">🏬 Commercial/Retail</a>
-        <a href="index-land.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;">🗺️ Land Development</a>
+        <a href="index" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;">🏢 Multifamily Acquisition</a>
+        <a href="index-mixeduse" style="display:block;padding:7px 12px;font-size:13px;font-weight:600;color:#0043ce;background:#eff6ff;border-left:2px solid #0043ce;border-radius:0 4px 4px 0;">🏬 Commercial/Retail</a>
+        <a href="index-land" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;">🗺️ Land Development</a>
         <p style="padding:8px 12px 4px;font-size:10px;font-weight:700;letter-spacing:.07em;color:#9ca3af;text-transform:uppercase;border-top:1px solid #f1f5f9;margin-top:4px;">Free Tools</p>
-        <a href="index-affordability.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;">🏠 Home Affordability</a>
-        <a href="index-rentvsbuy.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;">⚖️ Rent vs. Own</a>
-        <a href="index-mortgage-payoff.html" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;">📅 Mortgage Payoff</a>
+        <a href="index-affordability" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;">🏠 Home Affordability</a>
+        <a href="index-rentvsbuy" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;">⚖️ Rent vs. Own</a>
+        <a href="index-mortgage-payoff" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;">📅 Mortgage Payoff</a>
       </div>
     </div>
-    <a href="../about.html" style="display:block;padding:7px 12px;font-size:13px;color:#475569;margin-top:4px;">About</a>
-    <a href="../about.html" style="display:block;margin-top:8px;padding:9px 12px;text-align:center;font-size:13px;font-weight:600;color:white;background:#0043ce;border-radius:8px;">Let's talk</a>
+    <a href="../about" style="display:block;padding:7px 12px;font-size:13px;color:#475569;margin-top:4px;">About</a>
+    <a href="../about" style="display:block;margin-top:8px;padding:9px 12px;text-align:center;font-size:13px;font-weight:600;color:white;background:#0043ce;border-radius:8px;">Let's talk</a>
   </div>
 </header>
 
@@ -446,6 +462,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--slate);marg
           <div class="loan-row"><span>Equity Required</span><span id="equityDisp">—</span></div>
           <div class="loan-row"><span>Monthly Payment</span><span id="paymentDisp">—</span></div>
         </div>
+        <div class="loan-preview" style="margin-top:8px;">
+          <div class="loan-row"><span>Price / SF</span><span id="pricePSFDisp">—</span></div>
+          <div class="loan-row"><span>Loan Constant</span><span id="loanConstDisp">—</span></div>
+          <div class="loan-row"><span>GRM</span><span id="grmDisp">—</span></div>
+        </div>
       </div>
     </div>
 
@@ -474,9 +495,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--slate);marg
       <div class="icard">
         <div class="icard-title">
           <div class="icard-icon" style="background:#f8fafc;"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#64748b" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></div>
-          Deal Notes
+          Deal Notes &amp; Flags
         </div>
-        <textarea class="inp" id="dealNotes" rows="5" style="resize:vertical;font-size:13px;" placeholder="Corporate NNN guarantee, market context, tenant details..."></textarea>
+        <div style="display:flex;gap:16px;margin-bottom:10px;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;"><input type="checkbox" id="flag1031" style="accent-color:#0043ce;"> 1031 Exchange</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;"><input type="checkbox" id="flagCostSeg" style="accent-color:#0043ce;"> Cost Segregation</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;"><input type="checkbox" id="flagSLB" style="accent-color:#0043ce;"> Sale-Leaseback</label>
+        </div>
+        <textarea class="inp" id="dealNotes" rows="4" style="resize:vertical;font-size:13px;" placeholder="Corporate NNN guarantee, market context, tenant details, broker notes..."></textarea>
       </div>
 
       <button onclick="calculate()" class="btn-navy w-full py-3.5 text-base font-semibold no-print" style="border-radius:10px;">
@@ -568,7 +594,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--slate);marg
     <p class="opacity-80 mb-6 text-sm">Join thousands of investors using REProforma to make smarter decisions.</p>
     <div class="flex flex-wrap justify-center gap-3">
       <a href="#" class="px-5 py-2.5 font-semibold rounded-lg bg-white hover:bg-gray-100 text-sm" style="color:var(--blue)">Get started today</a>
-      <a href="../about.html" class="px-5 py-2.5 font-semibold rounded-lg border-2 border-white text-white hover:bg-blue-800 text-sm">Schedule a demo</a>
+      <a href="../about" class="px-5 py-2.5 font-semibold rounded-lg border-2 border-white text-white hover:bg-blue-800 text-sm">Schedule a demo</a>
     </div>
   </div>
 </section>
@@ -585,15 +611,15 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--slate);marg
         <h4 class="text-sm font-semibold mb-3">Tools</h4>
         <p class="text-xs uppercase tracking-widest text-gray-500 mb-2">Pro</p>
         <ul class="space-y-2 text-sm text-gray-400 mb-3">
-          <li><a href="index.html" class="hover:text-white">Multifamily Acquisition</a></li>
-          <li><a href="index-mixeduse.html" class="hover:text-white">Commercial/Retail</a></li>
-          <li><a href="index-land.html" class="hover:text-white">Land Development</a></li>
+          <li><a href="index" class="hover:text-white">Multifamily Acquisition</a></li>
+          <li><a href="index-mixeduse" class="hover:text-white">Commercial/Retail</a></li>
+          <li><a href="index-land" class="hover:text-white">Land Development</a></li>
         </ul>
         <p class="text-xs uppercase tracking-widest text-gray-500 mb-2 border-t border-gray-800 pt-2">Free</p>
         <ul class="space-y-2 text-sm text-gray-400">
-          <li><a href="index-affordability.html" class="hover:text-white">🏠 Home Affordability</a></li>
-          <li><a href="index-rentvsbuy.html" class="hover:text-white">🔄 Rent vs. Buy</a></li>
-          <li><a href="index-mortgage-payoff.html" class="hover:text-white">📅 Mortgage Payoff</a></li>
+          <li><a href="index-affordability" class="hover:text-white">🏠 Home Affordability</a></li>
+          <li><a href="index-rentvsbuy" class="hover:text-white">🔄 Rent vs. Own</a></li>
+          <li><a href="index-mortgage-payoff" class="hover:text-white">📅 Mortgage Payoff</a></li>
         </ul>
       </div>
       <div>
@@ -613,7 +639,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--slate);marg
     </div>
     <div class="pt-6 border-t border-gray-800 flex flex-col md:flex-row justify-between text-sm text-gray-500">
       <p>© 2025 REProforma. All rights reserved.</p>
-      <div class="flex gap-5 mt-3 md:mt-0"><a href="../privacy.html" class="hover:text-white">Privacy</a><a href="../terms.html" class="hover:text-white">Terms</a></div>
+      <div class="flex gap-5 mt-3 md:mt-0"><a href="../privacy" class="hover:text-white">Privacy</a><a href="../terms" class="hover:text-white">Terms</a></div>
     </div>
   </div>
 </footer>
@@ -621,55 +647,80 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--slate);marg
 
 <!-- ══════════════════ SCRIPTS ══════════════════ -->
 <script>
-// ── Helpers ────────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
 const num = id => parseFloat($(id)?.value) || 0;
 const str = id => $(id)?.value || '';
 const set = (id,v) => { if($(id)) $(id).value=v; };
 const fmt = v => (v==null||isNaN(v)||!isFinite(v)) ? '—' : '$'+Math.round(v).toLocaleString();
 const pct = (v,d=2) => (v==null||isNaN(v)||!isFinite(v)) ? '—' : v.toFixed(d)+'%';
+const fmtX = v => (v==null||isNaN(v)||!isFinite(v)) ? '—' : v.toFixed(2)+'×';
+const fmtK = v => (v==null||isNaN(v)||!isFinite(v)) ? '—' : '$'+Math.round(v/1000)+'k';
 
-// Tooltip HTML builder
 function tip(text){
   return `<span class="tip-wrap"><span class="tip-icon">i</span><span class="tip-box">${text}</span></span>`;
 }
 
-// ── Tabs ───────────────────────────────────────────
+// ── Tabs ───────────────────────────────────────────────────────────────────────
 document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click',()=>switchTab(b.dataset.tab)));
 function switchTab(name){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+name));
 }
 
-// ── Mobile nav ─────────────────────────────────────
-$('mob-btn').addEventListener('click',()=>$('mob-menu').classList.toggle('hidden'));
-document.querySelectorAll('.mob-toggle').forEach(b=>{
-  b.addEventListener('click',()=>{
-    const s=b.nextElementSibling, a=b.querySelector('.mob-arrow');
-    s.classList.toggle('open');
-    a.style.transform=s.classList.contains('open')?'rotate(180deg)':'';
+// ── Nav ────────────────────────────────────────────────────────────────────────
+(function(){
+  function ckW(){
+    var mob = window.innerWidth < 768;
+    var dn = $('desk-nav'), mb = $('mob-btn');
+    if(dn) dn.style.display = mob ? 'none' : 'flex';
+    if(mb) mb.style.display = mob ? 'block' : 'none';
+  }
+  window.addEventListener('resize', ckW); ckW();
+  var btn=$('mob-btn'), menu=$('mob-menu');
+  if(btn&&menu) btn.addEventListener('click',function(){
+    menu.style.display = menu.style.display==='block' ? 'none' : 'block';
   });
-});
+  // Accordions in mobile menu
+  document.querySelectorAll('.mob-toggle').forEach(function(b){
+    b.addEventListener('click',function(){
+      var s=b.nextElementSibling, a=b.querySelector('.mob-arrow');
+      if(s){ s.style.display=s.style.display==='block'?'none':'block'; }
+      if(a){ a.style.transform=s&&s.style.display==='block'?'rotate(180deg)':'rotate(0)'; }
+    });
+  });
+  // Desktop dropdown: hover + click
+  function openDD(mId, bId){ closeAllDD(); var m=$(mId); if(m) m.classList.add('open'); }
+  function closeAllDD(){ document.querySelectorAll('.dd-menu').forEach(m=>m.classList.remove('open')); }
+  [['ddT','ddTMenu','ddTBtn'],['ddM','ddMMenu','ddMBtn']].forEach(function([w,m,b]){
+    var ww=$(w),mm=$(m),bb=$(b); if(!ww||!mm) return;
+    var t;
+    ww.addEventListener('mouseenter',function(){ clearTimeout(t); openDD(m,b); });
+    ww.addEventListener('mouseleave',function(){ t=setTimeout(function(){ mm.classList.remove('open'); },120); });
+    if(bb) bb.addEventListener('click',function(e){ e.stopPropagation(); mm.classList.contains('open')?closeAllDD():openDD(m,b); });
+  });
+  document.addEventListener('click',function(e){ if(!e.target.closest('.dd-wrap')) closeAllDD(); });
+})();
 
-// ── Property type ──────────────────────────────────
+// ── Property type ──────────────────────────────────────────────────────────────
 let currentType = 'nnn';
 const typeLabels = {nnn:'NNN · Single-Tenant', multi:'Multi-Tenant · Strip Center', office:'Office · Industrial'};
 function setType(t){
   currentType=t;
   document.querySelectorAll('.seg-btn').forEach(b=>b.classList.toggle('active',b.dataset.type===t));
   $('typeChip').textContent = typeLabels[t];
-  $('multiTenantIncome').classList.toggle('hidden', t==='nnn');
+  $('multiTenantIncome').classList.toggle('hidden', t!=='multi');
   if(t==='nnn'){
     ['realEstateTaxes','insurance','camExpense','utilities','repairsMaint','otherOpex'].forEach(id=>set(id,'0'));
-    set('managementFee','0'); $('expenseNote').textContent='NNN → $0';
+    set('managementFee','0'); $('expenseNote').textContent='NNN → LL pays $0';
   } else if(t==='multi'){
     set('realEstateTaxes','3.50'); set('insurance','0.30'); set('camExpense','2.00');
     set('utilities','1.00'); set('repairsMaint','0.50'); set('managementFee','5');
-    $('expenseNote').textContent='Typical strip center rates';
+    $('expenseNote').textContent='Typical strip center — adjust for your market';
   } else {
     set('realEstateTaxes','4.00'); set('insurance','0.35'); set('camExpense','1.50');
     set('utilities','2.00'); set('repairsMaint','0.75'); set('managementFee','5');
-    $('expenseNote').textContent='Typical office rates';
+    $('expenseNote').textContent='Typical office/industrial — adjust for your market';
   }
   liveCalc();
 }
@@ -684,145 +735,166 @@ function onBumpTypeChange(){
   $('rowCustomInterval').style.display = t==='custom_interval' ? '' : 'none';
 }
 
-// ── IRR — robust bisection + Newton-Raphson hybrid ──
-function calcIRR(flows){
-  // Quick check: need at least one sign change
-  const hasPos = flows.some(f=>f>0), hasNeg = flows.some(f=>f<0);
-  if(!hasPos || !hasNeg) return NaN;
-
-  // Bisection to find a bracket first
-  let lo=-0.9999, hi=10.0;
-  const npvAt = r => flows.reduce((s,f,t)=>s+f/Math.pow(1+r,t),0);
-  if(npvAt(lo)*npvAt(hi)>0) return NaN; // no sign change in range
-
-  let r=0.1;
-  // Newton-Raphson from a bisection-seeded start
-  for(let i=0;i<200;i++){
-    let npv=0, d=0;
-    flows.forEach((f,t)=>{
-      const disc=Math.pow(1+r,t);
-      npv+=f/disc;
-      d-=t*f/((1+r)*disc);
-    });
-    if(Math.abs(d)<1e-14) break;
-    const rn=r-npv/d;
-    if(!isFinite(rn)||rn<-0.9999) { r=(r+lo)/2; continue; }
-    if(Math.abs(rn-r)<1e-11) return rn;
-    r=rn;
-  }
-  return isFinite(r)&&r>-0.9999 ? r : NaN;
+// ── IRR — robust bisection + Newton-Raphson ────────────────────────────────────
+function safeIRR(flows){
+  try{
+    const hasPos=flows.some(f=>f>0), hasNeg=flows.some(f=>f<0);
+    if(!hasPos||!hasNeg) return null;
+    const npvAt=r=>flows.reduce((s,f,t)=>s+f/Math.pow(1+r,t),0);
+    let lo=-0.9999,hi=9.99;
+    if(npvAt(lo)*npvAt(hi)>0) return null;
+    let mid=0.1;
+    for(let i=0;i<80;i++){
+      mid=(lo+hi)/2;
+      const nm=npvAt(mid);
+      if(Math.abs(nm)<1e-6||(hi-lo)<1e-10) break;
+      if(nm*npvAt(lo)>0) lo=mid; else hi=mid;
+    }
+    let r=mid;
+    for(let i=0;i<80;i++){
+      let npv=0,d=0;
+      flows.forEach((f,t)=>{ const disc=Math.pow(1+r,t); npv+=f/disc; d-=t*f/((1+r)*disc); });
+      if(Math.abs(d)<1e-14) break;
+      const rn=r-npv/d;
+      if(!isFinite(rn)) break;
+      if(Math.abs(rn-r)<1e-11){ r=rn; break; }
+      r=rn;
+    }
+    return (isFinite(r)&&!isNaN(r)&&r>-0.9999&&r<50) ? r*100 : null;
+  }catch(e){ return null; }
 }
+const fmtIRR = v => (v==null||!isFinite(v)||isNaN(v)) ? 'N/A' : pct(v);
 
-// ── Loan utils ─────────────────────────────────────
+// ── Loan utils ─────────────────────────────────────────────────────────────────
 function loanBal(loan,rate,amort,yrs){
   if(!loan||!rate||!amort) return 0;
-  const mo=rate/100/12,n=amort*12,pmt=loan*mo/(1-Math.pow(1+mo,-n));
-  let b=loan; for(let m=0;m<yrs*12;m++) b=b*(1+mo)-pmt; return Math.max(0,b);
+  const mo=rate/100/12, n=amort*12, pmt=loan*mo/(1-Math.pow(1+mo,-n));
+  let b=loan;
+  for(let m=0;m<yrs*12;m++) b=b*(1+mo)-pmt;
+  return Math.max(0,b);
 }
 function ads(loan,rate,amort){
   if(!loan||!rate||!amort) return 0;
-  const mo=rate/100/12,n=amort*12; return loan*mo/(1-Math.pow(1+mo,-n))*12;
+  const mo=rate/100/12, n=amort*12;
+  return loan*mo/(1-Math.pow(1+mo,-n))*12;
 }
 
-// ── Rent schedule ──────────────────────────────────
-// bump types: pct10_5yr | pct5_5yr | custom_interval | annual | cpi | flat
+// ── Rent schedule ──────────────────────────────────────────────────────────────
 function buildRent(base,years,bump,annualPct){
   let r=base, s=[];
-  const cPct = num('customBumpPct');
-  const cInt = Math.max(1, num('customBumpInterval')||5);
+  const cPct=num('customBumpPct'), cInt=Math.max(1,num('customBumpInterval')||5);
   for(let y=1;y<=years;y++){
     if(bump==='pct10_5yr'){
       if(y===6||y===11) r*=1.10;
     } else if(bump==='pct5_5yr'){
       if(y===6||y===11) r*=1.05;
     } else if(bump==='custom_interval'){
-      if(y>1 && (y-1)%cInt===0) r*=(1+cPct/100);
-    } else if(bump==='annual' && y>1){
+      if(y>1&&(y-1)%cInt===0) r*=(1+cPct/100);
+    } else if(bump==='annual'&&y>1){
       r*=(1+annualPct/100);
-    } else if(bump==='cpi' && y>1){
+    } else if(bump==='cpi'&&y>1){
       r*=1.025;
     }
-    // flat: no change
     s.push(r);
   }
   return s;
 }
 
-// ── Live preview ───────────────────────────────────
+// ── Live preview ───────────────────────────────────────────────────────────────
 function liveCalc(){
-  const sf=num('buildingSize'),rent=num('annualRent'),price=num('purchasePrice');
-  const ltv=num('loanToValue')/100,rate=num('interestRate'),amort=num('amortization');
-  if(sf&&rent) set('rentPerSF',(rent/sf).toFixed(2));
+  const sf=num('buildingSize'), rent=num('annualRent'), price=num('purchasePrice');
+  const ltv=num('loanToValue')/100, rate=num('interestRate'), amort=num('amortization');
+  const closing=num('closingCosts')/100;
+
+  if(sf&&rent)  set('rentPerSF',(rent/sf).toFixed(2));
   if(rent&&price) set('goingInCap',(rent/price*100).toFixed(2));
+
+  if($('pricePSFDisp')) $('pricePSFDisp').textContent = sf&&price ? fmt(price/sf)+'/SF' : '—';
+  if($('grmDisp'))      $('grmDisp').textContent      = rent&&price ? (price/rent).toFixed(1)+'×' : '—';
+
   if(price&&ltv&&rate&&amort){
-    const loan=price*ltv, eq=price*(1-ltv)+price*(num('closingCosts')/100);
-    const mo=rate/100/12,n=amort*12,pmt=loan*mo/(1-Math.pow(1+mo,-n));
+    const loan=price*ltv, eq=price*(1-ltv)+price*closing;
+    const mo=rate/100/12, n=amort*12, pmt=loan*mo/(1-Math.pow(1+mo,-n));
+    const annDS=pmt*12;
+    const loanConst=loan>0?annDS/loan*100:0;
     $('loanAmtDisp').textContent=fmt(loan);
     $('equityDisp').textContent=fmt(eq);
     $('paymentDisp').textContent=fmt(pmt)+'/mo';
+    if($('loanConstDisp')) $('loanConstDisp').textContent = loanConst.toFixed(2)+'%';
   }
 }
 ['buildingSize','annualRent','purchasePrice','loanToValue','interestRate','amortization','closingCosts']
-  .forEach(id=>{const e=$(id); if(e) e.addEventListener('input',liveCalc);});
+  .forEach(id=>{ const e=$(id); if(e) e.addEventListener('input',liveCalc); });
 
-// ── Color helper ───────────────────────────────────
-const bC=(v,lo,hi)=>v>=hi?'bg-green':v>=lo?'bg-amber':'bg-red';
-const mcC=(v,lo,hi)=>v>=hi?'mc-green':v>=lo?'mc-amber':'mc-red';
+// ── Color helpers ──────────────────────────────────────────────────────────────
+const bC  = (v,lo,hi) => v>=hi?'bg-green':v>=lo?'bg-amber':'bg-red';
+const mcC = (v,lo,hi) => v>=hi?'mc-green':v>=lo?'mc-amber':'mc-red';
 
-// ── Sensitivity table ──────────────────────────────
+// ── Sensitivity table renderer ─────────────────────────────────────────────────
 function senTable(rows){
-  if(!rows.length) return '';
+  if(!rows.length) return '<p style="color:#94a3b8;font-size:12px;text-align:center;padding:16px;">Run calculator first.</p>';
   const keys=Object.keys(rows[0]), mid=Math.floor(rows.length/2);
-  return '<table class="sen-table"><thead><tr>'+keys.map((k,i)=>`<th${i>0?' style="text-align:right"':''}>${k}</th>`).join('')+'</tr></thead><tbody>'+
-    rows.map((r,i)=>`<tr${i===mid?' class="base"':''}>`+Object.values(r).map(v=>`<td>${v}</td>`).join('')+'</tr>').join('')+'</tbody></table>';
+  return '<table class="sen-table"><thead><tr>'+
+    keys.map((k,i)=>`<th${i>0?' style="text-align:right"':''}>${k}</th>`).join('')+
+    '</tr></thead><tbody>'+
+    rows.map((r,i)=>`<tr${i===mid?' class="base"':''}>`+
+      Object.entries(r).map(([k,v],ci)=>`<td${ci>0?' style="text-align:right"':''}>${v}</td>`).join('')+
+    '</tr>').join('')+
+    '</tbody></table>';
 }
 
-// ── Charts registry ────────────────────────────────
+// ── Charts registry ────────────────────────────────────────────────────────────
 const CH={};
 function mkChart(id,cfg){ if(CH[id]) CH[id].destroy(); CH[id]=new Chart($(id),cfg); }
 
-// ══════════════════════════════════════════════════
+// ── State for export ──────────────────────────────────────────────────────────
+let _xlsData = null;
+
+// ══════════════════════════════════════════════════════════════════════════════
 // CALCULATE
-// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
 function calculate(){
-  const sf          = num('buildingSize')||9100;
-  const baseRent    = num('annualRent');
-  const occ         = num('occupancyRate')/100||1;
-  const camR        = num('camReimb')*sf;
-  const othInc      = num('otherIncome');
-  const price       = num('purchasePrice');
-  const closPct     = num('closingCosts')/100;
-  const tiPSF       = num('tiAllowance');
-  const lcPct       = num('leasingComm')/100;
-  const capRes      = num('capitalReserves')*sf;
-  const capex       = num('capitalImprovements');
-  const ltv         = num('loanToValue')/100;
-  const rate        = num('interestRate');
-  const amort       = num('amortization');
-  const hold        = Math.min(Math.max(num('holdPeriod'),1),15);
-  const exitCap     = num('terminalCapRate')/100;
-  const salesCPct   = num('salesCosts')/100;
-  const targetIRR   = num('targetIRR');
-  const discR       = num('discountRate')/100;
-  const bump        = str('bumpType');
-  const bumpPct     = num('rentGrowth');
-  const expG        = num('expenseGrowth')/100;
-  const mgmtPct     = num('managementFee')/100;
-  const renewPct    = num('renewalProb')/100||0.75;
-  const downtimeMo  = num('downtimeMonths')||0;
+  const sf        = num('buildingSize')||9100;
+  const baseRent  = num('annualRent');
+  const occ       = num('occupancyRate')/100||1;
+  const camR      = num('camReimb')*sf;
+  const othInc    = num('otherIncome');
+  const price     = num('purchasePrice');
+  const closPct   = num('closingCosts')/100;
+  const tiPSF     = num('tiAllowance');
+  const lcPct     = num('leasingComm')/100;
+  const capRes    = num('capitalReserves')*sf;
+  const capex     = num('capitalImprovements');
+  const ltv       = num('loanToValue')/100;
+  const rate      = num('interestRate');
+  const amort     = num('amortization');
+  const loanTerm  = num('loanTerm')||10;
+  const hold      = Math.min(Math.max(num('holdPeriod'),1),25);
+  const exitCap   = num('terminalCapRate')/100;
+  const salesCPct = num('salesCosts')/100;
+  const targetIRR = num('targetIRR');
+  const discR     = num('discountRate')/100;
+  const bump      = str('bumpType');
+  const bumpPct   = num('rentGrowth');
+  const expG      = num('expenseGrowth')/100;
+  const mgmtPct   = num('managementFee')/100;
+  const renewPct  = num('renewalProb')/100||0.75;
+  const downtimeMo= num('downtimeMonths')||0;
+  const leaseRem  = num('leaseRemaining');
 
   const taxPSF=num('realEstateTaxes'), insPSF=num('insurance'), camPSF=num('camExpense');
   const utilPSF=num('utilities'), rmPSF=num('repairsMaint'), othPSF=num('otherOpex');
 
   if(!baseRent||!price){ alert('Please enter Annual Base Rent and Purchase Price.'); return; }
 
-  const loan   = price*ltv;
-  const closing= price*closPct;
-  const tiCost = tiPSF*sf;
-  const lcCost = baseRent*lcPct;
-  const equity0= price-loan+closing+tiCost+lcCost+capex;
-  const annDS  = ads(loan,rate,amort);
-  const rentSched=buildRent(baseRent,hold,bump,bumpPct);
+  const loan    = price*ltv;
+  const closing = price*closPct;
+  const tiCost  = tiPSF*sf;
+  const lcCost  = baseRent*lcPct;
+  const equity0 = price-loan+closing+tiCost+lcCost+capex;
+  const annDS   = ads(loan,rate,amort);
+  const loanConst = loan>0 ? annDS/loan*100 : 0;
+  const rentSched = buildRent(baseRent,hold,bump,bumpPct);
 
   function opex(y){
     const g=Math.pow(1+expG,y-1);
@@ -830,7 +902,8 @@ function calculate(){
   }
   function effRent(y,rentY){
     if(currentType==='nnn') return rentY;
-    return rentY*occ*(1-(1-renewPct)*(downtimeMo/12));
+    const downFactor = 1-(1-renewPct)*(downtimeMo/12);
+    return rentY*occ*downFactor;
   }
 
   let cashFlows=[-equity0], rows=[];
@@ -844,254 +917,273 @@ function calculate(){
     const b0=loanBal(loan,rate,amort,y-1), b1=loanBal(loan,rate,amort,y);
     const prin=b0-b1, intPaid=annDS-prin;
     const dscr=annDS>0?noi/annDS:null;
-    rows.push({y,rentY,effR,egi,mgmt,opx,noi,annDS,intPaid,prin,levCF,b0,b1,dscr});
+    const capRateYr = price>0 ? noi/price*100 : null;
+    const debtYield = loan>0 ? noi/loan*100 : null;
+    rows.push({y,rentY,effR,egi,mgmt,opx,noi,annDS,intPaid,prin,levCF,b0,b1,dscr,capRateYr,debtYield});
     cashFlows.push(levCF);
   }
 
-  const exitNOI=rows[hold-1].noi;
-  const salePrice=exitNOI/exitCap;
-  const saleCost=salePrice*salesCPct;
-  const finalBal=rows[hold-1].b1;
-  const saleProc=salePrice-saleCost-finalBal;
-  cashFlows[hold]+=saleProc;
+  const exitNOI  = rows[hold-1].noi;
+  const salePrice = exitNOI/exitCap;
+  const saleCost  = salePrice*salesCPct;
+  const finalBal  = rows[hold-1].b1;
+  const saleProc  = salePrice-saleCost-finalBal;
+  cashFlows[hold] += saleProc;
 
-  const irrRaw=calcIRR(cashFlows);
-  const irr=(isFinite(irrRaw)&&!isNaN(irrRaw)) ? irrRaw*100 : NaN;
-  const em=(cashFlows.slice(1).reduce((a,b)=>a+b,0)+equity0)/equity0;
-  const goIn=baseRent/price*100;
-  const cocY1=rows[0].levCF/equity0*100;
-  const dscrY1=rows[0].dscr;
-  const npv=cashFlows.reduce((a,f,t)=>a+f/Math.pow(1+discR,t),0);
+  const irrRaw = safeIRR(cashFlows);
+  const irr    = irrRaw!=null ? irrRaw : NaN;
+  const em     = equity0>0 ? (cashFlows.slice(1).reduce((a,b)=>a+b,0)+equity0)/equity0 : NaN;
+  const goIn   = baseRent/price*100;
+  const cocY1  = equity0>0 ? rows[0].levCF/equity0*100 : NaN;
+  const dscrY1 = rows[0].dscr;
+  const npv    = cashFlows.reduce((a,f,t)=>a+f/Math.pow(1+discR,t),0);
+  const pricePSF = price/sf;
+  const rentPSF  = baseRent/sf;
+  const grm      = baseRent>0 ? price/baseRent : null;
+  const debtYieldY1 = loan>0 ? rows[0].noi/loan*100 : null;
+  const capSpread = goIn - exitCap*100;
+
+  // Breakeven occupancy: min occ to cover debt service
+  // EGI_at_breakeven = ADS + OpEx  → rent*occ_be = ADS + opex(1) - camR - othInc
+  const breakEvenRentNeeded = annDS + rows[0].opx; // NOI needed to cover DS
+  const breakEvenOcc = baseRent>0 ? Math.min(100, breakEvenRentNeeded/baseRent*100) : null;
 
   // Unlevered IRR
-  const uf=[-(price+closing+tiCost+lcCost+capex),...rows.map(r=>r.noi)];
-  uf[hold]+=salePrice-saleCost;
-  const uirrRaw=calcIRR(uf);
-  const uirr=(isFinite(uirrRaw)&&!isNaN(uirrRaw)) ? uirrRaw*100 : NaN;
+  const uf = [-(price+closing+tiCost+lcCost+capex), ...rows.map(r=>r.noi)];
+  uf[hold] += salePrice-saleCost;
+  const uirrRaw = safeIRR(uf);
+  const uirr = uirrRaw!=null ? uirrRaw : NaN;
 
+  // ── Switch to results ─────────────────────────────────────────────────
   switchTab('results');
 
-  // ── Summary cards ────────────────────────────────
-  $('summaryCards').innerHTML=[
-    {l:'Purchase Price',v:fmt(price),         cls:'mc-blue',   sub:'Total acquisition cost'},
-    {l:'Going-In Cap Rate',v:pct(goIn),       cls:mcC(goIn,5.5,6.5), sub:'NOI ÷ Price'},
-    {l:'Levered IRR',v:pct(irr),              cls:mcC(irr,targetIRR-1,targetIRR), sub:`Target: ${pct(targetIRR,1)}`},
-    {l:'Year 1 Cash-on-Cash',v:pct(cocY1),    cls:mcC(cocY1,4,6), sub:'Cash flow ÷ equity'},
-  ].map(s=>`<div class="metric-card ${s.cls}">
-    <div class="metric-val">${s.v}</div>
+  // ── KPI Summary Cards (now 8) ─────────────────────────────────────────
+  const cards = [
+    {l:'Purchase Price',     v:fmt(price),       cls:'mc-blue',               sub:'Total acquisition cost'},
+    {l:'Going-In Cap Rate',  v:pct(goIn),        cls:mcC(goIn,6.0,7.0),       sub:'NOI ÷ Price (Yr 1)'},
+    {l:'Levered IRR',        v:fmtIRR(irr),      cls:mcC(irr||0,targetIRR-1,targetIRR), sub:`Target: ${targetIRR.toFixed(1)}%`},
+    {l:'Year 1 Cash-on-Cash',v:pct(cocY1),       cls:mcC(cocY1||0,4,6),       sub:'Cash flow ÷ equity invested'},
+    {l:'Year 1 NOI',         v:fmt(rows[0].noi), cls:'mc-blue',               sub:'Net Operating Income'},
+    {l:'Price / SF',         v:fmt(pricePSF)+'/SF',cls:'mc-blue',             sub:`${fmt(rentPSF)}/SF rent · ${sf.toLocaleString()} SF`},
+    {l:'Debt Yield (Yr 1)',  v:debtYieldY1!=null?pct(debtYieldY1):'N/A', cls:mcC(debtYieldY1||0,8,10), sub:'NOI ÷ Loan (lender risk metric)'},
+    {l:'Breakeven Occ.',     v:breakEvenOcc!=null?pct(breakEvenOcc,1):'N/A', cls:mcC(breakEvenOcc!=null?100-breakEvenOcc:0,10,20), sub:'Min occ. to cover debt service'},
+  ];
+  $('summaryCards').innerHTML = cards.map(s=>`<div class="metric-card ${s.cls}" style="padding:16px 18px;">
+    <div class="metric-val" style="font-size:22px;">${s.v}</div>
     <div class="metric-lbl">${s.l}</div>
-    <div class="metric-sub">${s.sub}</div>
+    <div class="metric-sub" style="font-size:11px;">${s.sub}</div>
   </div>`).join('');
 
-  // ── Returns panel with tooltips ───────────────────
+  // ── Deal Decision Verdict ─────────────────────────────────────────────
+  const passChecks = [
+    goIn >= 6.0,
+    (irr||0) >= targetIRR,
+    dscrY1>=1.25,
+    (debtYieldY1||0)>=8,
+    cocY1>=4,
+  ];
+  const passCount = passChecks.filter(Boolean).length;
+  const verdict = passCount>=4?{label:'✅ Looks Like a Go',bg:'#dcfce7',border:'#15803d',color:'#15803d'}:
+                  passCount>=2?{label:'⚠️ Marginal — Review Assumptions',bg:'#fef3c7',border:'#b45309',color:'#b45309'}:
+                               {label:'❌ Pass or Renegotiate',bg:'#fee2e2',border:'#b91c1c',color:'#b91c1c'};
+  const flags = [$('flag1031')?.checked?'1031 Exchange':null,$('flagCostSeg')?.checked?'Cost Segregation':null,$('flagSLB')?.checked?'Sale-Leaseback':null].filter(Boolean);
+  const leaseWarning = leaseRem>0&&leaseRem<hold ? `<span style="background:#fef3c7;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600;color:#b45309;margin-left:10px;">⚠ Lease expires in ${leaseRem} yrs (before ${hold}-yr hold ends)</span>` : '';
+
+  // Insert verdict before summaryCards or after — inject into the result section
+  let verdictEl = $('dealVerdict');
+  if(!verdictEl){
+    const sc=$('summaryCards');
+    if(sc){ const div=document.createElement('div'); div.id='dealVerdict'; sc.parentNode.insertBefore(div,sc); verdictEl=div; }
+  }
+  if(verdictEl) verdictEl.innerHTML = `<div style="background:${verdict.bg};border:2px solid ${verdict.border};border-radius:10px;padding:14px 20px;margin-bottom:16px;display:flex;align-items:center;flex-wrap:wrap;gap:10px;">
+    <span style="font-size:16px;font-weight:700;color:${verdict.color};">${verdict.label}</span>
+    ${leaseWarning}
+    ${flags.map(f=>`<span style="background:#dbeafe;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600;color:#1d4ed8;">${f}</span>`).join('')}
+    <span style="margin-left:auto;font-size:12px;color:${verdict.color};">${passCount}/5 checks passed · Cap: ${pct(goIn)} · DSCR: ${dscrY1?dscrY1.toFixed(2)+'×':'—'} · IRR: ${fmtIRR(irr)}</span>
+  </div>`;
+
+  // ── Returns Panel ─────────────────────────────────────────────────────
   const TIPS={
-    'Unlevered IRR':'The return on the deal with no debt. Shows how good the property itself performs, independent of financing.',
-    'Levered IRR':'The return including the effect of your mortgage. Higher leverage amplifies returns — up and down.',
-    'Equity Multiple':'Total cash returned ÷ equity invested. 1.5× means you get back $1.50 for every $1 invested.',
-    'NPV':'Net Present Value — today\'s dollar value of all future cash flows at your discount rate. Positive = deal exceeds your hurdle rate.',
-    'Year 1 Cash-on-Cash':'Year 1 cash flow ÷ equity invested. Pure cash yield, ignoring appreciation or paydown.',
-    'Exit Sale Price':'Projected sale value at end of hold = Year '+hold+' NOI ÷ exit cap rate.',
-    'Equity at Exit':'Sale proceeds after paying off the loan and selling costs.',
-    'Total Distributions':'Sum of all annual cash flows + exit proceeds over the hold period.',
+    'Unlevered IRR':'All-cash return — how good the property is without financing. Target: 6–8%+ for NNN.',
+    'Levered IRR':'Return including your mortgage. Higher leverage amplifies returns — up AND down.',
+    'Equity Multiple':'Total cash returned ÷ equity invested. 1.5× = $1.50 back per $1 invested.',
+    'NPV':'Net Present Value at your discount rate. Positive = deal exceeds your return hurdle.',
+    'Year 1 Cash-on-Cash':'Yr 1 levered cash flow ÷ equity. Pure yield metric, ignoring appreciation.',
+    'Cap Rate Spread':'Going-in cap minus exit cap. Positive = buying cheaper than you exit.',
+    'Exit Sale Price':'Year '+hold+' NOI ÷ exit cap rate.',
+    'Equity at Exit':'Net sale proceeds after paying off loan and selling costs.',
+    'Total Distributions':'All annual CFs + exit proceeds over the hold.',
+    'GRM':'Gross Rent Multiplier = Price ÷ Annual Rent. Quick valuation sanity check.',
   };
-  const rRow=(l,v)=>`<div class="ret-row">
+  const rRow=(l,v,sub='')=>`<div class="ret-row">
     <div class="ret-label">${l}${TIPS[l]?tip(TIPS[l]):''}</div>
-    <div class="ret-val">${v}</div>
+    <div style="text-align:right;"><div class="ret-val">${v}</div>${sub?`<div style="font-size:10px;color:var(--muted);">${sub}</div>`:''}</div>
   </div>`;
   $('returnsGrid').innerHTML=[
-    ['Unlevered IRR',pct(uirr)],
-    ['Levered IRR',pct(irr)],
-    ['Equity Multiple',em.toFixed(2)+'×'],
-    ['NPV @ '+pct(discR*100,0),fmt(npv)],
-    ['Year 1 Cash-on-Cash',pct(cocY1)],
-    ['Exit Sale Price',fmt(salePrice)],
-    ['Equity at Exit',fmt(saleProc)],
-    ['Total Distributions',fmt(cashFlows.slice(1).reduce((a,b)=>a+b,0))],
-  ].map(([l,v])=>rRow(l,v)).join('');
+    ['Unlevered IRR',fmtIRR(uirr),'All-cash return'],
+    ['Levered IRR',fmtIRR(irr),`Target: ${targetIRR.toFixed(1)}%`],
+    ['Equity Multiple',fmtX(em),'Target: 1.5–2.5×'],
+    ['NPV @ '+pct(discR*100,0),fmt(npv),'Positive = deal clears hurdle'],
+    ['Year 1 Cash-on-Cash',pct(cocY1),''],
+    ['Cap Rate Spread',pct(capSpread),'Going-in vs exit cap'],
+    ['GRM',grm!=null?grm.toFixed(1)+'×':'—','Price ÷ Annual Rent'],
+    ['Exit Sale Price',fmt(salePrice),'Yr '+hold+' NOI ÷ '+pct(exitCap*100)],
+    ['Equity at Exit',fmt(saleProc),'Net proceeds after loan & costs'],
+    ['Total Distributions',fmt(cashFlows.slice(1).reduce((a,b)=>a+b,0)),'CFs + exit'],
+  ].map(([l,v,s])=>rRow(l,v,s)).join('');
 
-  // ── Debt panel with tooltips ──────────────────────
+  // ── Debt Panel ────────────────────────────────────────────────────────
   const DTIPS={
-    'Loan Amount':'Principal borrowed = Purchase Price × LTV.',
-    'Equity Required':'Total cash needed: down payment + closing costs + TI + leasing commissions + CapEx.',
-    'Annual Debt Service':'Total yearly mortgage payments (principal + interest).',
-    'DSCR (Year 1)':'Debt Service Coverage Ratio = NOI ÷ Annual Debt Service. Lenders require ≥1.25×. Below 1.0× means the property doesn\'t cover its own debt.',
-    'Loan Balance at Exit':'Remaining mortgage balance when you sell. Comes out of sale proceeds.',
-    'Loan Terms':'Your financing structure.',
+    'Loan Amount':'Purchase Price × LTV.',
+    'Equity Required':'Down payment + closing costs + TI/LC + CapEx.',
+    'Annual Debt Service':'Total yearly P+I payments.',
+    'DSCR (Yr 1)':'NOI ÷ ADS. Lenders require ≥1.25×. Below 1.0× = property doesn\'t cover its own debt.',
+    'Debt Yield (Yr 1)':'NOI ÷ Loan Amount. Lender stress metric, target ≥8–10%. Independent of rate and amort.',
+    'Loan Constant':'Annual debt service ÷ loan amount. Lower = more favorable financing.',
+    'Loan Balance at Exit':'Remaining mortgage when you sell.',
+    'Breakeven Occupancy':'Minimum occupancy to cover debt service. Lower is safer.',
   };
-  const dscrLabel = dscrY1
-    ? `${dscrY1.toFixed(2)}× ${dscrY1>=1.35?'<span class="badge bg-green">Strong</span>':dscrY1>=1.25?'<span class="badge bg-amber">Adequate</span>':'<span class="badge bg-red">Thin</span>'}`
-    : 'N/A (no debt)';
+  const dscrLabel = dscrY1 ? `${dscrY1.toFixed(2)}× ${dscrY1>=1.35?'<span class="badge bg-green">Strong</span>':dscrY1>=1.25?'<span class="badge bg-amber">Adequate</span>':'<span class="badge bg-red">Thin — Risk</span>'}` : 'N/A (no debt)';
+  const dyLabel   = debtYieldY1!=null ? `${pct(debtYieldY1)} ${debtYieldY1>=10?'<span class="badge bg-green">Strong</span>':debtYieldY1>=8?'<span class="badge bg-amber">Adequate</span>':'<span class="badge bg-red">Thin</span>'}` : 'N/A';
   $('debtGrid').innerHTML=[
     ['Loan Amount',fmt(loan)],
     ['Equity Required',fmt(equity0)],
     ['Annual Debt Service',fmt(annDS)],
-    ['DSCR (Year 1)',dscrLabel],
+    ['DSCR (Yr 1)',dscrLabel],
+    ['Debt Yield (Yr 1)',dyLabel],
+    ['Loan Constant',pct(loanConst)],
     ['Loan Balance at Exit',fmt(finalBal)],
-    ['Loan Terms',`${pct(rate,2)} / ${amort}yr amort`],
+    ['Breakeven Occupancy',breakEvenOcc!=null?pct(breakEvenOcc,1):'N/A'],
   ].map(([l,v])=>`<div class="ret-row">
     <div class="ret-label">${l}${DTIPS[l]?tip(DTIPS[l]):''}</div>
     <div class="ret-val">${v}</div>
   </div>`).join('');
 
-  // ── Waterfall ─────────────────────────────────────
+  // ── Waterfall ─────────────────────────────────────────────────────────
   const r1=rows[0];
   const wfR=(l,v,cls='')=>`<div class="wf-row${cls}"><span>${l}</span><span>${v}</span></div>`;
   const wfN=(l,v)=>`<div class="wf-row indent"><span style="color:var(--muted)">${l}</span><span class="wf-neg">${v>0?'('+fmt(v)+')':fmt(v)}</span></div>`;
   $('waterfallDiv').innerHTML=
+    wfN('Equity Deployed', equity0)+
     wfR('Gross Rental Income', fmt(r1.rentY))+
     (r1.rentY!==r1.effR?wfN('Vacancy / Credit Loss', r1.rentY-r1.effR):'')+
     (r1.egi!==r1.effR?wfR('+ CAM &amp; Other Income', fmt(r1.egi-r1.effR),' indent'):'')+
     wfR('Effective Gross Income (EGI)', fmt(r1.egi),' subtotal')+
     wfN('Operating Expenses', r1.opx)+
     wfR('Net Operating Income (NOI)', fmt(r1.noi),' total')+
+    `<div class="wf-row indent" style="font-size:11px;color:var(--muted);"><span>Cap Rate Yr 1</span><span>${pct(r1.noi/price*100)}</span></div>`+
     wfN('Annual Debt Service', r1.annDS)+
-    wfR('Levered Cash Flow', fmt(r1.levCF),' total');
+    wfR('Levered Cash Flow', fmt(r1.levCF),' total')+
+    `<div class="wf-row indent" style="font-size:11px;color:var(--muted);"><span>Cash-on-Cash</span><span>${pct(r1.levCF/equity0*100)}</span></div>`;
 
-  // ── Scorecard ─────────────────────────────────────
-  const lt=str('leaseType'),cr=str('tenantCredit'),lrem=num('leaseRemaining');
+  // ── Scorecard ─────────────────────────────────────────────────────────
+  const lt=str('leaseType'), cr=str('tenantCredit'), lrem=num('leaseRemaining');
+  const capSpreadPts = goIn - exitCap*100; // buying at higher cap = positive spread = safer
   const scores=[
-    {l:'Lease Structure',  s:lt==='nnn'?5:lt==='nn'?4:lt==='modified'?3:2, m:5, n:lt==='nnn'?'NNN – zero LL risk':'Review obligations'},
-    {l:'Tenant Credit',    s:cr==='ig'?5:cr==='sub'?3:1, m:5, n:cr==='ig'?'Investment grade':'Sub-IG – review financials'},
-    {l:'Lease Term Left',  s:lrem>=10?5:lrem>=7?4:lrem>=5?3:lrem>=3?2:1, m:5, n:lrem+' yrs remaining'},
-    {l:'DSCR',             s:dscrY1>=1.35?5:dscrY1>=1.25?4:dscrY1>=1.1?3:1, m:5, n:dscrY1?dscrY1.toFixed(2)+'× (want ≥1.25×)':'N/A'},
-    {l:'Cap Rate Spread',  s:goIn>(exitCap*100+0.25)?4:goIn<exitCap*100?3:5, m:5, n:`Buy ${pct(goIn)} vs exit ${pct(exitCap*100)}`},
+    {l:'Lease Structure',s:lt==='nnn'?5:lt==='nn'?4:lt==='modified'?3:2,m:5,n:lt==='nnn'?'NNN – zero LL expense risk':'Review LL obligations'},
+    {l:'Tenant Credit',  s:cr==='ig'?5:cr==='sub'?3:1,m:5,n:cr==='ig'?'Investment grade – bond-like income':'Sub-IG – underwrite carefully'},
+    {l:'Lease Term Left',s:lrem>=10?5:lrem>=7?4:lrem>=5?3:lrem>=3?2:1,m:5,n:lrem+' yrs remaining'},
+    {l:'DSCR (Yr 1)',    s:dscrY1>=1.35?5:dscrY1>=1.25?4:dscrY1>=1.1?3:1,m:5,n:dscrY1?dscrY1.toFixed(2)+'× (lender min: 1.25×)':'N/A'},
+    {l:'Cap Rate Spread',s:capSpreadPts>=0.75?5:capSpreadPts>=0?4:capSpreadPts>=-0.5?3:1,m:5,n:`Buy ${pct(goIn)} / Exit ${pct(exitCap*100)} = ${pct(capSpreadPts)} spread`},
+    {l:'Debt Yield',     s:debtYieldY1>=10?5:debtYieldY1>=8?4:debtYieldY1>=6?3:1,m:5,n:debtYieldY1?pct(debtYieldY1)+' (target ≥8–10%)':'N/A'},
   ];
   const tot=scores.reduce((a,s)=>a+s.s,0), mx=scores.reduce((a,s)=>a+s.m,0);
-  $('scorecard').innerHTML=scores.map(s=>`<div style="margin-bottom:14px;">
-    <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+  $('scorecard').innerHTML=scores.map(s=>`<div style="margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
       <span style="font-size:13px;font-weight:500;">${s.l}</span>
       <span style="font-size:11px;color:var(--muted);">${s.s}/${s.m} · ${s.n}</span>
     </div>
     <div class="score-bar"><div class="score-fill" style="width:${s.s/s.m*100}%;background:${s.s>=4?'#15803d':s.s>=3?'#b45309':'#b91c1c'}"></div></div>
   </div>`).join('')+
-  `<div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border);margin-top:4px;">
-    <span style="font-weight:600;font-size:14px;">Overall Score</span>
+  `<div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--border);margin-top:4px;">
+    <span style="font-weight:600;font-size:14px;">Overall Deal Score</span>
     <span style="font-size:18px;font-weight:700;color:${tot/mx>=.8?'#15803d':tot/mx>=.6?'#b45309':'#b91c1c'}">${tot}/${mx} · ${Math.round(tot/mx*100)}%</span>
   </div>`;
 
-  // ── Sensitivity ───────────────────────────────────
-  // safeIRR: returns null if no valid solution; never returns Infinity/NaN
-  function safeIRR(flows){
-    try {
-      // Must have sign change to have a real IRR
-      const hasPos = flows.some(f=>f>0), hasNeg = flows.some(f=>f<0);
-      if(!hasPos || !hasNeg) return null;
-
-      const npvAt = r => flows.reduce((s,f,t) => s + f/Math.pow(1+r,t), 0);
-
-      // Bisection to find bracket in [-99.99%, +1000%]
-      let lo = -0.9999, hi = 9.99;
-      const nLo = npvAt(lo), nHi = npvAt(hi);
-      if(nLo * nHi > 0) return null; // no crossing in range
-
-      // Bisect to ~0.001% precision, then polish with N-R
-      let mid = 0.1;
-      for(let i=0; i<60; i++){
-        mid = (lo+hi)/2;
-        const nm = npvAt(mid);
-        if(Math.abs(nm)<1e-6 || (hi-lo)<1e-10) break;
-        if(nm*nLo > 0) lo=mid; else hi=mid;
-      }
-
-      // Newton-Raphson polish
-      let r = mid;
-      for(let i=0; i<80; i++){
-        let npv=0, d=0;
-        flows.forEach((f,t)=>{
-          const disc = Math.pow(1+r,t);
-          npv += f/disc;
-          d   -= t*f/((1+r)*disc);
-        });
-        if(Math.abs(d)<1e-14) break;
-        const rn = r - npv/d;
-        if(!isFinite(rn)) break;
-        if(Math.abs(rn-r)<1e-11){ r=rn; break; }
-        r = rn;
-      }
-
-      return (isFinite(r) && !isNaN(r) && r > -0.9999 && r < 50) ? r*100 : null;
-    } catch(e){ return null; }
+  // ── Benchmark Guide (inline) ──────────────────────────────────────────
+  let guidEl = $('benchmarkGuide');
+  if(!guidEl){
+    const sc=$('scorecard'); if(sc){ const d=document.createElement('div'); d.id='benchmarkGuide'; sc.parentNode.insertAdjacentElement('afterend',d); guidEl=d; }
   }
-  const fmtIRR = v => (v==null || !isFinite(v) || isNaN(v)) ? 'N/A' : pct(v);
+  if(guidEl) guidEl.innerHTML=''; // Clear — keep scorecard standalone
 
-  // Cap rate sensitivity
-  // CF array: [equity0 (negative), yr1 levCF, yr2 levCF, ..., yN levCF + sale proceeds]
+  // ── Sensitivity Tables ────────────────────────────────────────────────
   const caps=[5.0,5.5,6.0,6.5,7.0,7.5,8.0,8.5,9.0];
   $('capSensitivity').innerHTML=senTable(caps.map(c=>{
-    const sp  = rows[hold-1].noi / (c/100);
-    const proc = sp - sp*salesCPct - finalBal;   // net proceeds
-    const cf2 = [-equity0, ...rows.map((r,i)=> i===hold-1 ? r.levCF+proc : r.levCF)];
-    return {'Exit Cap':c.toFixed(1)+'%', 'Sale Price':fmt(sp), 'IRR':fmtIRR(safeIRR(cf2))};
+    const sp=rows[hold-1].noi/(c/100), proc=sp-sp*salesCPct-finalBal;
+    const cf2=[-equity0,...rows.map((r,i)=>i===hold-1?r.levCF+proc:r.levCF)];
+    return {'Exit Cap':c.toFixed(1)+'%','Sale Price':fmt(sp),'IRR':fmtIRR(safeIRR(cf2))};
   }));
 
-  // Rent growth sensitivity
   const growths=[0,0.5,1,1.5,2,2.5,3,3.5,4];
   $('rentSensitivity').innerHTML=senTable(growths.map(g=>{
-    const rs = buildRent(baseRent, hold, 'annual', g);
-    const annCFs = rs.map((rentY,i)=>{
-      const eg = rentY + camR + othInc;
-      const op = opex(i+1) + eg*mgmtPct + capRes;
-      return eg - op - annDS;
+    const rs=buildRent(baseRent,hold,'annual',g);
+    const annCFs=rs.map((rentY,i)=>{
+      const eg=rentY+camR+othInc, op=opex(i+1)+eg*mgmtPct+capRes;
+      return eg-op-annDS;
     });
-    const lastEGI  = rs[hold-1] + camR + othInc;
-    const lastNOI  = lastEGI - opex(hold) - lastEGI*mgmtPct - capRes;
-    const sp2      = lastNOI / exitCap;
-    const proc2    = sp2 - sp2*salesCPct - finalBal;
-    const cf2 = [-equity0, ...annCFs.map((cf,i)=> i===hold-1 ? cf+proc2 : cf)];
-    const yr1NOI = (rs[0]+camR+othInc) - (opex(1)+(rs[0]+camR+othInc)*mgmtPct+capRes);
-    return {'Rent Growth':g.toFixed(1)+'%', 'Yr 1 NOI':fmt(yr1NOI), 'IRR':fmtIRR(safeIRR(cf2))};
+    const lastEGI=rs[hold-1]+camR+othInc, lastNOI=lastEGI-opex(hold)-lastEGI*mgmtPct-capRes;
+    const sp2=lastNOI/exitCap, proc2=sp2-sp2*salesCPct-finalBal;
+    const cf2=[-equity0,...annCFs.map((cf,i)=>i===hold-1?cf+proc2:cf)];
+    const yr1NOI=(rs[0]+camR+othInc)-(opex(1)+(rs[0]+camR+othInc)*mgmtPct+capRes);
+    return {'Rent Growth':g.toFixed(1)+'%','Yr 1 NOI':fmt(yr1NOI),'IRR':fmtIRR(safeIRR(cf2))};
   }));
 
-  // Occupancy sensitivity
   const occs=[70,75,80,85,90,92,95,97,100];
   $('occSensitivity').innerHTML=senTable(occs.map(o=>{
-    const occFrac = o/100;
-    const annCFs = rentSched.map((rentY,i)=>{
-      const effR = currentType==='nnn' ? rentY : rentY*occFrac;
-      const eg   = effR + camR + othInc;
-      const op   = opex(i+1) + eg*mgmtPct + capRes;
-      return eg - op - annDS;
+    const occFrac=o/100;
+    const annCFs=rentSched.map((rentY,i)=>{
+      const effR=currentType==='nnn'?rentY:rentY*occFrac;
+      const eg=effR+camR+othInc, op=opex(i+1)+eg*mgmtPct+capRes;
+      return eg-op-annDS;
     });
-    const lastEffR = currentType==='nnn' ? rentSched[hold-1] : rentSched[hold-1]*occFrac;
-    const lastEGI  = lastEffR + camR + othInc;
-    const lastNOI  = lastEGI - opex(hold) - lastEGI*mgmtPct - capRes;
-    const sp2      = lastNOI / exitCap;
-    const proc2    = sp2 - sp2*salesCPct - finalBal;
-    const cf2 = [-equity0, ...annCFs.map((cf,i)=> i===hold-1 ? cf+proc2 : cf)];
-    const yr1EffR = currentType==='nnn' ? rentSched[0] : rentSched[0]*occFrac;
-    const yr1EGI  = yr1EffR + camR + othInc;
-    const yr1NOI  = yr1EGI - opex(1) - yr1EGI*mgmtPct - capRes;
-    return {'Occupancy':o+'%', 'NOI':fmt(yr1NOI), 'IRR':fmtIRR(safeIRR(cf2))};
+    const lastEffR=currentType==='nnn'?rentSched[hold-1]:rentSched[hold-1]*occFrac;
+    const lastNOI=(lastEffR+camR+othInc)-opex(hold)-(lastEffR+camR+othInc)*mgmtPct-capRes;
+    const sp2=lastNOI/exitCap, proc2=sp2-sp2*salesCPct-finalBal;
+    const cf2=[-equity0,...annCFs.map((cf,i)=>i===hold-1?cf+proc2:cf)];
+    const yr1NOI=(currentType==='nnn'?rentSched[0]:rentSched[0]*occFrac+camR+othInc)-(opex(1)+(currentType==='nnn'?rentSched[0]:rentSched[0]*occFrac+camR+othInc)*mgmtPct+capRes);
+    return {'Occupancy':o+'%','NOI':fmt(yr1NOI),'IRR':fmtIRR(safeIRR(cf2))};
   }));
 
-  // ── Proforma table ─────────────────────────────────
+  // ── Proforma Table ────────────────────────────────────────────────────
   const yrs=rows.map(r=>'Yr '+r.y);
-  const thd=`<thead><tr><th>Line Item</th>${yrs.map(y=>`<th class="r">${y}</th>`).join('')}</tr></thead>`;
-  const dr=(l,vals,neg=false)=>`<tr><td class="pl-4 text-gray-500">${l}</td>${vals.map(v=>`<td class="r${neg?' p-neg':''}">${neg&&v>0?'('+fmt(v)+')':fmt(v)}</td>`).join('')}</tr>`;
-  const sr=l=>`<tr class="p-sec"><td colspan="${hold+1}">${l}</td></tr>`;
-  const sbr=(l,vals)=>`<tr class="p-sub"><td>${l}</td>${vals.map(v=>`<td class="r">${fmt(v)}</td>`).join('')}</tr>`;
-  const tr=(l,vals)=>`<tr class="p-tot"><td>${l}</td>${vals.map(v=>`<td class="r">${fmt(v)}</td>`).join('')}</tr>`;
-  $('proformaTitle').textContent=str('propName');
-  $('proformaTable').innerHTML=thd+`<tbody>
-    ${sr('Income')}
+  const thd=`<thead><tr><th style="min-width:160px;">Line Item</th>${yrs.map(y=>`<th class="r">${y}</th>`).join('')}<th class="r" style="color:#b45309;">Exit/Sale</th></tr></thead>`;
+  const dr=(l,vals,neg=false,indent=true)=>`<tr><td class="${indent?'pl-4':''} text-gray-500" style="font-size:11px;">${l}</td>${vals.map(v=>`<td class="r${neg&&v>0?' p-neg':''}" style="font-size:11px;">${neg&&v>0?'('+fmt(v)+')':fmt(v)}</td>`).join('')}<td class="r" style="color:#94a3b8;font-size:11px;">—</td></tr>`;
+  const sr=l=>`<tr class="p-sec"><td colspan="${hold+2}">${l}</td></tr>`;
+  const sbr=(l,vals)=>`<tr class="p-sub"><td style="font-size:11px;">${l}</td>${vals.map(v=>`<td class="r" style="font-size:11px;">${fmt(v)}</td>`).join('')}<td class="r" style="color:#94a3b8;">—</td></tr>`;
+  const tr=(l,vals,exitVal='—')=>`<tr class="p-tot"><td>${l}</td>${vals.map(v=>`<td class="r">${fmt(v)}</td>`).join('')}<td class="r" style="color:#b45309;">${exitVal}</td></tr>`;
+  const txtr=(l,vals,exitVal='—')=>`<tr class="p-tot"><td>${l}</td>${vals.map(v=>`<td class="r">${v}</td>`).join('')}<td class="r" style="color:#b45309;">${exitVal}</td></tr>`;
+
+  $('proformaTitle').textContent = str('propName') || 'Commercial/Retail Proforma';
+  $('proformaTable').innerHTML = thd+`<tbody>
+    ${sr('INCOME')}
     ${dr('Gross Rental Income',rows.map(r=>r.rentY))}
-    ${rows.some(r=>r.rentY!==r.effR)?dr('Vacancy / Credit Loss',rows.map(r=>r.rentY-r.effR),true):''}
-    ${rows[0].egi!==rows[0].effR?dr('CAM &amp; Other Income',rows.map(r=>r.egi-r.effR)):''}
-    ${sbr('Effective Gross Income',rows.map(r=>r.egi))}
-    ${sr('Expenses')}
+    ${rows.some(r=>r.rentY!==r.effR)?dr('Vacancy / Credit Loss',rows.map(r=>r.rentY-r.effR),true):sr('')}
+    ${rows[0].egi!==rows[0].effR?dr('CAM &amp; Other Income',rows.map(r=>r.egi-r.effR)):dr('CAM &amp; Other Income',rows.map(()=>0))}
+    ${sbr('Effective Gross Income (EGI)',rows.map(r=>r.egi))}
+    ${sr('EXPENSES')}
     ${dr('Total Operating Expenses',rows.map(r=>r.opx),true)}
-    ${tr('Net Operating Income (NOI)',rows.map(r=>r.noi))}
-    ${sr('Debt Service')}
+    ${tr('Net Operating Income (NOI)',rows.map(r=>r.noi),fmt(exitNOI))}
+    ${txtr('Cap Rate (NOI/Price)',rows.map(r=>r.capRateYr!=null?pct(r.capRateYr):'—'),pct(exitNOI/price*100))}
+    ${txtr('Debt Yield (NOI/Loan)',rows.map(r=>r.debtYield!=null?pct(r.debtYield):'N/A'),'—')}
+    ${sr('DEBT SERVICE')}
     ${dr('Interest',rows.map(r=>r.intPaid),true)}
     ${dr('Principal',rows.map(r=>r.prin),true)}
     ${sbr('Total Debt Service',rows.map(r=>r.annDS))}
     ${tr('Levered Cash Flow',rows.map(r=>r.levCF))}
-    ${sr('Balance Sheet')}
-    ${dr('Loan Balance (EOY)',rows.map(r=>r.b1))}
-    ${dr('DSCR',rows.map(r=>r.dscr?r.dscr.toFixed(2)+'×':'—'))}
+    ${sr('BALANCE SHEET &amp; KEY METRICS')}
+    ${dr('Loan Balance (End of Year)',rows.map(r=>r.b1))}
+    ${txtr('DSCR',rows.map(r=>r.dscr!=null?r.dscr.toFixed(2)+'×':'—'),'—')}
+    ${txtr('Cash-on-Cash',rows.map(r=>pct(r.levCF/equity0*100)),'—')}
+    ${sr('EXIT / SALE ANALYSIS')}
+    <tr><td class="pl-4 text-gray-500" style="font-size:11px;">Exit NOI (Year ${hold})</td>${rows.map(()=>'<td class="r" style="color:#94a3b8;font-size:11px;">—</td>').join('')}<td class="r" style="color:#b45309;">${fmt(exitNOI)}</td></tr>
+    <tr><td class="pl-4 text-gray-500" style="font-size:11px;">Sale Price (Exit Cap ${pct(exitCap*100)})</td>${rows.map(()=>'<td class="r" style="color:#94a3b8;font-size:11px;">—</td>').join('')}<td class="r" style="color:#b45309;">${fmt(salePrice)}</td></tr>
+    <tr><td class="pl-4 text-gray-500" style="font-size:11px;">Selling Costs (${pct(salesCPct*100)})</td>${rows.map(()=>'<td class="r" style="color:#94a3b8;font-size:11px;">—</td>').join('')}<td class="r" style="color:#dc2626;">(${fmt(saleCost)})</td></tr>
+    <tr><td class="pl-4 text-gray-500" style="font-size:11px;">Loan Payoff</td>${rows.map(()=>'<td class="r" style="color:#94a3b8;font-size:11px;">—</td>').join('')}<td class="r" style="color:#dc2626;">(${fmt(finalBal)})</td></tr>
+    <tr class="p-tot"><td>Net Sale Proceeds</td>${rows.map(()=>'<td class="r" style="color:#94a3b8;">—</td>').join('')}<td class="r" style="color:#b45309;">${fmt(saleProc)}</td></tr>
   </tbody>`;
 
-  // ── Charts ─────────────────────────────────────────
+  // ── Charts ────────────────────────────────────────────────────────────
   const lbls=rows.map(r=>'Year '+r.y);
   const co={responsive:true,maintainAspectRatio:false,
     plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10,padding:12}}},
@@ -1105,8 +1197,9 @@ function calculate(){
   ]},options:co});
 
   mkChart('chartNOI',{type:'bar',data:{labels:lbls,datasets:[
-    {label:'NOI',data:rows.map(r=>r.noi),backgroundColor:'#0043ce',borderRadius:4}
-  ]},options:co});
+    {label:'NOI',data:rows.map(r=>r.noi),backgroundColor:'#0043ce',borderRadius:4},
+    {label:'Cap Rate %',data:rows.map(r=>r.noi/price*100),backgroundColor:'#7c3aed',borderRadius:4,type:'line',yAxisID:'y2'},
+  ]},options:{...co,scales:{...co.scales,y2:{type:'linear',position:'right',ticks:{font:{size:10},callback:v=>v.toFixed(1)+'%'},grid:{display:false}}}}});
 
   mkChart('chartEquity',{type:'line',data:{labels:lbls,datasets:[
     {label:'Cumulative Cash Flow',data:rows.reduce((a,r)=>{a.push((a[a.length-1]||0)+r.levCF);return a;},[]),
@@ -1119,29 +1212,358 @@ function calculate(){
   ]},options:co});
 
   mkChart('chartRevExp',{type:'doughnut',data:{
-    labels:['Net Operating Income','Debt Service','Cash Flow'],
+    labels:['NOI','Debt Service','Net Cash Flow'],
     datasets:[{data:[r1.noi,r1.annDS,Math.max(0,r1.levCF)],backgroundColor:['#3b82f6','#fca5a5','#34d399'],borderWidth:0}]
-  },options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}}}});
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}}}});
 
   const capRange=[5.0,5.5,6.0,6.5,7.0,7.5,8.0,8.5,9.0,9.5,10.0];
   mkChart('chartIRR',{type:'line',data:{labels:capRange.map(c=>c+'%'),datasets:[
     {label:'Levered IRR',data:capRange.map(c=>{
-      const sp=rows[hold-1].noi/(c/100);
-      const proc=sp-sp*salesCPct-finalBal;
-      const cf2=[-equity0,...rows.map(r=>r.levCF)];
-      cf2[hold]=rows[hold-1].levCF+proc;
-      const irr=safeIRR(cf2);
-      return irr!=null ? +irr.toFixed(2) : null;
-    }).filter(v=>v!=null),borderColor:'#0043ce',tension:.4,pointRadius:3,pointBackgroundColor:'#0043ce'}
-  ]},options:{...co,scales:{
-    y:{ticks:{font:{size:10},callback:v=>v.toFixed(1)+'%'},grid:{color:'#f1f5f9'}},
-    x:{ticks:{font:{size:10}},grid:{display:false}}}}});
+      const sp=rows[hold-1].noi/(c/100), proc=sp-sp*salesCPct-finalBal;
+      const cf2=[-equity0,...rows.map((r,i)=>i===hold-1?r.levCF+proc:r.levCF)];
+      const iv=safeIRR(cf2); return iv!=null?+iv.toFixed(2):null;
+    }).filter(v=>v!=null),borderColor:'#0043ce',tension:.4,pointRadius:3}
+  ]},options:{...co,scales:{y:{ticks:{font:{size:10},callback:v=>v.toFixed(1)+'%'},grid:{color:'#f1f5f9'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}});
+
+  // ── Store for export ──────────────────────────────────────────────────
+  _xlsData = {
+    propName:str('propName')||'Commercial Property',
+    propType:typeLabels[currentType],
+    sf,baseRent,occ,price,loan,equity0,annDS,hold,exitCap,salesCPct,
+    goIn,irr,uirr,em,npv,cocY1,dscrY1,debtYieldY1,loanConst,
+    pricePSF,rentPSF:baseRent/sf,grm,breakEvenOcc,
+    salePrice,saleCost,finalBal,saleProc,capSpread,exitNOI,
+    leaseRem, targetIRR,
+    rows, rentSched,
+    capSens:caps.map(c=>{
+      const sp=rows[hold-1].noi/(c/100),proc=sp-sp*salesCPct-finalBal;
+      const cf2=[-equity0,...rows.map((r,i)=>i===hold-1?r.levCF+proc:r.levCF)];
+      return {cap:c,salePrice:sp,irr:safeIRR(cf2)};
+    }),
+    rentSens:growths.map(g=>{
+      const rs=buildRent(baseRent,hold,'annual',g);
+      const annCFs=rs.map((rentY,i)=>{const eg=rentY+camR+othInc,op=opex(i+1)+eg*mgmtPct+capRes;return eg-op-annDS;});
+      const lastNOI=(rs[hold-1]+camR+othInc)-opex(hold)-(rs[hold-1]+camR+othInc)*mgmtPct-capRes;
+      const sp2=lastNOI/exitCap,proc2=sp2-sp2*salesCPct-finalBal;
+      const cf2=[-equity0,...annCFs.map((cf,i)=>i===hold-1?cf+proc2:cf)];
+      return {growth:g,yr1noi:(rs[0]+camR+othInc)-(opex(1)+(rs[0]+camR+othInc)*mgmtPct+capRes),irr:safeIRR(cf2)};
+    }),
+    occSens:occs.map(o=>{
+      const occFrac=o/100;
+      const annCFs=rentSched.map((rentY,i)=>{const effR=currentType==='nnn'?rentY:rentY*occFrac;const eg=effR+camR+othInc,op=opex(i+1)+eg*mgmtPct+capRes;return eg-op-annDS;});
+      const lastEffR=currentType==='nnn'?rentSched[hold-1]:rentSched[hold-1]*occFrac;
+      const lastNOI=(lastEffR+camR+othInc)-opex(hold)-(lastEffR+camR+othInc)*mgmtPct-capRes;
+      const sp2=lastNOI/exitCap,proc2=sp2-sp2*salesCPct-finalBal;
+      const cf2=[-equity0,...annCFs.map((cf,i)=>i===hold-1?cf+proc2:cf)];
+      const yr1EffR=currentType==='nnn'?rentSched[0]:rentSched[0]*occFrac;
+      return {occ:o,yr1noi:(yr1EffR+camR+othInc)-(opex(1)+(yr1EffR+camR+othInc)*mgmtPct+capRes),irr:safeIRR(cf2)};
+    }),
+  };
 }
 
-// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
+// EXPORT EXCEL — Full formatted workbook
+// ══════════════════════════════════════════════════════════════════════════════
+function exportExcel(){
+  if(!window.XLSX){ alert('XLSX library not loaded.'); return; }
+  if(!_xlsData){ alert('Please run the calculator first.'); return; }
+  const D = _xlsData;
+  const wb = XLSX.utils.book_new();
+
+  // ── Style constants ──────────────────────────────────────────────────
+  const NAVY='FF002060',BLUE='FF0043CE',DBLUE='FF1E3A5F',LBLUE='FFEFF6FF';
+  const GREEN='FF15803D',LGREEN='FFDCFCE7',LGREENB='FFF0FDF4';
+  const AMBER='FFB45309',RED='FFB91C1C',COST='FFDC2626';
+  const GRAY1='FFF8FAFC',GRAY2='FFF1F5F9',DGRAY='FF64748B',WHITE='FFFFFFFF';
+  const FMT_CURR='$#,##0;($#,##0);"-"', FMT_PCT='0.0%;(0.0%);"-"';
+  const FMT_MULT='0.00"×"', FMT_INT='#,##0', FMT_PSF='$#,##0.00"/SF"';
+
+  function cell(v,type,fmt,style){
+    const t=type||(typeof v==='number'?'n':'s');
+    const c={v,t};
+    if(fmt) c.z=fmt;
+    if(style) c.s=style;
+    return c;
+  }
+  function sc(ws,r,c,v,type,fmt,style){
+    const addr=XLSX.utils.encode_cell({r:r-1,c:c-1});
+    ws[addr]=cell(v,type,fmt,style);
+  }
+  function hdr(bg,fg,bold,sz,ha){
+    return {font:{bold:bold!==false,color:{rgb:fg||WHITE},sz:sz||10,name:'Calibri'},
+      fill:{fgColor:{rgb:bg},patternType:'solid'},
+      alignment:{horizontal:ha||'left',vertical:'center',wrapText:true},
+      border:{top:{style:'thin',color:{rgb:'FFCBD5E1'}},bottom:{style:'thin',color:{rgb:'FFCBD5E1'}},
+              left:{style:'thin',color:{rgb:'FFCBD5E1'}},right:{style:'thin',color:{rgb:'FFCBD5E1'}}}};
+  }
+  function dat(bg,fc,bold,ha){
+    return {font:{bold:!!bold,color:{rgb:fc||'FF000000'},sz:10,name:'Calibri'},
+      fill:{fgColor:{rgb:bg||WHITE},patternType:'solid'},
+      alignment:{horizontal:ha||'right',vertical:'center'},
+      border:{top:{style:'thin',color:{rgb:'FFCBD5E1'}},bottom:{style:'thin',color:{rgb:'FFCBD5E1'}},
+              left:{style:'thin',color:{rgb:'FFCBD5E1'}},right:{style:'thin',color:{rgb:'FFCBD5E1'}}}};
+  }
+  function tot(bg,fc){
+    return {font:{bold:true,color:{rgb:fc||BLUE},sz:10,name:'Calibri'},
+      fill:{fgColor:{rgb:bg||LBLUE},patternType:'solid'},
+      alignment:{horizontal:'right',vertical:'center'},
+      border:{top:{style:'medium',color:{rgb:BLUE}},bottom:{style:'medium',color:{rgb:BLUE}},
+              left:{style:'thin',color:{rgb:'FFCBD5E1'}},right:{style:'thin',color:{rgb:'FFCBD5E1'}}}};
+  }
+
+  // ══════════════ SHEET 1: SUMMARY ══════════════
+  const ws1={};  ws1['!merges']=[];
+  let r=1;
+  sc(ws1,r,1,'COMMERCIAL / RETAIL PROPERTY PROFORMA','s',null,hdr(NAVY,WHITE,true,14,'center'));
+  ws1['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:3}});  r++;
+  sc(ws1,r,1,`${D.propName}  ·  ${D.propType}  ·  ${D.sf.toLocaleString()} SF`,'s',null,hdr('FFF0F4FF',DGRAY,false,10,'center'));
+  ws1['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:3}});  r+=2;
+
+  // KPI section
+  sc(ws1,r,1,'KEY PERFORMANCE INDICATORS','s',null,hdr(BLUE,WHITE,true,11,'center'));
+  ws1['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:3}});  r++;
+  ['Metric','Value','Benchmark / Context','Status'].forEach((h,i)=>sc(ws1,r,i+1,h,'s',null,hdr(DBLUE,WHITE,true,9,'center')));  r++;
+
+  const kpiRows=[
+    ['Purchase Price',      D.price,     FMT_CURR, '',''],
+    ['Annual Base Rent',    D.baseRent,  FMT_CURR, '',''],
+    ['Going-In Cap Rate',   D.goIn/100,  FMT_PCT,  '2025 NNN market: 6.75–7.0%', D.goIn>=6?'✅ In range':'⚠ Review'],
+    ['Year 1 NOI',          D.rows[0].noi,FMT_CURR,'',''],
+    ['Price / SF',          D.pricePSF,  FMT_PSF,  'Compare to market comps',''],
+    ['Rent / SF / Yr',      D.rentPSF,   FMT_PSF,  '',''],
+    ['Gross Rent Multiplier',D.grm,      FMT_MULT, 'Lower = better value',''],
+    ['Levered IRR',         D.irr/100,   FMT_PCT,  'Target: ≥8% NNN', D.irr>=8?'✅ Meets target':'⚠ Below target'],
+    ['Unlevered IRR',       D.uirr/100,  FMT_PCT,  'Target: 6–8%+',''],
+    ['Year 1 Cash-on-Cash', D.cocY1/100, FMT_PCT,  'Target: 4–6%+', D.cocY1>=4?'✅ Strong':'⚠ Review'],
+    ['Equity Multiple',     D.em,        FMT_MULT, 'Target: 1.5–2.5×', D.em>=1.5?'✅ Good':'⚠ Review'],
+    ['DSCR (Year 1)',        D.dscrY1||0,FMT_MULT, 'Lender min: 1.25×', D.dscrY1>=1.25?'✅ Bankable':'❌ Below 1.25×'],
+    ['Debt Yield (Year 1)', D.debtYieldY1!=null?D.debtYieldY1/100:0,FMT_PCT,'Target: ≥8–10%',D.debtYieldY1>=8?'✅ Strong':'⚠ Thin'],
+    ['Loan Constant',       D.loanConst/100,FMT_PCT,'Annual DS ÷ Loan',''],
+    ['Breakeven Occupancy', D.breakEvenOcc!=null?D.breakEvenOcc/100:0,FMT_PCT,'Min occ to cover DS', D.breakEvenOcc<80?'✅ Good cushion':'⚠ Watch vacancy'],
+    ['Exit Sale Price',     D.salePrice, FMT_CURR, 'At '+pct(D.exitCap*100)+' exit cap',''],
+    ['Net Sale Proceeds',   D.saleProc,  FMT_CURR, 'After loan & selling costs',''],
+  ];
+  kpiRows.forEach((row,i)=>{
+    const bg=i%2===0?GRAY1:WHITE;
+    const isGood=row[4].startsWith('✅'), isBad=row[4].startsWith('❌');
+    const sc2=(c,v,type,fmt,style)=>sc(ws1,r,c,v,type,fmt,style);
+    sc2(1,row[0],'s',null,{...dat(bg,'FF000000',true,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+    sc2(2,typeof row[1]==='number'?row[1]:'—','s'===typeof row[1]?'s':'n',row[2],dat(bg,BLUE,true,'right'));
+    sc2(3,row[3],'s',null,{...dat(bg,DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
+    sc2(4,row[4],'s',null,dat(bg,isGood?GREEN:isBad?RED:AMBER,isGood||isBad,'left'));
+    r++;
+  });
+  r++;
+
+  // Sources & Uses
+  sc(ws1,r,1,'SOURCES & USES OF FUNDS','s',null,hdr(BLUE,WHITE,true,11,'center'));
+  ws1['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:3}}); r++;
+  const suRows=[
+    ['USES','','',''],
+    ['Purchase Price',D.price,FMT_CURR,''],
+    ['Closing Costs',D.price*num('closingCosts')/100,FMT_CURR,''],
+    ['TI Allowance',num('tiAllowance')*D.sf,FMT_CURR,''],
+    ['Leasing Commissions',D.baseRent*num('leasingComm')/100,FMT_CURR,''],
+    ['CapEx Budget',num('capitalImprovements'),FMT_CURR,''],
+    ['TOTAL USES',D.equity0+D.loan,FMT_CURR,''],
+    ['','','',''],
+    ['SOURCES','','',''],
+    ['Loan Amount ('+pct(num('loanToValue'))+'% LTV)',D.loan,FMT_CURR,''+pct(D.loan/(D.equity0+D.loan)*100)+' of total'],
+    ['Equity Required',D.equity0,FMT_CURR,''+pct(D.equity0/(D.equity0+D.loan)*100)+' of total'],
+    ['TOTAL SOURCES',D.equity0+D.loan,FMT_CURR,''],
+  ];
+  suRows.forEach((row,i)=>{
+    const isHdr=row[0]==='USES'||row[0]==='SOURCES';
+    const isTot=row[0].startsWith('TOTAL');
+    const bg=isTot?LBLUE:isHdr?GRAY2:i%2===0?GRAY1:WHITE;
+    sc(ws1,r,1,row[0],'s',null,isHdr?hdr(BLUE,WHITE,true,10,'left'):{...dat(bg,'FF000000',isTot,'left'),alignment:{horizontal:'left',vertical:'center',indent:isHdr?0:1}});
+    if(row[1]) sc(ws1,r,2,row[1],'n',row[2],isTot?tot(LBLUE,BLUE):dat(bg,isTot?BLUE:COST,isTot,'right'));
+    if(row[3]) sc(ws1,r,4,row[3],'s',null,{...dat(bg,DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
+    r++;
+  });
+
+  ws1['!ref']=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:r+2,c:4}});
+  ws1['!cols']=[{wch:32},{wch:18},{wch:28},{wch:20}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Summary');
+
+  // ══════════════ SHEET 2: ANNUAL PROFORMA ══════════════
+  const ws2={};  ws2['!merges']=[];
+  r=1;
+  sc(ws2,r,1,'ANNUAL PROFORMA — '+D.propName.toUpperCase(),'s',null,hdr(NAVY,WHITE,true,12,'center'));
+  ws2['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:D.rows.length+1}}); r++;
+  sc(ws2,r,1,`${D.propType}  ·  ${D.sf.toLocaleString()} SF  ·  ${D.hold}-Year Hold  ·  Exit Cap: ${pct(D.exitCap*100)}`,'s',null,hdr('FFF0F4FF',DGRAY,false,10,'center'));
+  ws2['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:D.rows.length+1}}); r+=2;
+
+  // Col headers
+  sc(ws2,r,1,'Line Item','s',null,hdr(DBLUE,WHITE,true,9,'left'));
+  D.rows.forEach((rw,i)=>sc(ws2,r,i+2,'Year '+rw.y,'s',null,hdr(DBLUE,WHITE,true,9,'center')));
+  sc(ws2,r,D.rows.length+2,'Exit/Sale','s',null,hdr('FF4B0082',WHITE,true,9,'center'));
+  r++;
+
+  function proSec(ws,row,label,cols){
+    const addr=XLSX.utils.encode_cell({r:row-1,c:0});
+    ws[addr]={v:'▸  '+label,t:'s',s:hdr(BLUE,WHITE,true,10,'left')};
+    ws['!merges'].push({s:{r:row-1,c:0},e:{r:row-1,c:cols}});
+  }
+  function proRow(ws,row,label,vals,exitVal,isCost,isTot,bg2){
+    const bg=bg2||(isTot?LBLUE:row%2===0?GRAY1:WHITE);
+    const lStyle={...dat(bg,'FF000000',isTot,'left'),alignment:{horizontal:'left',vertical:'center',indent:isTot?0:1}};
+    if(isTot) lStyle.font={bold:true,color:{rgb:BLUE},sz:10,name:'Calibri'};
+    sc(ws,row,1,label,'s',null,lStyle);
+    vals.forEach((v,i)=>{
+      const fc=isCost&&!isTot?COST:isTot?BLUE:'FF000000';
+      sc(ws,row,i+2,v,'n',FMT_CURR,isTot?tot(bg,fc):dat(bg,fc,false,'right'));
+    });
+    if(exitVal!==undefined){
+      sc(ws,row,vals.length+2,typeof exitVal==='number'?exitVal:null,typeof exitVal==='number'?'n':'s',FMT_CURR,dat('FFFFF8F0','FF4B0082',true,'right'));
+    }
+  }
+
+  const NC=D.rows.length;
+  proSec(ws2,r,'INCOME',NC+1); r++;
+  proRow(ws2,r,'Gross Rental Income',D.rows.map(rw=>rw.rentY),undefined,false,false); r++;
+  if(D.rows.some(rw=>rw.rentY!==rw.effR)){ proRow(ws2,r,'Vacancy / Credit Loss',D.rows.map(rw=>-(rw.rentY-rw.effR)),undefined,true,false); r++; }
+  proRow(ws2,r,'CAM & Other Income',D.rows.map(rw=>rw.egi-rw.effR),undefined,false,false); r++;
+  proRow(ws2,r,'Effective Gross Income (EGI)',D.rows.map(rw=>rw.egi),undefined,false,true); r++;
+
+  proSec(ws2,r,'EXPENSES',NC+1); r++;
+  proRow(ws2,r,'Total Operating Expenses',D.rows.map(rw=>-rw.opx),undefined,true,false); r++;
+  proRow(ws2,r,'Net Operating Income (NOI)',D.rows.map(rw=>rw.noi),D.exitNOI,false,true); r++;
+
+  proSec(ws2,r,'DEBT SERVICE',NC+1); r++;
+  proRow(ws2,r,'Interest',D.rows.map(rw=>-rw.intPaid),undefined,true,false); r++;
+  proRow(ws2,r,'Principal',D.rows.map(rw=>-rw.prin),undefined,true,false); r++;
+  proRow(ws2,r,'Total Debt Service',D.rows.map(rw=>-rw.annDS),undefined,true,true); r++;
+  proRow(ws2,r,'Levered Cash Flow',D.rows.map(rw=>rw.levCF),undefined,false,true,LGREEN); r++;
+
+  proSec(ws2,r,'KEY METRICS',NC+1); r++;
+  // Cap rate row (text)
+  sc(ws2,r,1,'Cap Rate (NOI/Price)','s',null,{...dat(GRAY1,DGRAY,false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+  D.rows.forEach((rw,i)=>sc(ws2,r,i+2,rw.capRateYr!=null?rw.capRateYr/100:0,'n',FMT_PCT,dat(GRAY1,'FF000000',false,'right')));
+  sc(ws2,r,NC+2,D.exitNOI/D.price,'n',FMT_PCT,dat('FFFFF8F0','FF4B0082',false,'right')); r++;
+  sc(ws2,r,1,'Debt Yield (NOI/Loan)','s',null,{...dat(WHITE,DGRAY,false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+  D.rows.forEach((rw,i)=>sc(ws2,r,i+2,rw.debtYield!=null?rw.debtYield/100:0,'n',FMT_PCT,dat(WHITE,'FF000000',false,'right')));
+  sc(ws2,r,NC+2,'','s',null,dat('FFFFF8F0','FF4B0082',false,'right')); r++;
+  sc(ws2,r,1,'DSCR','s',null,{...dat(GRAY1,DGRAY,false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+  D.rows.forEach((rw,i)=>sc(ws2,r,i+2,rw.dscr||0,'n','0.00"×"',dat(GRAY1,rw.dscr>=1.25?GREEN:RED,false,'right')));
+  sc(ws2,r,NC+2,'','s',null,dat('FFFFF8F0','FF4B0082',false,'right')); r++;
+  sc(ws2,r,1,'Cash-on-Cash','s',null,{...dat(WHITE,DGRAY,false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+  D.rows.forEach((rw,i)=>sc(ws2,r,i+2,rw.levCF/D.equity0,'n',FMT_PCT,dat(WHITE,'FF000000',false,'right')));
+  sc(ws2,r,NC+2,'','s',null,dat('FFFFF8F0','FF4B0082',false,'right')); r++;
+  sc(ws2,r,1,'Loan Balance (EOY)','s',null,{...dat(GRAY1,DGRAY,false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+  D.rows.forEach((rw,i)=>sc(ws2,r,i+2,rw.b1,'n',FMT_CURR,dat(GRAY1,COST,false,'right')));
+  sc(ws2,r,NC+2,'','s',null,dat('FFFFF8F0','FF4B0082',false,'right')); r++;
+
+  proSec(ws2,r,'EXIT ANALYSIS',NC+1); r++;
+  proRow(ws2,r,'Exit NOI',D.rows.map(()=>null),D.exitNOI,false,false,'FFFFF8F0'); r++;
+  proRow(ws2,r,'Sale Price (Exit Cap '+pct(D.exitCap*100)+')',D.rows.map(()=>null),D.salePrice,false,false,'FFFFF8F0'); r++;
+  proRow(ws2,r,'Selling Costs ('+pct(D.salesCPct*100)+')',D.rows.map(()=>null),-D.saleCost,true,false,'FFFFF8F0'); r++;
+  proRow(ws2,r,'Loan Payoff',D.rows.map(()=>null),-D.finalBal,true,false,'FFFFF8F0'); r++;
+  sc(ws2,r,1,'NET SALE PROCEEDS','s',null,{font:{bold:true,color:{rgb:'FF4B0082'},sz:11,name:'Calibri'},fill:{fgColor:{rgb:'FFFFF8F0'},patternType:'solid'},alignment:{horizontal:'left',vertical:'center'},border:{top:{style:'medium',color:{rgb:'FF4B0082'}},bottom:{style:'medium',color:{rgb:'FF4B0082'}},left:{style:'thin',color:{rgb:'FFCBD5E1'}},right:{style:'thin',color:{rgb:'FFCBD5E1'}}}});
+  D.rows.forEach((rw,i)=>sc(ws2,r,i+2,'','s',null,dat('FFFFF8F0','FF4B0082',true,'right')));
+  sc(ws2,r,NC+2,D.saleProc,'n',FMT_CURR,{font:{bold:true,color:{rgb:'FF4B0082'},sz:11,name:'Calibri'},fill:{fgColor:{rgb:'FFFFF8F0'},patternType:'solid'},alignment:{horizontal:'right',vertical:'center'},border:{top:{style:'medium',color:{rgb:'FF4B0082'}},bottom:{style:'medium',color:{rgb:'FF4B0082'}},left:{style:'thin',color:{rgb:'FFCBD5E1'}},right:{style:'thin',color:{rgb:'FFCBD5E1'}}}}); r++;
+
+  ws2['!ref']=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:r+2,c:NC+2}});
+  ws2['!cols']=[{wch:32},...Array(NC).fill({wch:13}),{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws2,'Annual Proforma');
+
+  // ══════════════ SHEET 3: SENSITIVITY ══════════════
+  const ws3={}; ws3['!merges']=[]; r=1;
+  sc(ws3,r,1,'SENSITIVITY ANALYSIS','s',null,hdr(NAVY,WHITE,true,13,'center'));
+  ws3['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:3}}); r+=2;
+
+  function senSection(ws,row,title,hdrs,rows2,midIdx){
+    sc(ws,row,1,'▸  '+title,'s',null,hdr(BLUE,WHITE,true,11,'center'));
+    ws['!merges'].push({s:{r:row-1,c:0},e:{r:row-1,c:hdrs.length-1}}); row++;
+    hdrs.forEach((h,i)=>sc(ws,row,i+1,h,'s',null,hdr(DBLUE,WHITE,true,9,i>0?'center':'left'))); row++;
+    rows2.forEach((drow,ri)=>{
+      const isBase=ri===midIdx;
+      const bg=isBase?LBLUE:ri%2===0?GRAY1:WHITE;
+      drow.forEach((v,ci)=>{
+        const style=dat(bg,isBase?BLUE:'FF000000',isBase,ci>0?'right':'left');
+        sc(ws,row,ci+1,typeof v==='number'?v:v,'s'===typeof v?'s':'n',
+           typeof v==='number'&&ci>0?v<1?FMT_PCT:FMT_CURR:null,style);
+      }); row++;
+    });
+    return row+1;
+  }
+
+  r=senSection(ws3,r,'Exit Cap Rate Sensitivity',['Exit Cap Rate','Sale Price','Levered IRR'],
+    D.capSens.map(s=>[s.cap.toFixed(1)+'%',fmt(s.salePrice),fmtIRR(s.irr)]),4); r++;
+  r=senSection(ws3,r,'Rent Growth Sensitivity',['Rent Growth','Year 1 NOI','Levered IRR'],
+    D.rentSens.map(s=>[s.growth.toFixed(1)+'%',fmt(s.yr1noi),fmtIRR(s.irr)]),4); r++;
+  r=senSection(ws3,r,'Occupancy Sensitivity',['Occupancy','Year 1 NOI','Levered IRR'],
+    D.occSens.map(s=>[s.occ+'%',fmt(s.yr1noi),fmtIRR(s.irr)]),6);
+
+  ws3['!ref']=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:r+5,c:4}});
+  ws3['!cols']=[{wch:20},{wch:18},{wch:15}];
+  XLSX.utils.book_append_sheet(wb,ws3,'Sensitivity Analysis');
+
+  // ══════════════ SHEET 4: INPUTS ══════════════
+  const ws4={}; ws4['!merges']=[]; r=1;
+  sc(ws4,r,1,'DEAL INPUTS & ASSUMPTIONS','s',null,hdr(NAVY,WHITE,true,13,'center'));
+  ws4['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:2}}); r++;
+  sc(ws4,r,1,'Blue = user input  ·  All values as entered','s',null,{...dat('FFF0F4FF',DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
+  ws4['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:2}}); r+=2;
+  ['Input','Value','Notes'].forEach((h,i)=>sc(ws4,r,i+1,h,'s',null,hdr(DBLUE,WHITE,true,9,i===1?'right':'left'))); r++;
+
+  function inSec(ws,row,t){ sc(ws,row,1,'▸  '+t,'s',null,hdr(BLUE,WHITE,true,10,'left')); ws['!merges'].push({s:{r:row-1,c:0},e:{r:row-1,c:2}}); return row+1; }
+  function inRow(ws,row,l,v,fmt2,note){
+    const bg=row%2===0?GRAY1:WHITE;
+    sc(ws,row,1,l,'s',null,{...dat(bg,'FF000000',false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+    sc(ws,row,2,v,typeof v==='number'?'n':'s',fmt2,{...dat(bg,'FF0000FF',true,'right'),font:{bold:true,color:{rgb:'FF0000FF'},sz:10,name:'Calibri'}});
+    if(note) sc(ws,row,3,note,'s',null,{...dat(bg,DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
+    ws['!merges']; return row+1;
+  }
+  r=inSec(ws4,r,'PROPERTY');
+  r=inRow(ws4,r,'Property Name',str('propName'),'@','');
+  r=inRow(ws4,r,'Property Type',D.propType,'@','');
+  r=inRow(ws4,r,'Building SF',D.sf,FMT_INT,''); r++;
+  r=inSec(ws4,r,'INCOME');
+  r=inRow(ws4,r,'Annual Base Rent',D.baseRent,FMT_CURR,'');
+  r=inRow(ws4,r,'Occupancy Rate',D.occ,FMT_PCT,'NNN typically 100%');
+  r=inRow(ws4,r,'CAM Reimbursements',num('camReimb')*D.sf,FMT_CURR,'');
+  r=inRow(ws4,r,'Other Income',num('otherIncome'),FMT_CURR,''); r++;
+  r=inSec(ws4,r,'ACQUISITION & FINANCING');
+  r=inRow(ws4,r,'Purchase Price',D.price,FMT_CURR,'');
+  r=inRow(ws4,r,'Going-In Cap Rate',D.goIn/100,FMT_PCT,'');
+  r=inRow(ws4,r,'Closing Costs %',num('closingCosts')/100,FMT_PCT,'');
+  r=inRow(ws4,r,'Loan-to-Value (LTV)',num('loanToValue')/100,FMT_PCT,'');
+  r=inRow(ws4,r,'Interest Rate',num('interestRate')/100,FMT_PCT,'');
+  r=inRow(ws4,r,'Amortization',num('amortization'),'#,##0 "yrs"','');
+  r=inRow(ws4,r,'Loan Term',num('loanTerm'),'#,##0 "yrs"',''); r++;
+  r=inSec(ws4,r,'EXIT ASSUMPTIONS');
+  r=inRow(ws4,r,'Hold Period',D.hold,'#,##0 "years"','');
+  r=inRow(ws4,r,'Exit Cap Rate',D.exitCap,FMT_PCT,'');
+  r=inRow(ws4,r,'Selling Costs',num('salesCosts')/100,FMT_PCT,'');
+  r=inRow(ws4,r,'Discount Rate',num('discountRate')/100,FMT_PCT,''); r++;
+  r=inSec(ws4,r,'CALCULATED RESULTS');
+  const calcItems=[
+    ['Loan Amount',D.loan,FMT_CURR],['Equity Required',D.equity0,FMT_CURR],
+    ['Annual Debt Service',D.annDS,FMT_CURR],['Levered IRR',D.irr/100,FMT_PCT],
+    ['Unlevered IRR',D.uirr/100,FMT_PCT],['Year 1 NOI',D.rows[0].noi,FMT_CURR],
+    ['DSCR Year 1',D.dscrY1||0,'0.00"×"'],['Debt Yield',D.debtYieldY1!=null?D.debtYieldY1/100:0,FMT_PCT],
+    ['Equity Multiple',D.em,FMT_MULT],['Exit Sale Price',D.salePrice,FMT_CURR],
+    ['Net Sale Proceeds',D.saleProc,FMT_CURR],
+  ];
+  calcItems.forEach((ci,i)=>{
+    const bg=i%2===0?LGREEN:LGREENB;
+    sc(ws4,r,1,ci[0],'s',null,{...dat(bg,'FF000000',false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+    sc(ws4,r,2,ci[1],'n',ci[2],dat(bg,GREEN,true,'right'));
+    r++;
+  });
+  ws4['!ref']=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:r+2,c:3}});
+  ws4['!cols']=[{wch:32},{wch:18},{wch:28}];
+  XLSX.utils.book_append_sheet(wb,ws4,'Inputs');
+
+  // ── Write ──────────────────────────────────────────────────────────────
+  const fname=(D.propName||'Commercial').replace(/[^a-zA-Z0-9_\-]/g,'_')+'_Proforma.xlsx';
+  XLSX.writeFile(wb,fname);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 // DEMO & RESET
-// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
 function loadDemo(){
   setType('nnn');
   set('propName','Dollar General – Milford, DE');
@@ -1154,12 +1576,13 @@ function loadDemo(){
   ['realEstateTaxes','insurance','camExpense','utilities','repairsMaint','otherOpex'].forEach(id=>set(id,'0'));
   set('managementFee','0'); set('expenseGrowth','2'); set('rentGrowth','2');
   set('customBumpPct','7.5'); set('customBumpInterval','5');
-  set('purchasePrice','1200000'); set('closingCosts','1.5'); set('tiAllowance','0');
-  set('leasingComm','0'); set('capitalReserves','0.10'); set('capitalImprovements','0');
-  set('loanToValue','65'); set('interestRate','6.75'); set('amortization','25'); set('loanTerm','10');
+  set('purchasePrice','1115000'); // ~6.99% cap rate at $78k NOI — realistic 2025 NNN
+  set('closingCosts','1.5'); set('tiAllowance','0'); set('leasingComm','0');
+  set('capitalReserves','0.10'); set('capitalImprovements','0');
+  set('loanToValue','65'); set('interestRate','6.50'); set('amortization','25'); set('loanTerm','10');
   set('holdPeriod','10'); set('terminalCapRate','7.25'); set('salesCosts','2.0');
   set('marketValueGrowth','0'); set('discountRate','7.0'); set('targetIRR','8.0'); set('year1Budget','0');
-  set('dealNotes','Corporate NNN guarantee (DG Corp, investment grade BBB). 12 yrs remaining on 15-yr initial term. 10% rent bumps at lease yrs 6 & 11. 4 × 5-yr renewal options. 9,100 SF prototype, ~1 acre, Milford DE. Tenant pays ALL expenses.');
+  set('dealNotes','Corporate NNN guarantee (DG Corp, investment grade BBB). 12 yrs remaining on 15-yr initial term. 10% rent bumps at lease yrs 6 & 11. 4 × 5-yr renewal options. 9,100 SF prototype, ~1 acre, Milford DE. Tenant pays ALL expenses. Going-in cap: 7.0% (2025 market range: 6.75–7.0%).');
   liveCalc(); calculate();
 }
 
@@ -1167,66 +1590,23 @@ function resetForm(){
   ['propName','buildingSize','landSize','yearBuilt','annualRent','rentPerSF','leaseRemaining',
    'renewalOptions','camReimb','otherIncome','purchasePrice','goingInCap','tiAllowance',
    'leasingComm','capitalImprovements','year1Budget','dealNotes','renewalProb','downtimeMonths']
-    .forEach(id=>{const e=$(id);if(e)e.value='';});
+    .forEach(id=>{ const e=$(id); if(e) e.value=''; });
   set('tenantCount','1'); set('closingCosts','1.5'); set('capitalReserves','0.10');
-  set('loanToValue','65'); set('interestRate','6.75'); set('amortization','25'); set('loanTerm','10');
+  set('loanToValue','65'); set('interestRate','6.50'); set('amortization','25'); set('loanTerm','10');
   set('holdPeriod','10'); set('terminalCapRate','7.25'); set('salesCosts','2.0');
   set('discountRate','7.0'); set('targetIRR','8.0'); set('rentGrowth','2.0');
-  set('expenseGrowth','2.0'); set('occupancyRate','100'); set('managementFee','0'); set('marketValueGrowth','0');
-  set('customBumpPct','7.5'); set('customBumpInterval','5');
-  ['loanAmtDisp','equityDisp','paymentDisp'].forEach(id=>{if($(id))$(id).textContent='—';});
+  set('expenseGrowth','2.0'); set('occupancyRate','100'); set('managementFee','0');
+  set('marketValueGrowth','0'); set('customBumpPct','7.5'); set('customBumpInterval','5');
+  ['loanAmtDisp','equityDisp','paymentDisp'].forEach(id=>{ if($(id)) $(id).textContent='—'; });
+  ['pricePSFDisp','loanConstDisp','grmDisp'].forEach(id=>{ if($(id)) $(id).textContent='—'; });
+  _xlsData=null;
+  if($('dealVerdict')) $('dealVerdict').innerHTML='';
   setType('nnn'); switchTab('inputs');
 }
-
-// ── Excel Export ──────────────────────────────────
-function exportExcel(){
-  if(!window.XLSX){alert('XLSX library not loaded.');return;}
-  const wb=XLSX.utils.book_new();
-  const ws=XLSX.utils.aoa_to_sheet([
-    ['REProforma – Commercial/Retail'],[''],
-    ['Property',str('propName')],['Purchase Price',num('purchasePrice')],
-    ['Annual Rent',num('annualRent')],['Going-In Cap',pct(num('annualRent')/num('purchasePrice')*100)],
-    ['Lease Type',str('leaseType')],['LTV',pct(num('loanToValue'))],
-  ]);
-  XLSX.utils.book_append_sheet(wb,ws,'Summary');
-  XLSX.writeFile(wb,'RE-Proforma-Commercial.xlsx');
-}
-
-// ── Nav JS ────────────────────────────────────────
-function toggleDD(menuId, btnId){
-  const m=document.getElementById(menuId);
-  if(!m) return;
-  const open=m.classList.contains('open');
-  closeAllDD();
-  if(!open){ m.classList.add('open'); }
-}
-function toggleMobSub(subId, arrowId){
-  const s=document.getElementById(subId);
-  if(!s) return;
-  const open=s.style.display==='block';
-  s.style.display=open?'none':'block';
-  const a=document.getElementById(arrowId);
-  if(a) a.style.transform=open?'rotate(0)':'rotate(180deg)';
-}
-function closeAllDD(){
-  document.querySelectorAll('.dd-menu').forEach(m=>m.classList.remove('open'));
-}
-document.addEventListener('click',function(e){
-  if(!e.target.closest('.dd-wrap')) closeAllDD();
-});
-// Responsive: show/hide desktop nav vs hamburger
-function ckNavWidth(){
-  const mob=window.innerWidth<768;
-  const dn=document.getElementById('desk-nav');
-  const mb=document.getElementById('mob-btn');
-  if(dn) dn.style.display=mob?'none':'flex';
-  if(mb) mb.style.display=mob?'block':'none';
-}
-window.addEventListener('resize',ckNavWidth);
-ckNavWidth();
 
 // Init
 onBumpTypeChange(); liveCalc();
 </script>
+
 </body>
 </html>
