@@ -195,6 +195,7 @@ a{text-decoration:none;color:inherit;}
   <button class="tab-btn" onclick="sw('cashflow',this)">💵 Annual Cash Flows</button>
   <button class="tab-btn" onclick="sw('sensitivity',this)">🎯 Sensitivity</button>
   <button class="tab-btn" onclick="sw('charts',this)">📉 Charts</button>
+  <button class="tab-btn" onclick="sw('logic',this)">🧮 Logic</button>
 </div>
 
 <div class="wrap" style="padding:22px 0 60px;">
@@ -517,6 +518,182 @@ a{text-decoration:none;color:inherit;}
     <div class="card"><p class="sec">Revenue Mix by Product Type</p><div style="position:relative;height:260px;"><canvas id="chRevMix"></canvas></div></div>
   </div>
 </div>
+
+<!-- ══ LOGIC TAB ══════════════════════════════════════════════════════ -->
+<div id="tab-logic" class="tab-panel">
+
+  <div style="background:linear-gradient(135deg,#1e3a5f,#0043ce);border-radius:12px;padding:24px;margin-bottom:18px;color:white;">
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:6px;">🧮 Calculation Methodology & Logic</h2>
+    <p style="font-size:13px;opacity:.85;line-height:1.5;">Every formula, assumption, and industry standard behind this proforma. Use this to understand, audit, or explain the model to partners, lenders, or investors. This content is also exported to the Excel file.</p>
+  </div>
+
+  <!-- REVENUE -->
+  <div class="card" style="margin-bottom:14px;">
+    <p class="sec">💰 Revenue Calculation</p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:#f8fafc;border-radius:8px;padding:14px;border-left:4px solid #0043ce;">
+        <p style="font-size:12px;font-weight:700;color:#0043ce;margin-bottom:4px;">Average Price per Lot</p>
+        <code style="font-size:12px;background:#eff6ff;padding:4px 8px;border-radius:4px;color:#1e293b;display:block;margin-bottom:6px;">Avg Price = Base Price × (1 + Escalation%/yr × Sellout Years / 2)</code>
+        <p style="font-size:11px;color:#64748b;line-height:1.6;"><strong>Mid-point escalation:</strong> Lots are sold evenly across the sellout period, so the average sale price is at the mid-point of the escalation curve. Example: $185k base, 3%/yr escalation, 1.4-year sellout → avg price = $185k × (1 + 0.03 × 0.7) = $188,900.</p>
+      </div>
+      <div style="background:#f8fafc;border-radius:8px;padding:14px;border-left:4px solid #0043ce;">
+        <p style="font-size:12px;font-weight:700;color:#0043ce;margin-bottom:4px;">Net Revenue</p>
+        <code style="font-size:12px;background:#eff6ff;padding:4px 8px;border-radius:4px;color:#1e293b;display:block;margin-bottom:6px;">Net Revenue = [Σ (Lots × Avg Price)] × (1 − Sale Closing Cost %)</code>
+        <p style="font-size:11px;color:#64748b;line-height:1.6;">Sale closing costs cover transfer tax, title insurance, recording fees, and agent commissions. Typically 2–4% of gross revenue. This is the developer's actual cash received from lot sales.</p>
+      </div>
+      <div style="background:#f8fafc;border-radius:8px;padding:14px;border-left:4px solid #64748b;">
+        <p style="font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Sellout Period</p>
+        <code style="font-size:12px;background:#f1f5f9;padding:4px 8px;border-radius:4px;color:#1e293b;display:block;margin-bottom:6px;">Sellout Months = Total Lots ÷ Total Absorption Rate (lots/mo)</code>
+        <p style="font-size:11px;color:#64748b;line-height:1.6;">Absorption rate is the combined pace across all product types. Faster absorption = shorter carry period = less interest cost = higher IRR. This is the single biggest variable affecting return on a fixed-margin deal.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- COSTS -->
+  <div class="g2" style="margin-bottom:14px;">
+    <div class="card">
+      <p class="sec">🔨 Hard Development Costs</p>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="background:#f8fafc;border-radius:7px;padding:12px;border-left:4px solid #7c3aed;">
+          <p style="font-size:11px;font-weight:700;color:#7c3aed;margin-bottom:3px;">Per-Lot Items</p>
+          <code style="font-size:11px;background:#f3f0ff;padding:3px 7px;border-radius:4px;color:#1e293b;display:block;margin-bottom:4px;">Cost = $/Lot × Total Lots</code>
+          <p style="font-size:10px;color:#64748b;">Grading, utilities, roads, curbs, landscaping scale linearly with lot count.</p>
+        </div>
+        <div style="background:#f8fafc;border-radius:7px;padding:12px;border-left:4px solid #7c3aed;">
+          <p style="font-size:11px;font-weight:700;color:#7c3aed;margin-bottom:3px;">Cost Escalation</p>
+          <code style="font-size:11px;background:#f3f0ff;padding:3px 7px;border-radius:4px;color:#1e293b;display:block;margin-bottom:4px;">Esc = Hard Base × Rate × (Dev Months/12 ÷ 2)</code>
+          <p style="font-size:10px;color:#64748b;">Applied at midpoint of construction. Reflects materials and labor inflation (industry avg 2–4%/yr). Dividing by 2 gives average exposure — costs are incurred gradually, not all on day 1.</p>
+        </div>
+        <div style="background:#f8fafc;border-radius:7px;padding:12px;border-left:4px solid #7c3aed;">
+          <p style="font-size:11px;font-weight:700;color:#7c3aed;margin-bottom:3px;">Contingency</p>
+          <code style="font-size:11px;background:#f3f0ff;padding:3px 7px;border-radius:4px;color:#1e293b;display:block;margin-bottom:4px;">Contingency = (Hard Base + Escalation) × Contingency %</code>
+          <p style="font-size:10px;color:#64748b;"><strong>Industry standard: 10–15%.</strong> Covers unforeseen site conditions, utility conflicts, design changes, weather delays. Underestimate at your peril — land dev always has surprises.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="sec">📋 Soft Costs & Developer Fee</p>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="background:#f8fafc;border-radius:7px;padding:12px;border-left:4px solid #f97316;">
+          <p style="font-size:11px;font-weight:700;color:#f97316;margin-bottom:3px;">Property Tax Carry</p>
+          <code style="font-size:11px;background:#fff7ed;padding:3px 7px;border-radius:4px;color:#1e293b;display:block;margin-bottom:4px;">Prop Tax = $/lot/yr × Lots × (Total Months / 12)</code>
+          <p style="font-size:10px;color:#64748b;">Developer pays property tax throughout the full project. Longer timelines = higher carry. A key reason to minimize delays.</p>
+        </div>
+        <div style="background:#f8fafc;border-radius:7px;padding:12px;border-left:4px solid #f97316;">
+          <p style="font-size:11px;font-weight:700;color:#f97316;margin-bottom:3px;">Marketing & Sales</p>
+          <code style="font-size:11px;background:#fff7ed;padding:3px 7px;border-radius:4px;color:#1e293b;display:block;margin-bottom:4px;">Marketing = Net Revenue × Marketing %</code>
+          <p style="font-size:10px;color:#64748b;">Commissions, sales center, signage, advertising. Typically 1–2% of net revenue for residential lots.</p>
+        </div>
+        <div style="background:#f8fafc;border-radius:7px;padding:12px;border-left:4px solid #f97316;">
+          <p style="font-size:11px;font-weight:700;color:#f97316;margin-bottom:3px;">Developer Fee</p>
+          <code style="font-size:11px;background:#fff7ed;padding:3px 7px;border-radius:4px;color:#1e293b;display:block;margin-bottom:4px;">Dev Fee = (Acq + Hard + Soft) × Dev Fee %</code>
+          <p style="font-size:10px;color:#64748b;">Compensation for developer oversight and risk. Typically 2–5% in a GP/LP structure. Set to 0% for a solo developer — the profit is the fee. <strong>Setting this to 0 does NOT change IRR, only how profit is labeled.</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINANCING -->
+  <div class="card" style="margin-bottom:14px;">
+    <p class="sec">💰 Financing Logic</p>
+    <div class="g3" style="gap:10px;">
+      <div style="background:#f8fafc;border-radius:7px;padding:12px;border-left:4px solid #ef4444;">
+        <p style="font-size:11px;font-weight:700;color:#ef4444;margin-bottom:3px;">Loan Balance</p>
+        <code style="font-size:11px;background:#fef2f2;padding:3px 7px;border-radius:4px;color:#1e293b;display:block;margin-bottom:4px;">Loan = TDC (ex-fin) × LTC %</code>
+        <p style="font-size:10px;color:#64748b;">LTC = Loan-to-Cost applied to all pre-financing costs. Lenders typically advance 60–75%. Lower LTC = less leverage = safer, but lower levered returns.</p>
+      </div>
+      <div style="background:#f8fafc;border-radius:7px;padding:12px;border-left:4px solid #ef4444;">
+        <p style="font-size:11px;font-weight:700;color:#ef4444;margin-bottom:3px;">Construction Interest</p>
+        <code style="font-size:11px;background:#fef2f2;padding:3px 7px;border-radius:4px;color:#1e293b;display:block;margin-bottom:4px;">Int = Loan × 60% × Rate × (Dev Mo/12)</code>
+        <p style="font-size:10px;color:#64748b;">Assumes 60% average draw during construction (S-curve: slow start, ramps up, tapers near completion). Interest accrues on drawn balance only.</p>
+      </div>
+      <div style="background:#f8fafc;border-radius:7px;padding:12px;border-left:4px solid #ef4444;">
+        <p style="font-size:11px;font-weight:700;color:#ef4444;margin-bottom:3px;">Sellout Interest</p>
+        <code style="font-size:11px;background:#fef2f2;padding:3px 7px;border-radius:4px;color:#1e293b;display:block;margin-bottom:4px;">Int = Loan × 30% × Rate × (Sellout Mo/12)</code>
+        <p style="font-size:10px;color:#64748b;">Loan balance declines as lots sell and proceeds repay principal. 30% average remaining balance during the sales period reflects this paydown.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- IRR -->
+  <div class="card" style="margin-bottom:14px;">
+    <p class="sec">📈 Cash Flows & IRR</p>
+    <div class="g2" style="gap:10px;margin-bottom:10px;">
+      <div style="background:#eff6ff;border-radius:8px;padding:14px;">
+        <p style="font-size:12px;font-weight:700;color:#0043ce;margin-bottom:8px;">Unlevered Cash Flows (All-Cash)</p>
+        <div style="font-size:11px;color:#475569;line-height:1.9;">
+          <div style="margin-bottom:4px;"><strong>Year 0:</strong> <code style="background:#dbeafe;padding:2px 6px;border-radius:3px;">CF[0] = −Total Acquisition</code></div>
+          <div style="margin-bottom:4px;"><strong>Dev Years:</strong> <code style="background:#dbeafe;padding:2px 6px;border-radius:3px;">CF[y] = −Dev Cost Total / Dev Years</code></div>
+          <div><strong>Sale Years:</strong> <code style="background:#dbeafe;padding:2px 6px;border-radius:3px;">CF[y] = Net Revenue / Sale Years</code></div>
+        </div>
+        <p style="font-size:10px;color:#64748b;margin-top:8px;">Ignores financing entirely. Measures the pure project return — useful for comparing deals regardless of capital structure.</p>
+      </div>
+      <div style="background:#f0fdf4;border-radius:8px;padding:14px;">
+        <p style="font-size:12px;font-weight:700;color:#15803d;margin-bottom:8px;">Levered Cash Flows (with Loan)</p>
+        <div style="font-size:11px;color:#475569;line-height:1.9;">
+          <div style="margin-bottom:4px;"><strong>Year 0:</strong> <code style="background:#dcfce7;padding:2px 6px;border-radius:3px;">CF[0] = −Acq × (1−LTC%)</code></div>
+          <div style="margin-bottom:4px;"><strong>Dev Years:</strong> <code style="background:#dcfce7;padding:2px 6px;border-radius:3px;">CF[y] = −(Dev/yr) × (1−LTC%)</code></div>
+          <div><strong>Sale Years:</strong> <code style="background:#dcfce7;padding:2px 6px;border-radius:3px;">CF[y] = Revenue/yr − Loan Repay/yr − Finance/yr</code></div>
+        </div>
+        <p style="font-size:10px;color:#64748b;margin-top:8px;">Developer's equity only. Loan covers its share of costs; revenue repays loan principal + interest. Shows actual cash return on capital invested.</p>
+      </div>
+    </div>
+    <div style="background:#f8fafc;border-radius:8px;padding:14px;border-left:4px solid #7c3aed;">
+      <p style="font-size:12px;font-weight:700;color:#7c3aed;margin-bottom:4px;">IRR Solver — Bisection + Newton-Raphson</p>
+      <code style="font-size:11px;background:#f3f0ff;padding:4px 8px;border-radius:4px;color:#1e293b;display:block;margin-bottom:6px;">Finds rate r where: Σ CF[t] / (1+r)^t = 0</code>
+      <p style="font-size:11px;color:#64748b;line-height:1.6;">Bisection narrows to within 1e-6 accuracy (80 iterations), then Newton-Raphson refines to 11 decimal places (60 iterations). Same methodology as Excel's XIRR function. Returns NaN if no solution exists (e.g., all cash flows are negative).</p>
+    </div>
+  </div>
+
+  <!-- BENCHMARKS -->
+  <div class="card" style="margin-bottom:14px;">
+    <p class="sec">📊 Industry Benchmarks</p>
+    <div class="g2" style="gap:10px;">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="background:#f8fafc;border-radius:7px;padding:12px;display:flex;justify-content:space-between;align-items:flex-start;">
+          <div><p style="font-size:11px;font-weight:700;margin-bottom:2px;">Profit Margin</p><p style="font-size:10px;color:#64748b;">Gross profit ÷ net revenue</p></div>
+          <div style="text-align:right;"><p style="font-size:12px;font-weight:700;color:#15803d;">≥25% min</p><p style="font-size:10px;color:#94a3b8;">Target 30%+</p></div>
+        </div>
+        <div style="background:#f8fafc;border-radius:7px;padding:12px;display:flex;justify-content:space-between;align-items:flex-start;">
+          <div><p style="font-size:11px;font-weight:700;margin-bottom:2px;">Unlevered IRR</p><p style="font-size:10px;color:#64748b;">All-cash return</p></div>
+          <div style="text-align:right;"><p style="font-size:12px;font-weight:700;color:#15803d;">20–25%</p><p style="font-size:10px;color:#94a3b8;">Reflects dev risk</p></div>
+        </div>
+        <div style="background:#f8fafc;border-radius:7px;padding:12px;display:flex;justify-content:space-between;align-items:flex-start;">
+          <div><p style="font-size:11px;font-weight:700;margin-bottom:2px;">Equity Multiple</p><p style="font-size:10px;color:#64748b;">Total return ÷ equity</p></div>
+          <div style="text-align:right;"><p style="font-size:12px;font-weight:700;color:#15803d;">1.5–2.5×</p><p style="font-size:10px;color:#94a3b8;">2–4 year deal</p></div>
+        </div>
+        <div style="background:#f8fafc;border-radius:7px;padding:12px;display:flex;justify-content:space-between;align-items:flex-start;">
+          <div><p style="font-size:11px;font-weight:700;margin-bottom:2px;">Profit per Lot</p><p style="font-size:10px;color:#64748b;">Gross profit ÷ lots</p></div>
+          <div style="text-align:right;"><p style="font-size:12px;font-weight:700;color:#15803d;">$25k–$60k</p><p style="font-size:10px;color:#94a3b8;">Depends on market</p></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="background:#f8fafc;border-radius:7px;padding:12px;display:flex;justify-content:space-between;align-items:flex-start;">
+          <div><p style="font-size:11px;font-weight:700;margin-bottom:2px;">Land % of TDC</p><p style="font-size:10px;color:#64748b;">Acquisition ÷ all-in cost</p></div>
+          <div style="text-align:right;"><p style="font-size:12px;font-weight:700;color:#b45309;">20–30%</p><p style="font-size:10px;color:#94a3b8;">&gt;35% = overpaid</p></div>
+        </div>
+        <div style="background:#f8fafc;border-radius:7px;padding:12px;display:flex;justify-content:space-between;align-items:flex-start;">
+          <div><p style="font-size:11px;font-weight:700;margin-bottom:2px;">Contingency</p><p style="font-size:10px;color:#64748b;">% of hard dev costs</p></div>
+          <div style="text-align:right;"><p style="font-size:12px;font-weight:700;color:#b45309;">10–15%</p><p style="font-size:10px;color:#94a3b8;">Never skip this</p></div>
+        </div>
+        <div style="background:#f8fafc;border-radius:7px;padding:12px;display:flex;justify-content:space-between;align-items:flex-start;">
+          <div><p style="font-size:11px;font-weight:700;margin-bottom:2px;">Construction LTC</p><p style="font-size:10px;color:#64748b;">Loan ÷ dev cost</p></div>
+          <div style="text-align:right;"><p style="font-size:12px;font-weight:700;color:#b45309;">60–75%</p><p style="font-size:10px;color:#94a3b8;">Lender requires equity</p></div>
+        </div>
+        <div style="background:#f8fafc;border-radius:7px;padding:12px;display:flex;justify-content:space-between;align-items:flex-start;">
+          <div><p style="font-size:11px;font-weight:700;margin-bottom:2px;">Hard Dev per Lot</p><p style="font-size:10px;color:#64748b;">Total hard ÷ lots</p></div>
+          <div style="text-align:right;"><p style="font-size:12px;font-weight:700;color:#b45309;">$40k–$80k</p><p style="font-size:10px;color:#94a3b8;">Varies by market</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:#1e293b;border-radius:10px;padding:16px 20px;color:white;">
+    <p style="font-size:13px;font-weight:600;margin-bottom:6px;">📥 This logic is also exported to Excel</p>
+    <p style="font-size:11px;color:#94a3b8;line-height:1.6;">The <strong>Calculation Logic</strong> sheet in the Excel export contains a full written explanation of every formula, benchmark, and methodology — formatted for sharing with partners, lenders, or investors who want to understand how the numbers were derived.</p>
+  </div>
+</div><!-- /logic tab -->
 
 </div><!-- /wrap -->
 <!-- FOOTER -->
@@ -1185,6 +1362,45 @@ function calculate(){
     labels:typeRevs.map(t=>t.name+' ('+t.lots+' lots)'),
     datasets:[{data:typeRevs.map(t=>t.rev),backgroundColor:['#0043ce','#7c3aed','#b45309','#22c55e'],borderWidth:0}]
   },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}}}});
+
+  // ── Store all computed values for Excel export ─────────────────────────────
+  _xls = {
+    projName:$('projName')?.value||'Land Development',
+    projLoc:$('projLoc')?.value||'',
+    types, typeRevs, totalLots, totalAbsPerMo, selloutMo, totalMo,
+    preDev, devMonths, firstSale, costEscRate,
+    lotRevenue, saleCosts, saleCostsPct, netRevenue,
+    landCost, closingPct, closingCost, earnest, ddCost, extraAcq, totalAcq,
+    grading, wetUtil, dryUtil, paving, curb, landscape, amenity, offSite,
+    stormwater, lighting, demo, costEscAmt, contPct, contingency, totalHardDev,
+    eng, arch, geotech, legal, permits, propTaxTotal, insurance, hoa, marketing,
+    miscSoft, totalSoft, devFeePct, devFee,
+    ltcPct, bankRate, loanFee, loanBal, loanFeeAmt, interestCost, totalFinance,
+    totalCosts, grossProfit, margin, roi, tIRR,
+    tdcExFin, devCostTotal, devYrCt, saleYrCt, numYrs, yrRevs, yrCosts,
+    unlevCFs, unlevIRR, unlevEM, unlevProfit, unlevMargin,
+    levCFs, levIRR, levEM, equityIn,
+    phases,
+    // Sensitivity rows for export
+    ppRows: document.querySelectorAll('#ppSens tr:not(:first-child)').length > 0
+      ? Array.from(document.querySelectorAll('#ppSens tbody tr')).map(tr => {
+          const cells = tr.querySelectorAll('td');
+          const isBase = tr.classList.contains('base');
+          return {l:cells[0]?.textContent||'',pr:parseFloat(cells[1]?.textContent?.replace(/[$,()]/g,''))*( cells[1]?.textContent?.includes('(')?-1:1)||0,mg:parseFloat(cells[2]?.textContent)||0,ir:parseFloat(cells[3]?.textContent)||0,em:parseFloat(cells[4]?.textContent)||0,pl:parseFloat(cells[5]?.textContent?.replace(/[$,()]/g,''))||0,base:isBase};
+        }) : [],
+    lpRows: Array.from(document.querySelectorAll('#lpSens tbody tr')).map(tr => {
+          const cells = tr.querySelectorAll('td'); const isBase = tr.classList.contains('base');
+          return {l:cells[0]?.textContent||'',pr:parseFloat(cells[1]?.textContent?.replace(/[$,()]/g,''))*( cells[1]?.textContent?.includes('(')?-1:1)||0,mg:parseFloat(cells[2]?.textContent)||0,ir:parseFloat(cells[3]?.textContent)||0,em:parseFloat(cells[4]?.textContent)||0,pl:parseFloat(cells[5]?.textContent?.replace(/[$,()]/g,''))||0,base:isBase};
+        }),
+    absRows: Array.from(document.querySelectorAll('#absSens tbody tr')).map(tr => {
+          const cells = tr.querySelectorAll('td'); const isBase = tr.classList.contains('base');
+          return {l:cells[0]?.textContent||'',pr:parseFloat(cells[1]?.textContent?.replace(/[$,()]/g,''))*( cells[1]?.textContent?.includes('(')?-1:1)||0,mg:parseFloat(cells[2]?.textContent)||0,ir:parseFloat(cells[3]?.textContent)||0,em:parseFloat(cells[4]?.textContent)||0,pl:parseFloat(cells[5]?.textContent?.replace(/[$,()]/g,''))||0,base:isBase};
+        }),
+    hdRows: Array.from(document.querySelectorAll('#hdSens tbody tr')).map(tr => {
+          const cells = tr.querySelectorAll('td'); const isBase = tr.classList.contains('base');
+          return {l:cells[0]?.textContent||'',pr:parseFloat(cells[1]?.textContent?.replace(/[$,()]/g,''))*( cells[1]?.textContent?.includes('(')?-1:1)||0,mg:parseFloat(cells[2]?.textContent)||0,ir:parseFloat(cells[3]?.textContent)||0,em:parseFloat(cells[4]?.textContent)||0,pl:parseFloat(cells[5]?.textContent?.replace(/[$,()]/g,''))||0,base:isBase};
+        }),
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -1266,125 +1482,668 @@ function resetAll(){
   liveCalc();
 }
 
-function exportXLS(){
-  if(!window.XLSX){ alert('Export library not loaded — please check your internet connection and try again.'); return; }
+// ── Export state (populated by calculate()) ───────────────────────────────────
+let _xls = null; // holds computed values for Excel export
 
+function exportXLS(){
+  if(!window.XLSX){ alert('Export library not loaded — check your connection and try again.'); return; }
+  if(!_xls){ alert('Please run the calculator first before exporting.'); return; }
+
+  const X = _xls;  // shorthand
   const wb = XLSX.utils.book_new();
 
-  // ── Sheet 1: Summary ─────────────────────────────────────────────
-  // Pull data directly from rendered KPI divs
-  const sumRows = [
-    ['LAND DEVELOPMENT PROFORMA — SUMMARY'],
-    ['Project', $('projName')?.value || '—'],
-    ['Location', $('projLoc')?.value || '—'],
-    ['Date', $('analysisDate')?.value || new Date().toLocaleDateString()],
-    [],
-    ['RETURN METRICS'],
-  ];
-  // Extract KPI text
-  document.querySelectorAll('#kpiRow .kpi').forEach(kpi => {
-    const val = kpi.querySelector('.kpi-val')?.textContent?.trim() || '';
-    const lbl = kpi.querySelector('.kpi-lbl')?.textContent?.trim() || '';
-    sumRows.push([lbl, val]);
-  });
-  sumRows.push([]);
-  sumRows.push(['BUDGET BREAKDOWN']);
-  document.querySelectorAll('#budgetBreakdown > div').forEach(card => {
-    const lbl = card.children[0]?.textContent?.trim() || '';
-    const val = card.children[2]?.textContent?.trim() || '';
-    const pct = card.children[3]?.textContent?.trim() || '';
-    sumRows.push([lbl, val, pct]);
-  });
+  // ── SheetJS style helpers ─────────────────────────────────────────
+  const NAVY   = 'FF002060';
+  const DBLUE  = 'FF1E3A5F';
+  const BLUE   = 'FF0043CE';
+  const LBLUE  = 'FFEFF6FF';
+  const MIDBL  = 'FFDBEAFE';
+  const GREEN  = 'FF15803D';
+  const LGREEN = 'FFDCFCE7';
+  const LGREENB= 'FFF0FDF4';
+  const RED    = 'FFDC2626';
+  const AMBER  = 'FFB45309';
+  const GRAY1  = 'FFF8FAFC';
+  const GRAY2  = 'FFF1F5F9';
+  const DGRAY  = 'FF64748B';
+  const WHITE  = 'FFFFFFFF';
+  const COST_R = 'FFB91C1C';
 
-  const wsSummary = XLSX.utils.aoa_to_sheet(sumRows);
-  wsSummary['!cols'] = [{wch:35},{wch:20},{wch:15}];
-  XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+  const FMT_CURR = '"$"#,##0;("$"#,##0);"-"';
+  const FMT_PCT  = '0.0%;(0.0%);"-"';
+  const FMT_MULT = '0.00"×"';
+  const FMT_INT  = '#,##0;(#,##0);"-"';
 
-  // ── Sheet 2: Phase Proforma (from rendered table) ─────────────────
-  const pt = $('proTbl');
-  if(pt && pt.rows.length > 2){
-    const wsProforma = XLSX.utils.table_to_sheet(pt);
-    wsProforma['!cols'] = [{wch:32},{wch:16},{wch:16},{wch:16},{wch:16}];
-    XLSX.utils.book_append_sheet(wb, wsProforma, 'Phase Proforma');
+  // Apply styles to a range of cells
+  function styleRange(ws, r1, c1, r2, c2, style){
+    for(let r=r1;r<=r2;r++){
+      for(let c=c1;c<=c2;c++){
+        const addr = XLSX.utils.encode_cell({r:r-1,c:c-1});
+        if(!ws[addr]) ws[addr] = {v:'', t:'s'};
+        ws[addr].s = style;
+      }
+    }
   }
 
-  // ── Sheet 3: Annual Cash Flows ────────────────────────────────────
-  const ct = $('cfTbl');
-  if(ct && ct.rows.length > 2){
-    const wsCF = XLSX.utils.table_to_sheet(ct);
-    wsCF['!cols'] = [{wch:25},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14}];
-    XLSX.utils.book_append_sheet(wb, wsCF, 'Annual Cash Flows');
+  function setCell(ws, r, c, val, type, fmt, style){
+    const addr = XLSX.utils.encode_cell({r:r-1, c:c-1});
+    const t = type || (typeof val==='number'?'n':'s');
+    ws[addr] = { v: val, t: t };
+    if(fmt) ws[addr].z = fmt;
+    if(style) ws[addr].s = style;
   }
 
-  // ── Sheet 4: Sensitivity Tables ───────────────────────────────────
-  const sensTbls = [
-    {id:'ppSens',  name:'Land Price Sensitivity'},
-    {id:'lpSens',  name:'Lot Price Sensitivity'},
-    {id:'absSens', name:'Absorption Sensitivity'},
-    {id:'hdSens',  name:'Hard Dev Cost Sensitivity'},
+  function hdrStyle(bg, fg, bold, sz, ha){
+    return {font:{bold:bold!==false,color:{rgb:fg||WHITE},sz:sz||10,name:'Calibri'},
+            fill:{fgColor:{rgb:bg},patternType:'solid'},
+            alignment:{horizontal:ha||'left',vertical:'center',wrapText:true},
+            border:{top:{style:'thin',color:{rgb:'FFCBD5E1'}},bottom:{style:'thin',color:{rgb:'FFCBD5E1'}},
+                    left:{style:'thin',color:{rgb:'FFCBD5E1'}},right:{style:'thin',color:{rgb:'FFCBD5E1'}}}};
+  }
+  function dataStyle(bg, fc, bold, ha, italic){
+    return {font:{bold:!!bold,color:{rgb:fc||'FF000000'},sz:10,name:'Calibri',italic:!!italic},
+            fill:{fgColor:{rgb:bg||WHITE},patternType:'solid'},
+            alignment:{horizontal:ha||'right',vertical:'center'},
+            border:{top:{style:'thin',color:{rgb:'FFCBD5E1'}},bottom:{style:'thin',color:{rgb:'FFCBD5E1'}},
+                    left:{style:'thin',color:{rgb:'FFCBD5E1'}},right:{style:'thin',color:{rgb:'FFCBD5E1'}}}};
+  }
+  function totalStyle(bg, fc){
+    return {font:{bold:true,color:{rgb:fc||BLUE},sz:10,name:'Calibri'},
+            fill:{fgColor:{rgb:bg||LBLUE},patternType:'solid'},
+            alignment:{horizontal:'right',vertical:'center'},
+            border:{top:{style:'medium',color:{rgb:BLUE}},bottom:{style:'medium',color:{rgb:BLUE}},
+                    left:{style:'thin',color:{rgb:'FFCBD5E1'}},right:{style:'thin',color:{rgb:'FFCBD5E1'}}}};
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // SHEET 1: SUMMARY DASHBOARD
+  // ═══════════════════════════════════════════════════════════════════
+  const ws1 = {};
+  const s1range = {s:{r:0,c:0},e:{r:100,c:4}};
+
+  let r = 1;
+  // Title
+  setCell(ws1,r,1,'LAND DEVELOPMENT PROFORMA — SUMMARY','s',null,hdrStyle(NAVY,'FFFFFFFF',true,14,'center'));
+  ws1['!merges'] = ws1['!merges']||[];
+  ws1['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:3}});
+  r++;
+
+  // Subtitle
+  const projInfo = `${X.projName||'Your Project'}  ·  ${X.projLoc||''}  ·  ${X.totalLots} Lots`;
+  setCell(ws1,r,1,projInfo,'s',null,hdrStyle('FFF0F4FF',DGRAY,false,10,'center'));
+  ws1['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:3}});
+  r+=2;
+
+  // KPI section header
+  setCell(ws1,r,1,'KEY PERFORMANCE METRICS','s',null,hdrStyle(BLUE,WHITE,true,11,'center'));
+  ws1['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:3}});
+  r++;
+
+  // KPI column headers
+  ['Metric','Value','Benchmark','Status'].forEach((h,i)=>{
+    setCell(ws1,r,i+1,h,'s',null,hdrStyle(DBLUE,WHITE,true,9,'center'));
+  });
+  r++;
+
+  const kpiData = [
+    ['Net Revenue',           X.netRevenue, FMT_CURR, '',                 ''],
+    ['Total All-In Cost',     X.totalCosts, FMT_CURR, '',                 ''],
+    ['Gross Profit',          X.grossProfit,FMT_CURR, 'Target: >$0',      X.grossProfit>0?'✅ Positive':'❌ Loss'],
+    ['Profit Margin',         X.margin/100, FMT_PCT,  'Target: ≥25%',     X.margin>=25?'✅ '+X.margin.toFixed(1)+'% — Strong':X.margin>=15?'⚠ '+X.margin.toFixed(1)+'% — Marginal':'❌ '+X.margin.toFixed(1)+'% — Weak'],
+    ['Return on Cost',        X.roi/100,    FMT_PCT,  'Target: ≥25%',     X.roi>=25?'✅ Strong':'⚠ Review'],
+    ['Unlevered IRR',         X.unlevIRR/100,FMT_PCT,`Target: ≥${X.tIRR}%`, isNaN(X.unlevIRR)?'N/A':X.unlevIRR>=X.tIRR?'✅ Exceeds target':'⚠ Below target'],
+    ['Equity Multiple',       X.unlevEM,    FMT_MULT, 'Target: ≥1.5×',    X.unlevEM>=1.5?'✅ '+X.unlevEM.toFixed(2)+'×':'⚠ '+X.unlevEM.toFixed(2)+'×'],
+    ['Levered IRR',           X.levIRR/100, FMT_PCT,  'Should > Unlev.',  isNaN(X.levIRR)?'N/A':X.levIRR>X.unlevIRR?'✅ Positive leverage':'⚠ Check structure'],
+    ['Levered Multiple',      X.levEM,      FMT_MULT, 'Target: ≥2.0×',    X.levEM>=2?'✅ '+X.levEM.toFixed(2)+'×':'⚠ '+X.levEM.toFixed(2)+'×'],
+    ['Profit / Lot',          X.grossProfit/X.totalLots, FMT_CURR,'Target: $25k–60k', ''],
+    ['Land as % of TDC',      X.totalAcq/X.totalCosts, FMT_PCT,'Rule: 20–30%', ''],
+    ['Total Lots',            X.totalLots,  FMT_INT,  '',                 ''],
+    ['Sellout Period',        Math.round(X.selloutMo)+' months','@',''+X.totalAbsPerMo+' lots/mo pace', ''],
+    ['Total Project Duration',Math.round(X.totalMo)+' months','@','',''],
   ];
-  const sensRows = [['SENSITIVITY ANALYSIS'], []];
-  sensTbls.forEach(({id, name}) => {
-    const el = $(id);
-    if(!el) return;
-    sensRows.push([name]);
-    el.querySelectorAll('tr').forEach(tr => {
-      sensRows.push(Array.from(tr.querySelectorAll('th,td')).map(c => c.textContent.trim()));
+  kpiData.forEach((row,i)=>{
+    const bg = i%2===0?GRAY1:WHITE;
+    setCell(ws1,r,1,row[0],'s',null,{...dataStyle(bg,'FF000000',true,'left'),font:{bold:true,color:{rgb:'FF000000'},sz:10,name:'Calibri'}});
+    setCell(ws1,r,2,typeof row[1]==='number'?row[1]:row[1],'s'===typeof row[1]?'s':'n',row[2],dataStyle(bg,BLUE,true,'right'));
+    setCell(ws1,r,3,row[3],'s',null,{...dataStyle(bg,DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
+    const sc = row[4].startsWith('✅')?GREEN:row[4].startsWith('⚠')?AMBER:RED;
+    setCell(ws1,r,4,row[4],'s',null,dataStyle(bg,sc,row[4].startsWith('✅'),'left'));
+    r++;
+  });
+  r++;
+
+  // Budget breakdown header
+  setCell(ws1,r,1,'TOTAL DEVELOPMENT BUDGET','s',null,hdrStyle(BLUE,WHITE,true,11,'center'));
+  ws1['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:3}});
+  r++;
+  ['Cost Category','Total ($)','% of TDC','Per Lot ($)'].forEach((h,i)=>{
+    setCell(ws1,r,i+1,h,'s',null,hdrStyle(DBLUE,WHITE,true,9,'center'));
+  });
+  r++;
+
+  const budgetData = [
+    ['Land Acquisition',         X.totalAcq,   X.totalAcq/X.totalCosts,   X.totalAcq/X.totalLots],
+    ['Hard Development Costs',   X.totalHardDev,X.totalHardDev/X.totalCosts,X.totalHardDev/X.totalLots],
+    ['Soft Costs',               X.totalSoft,  X.totalSoft/X.totalCosts,  X.totalSoft/X.totalLots],
+    ['Developer Fee',            X.devFee,     X.totalCosts?X.devFee/X.totalCosts:0, X.devFee/X.totalLots],
+    ['Financing Costs',          X.totalFinance,X.totalFinance/X.totalCosts,X.totalFinance/X.totalLots],
+  ];
+  budgetData.forEach((row,i)=>{
+    const bg = i%2===0?GRAY1:WHITE;
+    setCell(ws1,r,1,row[0],'s',null,{...dataStyle(bg,'FF000000',true,'left'),font:{bold:true,sz:10,color:{rgb:'FF000000'},name:'Calibri'}});
+    setCell(ws1,r,2,row[1],'n',FMT_CURR,dataStyle(bg,COST_R,false,'right'));
+    setCell(ws1,r,3,row[2],'n',FMT_PCT, dataStyle(bg,'FF000000',false,'right'));
+    setCell(ws1,r,4,Math.round(row[3]),'n',FMT_CURR,dataStyle(bg,DGRAY,false,'right'));
+    r++;
+  });
+  // TDC total
+  ['TOTAL DEVELOPMENT COST (TDC)', X.totalCosts, 1.0, X.totalCosts/X.totalLots].forEach((v,i)=>{
+    setCell(ws1,r,i+1,v,i===0?'s':'n',i===0?null:i===2?FMT_PCT:FMT_CURR,totalStyle(LBLUE,BLUE));
+  });
+  r+=2;
+
+  // Sources of funds
+  setCell(ws1,r,1,'SOURCES OF FUNDS','s',null,hdrStyle(BLUE,WHITE,true,11,'center'));
+  ws1['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:3}});
+  r++;
+  const srcData = [
+    ['Construction Loan ('+Math.round(X.ltcPct*100)+'% LTC)', X.loanBal, X.loanBal/X.tdcExFin, ''+Math.round(X.bankRate*1000)/10+'% rate, '+Math.round(X.loanFee*1000)/10+'% fee'],
+    ['Developer Equity',                                        X.equityIn,X.equityIn/X.tdcExFin, 'Includes earnest money'],
+  ];
+  srcData.forEach((row,i)=>{
+    const bg = i%2===0?GRAY1:WHITE;
+    setCell(ws1,r,1,row[0],'s',null,{...dataStyle(bg,'FF000000',true,'left'),font:{bold:true,sz:10,color:{rgb:'FF000000'},name:'Calibri'}});
+    setCell(ws1,r,2,row[1],'n',FMT_CURR,dataStyle(bg,BLUE,true,'right'));
+    setCell(ws1,r,3,row[2],'n',FMT_PCT, dataStyle(bg,'FF000000',false,'right'));
+    setCell(ws1,r,4,row[3],'s',null,{...dataStyle(bg,DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
+    r++;
+  });
+  ['TOTAL SOURCES', X.tdcExFin, 1.0, ''].forEach((v,i)=>{
+    setCell(ws1,r,i+1,v,i===0||i===3?'s':'n',i===2?FMT_PCT:i===1?FMT_CURR:null,totalStyle(LBLUE,BLUE));
+  });
+  r+=2;
+
+  // Return summary
+  setCell(ws1,r,1,'RETURN SUMMARY','s',null,hdrStyle('FF15803D',WHITE,true,11,'center'));
+  ws1['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:3}});
+  r++;
+  const retData = [
+    ['Equity Invested',                 X.equityIn,                              FMT_CURR],
+    ['Net Profit After Financing',      X.grossProfit-X.totalFinance,            FMT_CURR],
+    ['Cash-on-Cash Return on Equity',   (X.grossProfit-X.totalFinance)/X.equityIn,FMT_PCT],
+    ['Unlevered IRR (All-Cash)',         X.unlevIRR/100,                          FMT_PCT],
+    ['Levered IRR (with Loan)',          X.levIRR/100,                            FMT_PCT],
+    ['Unlevered Equity Multiple',        X.unlevEM,                               FMT_MULT],
+    ['Levered Equity Multiple',          X.levEM,                                 FMT_MULT],
+  ];
+  retData.forEach((row,i)=>{
+    const bg = i%2===0?LGREEN:LGREENB;
+    setCell(ws1,r,1,row[0],'s',null,{...dataStyle(bg,'FF000000',true,'left'),font:{bold:true,sz:10,color:{rgb:'FF000000'},name:'Calibri'}});
+    setCell(ws1,r,2,row[1],'n',row[2],dataStyle(bg,GREEN,true,'right'));
+    ws1['!merges'].push({s:{r:r-1,c:2},e:{r:r-1,c:3}});
+    r++;
+  });
+
+  ws1['!ref'] = XLSX.utils.encode_range({s:{r:0,c:0},e:{r:r+2,c:4}});
+  ws1['!cols'] = [{wch:36},{wch:20},{wch:24},{wch:28}];
+  XLSX.utils.book_append_sheet(wb, ws1, 'Summary');
+
+  // ═══════════════════════════════════════════════════════════════════
+  // SHEET 2: PHASE PROFORMA
+  // ═══════════════════════════════════════════════════════════════════
+  const ws2 = {};
+  ws2['!merges'] = [];
+  r = 1;
+
+  setCell(ws2,r,1,'PHASE-BY-PHASE DEVELOPMENT PROFORMA','s',null,hdrStyle(NAVY,WHITE,true,14,'center'));
+  ws2['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:4}});
+  r++;
+  const sub2 = (X.projName||'Project')+' · '+X.totalLots+' Lots · '+X.phases.map(p=>Math.round(p.pc*100)+'%').join(' / ')+' Phase Allocation';
+  setCell(ws2,r,1,sub2,'s',null,hdrStyle('FFF0F4FF',DGRAY,false,10,'center'));
+  ws2['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:4}});
+  r+=2;
+
+  // Phase column headers
+  const phHdrs = ['Line Item',...X.phases.map(p=>p.name+'\n'+Math.round(p.pc*100)+'%  ·  '+p.lots+' lots'),'TOTAL'];
+  phHdrs.forEach((h,i) => setCell(ws2,r,i+1,h,'s',null,hdrStyle(DBLUE,WHITE,true,10,'center')));
+  r++;
+
+  function proformaSection(ws, row, label){
+    setCell(ws,row,1,'▸  '+label,'s',null,hdrStyle(BLUE,WHITE,true,10,'left'));
+    ws['!merges'].push({s:{r:row-1,c:0},e:{r:row-1,c:4}});
+    return row+1;
+  }
+  function proformaRow(ws, row, label, vals, total, isCost, isTotal, indent){
+    const bg = isTotal?LBLUE:(row%2===0?GRAY1:WHITE);
+    const lStyle = isTotal
+      ? {...dataStyle(bg,BLUE,true,'left'),font:{bold:true,sz:10,color:{rgb:BLUE},name:'Calibri'},alignment:{horizontal:'left',vertical:'center'}}
+      : {...dataStyle(bg,'FF000000',false,'left'),font:{sz:9,color:{rgb:'FF000000'},name:'Calibri'},alignment:{horizontal:'left',vertical:'center',indent:indent?2:0}};
+    setCell(ws,row,1,label,'s',null,lStyle);
+    const numStyle = isTotal
+      ? totalStyle(bg, isCost?COST_R:BLUE)
+      : dataStyle(bg, isCost?(isTotal?BLUE:COST_R):'FF000000',false,'right');
+    vals.forEach((v,i) => setCell(ws,row,i+2,v,'n',FMT_CURR,numStyle));
+    setCell(ws,row,vals.length+2,total,'n',FMT_CURR,isTotal?totalStyle(bg,isCost?COST_R:BLUE):numStyle);
+    return row+1;
+  }
+
+  // Revenue
+  r = proformaSection(ws2, r, 'REVENUE');
+  X.typeRevs.forEach((t,i) => {
+    const phVals = X.phases.map(ph=>Math.round(t.rev*ph.pc));
+    r = proformaRow(ws2,r,`${t.name}  (${t.lots} lots @ $${Math.round(t.avgPrice).toLocaleString()} avg)`,phVals,t.rev,false,false,true);
+  });
+  const scVals = X.phases.map(ph=>Math.round(-X.saleCosts*ph.pc));
+  r = proformaRow(ws2,r,'Less: Sale Closing Costs ('+Math.round(X.saleCostsPct*100*10)/10+'%)',scVals,-X.saleCosts,true,false,true);
+  r = proformaRow(ws2,r,'Net Revenue (after sale costs)',X.phases.map(p=>p.rev),X.netRevenue,false,true,false);
+  r++;
+
+  // Acquisition
+  r = proformaSection(ws2, r, 'ACQUISITION COSTS');
+  r = proformaRow(ws2,r,'Land Purchase Price',X.phases.map(ph=>-Math.round(X.landCost*ph.pc)),-X.landCost,true,false,true);
+  r = proformaRow(ws2,r,'Closing Costs ('+Math.round(X.closingPct*100*10)/10+'%)',X.phases.map(ph=>-Math.round(X.closingCost*ph.pc)),-X.closingCost,true,false,true);
+  if(X.ddCost>0) r = proformaRow(ws2,r,'Due Diligence & Entitlement',X.phases.map(ph=>-Math.round(X.ddCost*ph.pc)),-X.ddCost,true,false,true);
+  if(X.extraAcq>0) r = proformaRow(ws2,r,'Additional Acquisition Costs',X.phases.map(ph=>-Math.round(X.extraAcq*ph.pc)),-X.extraAcq,true,false,true);
+  r = proformaRow(ws2,r,'Total Acquisition',X.phases.map(p=>p.acq),X.totalAcq,false,true,false);
+  r++;
+
+  // Hard dev
+  r = proformaSection(ws2, r, 'HARD DEVELOPMENT COSTS');
+  const hdItems = [
+    ['Grading & Earthwork', X.grading], ['Wet Utilities (Water/Sewer)', X.wetUtil],
+    ['Dry Utilities (Electric/Gas)', X.dryUtil], ['Roads & Paving', X.paving],
+    ['Curb, Gutter & Sidewalks', X.curb], ['Landscaping & Common Areas', X.landscape],
+    ['Amenities / Clubhouse', X.amenity], ['Off-Site Improvements', X.offSite],
+    ['Stormwater / Retention', X.stormwater], ['Site Lighting & Signage', X.lighting],
+    ['Demolition / Site Clearing', X.demo],
+    ['Cost Escalation ('+Math.round(X.costEscRate*100*10)/10+'%/yr)', X.costEscAmt],
+    ['Contingency ('+Math.round(X.contPct*100*10)/10+'%)', X.contingency],
+  ].filter(([,v]) => v>0);
+  hdItems.forEach(([lbl,tot]) => {
+    r = proformaRow(ws2,r,lbl,X.phases.map(ph=>-Math.round(tot*ph.pc)),-tot,true,false,true);
+  });
+  r = proformaRow(ws2,r,'Total Hard Development',X.phases.map(p=>p.hd),X.totalHardDev,false,true,false);
+  r++;
+
+  // Soft + dev fee
+  r = proformaSection(ws2, r, 'SOFT COSTS & DEVELOPER FEE');
+  const softItems = [
+    ['Civil Engineering', X.eng], ['Architecture / Land Planning', X.arch],
+    ['Geotech / Environmental', X.geotech], ['Legal & Title', X.legal],
+    ['Permits & Inspection Fees', X.permits], ['Property Tax — Carry', X.propTaxTotal],
+    ["Insurance — Builder's Risk", X.insurance], ['HOA / Association Setup', X.hoa],
+    ['Marketing & Sales', X.marketing], ['Miscellaneous Soft Costs', X.miscSoft],
+  ].filter(([,v]) => v>0);
+  softItems.forEach(([lbl,tot]) => {
+    r = proformaRow(ws2,r,lbl,X.phases.map(ph=>-Math.round(tot*ph.pc)),-tot,true,false,true);
+  });
+  r = proformaRow(ws2,r,'Developer Fee ('+Math.round(X.devFeePct*100*10)/10+'%)',X.phases.map(ph=>-Math.round(X.devFee*ph.pc)),-X.devFee,true,false,true);
+  r = proformaRow(ws2,r,'Total Soft Costs & Developer Fee',X.phases.map(p=>p.soft),X.totalSoft+X.devFee,false,true,false);
+  r++;
+
+  // Financing
+  r = proformaSection(ws2, r, 'FINANCING');
+  r = proformaRow(ws2,r,'Loan Origination Fee',X.phases.map(ph=>-Math.round(X.loanFeeAmt*ph.pc)),-X.loanFeeAmt,true,false,true);
+  r = proformaRow(ws2,r,'Construction Loan Interest',X.phases.map(ph=>-Math.round(X.interestCost*ph.pc)),-X.interestCost,true,false,true);
+  r = proformaRow(ws2,r,'Total Financing',X.phases.map(p=>p.fin),X.totalFinance,false,true,false);
+  r++;
+
+  // Totals
+  r = proformaSection(ws2, r, 'TOTALS');
+  // Total costs row (red)
+  setCell(ws2,r,1,'TOTAL ALL-IN COSTS','s',null,{...totalStyle('FFFEE2E2',COST_R),alignment:{horizontal:'left',vertical:'center'},font:{bold:true,sz:10,color:{rgb:COST_R},name:'Calibri'}});
+  X.phases.forEach((p,i) => setCell(ws2,r,i+2,p.cost,'n',FMT_CURR,totalStyle('FFFEE2E2',COST_R)));
+  setCell(ws2,r,X.phases.length+2,X.totalCosts,'n',FMT_CURR,totalStyle('FFFEE2E2',COST_R));
+  r++;
+  // Profit row (green)
+  setCell(ws2,r,1,'GROSS PROFIT','s',null,{...totalStyle(LGREEN,GREEN),alignment:{horizontal:'left',vertical:'center'},font:{bold:true,sz:10,color:{rgb:GREEN},name:'Calibri'}});
+  X.phases.forEach((p,i) => setCell(ws2,r,i+2,p.profit,'n',FMT_CURR,totalStyle(LGREEN,GREEN)));
+  setCell(ws2,r,X.phases.length+2,X.grossProfit,'n',FMT_CURR,totalStyle(LGREEN,GREEN));
+  r++;
+  // Margin
+  setCell(ws2,r,1,'PROFIT MARGIN','s',null,{...totalStyle(LBLUE,BLUE),alignment:{horizontal:'left',vertical:'center'},font:{bold:true,sz:10,color:{rgb:BLUE},name:'Calibri'}});
+  X.phases.forEach((p,i) => setCell(ws2,r,i+2,p.margin/100,'n',FMT_PCT,totalStyle(LBLUE,BLUE)));
+  setCell(ws2,r,X.phases.length+2,X.margin/100,'n',FMT_PCT,totalStyle(LBLUE,BLUE));
+  r++;
+  // Profit/Lot
+  setCell(ws2,r,1,'PROFIT / LOT','s',null,{...totalStyle(LBLUE,BLUE),alignment:{horizontal:'left',vertical:'center'},font:{bold:true,sz:10,color:{rgb:BLUE},name:'Calibri'}});
+  X.phases.forEach((p,i) => setCell(ws2,r,i+2,Math.round(p.profit/p.lots),'n',FMT_CURR,totalStyle(LBLUE,BLUE)));
+  setCell(ws2,r,X.phases.length+2,Math.round(X.grossProfit/X.totalLots),'n',FMT_CURR,totalStyle(LBLUE,BLUE));
+
+  ws2['!ref'] = XLSX.utils.encode_range({s:{r:0,c:0},e:{r:r+2,c:5}});
+  ws2['!cols'] = [{wch:36},{wch:17},{wch:17},{wch:17},{wch:17}];
+  XLSX.utils.book_append_sheet(wb, ws2, 'Phase Proforma');
+
+  // ═══════════════════════════════════════════════════════════════════
+  // SHEET 3: ANNUAL CASH FLOWS
+  // ═══════════════════════════════════════════════════════════════════
+  const ws3 = {};
+  ws3['!merges'] = [];
+  r = 1;
+
+  setCell(ws3,r,1,'ANNUAL UNLEVERED CASH FLOW STATEMENT','s',null,hdrStyle(NAVY,WHITE,true,14,'center'));
+  ws3['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:X.numYrs}});
+  r++;
+  setCell(ws3,r,1,'All-cash basis · Negative = cash out · Positive = cash in · Year 0 = project closing','s',null,{...dataStyle('FFF0F4FF',DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
+  ws3['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:X.numYrs}});
+  r+=2;
+
+  // Headers
+  setCell(ws3,r,1,'LINE ITEM','s',null,hdrStyle(DBLUE,WHITE,true,9,'center'));
+  const yrHdrs = Array.from({length:X.numYrs},(_,i) => i===0?'Year 0\n(Closing)':'Year '+i);
+  const yrNotes = Array.from({length:X.numYrs},(_,i) => {
+    if(i===0) return '(Land Acquisition)';
+    if(i<=X.devYrCt) return '(Construction)';
+    return '(Lot Sales)';
+  });
+  yrHdrs.forEach((h,i) => setCell(ws3,r,i+2,h+'\n'+yrNotes[i],'s',null,hdrStyle(DBLUE,WHITE,true,9,'center')));
+  r++;
+
+  // Revenue section
+  setCell(ws3,r,1,'▸  REVENUE (Net lot sales)','s',null,hdrStyle(BLUE,WHITE,true,10,'left'));
+  ws3['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:X.numYrs}});
+  r++;
+  setCell(ws3,r,1,'Net Lot Revenue','s',null,dataStyle(GRAY1,'FF000000',false,'left'));
+  X.yrRevs.forEach((v,i) => setCell(ws3,r,i+2,v||null,'n',FMT_CURR,dataStyle(GRAY1,v>0?GREEN:'FF000000',false,'right')));
+  r++;
+  setCell(ws3,r,1,'▸  COSTS (Negative = cash out)','s',null,hdrStyle(BLUE,WHITE,true,10,'left'));
+  ws3['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:X.numYrs}});
+  r++;
+  setCell(ws3,r,1,'Land & Acquisition Costs','s',null,dataStyle(GRAY1,'FF000000',false,'left'));
+  X.yrRevs.forEach((_,i) => {
+    const v = i===0?-X.totalAcq:null;
+    setCell(ws3,r,i+2,v,'n',FMT_CURR,dataStyle(GRAY1,v&&v<0?COST_R:'FF000000',false,'right'));
+  });
+  r++;
+  setCell(ws3,r,1,'Hard Development + Soft + Dev Fee','s',null,dataStyle(WHITE,'FF000000',false,'left'));
+  X.yrRevs.forEach((_,i) => {
+    const v = (i>=1&&i<=X.devYrCt)?-X.devCostTotal/X.devYrCt:null;
+    setCell(ws3,r,i+2,v,'n',FMT_CURR,dataStyle(WHITE,v&&v<0?COST_R:'FF000000',false,'right'));
+  });
+  r++;
+
+  // Net CF row
+  setCell(ws3,r,1,'NET CASH FLOW (Unlevered)','s',null,{...totalStyle(LBLUE,BLUE),alignment:{horizontal:'left',vertical:'center'},font:{bold:true,sz:10,color:{rgb:BLUE},name:'Calibri'}});
+  X.unlevCFs.forEach((v,i) => setCell(ws3,r,i+2,v,'n',FMT_CURR,totalStyle(LBLUE,v>=0?GREEN:COST_R)));
+  r++;
+  // Cumulative
+  let cumCFx = 0;
+  setCell(ws3,r,1,'Cumulative Cash Flow','s',null,{...dataStyle('FFF0F4FF',DGRAY,false,'left'),font:{bold:false,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
+  X.unlevCFs.forEach((v,i) => {
+    cumCFx += v;
+    setCell(ws3,r,i+2,Math.round(cumCFx),'n',FMT_CURR,dataStyle('FFF0F4FF',cumCFx>=0?GREEN:COST_R,false,'right'));
+  });
+  r+=2;
+
+  // Returns callout
+  setCell(ws3,r,1,'RETURN METRICS FROM CASH FLOWS','s',null,hdrStyle('FF15803D',WHITE,true,11,'center'));
+  ws3['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:X.numYrs}});
+  r++;
+  const cfRets = [
+    ['Unlevered IRR (All-Cash)',     X.unlevIRR/100,                         FMT_PCT,  'Discount rate that sets NPV = 0'],
+    ['Unlevered Equity Multiple',    X.unlevEM,                              FMT_MULT, 'Total return / equity invested'],
+    ['Levered IRR (with Loan)',      X.levIRR/100,                           FMT_PCT,  'Should exceed unlevered'],
+    ['Levered Equity Multiple',      X.levEM,                                FMT_MULT, 'After loan repayment + interest'],
+    ['Construction Loan Balance',    X.loanBal,                              FMT_CURR, 'Based on '+Math.round(X.ltcPct*100)+'% LTC'],
+    ['Developer Equity Required',    X.equityIn,                             FMT_CURR, 'Cash invested net of loan'],
+    ['Total Financing Cost',         X.totalFinance,                         FMT_CURR, 'Interest + origination fee'],
+  ];
+  cfRets.forEach((row,i)=>{
+    const bg = i%2===0?LGREEN:LGREENB;
+    setCell(ws3,r,1,row[0],'s',null,{...dataStyle(bg,'FF000000',true,'left'),font:{bold:true,sz:10,color:{rgb:'FF000000'},name:'Calibri'}});
+    setCell(ws3,r,2,row[1],'n',row[2],dataStyle(bg,GREEN,true,'right'));
+    ws3['!merges'].push({s:{r:r-1,c:2},e:{r:r-1,c:X.numYrs}});
+    setCell(ws3,r,3,row[3],'s',null,{...dataStyle(bg,DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
+    r++;
+  });
+
+  ws3['!ref'] = XLSX.utils.encode_range({s:{r:0,c:0},e:{r:r+2,c:X.numYrs+1}});
+  ws3['!cols'] = [{wch:36},...Array(X.numYrs).fill({wch:17})];
+  XLSX.utils.book_append_sheet(wb, ws3, 'Annual Cash Flows');
+
+  // ═══════════════════════════════════════════════════════════════════
+  // SHEET 4: SENSITIVITY ANALYSIS
+  // ═══════════════════════════════════════════════════════════════════
+  const ws4 = {};
+  ws4['!merges'] = [];
+  r = 1;
+  setCell(ws4,r,1,'SENSITIVITY ANALYSIS','s',null,hdrStyle(NAVY,WHITE,true,14,'center'));
+  ws4['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:6}});
+  r++;
+  setCell(ws4,r,1,'Base case highlighted in blue.  Green = above target.  Red = below threshold.','s',null,{...dataStyle('FFF0F4FF',DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
+  ws4['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:6}});
+  r+=2;
+
+  const sensHdrs = ['Scenario','Gross Profit','Margin %','Unl. IRR','Multiple','$/Lot','Assessment'];
+  function sensTblXLS(ws, row, title, note, rows){
+    setCell(ws,row,1,'▸  '+title,'s',null,hdrStyle(BLUE,WHITE,true,11,'center'));
+    ws['!merges'].push({s:{r:row-1,c:0},e:{r:row-1,c:6}});
+    row++;
+    setCell(ws,row,1,note,'s',null,{...dataStyle(GRAY2,DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
+    ws['!merges'].push({s:{r:row-1,c:0},e:{r:row-1,c:6}});
+    row++;
+    sensHdrs.forEach((h,i) => setCell(ws,row,i+1,h,'s',null,hdrStyle(DBLUE,WHITE,true,9,'center')));
+    row++;
+    rows.forEach((d,i)=>{
+      const bg = d.base?LBLUE:d.margin>=20&&d.irr>=X.tIRR?'FFF0FFF4':d.margin<15?'FFFFF5F5':i%2===0?GRAY1:WHITE;
+      const assess = d.margin>=25&&d.irr>=X.tIRR?'✅ Strong':d.margin>=15&&d.irr>=X.tIRR*0.8?'⚠ Marginal':'❌ Weak';
+      const ac = assess.startsWith('✅')?GREEN:assess.startsWith('⚠')?AMBER:RED;
+      setCell(ws,row,1,d.l,'s',null,dataStyle(bg,d.base?BLUE:'FF000000',d.base,'left'));
+      setCell(ws,row,2,d.pr,'n',FMT_CURR,dataStyle(bg,d.pr>=0?BLUE:COST_R,d.base,'right'));
+      setCell(ws,row,3,d.mg/100,'n',FMT_PCT,dataStyle(bg,d.mg>=25?GREEN:d.mg>=15?AMBER:COST_R,d.base,'right'));
+      setCell(ws,row,4,isNaN(d.ir)?0:d.ir/100,'n',FMT_PCT,dataStyle(bg,d.ir>=X.tIRR?GREEN:d.ir>=X.tIRR*0.8?AMBER:COST_R,d.base,'right'));
+      setCell(ws,row,5,d.em,'n',FMT_MULT,dataStyle(bg,d.em>=1.5?GREEN:AMBER,d.base,'right'));
+      setCell(ws,row,6,d.pl,'n',FMT_CURR,dataStyle(bg,BLUE,d.base,'right'));
+      setCell(ws,row,7,assess,'s',null,dataStyle(bg,ac,assess.startsWith('✅'),'left'));
+      row++;
     });
-    sensRows.push([]);
-  });
-  const wsSens = XLSX.utils.aoa_to_sheet(sensRows);
-  wsSens['!cols'] = [{wch:22},{wch:14},{wch:10},{wch:10},{wch:10},{wch:12}];
-  XLSX.utils.book_append_sheet(wb, wsSens, 'Sensitivity Analysis');
+    return row+1;
+  }
 
-  // ── Sheet 5: Inputs ───────────────────────────────────────────────
-  const inputRows = [
-    ['INPUTS', 'Value'],
-    [],
-    ['PROJECT'],
-    ['Project Name', $('projName')?.value || ''],
-    ['Location', $('projLoc')?.value || ''],
-    ['Site Acres', $('siteAcres')?.value || ''],
-    [],
-    ['LOT MIX'],
-    ['SFD Lots', $('sfdLots')?.value || 0],
-    ['SFD Base Price', $('sfdP')?.value || 0],
-    ['SFD Escalation %/yr', $('sfdEsc')?.value || 0],
-    ['SFD Absorption (lots/mo)', $('sfdAbs')?.value || 0],
-    ['Townhome Lots', $('thLots')?.value || 0],
-    ['Townhome Base Price', $('thP')?.value || 0],
-    ['Townhome Escalation %/yr', $('thEsc')?.value || 0],
-    ['Townhome Absorption (lots/mo)', $('thAbs')?.value || 0],
-    ['Active Adult Lots', $('aaLots')?.value || 0],
-    ['AA Base Price', $('aaP')?.value || 0],
-    ['AA Escalation %/yr', $('aaEsc')?.value || 0],
-    ['AA Absorption (lots/mo)', $('aaAbs')?.value || 0],
-    [],
-    ['ACQUISITION'],
-    ['Land Purchase Price', $('landCost')?.value || 0],
-    ['Closing Costs %', $('closingPct')?.value || 0],
-    ['Earnest Money', $('earnest')?.value || 0],
-    ['Due Diligence Cost', $('ddCost')?.value || 0],
-    [],
-    ['TIMELINE'],
-    ['Pre-Development Months', $('preDev')?.value || 0],
-    ['Construction Months', $('devMonths')?.value || 0],
-    ['First Sale Month', $('firstSale')?.value || 0],
-    ['Cost Escalation %/yr', $('costEsc')?.value || 0],
-    [],
-    ['FINANCING'],
-    ['Construction Loan LTC %', $('ltc')?.value || 0],
-    ['Interest Rate %/yr', $('loanRate')?.value || 0],
-    ['Loan Fee %', $('loanFee')?.value || 0],
-    ['Developer Fee %', $('devFeePct')?.value || 0],
-    ['Sale Closing Costs %', $('saleCostsP')?.value || 0],
-    ['Target IRR %', $('targetIRR')?.value || 0],
+  // Get sensitivity rows from the computed sensitivity tables in _xls
+  r = sensTblXLS(ws4,r,'① LAND PRICE SENSITIVITY','How return changes as land price varies ±40% from base',X.ppRows);
+  r = sensTblXLS(ws4,r,'② LOT PRICE SENSITIVITY','How return changes if achieved lot prices are higher or lower than underwritten',X.lpRows);
+  r = sensTblXLS(ws4,r,'③ ABSORPTION RATE SENSITIVITY','Faster absorption = shorter carry = higher IRR.  Revenue unchanged.',X.absRows);
+  r = sensTblXLS(ws4,r,'④ HARD DEVELOPMENT COST SENSITIVITY','Cost overruns are the #1 risk in land development.',X.hdRows);
+
+  ws4['!ref'] = XLSX.utils.encode_range({s:{r:0,c:0},e:{r:r+2,c:7}});
+  ws4['!cols'] = [{wch:24},{wch:16},{wch:10},{wch:12},{wch:10},{wch:14},{wch:14}];
+  XLSX.utils.book_append_sheet(wb, ws4, 'Sensitivity Analysis');
+
+  // ═══════════════════════════════════════════════════════════════════
+  // SHEET 5: INPUTS
+  // ═══════════════════════════════════════════════════════════════════
+  const ws5 = {};
+  ws5['!merges'] = [];
+  r = 1;
+  setCell(ws5,r,1,'PROJECT INPUTS & ASSUMPTIONS','s',null,hdrStyle(NAVY,WHITE,true,14,'center'));
+  ws5['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:2}});
+  r++;
+  setCell(ws5,r,1,'Blue = user input  ·  Yellow = key assumption  ·  All values as entered','s',null,{...dataStyle('FFF0F4FF',DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
+  ws5['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:2}});
+  r+=2;
+
+  ['Input / Assumption','Value','Notes'].forEach((h,i) => setCell(ws5,r,i+1,h,'s',null,hdrStyle(DBLUE,WHITE,true,9,i===1?'right':'left')));
+  r++;
+
+  const INPUT_BLUE = 'FF0000FF';
+  function inputSec(ws,row,title){ setCell(ws,row,1,'▸  '+title,'s',null,hdrStyle(BLUE,WHITE,true,10,'left')); ws['!merges'].push({s:{r:row-1,c:0},e:{r:row-1,c:2}}); return row+1; }
+  function inputRow(ws,row,lbl,val,fmt,note,hl){
+    const bg = hl?'FFFFFFF0':(row%2===0?GRAY1:WHITE);
+    setCell(ws,row,1,lbl,'s',null,{...dataStyle(bg,'FF000000',false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+    setCell(ws,row,2,val,typeof val==='number'?'n':'s',fmt,{...dataStyle(bg,INPUT_BLUE,true,'right'),font:{bold:true,color:{rgb:INPUT_BLUE},sz:10,name:'Calibri'}});
+    setCell(ws,row,3,note,'s',null,{...dataStyle(bg,DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
+    return row+1;
+  }
+
+  r = inputSec(ws5,r,'PROJECT INFORMATION');
+  r = inputRow(ws5,r,'Project Name',       $('projName')?.value||'','@','Identifies the project',false);
+  r = inputRow(ws5,r,'Location / Market',  $('projLoc')?.value||'','@','',false);
+  r = inputRow(ws5,r,'Total Site Acres',   parseFloat($('siteAcres')?.value)||0,'0.0 "acres"','',false);
+  r++;
+  r = inputSec(ws5,r,'LOT MIX & PRICING');
+  r = inputRow(ws5,r,'SFD — # Lots',             X.types.find(t=>t.name==='SFD')?.lots||0,'#,##0','Single Family Detached',false);
+  r = inputRow(ws5,r,'SFD — Base Price/Lot',     X.types.find(t=>t.name==='SFD')?.price||0,'$#,##0','Starting price; escalates annually',true);
+  r = inputRow(ws5,r,'SFD — Annual Escalation',  (X.types.find(t=>t.name==='SFD')?.esc||0)*100,'0.0"%/yr"','',false);
+  r = inputRow(ws5,r,'SFD — Absorption Rate',    X.types.find(t=>t.name==='SFD')?.abs||0,'0.0 "lots/mo"','',false);
+  r = inputRow(ws5,r,'Townhome — # Lots',         X.types.find(t=>t.name==='Townhome')?.lots||0,'#,##0','',false);
+  r = inputRow(ws5,r,'Townhome — Base Price',     X.types.find(t=>t.name==='Townhome')?.price||0,'$#,##0','',true);
+  r = inputRow(ws5,r,'Townhome — Escalation',     (X.types.find(t=>t.name==='Townhome')?.esc||0)*100,'0.0"%/yr"','',false);
+  r = inputRow(ws5,r,'Townhome — Absorption',     X.types.find(t=>t.name==='Townhome')?.abs||0,'0.0 "lots/mo"','',false);
+  r = inputRow(ws5,r,'Active Adult — # Lots',     X.types.find(t=>t.name==='Active Adult')?.lots||0,'#,##0','Age-restricted SFD',false);
+  r = inputRow(ws5,r,'Active Adult — Base Price',  X.types.find(t=>t.name==='Active Adult')?.price||0,'$#,##0','',true);
+  r = inputRow(ws5,r,'Active Adult — Escalation',  (X.types.find(t=>t.name==='Active Adult')?.esc||0)*100,'0.0"%/yr"','',false);
+  r = inputRow(ws5,r,'Active Adult — Absorption',  X.types.find(t=>t.name==='Active Adult')?.abs||0,'0.0 "lots/mo"','',false);
+  r++;
+  r = inputSec(ws5,r,'ACQUISITION');
+  r = inputRow(ws5,r,'Land Purchase Price',  X.landCost,'$#,##0','Negotiated contract price',true);
+  r = inputRow(ws5,r,'Closing Costs %',      X.closingPct*100,'0.0"%"','% of land price',false);
+  r = inputRow(ws5,r,'Earnest Money Deposit',X.earnest,'$#,##0','Non-refundable during DD',false);
+  r = inputRow(ws5,r,'Due Diligence Cost',   X.ddCost,'$#,##0','Environmental, surveys, rezoning',false);
+  r++;
+  r = inputSec(ws5,r,'DEVELOPMENT TIMELINE');
+  r = inputRow(ws5,r,'Pre-Development Period',  X.preDev,'#,##0 "months"','Planning, permits, engineering',false);
+  r = inputRow(ws5,r,'Construction Duration',   X.devMonths,'#,##0 "months"','Infrastructure & lot delivery',false);
+  r = inputRow(ws5,r,'First Lot Sale (month)',  X.firstSale,'#,##0','Month from closing date',false);
+  r = inputRow(ws5,r,'Cost Escalation Rate',    X.costEscRate*100,'0.0"%/yr"','Applied to hard dev costs',true);
+  r = inputRow(ws5,r,'Phase 1 — % of Lots',    X.phases[0]?.pc*100||0,'0"%"',''+Math.round((X.phases[0]?.lots||0))+' lots',false);
+  r = inputRow(ws5,r,'Phase 2 — % of Lots',    X.phases[1]?.pc*100||0,'0"%"',''+Math.round((X.phases[1]?.lots||0))+' lots',false);
+  r = inputRow(ws5,r,'Phase 3 — % of Lots',    X.phases[2]?.pc*100||0,'0"%"',''+Math.round((X.phases[2]?.lots||0))+' lots',false);
+  r++;
+  r = inputSec(ws5,r,'FINANCING & RETURNS');
+  r = inputRow(ws5,r,'Construction Loan LTC',  X.ltcPct*100,'0"%"','% of total dev cost (ex-financing)',true);
+  r = inputRow(ws5,r,'Interest Rate (Annual)', X.bankRate*100,'0.00"%/yr"','',false);
+  r = inputRow(ws5,r,'Loan Origination Fee',   X.loanFee*100,'0.00"%"','Upfront fee',false);
+  r = inputRow(ws5,r,'Developer Fee',          X.devFeePct*100,'0.0"%"','% of pre-fee costs',false);
+  r = inputRow(ws5,r,'Sale Closing Costs',     X.saleCostsPct*100,'0.0"%"','% of gross lot revenue',false);
+  r = inputRow(ws5,r,'Target Unlevered IRR',   X.tIRR,'0"%"','Industry standard: 20–25%',true);
+  r+=2;
+
+  // Calculated results summary at bottom
+  setCell(ws5,r,1,'CALCULATED RESULTS (reference)','s',null,hdrStyle('FF15803D',WHITE,true,11,'left'));
+  ws5['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:2}});
+  r++;
+  const calcRes = [
+    ['Total Lots',              X.totalLots,                    FMT_INT],
+    ['Gross Lot Revenue',       X.lotRevenue,                   FMT_CURR],
+    ['Net Revenue (after costs)',X.netRevenue,                  FMT_CURR],
+    ['Total All-In Cost',       X.totalCosts,                   FMT_CURR],
+    ['Gross Profit',            X.grossProfit,                  FMT_CURR],
+    ['Profit Margin',           X.margin/100,                   FMT_PCT],
+    ['Profit per Lot',          Math.round(X.grossProfit/X.totalLots), FMT_CURR],
+    ['Unlevered IRR',           X.unlevIRR/100,                 FMT_PCT],
+    ['Levered IRR',             X.levIRR/100,                   FMT_PCT],
+    ['Equity Multiple',         X.unlevEM,                      FMT_MULT],
+    ['Construction Loan',       X.loanBal,                      FMT_CURR],
+    ['Developer Equity Required',X.equityIn,                    FMT_CURR],
   ];
-  const wsInputs = XLSX.utils.aoa_to_sheet(inputRows);
-  wsInputs['!cols'] = [{wch:35},{wch:20}];
-  XLSX.utils.book_append_sheet(wb, wsInputs, 'Inputs');
+  calcRes.forEach((row,i)=>{
+    const bg = i%2===0?LGREEN:LGREENB;
+    setCell(ws5,r,1,row[0],'s',null,{...dataStyle(bg,'FF000000',false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+    setCell(ws5,r,2,row[1],'n',row[2],dataStyle(bg,GREEN,true,'right'));
+    ws5['!merges'].push({s:{r:r-1,c:2},e:{r:r-1,c:2}});
+    r++;
+  });
 
-  const projName = $('projName')?.value || 'Land_Dev';
+  ws5['!ref'] = XLSX.utils.encode_range({s:{r:0,c:0},e:{r:r+2,c:3}});
+  ws5['!cols'] = [{wch:38},{wch:22},{wch:32}];
+  XLSX.utils.book_append_sheet(wb, ws5, 'Inputs');
+
+  // ═══════════════════════════════════════════════════════════════════
+  // SHEET 6: CALCULATION LOGIC
+  // ═══════════════════════════════════════════════════════════════════
+  const ws6 = {};
+  ws6['!merges'] = [];
+  r = 1;
+  setCell(ws6,r,1,'CALCULATION METHODOLOGY & LOGIC','s',null,hdrStyle(NAVY,WHITE,true,14,'center'));
+  ws6['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:2}});
+  r++;
+  setCell(ws6,r,1,'This sheet explains every formula and assumption used in the proforma.','s',null,{...dataStyle('FFF0F4FF',DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
+  ws6['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:2}});
+  r+=2;
+
+  function logicSec(ws,row,title){ setCell(ws,row,1,'▸  '+title,'s',null,hdrStyle(BLUE,WHITE,true,11,'left')); ws['!merges'].push({s:{r:row-1,c:0},e:{r:row-1,c:2}}); return row+1; }
+  function logicRow(ws,row,label,formula,note){
+    const bg = row%2===0?GRAY1:WHITE;
+    setCell(ws,row,1,label,'s',null,{...dataStyle(bg,'FF000000',true,'left'),font:{bold:true,sz:10,color:{rgb:'FF000000'},name:'Calibri'},alignment:{horizontal:'left',vertical:'center',indent:1}});
+    setCell(ws,row,2,formula,'s',null,{...dataStyle(bg,BLUE,false,'left'),font:{sz:9,color:{rgb:BLUE},name:'Courier New'},alignment:{horizontal:'left',vertical:'center',wrapText:true}});
+    setCell(ws,row,3,note,'s',null,{...dataStyle(bg,DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'},alignment:{horizontal:'left',vertical:'center',wrapText:true}});
+    return row+1;
+  }
+
+  // Column headers
+  ['Formula / Calculation','Description / Explanation','Industry Context'].forEach((h,i) => {
+    setCell(ws6,r,i+1,h,'s',null,hdrStyle(DBLUE,WHITE,true,9,'left'));
+  });
+  r++;
+
+  r = logicSec(ws6,r,'REVENUE CALCULATION');
+  r = logicRow(ws6,r,'Average Price per Lot','Avg Price = Base Price × (1 + Escalation% × SelloutYears/2)','Mid-point escalation: assumes lots are sold evenly across the sellout period, so the average sale price is at the midpoint of the escalation curve.');
+  r = logicRow(ws6,r,'Gross Lot Revenue','Gross Revenue = Σ (Lots × Avg Price) for each product type','Sum across all active product types (SFD, Townhome, Active Adult).');
+  r = logicRow(ws6,r,'Net Revenue','Net Revenue = Gross Revenue × (1 − Sale Closing Cost %)','Sale closing costs = transfer tax, title insurance, commissions. Typically 2–4% of gross revenue.');
+  r = logicRow(ws6,r,'Sellout Period','Sellout Months = Total Lots ÷ Total Absorption Rate (lots/mo)','Combined absorption rate across all product types. Faster absorption = shorter carry = higher IRR.');
+  r++;
+
+  r = logicSec(ws6,r,'ACQUISITION COSTS');
+  r = logicRow(ws6,r,'Land Closing Costs','Closing Costs = Land Price × Closing Cost %','Includes title insurance, escrow fees, recording fees, transfer taxes at closing.');
+  r = logicRow(ws6,r,'Total Acquisition','Total Acq = Land + Closing Costs + Due Diligence + Additional','All costs to acquire the land and complete entitlements. Front-loaded in Year 0 of cash flows.');
+  r++;
+
+  r = logicSec(ws6,r,'HARD DEVELOPMENT COSTS');
+  r = logicRow(ws6,r,'Per-Lot Items','Cost = $/Lot Input × Total Lots','Grading, utilities, roads, curbs, landscaping scale linearly with lot count.');
+  r = logicRow(ws6,r,'Lump-Sum Items','Cost = Input Value','Amenities, off-site improvements, stormwater, lighting, demolition are project-level costs.');
+  r = logicRow(ws6,r,'Hard Dev Base','Hard Base = Σ all per-lot costs + Σ all lump-sum costs','Sum of all infrastructure line items before escalation and contingency.');
+  r = logicRow(ws6,r,'Cost Escalation','Esc Amount = Hard Base × Esc Rate × (Dev Months/12 ÷ 2)','Applied at midpoint of construction period. Reflects inflation in materials and labor (industry avg 2–4%/yr).');
+  r = logicRow(ws6,r,'Contingency','Contingency = (Hard Base + Esc Amount) × Contingency %','Industry standard: 10–15% of hard dev costs. Covers unforeseen conditions, scope changes, weather delays.');
+  r = logicRow(ws6,r,'Total Hard Dev','Total = Hard Base + Escalation + Contingency','Land dev hard costs typically run $40k–$80k per finished lot depending on market and complexity.');
+  r++;
+
+  r = logicSec(ws6,r,'SOFT COSTS');
+  r = logicRow(ws6,r,'Property Tax Carry','Prop Tax = $/lot/yr × Lots × (Total Months/12)','Developer pays property tax throughout the project. Ongoing carrying cost — increases with longer timelines.');
+  r = logicRow(ws6,r,'Insurance','Insurance = $/yr × (Total Months/12)','Builder\'s risk insurance scales with project duration.');
+  r = logicRow(ws6,r,'Marketing','Marketing = Net Revenue × Marketing %','Commissions, sales center, advertising. Typically 1–2% of net revenue.');
+  r = logicRow(ws6,r,'Developer Fee','Dev Fee = (Acq + Hard + Soft) × Dev Fee %','Compensation to developer for project oversight and risk. Typically 2–5% of pre-fee costs. Set to 0 for self-development without GP/LP structure.');
+  r++;
+
+  r = logicSec(ws6,r,'FINANCING');
+  r = logicRow(ws6,r,'Loan Balance','Loan = TDC (ex-fin) × LTC %','LTC = Loan-To-Cost ratio applied to total dev cost excluding financing itself. Lenders typically lend 60–75%.');
+  r = logicRow(ws6,r,'Loan Fee','Fee = Loan Balance × Origination Fee %','One-time upfront fee. Typically 0.5–1.5%.');
+  r = logicRow(ws6,r,'Interest — Construction','Int = Loan × 60% × Rate × (Dev Months/12)','Assumes 60% average draw during construction (S-curve: slow start, ramps up, tapers at completion).');
+  r = logicRow(ws6,r,'Interest — Sellout','Int = Loan × 30% × Rate × (Sellout Months/12)','Loan balance declining as lots sell and proceeds repay principal. 30% avg remaining balance during sales.');
+  r = logicRow(ws6,r,'Total Financing','Total = Loan Fee + Construction Interest + Sellout Interest','Interest is a function of deal duration — longer projects mean higher carry costs.');
+  r++;
+
+  r = logicSec(ws6,r,'CASH FLOWS & IRR');
+  r = logicRow(ws6,r,'Unlevered Cash Flows (Year 0)','CF[0] = −Total Acquisition','Land purchase and DD costs go out at closing (Year 0).');
+  r = logicRow(ws6,r,'Unlevered Cash Flows (Dev Years)','CF[y] = −Dev Cost Total / Dev Years  (y = 1 to DevYears)','Hard + soft + dev fee spread evenly over construction period. In practice, costs follow an S-curve.');
+  r = logicRow(ws6,r,'Unlevered Cash Flows (Sale Years)','CF[y] = Net Revenue / Sale Years  (y = DevYears+1 to end)','Lot sale revenue spread evenly over sellout period. Ignores financing — pure project cash flows.');
+  r = logicRow(ws6,r,'Levered Cash Flows','CF[y] = Equity portion only (1-LTC%) of each year\'s costs; revenue net of loan repayment','Equity pays its share of costs; loan covers the rest. Proceeds repay loan principal + interest.');
+  r = logicRow(ws6,r,'IRR Calculation','Bisection + Newton-Raphson: finds rate r where Σ CF[t]/(1+r)^t = 0','Standard XIRR methodology. Bisection provides initial estimate; Newton-Raphson refines to 11 decimal places.');
+  r = logicRow(ws6,r,'Equity Multiple (Unlevered)','EM = (Profit − Finance Cost + Total Invested) / Total Invested','Unlevered: uses pre-financing profit. Answers: "for every $1 of all-in cost, how much came back?"');
+  r = logicRow(ws6,r,'Equity Multiple (Levered)','EM = (Profit − Finance Cost + Equity In) / Equity In','Levered: uses only developer equity. Answers: "for every $1 of equity, how much came back after loan?"');
+  r++;
+
+  r = logicSec(ws6,r,'SENSITIVITY ANALYSIS');
+  r = logicRow(ws6,r,'Land Price Sensitivity','Varies land price ±40% in steps; all other inputs held constant','Shows "last dollar of margin" — how much land price can increase before deal fails. Key negotiation tool.');
+  r = logicRow(ws6,r,'Lot Price Sensitivity','Varies blended revenue ±20%; adjusts marketing cost proportionally','Tests pricing risk. If market softens 10%, does the deal still work? Also shows upside if prices outperform.');
+  r = logicRow(ws6,r,'Absorption Sensitivity','Varies absorption rate 1–15 lots/mo; financing recalculated for each','IRR is highly sensitive to time. Slower absorption = longer carry = more interest = lower IRR.');
+  r = logicRow(ws6,r,'Hard Dev Cost Sensitivity','Varies hard dev costs ±20%; financing recalculated from new TDC','Cost overruns are the #1 cause of land development failures. 12% contingency helps — but isn\'t unlimited.');
+  r++;
+
+  r = logicSec(ws6,r,'INDUSTRY BENCHMARKS');
+  r = logicRow(ws6,r,'Profit Margin','≥25% minimum; ≥30% target','Below 25%, any cost overrun or pricing softness wipes out profit. 30%+ provides buffer for the unexpected.');
+  r = logicRow(ws6,r,'Unlevered IRR','20–25% target for residential land','Reflects risk premium over passive RE investment (~8–10%). Land dev is illiquid, concentrated, complex.');
+  r = logicRow(ws6,r,'Land as % of TDC','20–30% rule of thumb','>35% suggests overpayment. <15% may indicate exceptional land buy or cheap market. Always verify with comparables.');
+  r = logicRow(ws6,r,'Contingency','10–15% of hard dev costs','Land dev always has surprises. Environmental remediation, utility conflicts, plan changes. Underestimate at your peril.');
+  r = logicRow(ws6,r,'Construction Loan LTC','60–75% typical','Lenders want developer equity in the deal. Lower LTC = safer lender, higher equity requirement = lower levered returns.');
+  r = logicRow(ws6,r,'Profit / Lot','$25,000–$60,000 typical','Below $20k/lot is concerning. Above $70k/lot suggests either premium market or very lean cost structure.');
+
+  ws6['!ref'] = XLSX.utils.encode_range({s:{r:0,c:0},e:{r:r+2,c:3}});
+  ws6['!cols'] = [{wch:34},{wch:52},{wch:60}];
+  XLSX.utils.book_append_sheet(wb, ws6, 'Calculation Logic');
+
+  // Write file
+  const projName = X.projName || 'Land_Dev';
   XLSX.writeFile(wb, projName.replace(/[^a-zA-Z0-9_\-]/g, '_') + '_Proforma.xlsx');
 }
 
