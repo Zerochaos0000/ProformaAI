@@ -1,674 +1,1395 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Land Development Proforma | REProforma</title>
-<link rel="icon" type="image/png" href="../favicon.ico"/>
-<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link rel="icon" type="image/png" href="../favicon.ico">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 <style>
-*{box-sizing:border-box;}
-body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;margin:0;}
-.inp{width:100%;padding:8px 11px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;color:#1e293b;background:white;outline:none;transition:border-color .15s,box-shadow .15s;}
-.inp:focus{border-color:#0043ce;box-shadow:0 0 0 3px rgba(0,67,206,.08);}
-.inp-suf{position:relative;}.inp-suf span{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:12px;color:#94a3b8;pointer-events:none;}.inp-suf .inp{padding-right:26px;}
-.inp-pre{position:relative;}.inp-pre span{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:#94a3b8;pointer-events:none;}.inp-pre .inp{padding-left:20px;}
-.card{background:white;border:1px solid #e2e8f0;border-radius:12px;padding:20px;}
-.sec{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#94a3b8;padding-bottom:8px;border-bottom:1px solid #f1f5f9;margin-bottom:14px;}
-.lbl{font-size:11px;font-weight:600;color:#64748b;letter-spacing:.02em;text-transform:uppercase;display:block;margin-bottom:3px;}
-.tab-btn{border-bottom:2px solid transparent;padding:12px 18px;font-size:13px;font-weight:500;color:#64748b;cursor:pointer;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap;transition:color .15s,border-color .15s;}
-.tab-btn.active{color:#0043ce;border-bottom-color:#0043ce;font-weight:600;}
-.tab-panel{display:none;}.tab-panel.active{display:block;}
-.pro-table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;}
-.pro-table colgroup col:first-child{width:200px;}
-.pro-table th{background:#f8fafc;padding:9px 14px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;white-space:nowrap;}
-.pro-table th:first-child{text-align:left;}
-.pro-table th:not(:first-child){text-align:right;}
-.pro-table td{padding:9px 14px;border-bottom:1px solid #f8fafc;color:#374151;white-space:nowrap;overflow:hidden;}
-.pro-table td:first-child{text-align:left;color:#475569;}
-.pro-table td:not(:first-child){text-align:right;font-variant-numeric:tabular-nums;}
-.pro-table tr.sec-hd td{background:#f1f5f9;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#475569;padding:6px 14px;border-top:1px solid #e2e8f0;border-bottom:none;}
-.pro-table tr.hi td{background:#eff6ff;font-weight:700;color:#0043ce;border-top:1px solid #bfdbfe;border-bottom:1px solid #bfdbfe;}
-.pro-table tr.hi td:first-child{padding-left:14px;}
-.pro-table td.indent{padding-left:28px;}
-.pro-table td.neg{color:#dc2626;}
-.pro-table tr.sec-row td{background:#f1f5f9;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#475569;padding:5px 12px;}
-.pro-table tr:hover:not(.sec-hd):not(.hi):not(.sec-row) td{background:#fafbff;}
-.metric{background:white;border:1px solid #e2e8f0;border-radius:10px;padding:16px 18px;}
-.metric-val{font-size:26px;font-weight:700;color:#1e293b;line-height:1;}
-.metric-lbl{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#94a3b8;margin-top:4px;}
-.dd-menu{display:none;position:absolute;left:0;top:100%;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.12);border:1px solid #f1f5f9;z-index:50;min-width:220px;padding:6px 0;}
-.dd-menu.open{display:block;}
-.dd-wrap{position:relative;}
-.dd-trigger{display:flex;align-items:center;gap:4px;font-size:13px;background:none;border:none;cursor:pointer;padding:20px 0;color:#525252;font-family:inherit;}
-.dd-trigger:hover,.dd-trigger.open{color:#0043ce;}
-.dd-trigger.open svg{transform:rotate(180deg);}
-.dd-item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:#374151;text-decoration:none;border-left:2px solid transparent;}
-.dd-item:hover,.dd-item.act{background:#eff6ff;color:#0043ce;border-left-color:#0043ce;}
-.dd-label{padding:6px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;}
-.dd-divider{height:1px;background:#f1f5f9;margin:4px 16px;}
-.mob-sub{display:none;}.mob-sub.open{display:block;}
-@media print{header,.no-print{display:none!important;}}
-</style>
-</head>
-<body>
-
-<!-- HEADER -->
-<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;font-size:13px;}
+a{text-decoration:none;color:inherit;}
+/* Nav */
 .dd-menu{display:none;position:absolute;left:0;top:100%;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.12);border:1px solid #f1f5f9;z-index:50;min-width:220px;padding:6px 0;}
 .dd-menu.open{display:block;}.dd-wrap{position:relative;}
-.dd-trig{display:flex;align-items:center;gap:4px;font-size:13px;background:none;border:none;cursor:pointer;padding:20px 0;color:#525252;font-family:'Inter',sans-serif;}
+.dd-trig{display:flex;align-items:center;gap:4px;font-size:13px;background:none;border:none;cursor:pointer;padding:20px 0;color:#525252;font-family:'Inter',sans-serif;font-weight:500;}
 .dd-trig:hover{color:#0043ce;}
-.dd-item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:#374151;text-decoration:none;border-left:2px solid transparent;transition:background .1s,color .1s,border-color .1s;}
+.dd-item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:#374151;text-decoration:none;border-left:2px solid transparent;}
 .dd-item:hover,.dd-item.cur{background:#eff6ff;color:#0043ce;border-left-color:#0043ce;}
 .dd-lbl{padding:6px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;}
 .dd-div{height:1px;background:#f1f5f9;margin:4px 16px;}
+/* Layout */
+.wrap{max-width:1280px;margin:0 auto;padding:0 20px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.g3r{display:grid;grid-template-columns:320px 1fr 1fr;gap:16px;}
+@media(max-width:960px){.g3,.g3r{grid-template-columns:1fr 1fr;}.g4{grid-template-columns:1fr 1fr;}}
+@media(max-width:580px){.g2,.g3,.g3r,.g4{grid-template-columns:1fr;}}
+/* Cards */
+.card{background:white;border:1px solid #e2e8f0;border-radius:12px;padding:18px;}
+.card-blue{border-top:3px solid #0043ce;}
+.card-green{border-top:3px solid #15803d;}
+.card-red{border-top:3px solid #dc2626;}
+.card-purple{border-top:3px solid #7c3aed;}
+.sec{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;padding-bottom:8px;border-bottom:1px solid #f1f5f9;margin-bottom:14px;}
+/* Form */
+.f{margin-bottom:10px;}
+.lbl{font-size:10px;font-weight:700;color:#64748b;letter-spacing:.04em;text-transform:uppercase;display:block;margin-bottom:3px;line-height:1.3;}
+.inp{width:100%;padding:8px 10px;border:1px solid #cbd5e1;border-radius:7px;font-size:13px;font-family:'Inter',sans-serif;color:#1e293b;background:white;outline:none;transition:border-color .15s,box-shadow .15s;}
+.inp:focus{border-color:#0043ce;box-shadow:0 0 0 3px rgba(0,67,206,.08);}
+.inp-p{position:relative;}.inp-p span{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:11px;color:#94a3b8;pointer-events:none;}.inp-p .inp{padding-left:17px;}
+.inp-s{position:relative;}.inp-s span{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:11px;color:#94a3b8;pointer-events:none;}.inp-s .inp{padding-right:24px;}
+.hint{font-size:10px;color:#94a3b8;margin-top:2px;line-height:1.3;}
+/* Tabs */
+.tab-bar{display:flex;border-bottom:1px solid #e2e8f0;background:white;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.tab-btn{padding:12px 18px;font-size:12px;font-weight:500;color:#64748b;border:none;border-bottom:2px solid transparent;background:none;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;flex-shrink:0;}
+.tab-btn.active{color:#0043ce;border-bottom-color:#0043ce;font-weight:600;}
+.tab-panel{display:none;}.tab-panel.active{display:block;}
+/* Buttons */
+.btn-primary{background:#0043ce;color:white;border:none;border-radius:8px;padding:10px 22px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s;}
+.btn-primary:hover{background:#0035a8;}
+.btn-secondary{background:white;color:#475569;border:1px solid #cbd5e1;border-radius:8px;padding:8px 14px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-secondary:hover{background:#f8fafc;}
+.btn-success{background:#15803d;color:white;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;}
+.btn-dark{background:#1e293b;color:white;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;}
+/* Metric cards */
+.kpi{background:white;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;}
+.kpi-val{font-size:22px;font-weight:700;line-height:1;margin-bottom:4px;}
+.kpi-lbl{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#94a3b8;}
+.kpi-sub{font-size:10px;color:#94a3b8;margin-top:3px;}
+/* Progress bar */
+.pbar{height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden;margin-top:6px;}
+.pbar-fill{height:100%;border-radius:3px;transition:width .6s ease;}
+/* Tables */
+.tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.tbl th{background:#f8fafc;padding:8px 12px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;white-space:nowrap;}
+.tbl th:first-child{text-align:left;min-width:180px;}.tbl th:not(:first-child){text-align:right;}
+.tbl td{padding:8px 12px;border-bottom:1px solid #f8fafc;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.tbl td:first-child{text-align:left;color:#475569;padding-left:16px;}
+.tbl td:not(:first-child){text-align:right;}
+.tbl tr.row-head td{background:#f1f5f9;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#475569;padding:5px 12px;border-top:1px solid #e2e8f0;}
+.tbl tr.row-total td{background:#eff6ff;font-weight:700;color:#0043ce;border-top:1px solid #bfdbfe;}
+.tbl tr.row-sub td{background:#fafbff;font-weight:600;color:#334155;border-top:1px solid #e8edf5;}
+.tbl td.red{color:#dc2626;}.tbl td.green{color:#15803d;}
+.tbl tr:hover:not(.row-head):not(.row-total):not(.row-sub) td{background:#fafbff;}
+/* Sensitivity table */
+.sens{width:100%;border-collapse:collapse;font-size:11px;}
+.sens th{padding:6px 10px;background:#f8fafc;font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0;white-space:nowrap;}
+.sens th:not(:first-child){text-align:right;}
+.sens td{padding:6px 10px;border-bottom:1px solid #f8fafc;font-variant-numeric:tabular-nums;font-size:11px;}
+.sens td:not(:first-child){text-align:right;}
+.sens tr.base td{background:#eff6ff;font-weight:700;color:#0043ce;}
+/* Waterfall rows */
+.wf-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-radius:6px;font-size:13px;margin-bottom:3px;}
+/* Type badges */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.03em;}
+/* Quick-stat row in cards */
+.qs{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f8fafc;font-size:12px;align-items:center;}
+.qs:last-child{border-bottom:none;}
+/* Alert boxes */
+.alert-green{background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:12px 16px;}
+.alert-yellow{background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:12px 16px;}
+.alert-red{background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:12px 16px;}
+/* Product row */
+.prod-row{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;margin-bottom:8px;}
+/* Responsive footer */
+@media(max-width:768px){.ft-grid{grid-template-columns:1fr 1fr!important;}}
+@media(max-width:480px){.ft-grid{grid-template-columns:1fr!important;}}
+@media print{
+  header,.no-print,button{display:none!important;}
+  .tab-panel{display:block!important;}
+  .wrap{padding:0!important;}
+  .card{break-inside:avoid;box-shadow:none!important;border:1px solid #e2e8f0!important;}
+  .tbl,.sens{font-size:10px!important;}
+  body{font-size:11px;}
+  #tab-inputs{display:none!important;}
+  /* Show summary + proforma + cashflow on print */
+  #tab-summary,#tab-proforma,#tab-cashflow{display:block!important;page-break-after:always;}
+  #tab-sensitivity,#tab-charts{display:none!important;}
+}
 </style>
+</head>
+<body>
+<!-- HEADER -->
 <header style="position:sticky;top:0;z-index:50;background:white;box-shadow:0 1px 4px rgba(0,0,0,.08);">
-  <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
-    <a href="../index" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;"><svg width="34" height="34" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg><span style="display:flex;align-items:baseline;line-height:1;"><span style="font-size:19px;font-weight:700;color:#0043ce;letter-spacing:-0.3px;">RE</span><span style="font-size:19px;font-weight:300;color:#0043ce;letter-spacing:-0.3px;">Proforma</span></span></a>
-    <button id="mob-btn" class="md:hidden" style="background:none;border:none;cursor:pointer;color:#0043ce;">
-      <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-    </button>
-    <div class="hidden md:flex items-center" style="gap:28px;">
-      <nav class="flex items-center" style="gap:20px;">
-        <a href="../index" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">Home</a>
-        <div class="dd-wrap" id="ddT">
-          <button class="dd-trig" id="ddTb" style='color:#0043ce;border-bottom:2px solid #0043ce;font-weight:600;'>Tools <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+  <div style="max-width:1280px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;align-items:center;height:64px;">
+    <a href="../index" style="display:inline-flex;align-items:center;gap:10px;flex-shrink:0;"><svg width="34" height="34" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg><span style="display:flex;align-items:baseline;"><span style="font-size:19px;font-weight:700;color:#0043ce;letter-spacing:-.3px;">RE</span><span style="font-size:19px;font-weight:300;color:#0043ce;letter-spacing:-.3px;">Proforma</span></span></a>
+    <button id="mob-btn" style="display:none;background:none;border:none;cursor:pointer;color:#0043ce;padding:4px;"><svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <div id="desk-nav" style="display:flex;align-items:center;gap:28px;">
+      <nav style="display:flex;align-items:center;gap:22px;">
+        <a href="../index" style="color:#525252;padding:20px 0;font-size:13px;font-weight:500;">Home</a>
+        <div class="dd-wrap" id="ddT"><button class="dd-trig" id="ddTb" style="color:#0043ce;border-bottom:2px solid #0043ce;font-weight:600;">Tools <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-left:2px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
           <div class="dd-menu" id="ddTm">
             <div class="dd-lbl">Pro Tools</div>
             <a class="dd-item" href="index">🏢 Multifamily Acquisition</a>
             <a class="dd-item" href="index-mixeduse">🏬 Commercial &amp; NNN Retail</a>
             <a class="dd-item cur" href="index-land">🗺️ Land Development</a>
-            <div class="dd-div"></div>
-            <div class="dd-lbl">Free Tools</div>
+            <div class="dd-div"></div><div class="dd-lbl">Free Tools</div>
             <a class="dd-item" href="index-affordability">🏠 Home Affordability</a>
             <a class="dd-item" href="index-rentvsbuy">⚖️ Rent vs. Own</a>
             <a class="dd-item" href="index-mortgage-payoff">📅 Mortgage Payoff</a>
           </div>
         </div>
-        <div class="dd-wrap" id="ddM">
-          <button class="dd-trig" id="ddMb">Market Data <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="dd-wrap" id="ddM"><button class="dd-trig" id="ddMb">Market Data <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-left:2px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
           <div class="dd-menu" id="ddMm" style="min-width:200px;">
-            <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank">Market Trends</a>
+            <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank">NAR Market Trends</a>
             <a class="dd-item" href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank">Research Reports</a>
             <a class="dd-item" href="https://berkadia.com/properties" target="_blank">Investment Listings</a>
           </div>
         </div>
-        <a href="../about" style="color:#525252;padding:20px 0;font-size:13px;text-decoration:none;">About</a>
+        <a href="../about" style="color:#525252;padding:20px 0;font-size:13px;font-weight:500;">About</a>
       </nav>
-      <a href="../about" style="background:#0043ce;color:white;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">Let's talk</a>
+      <a href="../about" style="background:#0043ce;color:white;padding:9px 20px;border-radius:8px;font-size:13px;font-weight:600;white-space:nowrap;">Let's talk</a>
     </div>
   </div>
-  <div id="mob-menu" class="hidden bg-white border-t border-gray-100" style="box-shadow:0 4px 12px rgba(0,0,0,.08);">
-    <div class="px-4 py-3 space-y-1">
-      <a href="../index" style="display:block;padding:7px 12px;font-size:13px;color:#475569;">Home</a>
-      <div>
-        <button class="mob-tog" style="display:flex;justify-content:space-between;align-items:center;width:100%;padding:8px 12px;background:#eff6ff;border:none;cursor:pointer;font-size:13px;color:#0043ce;font-weight:600;font-family:'Inter',sans-serif;">
-          Tools <svg class="mob-arr" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-        </button>
-        <div style="display:none;padding-left:12px;">
+  <div id="mob-menu" style="display:none;background:white;border-top:1px solid #f1f5f9;box-shadow:0 4px 12px rgba(0,0,0,.06);">
+    <div style="padding:10px 16px;display:flex;flex-direction:column;gap:2px;">
+      <a href="../index" style="display:block;padding:9px 12px;font-size:13px;color:#475569;border-radius:6px;">Home</a>
+      <div><button class="mob-tog" style="display:flex;justify-content:space-between;align-items:center;width:100%;padding:9px 12px;background:#eff6ff;border:none;cursor:pointer;font-size:13px;color:#0043ce;font-weight:600;font-family:'Inter',sans-serif;border-radius:6px;">Tools <svg class="mob-arr" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>
+        <div style="display:none;padding-left:10px;padding-top:4px;">
           <p style="padding:4px 12px;font-size:10px;font-weight:700;letter-spacing:.07em;color:#9ca3af;text-transform:uppercase;">Pro Tools</p>
-          <a href="index" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;">🏢 Multifamily Acquisition</a>
-          <a href="index-mixeduse" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;">🏬 Commercial/Retail</a>
-          <a href="index-land" style="display:block;padding:7px 12px;font-size:13px;font-weight:600;color:#0043ce;background:#eff6ff;border-left:2px solid #0043ce;border-radius:0 4px 4px 0;">🗺️ Land Development</a>
+          <a href="index" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;margin-bottom:2px;">🏢 Multifamily</a>
+          <a href="index-mixeduse" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;margin-bottom:2px;">🏬 Commercial/Retail</a>
+          <a href="index-land" style="display:block;padding:7px 12px;font-size:13px;font-weight:600;color:#0043ce;background:#eff6ff;border-left:2px solid #0043ce;margin-bottom:2px;">🗺️ Land Development</a>
           <p style="padding:8px 12px 4px;font-size:10px;font-weight:700;letter-spacing:.07em;color:#9ca3af;text-transform:uppercase;border-top:1px solid #f1f5f9;margin-top:4px;">Free Tools</p>
-          <a href="index-affordability" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;">🏠 Home Affordability</a>
-          <a href="index-rentvsbuy" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;">⚖️ Rent vs. Own</a>
-          <a href="index-mortgage-payoff" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;border-radius:0 4px 4px 0;">📅 Mortgage Payoff</a>
+          <a href="index-affordability" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;margin-bottom:2px;">🏠 Home Affordability</a>
+          <a href="index-rentvsbuy" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;margin-bottom:2px;">⚖️ Rent vs. Own</a>
+          <a href="index-mortgage-payoff" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;">📅 Mortgage Payoff</a>
         </div>
       </div>
-      <div>
-        <button class="mob-tog" style="display:flex;justify-content:space-between;align-items:center;width:100%;padding:8px 12px;background:none;border:none;cursor:pointer;font-size:13px;color:#525252;font-family:'Inter',sans-serif;">
-          Market Data <svg class="mob-arr" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition:transform .2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-        </button>
-        <div style="display:none;padding-left:12px;">
-          <a href="https://www.nar.realtor/research-and-statistics/research-reports/march-2025-commercial-real-estate-market-insights" target="_blank" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;">Market Trends</a>
-          <a href="https://www.nar.realtor/research-and-statistics/research-reports/commercial-research" target="_blank" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;">Research Reports</a>
-          <a href="https://berkadia.com/properties" target="_blank" style="display:block;padding:7px 12px;font-size:13px;color:#374151;border-left:2px solid #e5e7eb;">Investment Listings</a>
-        </div>
-      </div>
-      <a href="../about" style="display:block;padding:7px 12px;font-size:13px;color:#475569;">About</a>
-      <a href="../about" style="display:block;margin-top:8px;padding:9px;text-align:center;font-size:13px;font-weight:600;color:white;background:#0043ce;border-radius:8px;text-decoration:none;">Let's talk</a>
+      <a href="../about" style="display:block;padding:9px 12px;font-size:13px;color:#475569;border-radius:6px;">About</a>
+      <a href="../about" style="display:block;margin-top:6px;padding:10px;text-align:center;font-size:13px;font-weight:600;color:white;background:#0043ce;border-radius:8px;">Let's talk</a>
     </div>
   </div>
 </header>
 
-<!-- HERO -->
-<section class="bg-gradient-to-r from-blue-50 to-white border-b border-gray-200 py-8">
-<div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-  <div>
-    <div class="flex items-center gap-2 mb-2">
-      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold" style="background:#dbeafe;color:#1d4ed8;">Pro Tool</span>
-      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold" style="background:#dcfce7;color:#166534;">Land Development</span>
+<!-- PAGE HERO -->
+<div style="background:linear-gradient(135deg,#eff6ff 0%,#f8fafc 60%,white 100%);border-bottom:1px solid #e2e8f0;padding:22px 0;">
+  <div class="wrap" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:14px;">
+    <div>
+      <div style="display:flex;gap:7px;margin-bottom:7px;flex-wrap:wrap;">
+        <span class="badge" style="background:#dbeafe;color:#1d4ed8;">Pro Tool</span>
+        <span class="badge" style="background:#dcfce7;color:#15803d;">Land Development</span>
+        <span class="badge" style="background:#fef3c7;color:#b45309;">Industry Standard</span>
+      </div>
+      <h1 style="font-size:22px;font-weight:700;color:#1e293b;margin-bottom:4px;">🗺️ Land Development Proforma</h1>
+      <p style="font-size:13px;color:#64748b;max-width:600px;line-height:1.5;">Full-cycle developer model — acquisition through lot sales. Multi-product lot mix · phased costs · unlevered &amp; levered IRR · 3-scenario sensitivity · annual cash flows.</p>
     </div>
-    <h1 class="text-2xl font-bold" style="color:#1e293b;">Land Development Proforma</h1>
-    <p class="text-sm mt-1" style="color:#64748b;">Lot mix analysis, development cost modeling, revenue projections, and IRR for residential land deals.</p>
-  </div>
-  <div class="flex gap-2 no-print flex-wrap">
-    <button onclick="loadDemo()" class="px-4 py-2 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer">📋 Demo Deal (200-Lot Subdivision)</button>
-    <button onclick="resetAll()" class="px-4 py-2 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer">↺ Reset</button>
-    <button onclick="exportXLS()" class="px-4 py-2 text-sm font-semibold text-white rounded cursor-pointer" style="background:#166534;">⬇ Excel</button>
-    <button onclick="window.print()" class="px-4 py-2 text-sm font-semibold text-white rounded cursor-pointer" style="background:#1e293b;">🖨 PDF</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;" class="no-print">
+      <button class="btn-secondary" onclick="loadDemo()">📋 Load Demo</button>
+      <button class="btn-secondary" onclick="resetAll()">↺ Reset</button>
+      <button class="btn-success" onclick="exportXLS()">⬇ Export Excel</button>
+      <button class="btn-dark" onclick="window.print()">🖨 Print / PDF</button>
+    </div>
   </div>
 </div>
-</section>
 
 <!-- TABS -->
-<div class="bg-white border-b border-gray-200 no-print" style="overflow-x:auto;">
-  <div class="max-w-7xl mx-auto px-4 flex">
-    <button class="tab-btn active" onclick="switchTab('inputs',this)">📥 Input Parameters</button>
-    <button class="tab-btn" onclick="switchTab('results',this)">📊 Results &amp; Analysis</button>
-    <button class="tab-btn" onclick="switchTab('proforma',this)">📋 Phase Proforma</button>
-    <button class="tab-btn" onclick="switchTab('charts',this)">📈 Charts</button>
-  </div>
+<div class="tab-bar no-print" style="position:sticky;top:64px;z-index:40;">
+  <button class="tab-btn active" onclick="sw('inputs',this)">📥 Inputs</button>
+  <button class="tab-btn" onclick="sw('summary',this)">📊 Summary Dashboard</button>
+  <button class="tab-btn" onclick="sw('proforma',this)">📋 Proforma</button>
+  <button class="tab-btn" onclick="sw('cashflow',this)">💵 Annual Cash Flows</button>
+  <button class="tab-btn" onclick="sw('sensitivity',this)">🎯 Sensitivity</button>
+  <button class="tab-btn" onclick="sw('charts',this)">📉 Charts</button>
 </div>
 
-<div class="max-w-7xl mx-auto px-4 py-6">
+<div class="wrap" style="padding:22px 0 60px;">
 
-<!-- ══ INPUTS ══ -->
+<!-- ══ INPUTS TAB ══════════════════════════════════════════════════════ -->
 <div id="tab-inputs" class="tab-panel active">
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+
+  <!-- ── SECTION 1: Project Info + Lot Mix ── -->
+  <div style="display:grid;grid-template-columns:280px 1fr;gap:16px;margin-bottom:16px;">
+
+    <!-- Project Info -->
+    <div class="card">
+      <p class="sec">📍 Project Info</p>
+      <div class="f"><label class="lbl">Project Name</label><input class="inp" id="projName" type="text" placeholder="Maple Ridge — Phase 1"></div>
+      <div class="f"><label class="lbl">Location / Market</label><input class="inp" id="projLoc" type="text" placeholder="Sussex County, DE"></div>
+      <div class="f"><label class="lbl">Total Site Acres</label><input class="inp" id="siteAcres" type="number" step="0.5" placeholder="58.0" oninput="liveCalc()"></div>
+      <div class="f"><label class="lbl">Zoning / Product Type</label>
+        <select class="inp" id="productType" onchange="liveCalc()">
+          <option value="sfd">Single-Family Detached (SFD)</option>
+          <option value="mix">Mixed — SFD + Townhome</option>
+          <option value="th">Townhome / Attached</option>
+          <option value="custom">Custom Mix</option>
+        </select>
+      </div>
+      <div class="f"><label class="lbl">Analysis Date</label><input class="inp" id="analysisDate" type="date"></div>
+      <div style="background:#eff6ff;border-radius:6px;padding:10px;margin-top:6px;">
+        <div class="qs"><span style="color:#64748b;">Density (lots/acre)</span><strong id="pvDensity">—</strong></div>
+        <div class="qs"><span style="color:#64748b;">Blended Price/Lot</span><strong id="pvBlend">—</strong></div>
+        <div class="qs" style="border-bottom:none;"><span style="color:#64748b;">Gross Revenue</span><strong id="pvRev" style="color:#15803d;">—</strong></div>
+      </div>
+    </div>
 
     <!-- Lot Mix -->
     <div class="card">
-      <p class="sec">🗺️ Lot Mix &amp; Pricing</p>
-      <div style="border-bottom:1px solid #f1f5f9;padding-bottom:12px;margin-bottom:12px;">
-        <p class="text-xs font-semibold text-gray-500 mb-2">Single-Family Detached (SFD)</p>
-        <div class="mb-2"><label class="lbl"># Lots</label><input class="inp" id="sfdCount" type="number" placeholder="0"></div>
-        <div class="mb-2"><label class="lbl">Price per Lot ($)</label><div class="inp-pre"><span>$</span><input class="inp" id="sfdPrice" type="number" placeholder="0"></div></div>
-        <div><label class="lbl">Annual Price Escalation (%)</label><div class="inp-suf"><input class="inp" id="sfdEsc" type="number" step="0.1" placeholder="0.0"><span>%</span></div></div>
+      <p class="sec">🏘️ Lot Mix &amp; Pricing</p>
+      <p style="font-size:11px;color:#94a3b8;margin-bottom:12px;">Enter each product type. Set lots = 0 to exclude. Price escalator applies annually during the absorption/sellout period.</p>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:580px;">
+          <thead>
+            <tr style="background:#f8fafc;">
+              <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0;min-width:130px;">Product Type</th>
+              <th style="padding:7px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0;"># Lots</th>
+              <th style="padding:7px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0;">Base Price/Lot</th>
+              <th style="padding:7px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0;">Price Escalator %/yr</th>
+              <th style="padding:7px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0;">Lots/Month</th>
+              <th style="padding:7px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0;">Est. Revenue</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid #f8fafc;">
+              <td style="padding:8px 10px;font-size:11px;font-weight:600;color:#0043ce;">SFD — Single Family</td>
+              <td style="padding:8px 10px;text-align:right;"><input class="inp" id="sfdLots" type="number" placeholder="0" min="0" style="text-align:right;width:70px;" oninput="liveCalc()"></td>
+              <td style="padding:8px 10px;text-align:right;"><div class="inp-p" style="display:inline-flex;width:110px;"><span>$</span><input class="inp" id="sfdP" type="number" placeholder="215,000" style="text-align:right;padding-left:16px;" oninput="liveCalc()"></div></td>
+              <td style="padding:8px 10px;text-align:right;"><div class="inp-s" style="display:inline-flex;width:80px;"><input class="inp" id="sfdEsc" type="number" step="0.5" placeholder="2.0" style="text-align:right;padding-right:20px;" oninput="liveCalc()"><span>%</span></div></td>
+              <td style="padding:8px 10px;text-align:right;"><input class="inp" id="sfdAbs" type="number" step="0.5" placeholder="5" style="text-align:right;width:60px;" oninput="liveCalc()"></td>
+              <td style="padding:8px 10px;text-align:right;font-weight:600;color:#0043ce;" id="sfdRevDisp">—</td>
+            </tr>
+            <tr style="border-bottom:1px solid #f8fafc;">
+              <td style="padding:8px 10px;font-size:11px;font-weight:600;color:#7c3aed;">Townhome / Attached</td>
+              <td style="padding:8px 10px;text-align:right;"><input class="inp" id="thLots" type="number" placeholder="0" min="0" style="text-align:right;width:70px;" oninput="liveCalc()"></td>
+              <td style="padding:8px 10px;text-align:right;"><div class="inp-p" style="display:inline-flex;width:110px;"><span>$</span><input class="inp" id="thP" type="number" placeholder="0" style="text-align:right;padding-left:16px;" oninput="liveCalc()"></div></td>
+              <td style="padding:8px 10px;text-align:right;"><div class="inp-s" style="display:inline-flex;width:80px;"><input class="inp" id="thEsc" type="number" step="0.5" placeholder="2.0" style="text-align:right;padding-right:20px;" oninput="liveCalc()"><span>%</span></div></td>
+              <td style="padding:8px 10px;text-align:right;"><input class="inp" id="thAbs" type="number" step="0.5" placeholder="0" style="text-align:right;width:60px;" oninput="liveCalc()"></td>
+              <td style="padding:8px 10px;text-align:right;font-weight:600;color:#7c3aed;" id="thRevDisp">—</td>
+            </tr>
+            <tr style="border-bottom:1px solid #f8fafc;">
+              <td style="padding:8px 10px;font-size:11px;font-weight:600;color:#b45309;">Active Adult / Villa</td>
+              <td style="padding:8px 10px;text-align:right;"><input class="inp" id="aaLots" type="number" placeholder="0" min="0" style="text-align:right;width:70px;" oninput="liveCalc()"></td>
+              <td style="padding:8px 10px;text-align:right;"><div class="inp-p" style="display:inline-flex;width:110px;"><span>$</span><input class="inp" id="aaP" type="number" placeholder="0" style="text-align:right;padding-left:16px;" oninput="liveCalc()"></div></td>
+              <td style="padding:8px 10px;text-align:right;"><div class="inp-s" style="display:inline-flex;width:80px;"><input class="inp" id="aaEsc" type="number" step="0.5" placeholder="2.0" style="text-align:right;padding-right:20px;" oninput="liveCalc()"><span>%</span></div></td>
+              <td style="padding:8px 10px;text-align:right;"><input class="inp" id="aaAbs" type="number" step="0.5" placeholder="0" style="text-align:right;width:60px;" oninput="liveCalc()"></td>
+              <td style="padding:8px 10px;text-align:right;font-weight:600;color:#b45309;" id="aaRevDisp">—</td>
+            </tr>
+            <tr style="background:#f0fdf4;font-weight:700;">
+              <td style="padding:8px 10px;color:#15803d;">Total / Blended</td>
+              <td style="padding:8px 10px;text-align:right;color:#15803d;" id="totLotsDisp">—</td>
+              <td style="padding:8px 10px;text-align:right;color:#15803d;" id="totAvgPDisp">—</td>
+              <td style="padding:8px 10px;text-align:right;color:#64748b;" id="totSelloutDisp">—</td>
+              <td style="padding:8px 10px;text-align:right;color:#64748b;" id="totAbsDisp">—</td>
+              <td style="padding:8px 10px;text-align:right;color:#15803d;" id="totRevDisp">—</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <div style="border-bottom:1px solid #f1f5f9;padding-bottom:12px;margin-bottom:12px;">
-        <p class="text-xs font-semibold text-gray-500 mb-2">Townhome / Twin-Home</p>
-        <div class="mb-2"><label class="lbl"># Lots</label><input class="inp" id="twinCount" type="number" placeholder="0"></div>
-        <div class="mb-2"><label class="lbl">Price per Lot ($)</label><div class="inp-pre"><span>$</span><input class="inp" id="twinPrice" type="number" placeholder="0"></div></div>
-        <div><label class="lbl">Annual Price Escalation (%)</label><div class="inp-suf"><input class="inp" id="twinEsc" type="number" step="0.1" placeholder="0.0"><span>%</span></div></div>
-      </div>
-      <div>
-        <p class="text-xs font-semibold text-gray-500 mb-2">Small-Format / Alley-Load (SFA)</p>
-        <div class="mb-2"><label class="lbl"># Lots</label><input class="inp" id="sfaCount" type="number" placeholder="0"></div>
-        <div class="mb-2"><label class="lbl">Price per Lot ($)</label><div class="inp-pre"><span>$</span><input class="inp" id="sfaPrice" type="number" placeholder="0"></div></div>
-        <div><label class="lbl">Annual Price Escalation (%)</label><div class="inp-suf"><input class="inp" id="sfaEsc" type="number" step="0.1" placeholder="0.0"><span>%</span></div></div>
-      </div>
+      <p class="hint" style="margin-top:8px;">💡 Price escalator compounds annually during the sellout period. Leave at 0% if prices are fixed.</p>
     </div>
+  </div>
 
-    <!-- Land & Development Costs -->
+  <!-- ── SECTION 2: Acquisition + Timeline ── -->
+  <div class="g3" style="margin-bottom:16px;">
+
     <div class="card">
-      <p class="sec">🏗️ Land &amp; Development Costs</p>
-      <div class="mb-3"><label class="lbl">Raw Land Cost ($)</label><div class="inp-pre"><span>$</span><input class="inp" id="landCost" type="number" placeholder="0"></div></div>
-      <div class="mb-3"><label class="lbl">Closing / Due Diligence (%)</label><div class="inp-suf"><input class="inp" id="closingCost" type="number" step="0.1" placeholder="3.0"><span>%</span></div></div>
-      <div style="border-bottom:1px solid #f1f5f9;padding-bottom:10px;margin-bottom:10px;">
-        <p class="text-xs font-semibold text-gray-500 mb-2">Site Development</p>
-        <div class="mb-2"><label class="lbl">On-site Infrastructure ($)</label><div class="inp-pre"><span>$</span><input class="inp" id="onsiteDev" type="number" placeholder="0"></div></div>
-        <div class="mb-2"><label class="lbl">Off-site / Utility Connections ($)</label><div class="inp-pre"><span>$</span><input class="inp" id="offsiteDev" type="number" placeholder="0"></div></div>
-        <div class="mb-2"><label class="lbl">Landscaping &amp; Common Areas ($)</label><div class="inp-pre"><span>$</span><input class="inp" id="landscaping" type="number" placeholder="0"></div></div>
-        <div><label class="lbl">Contingency (%)</label><div class="inp-suf"><input class="inp" id="contingency" type="number" step="0.1" placeholder="10.0"><span>%</span></div></div>
-      </div>
-      <div>
-        <p class="text-xs font-semibold text-gray-500 mb-2">Soft Costs</p>
-        <div class="mb-2"><label class="lbl">Engineering / Consulting ($)</label><div class="inp-pre"><span>$</span><input class="inp" id="consulting" type="number" placeholder="0"></div></div>
-        <div class="mb-2"><label class="lbl">Legal, Permitting &amp; Fees ($)</label><div class="inp-pre"><span>$</span><input class="inp" id="legalFees" type="number" placeholder="0"></div></div>
-        <div><label class="lbl">HOA Setup / Amenities ($)</label><div class="inp-pre"><span>$</span><input class="inp" id="hoaSetup" type="number" placeholder="0"></div></div>
-      </div>
+      <p class="sec">🏦 Acquisition &amp; Entitlement</p>
+      <div class="f"><label class="lbl">Land Purchase Price ($)</label><div class="inp-p"><span>$</span><input class="inp" id="landCost" type="number" placeholder="4,200,000" oninput="liveCalc()"></div></div>
+      <div class="f"><label class="lbl">Closing Costs (% of land price)</label><div class="inp-s"><input class="inp" id="closingPct" type="number" step="0.5" placeholder="2.0"><span>%</span></div><p class="hint">Title, escrow, transfer tax, recording — typically 2–4%</p></div>
+      <div class="f"><label class="lbl">Earnest Money Deposit ($)</label><div class="inp-p"><span>$</span><input class="inp" id="earnest" type="number" placeholder="200,000"></div><p class="hint">Non-refundable at risk during due diligence</p></div>
+      <div class="f"><label class="lbl">Due Diligence / Entitlement ($)</label><div class="inp-p"><span>$</span><input class="inp" id="ddCost" type="number" placeholder="150,000"></div><p class="hint">Environmental, surveys, rezoning, planning fees</p></div>
+      <div class="f"><label class="lbl">Due Diligence Period (Months)</label><input class="inp" id="ddMonths" type="number" placeholder="6"></div>
+      <div class="f"><label class="lbl">Additional Acquisition Costs ($)</label><div class="inp-p"><span>$</span><input class="inp" id="extraAcq" type="number" placeholder="0"></div><p class="hint">Off-site road dedications, TDRs, development rights</p></div>
     </div>
 
-    <!-- Financing -->
     <div class="card">
-      <p class="sec">🏦 Financing</p>
-      <div class="mb-3"><label class="lbl">Loan-to-Cost (%)</label><div class="inp-suf"><input class="inp" id="loanToCost" type="number" step="0.1" placeholder="65.0"><span>%</span></div></div>
-      <div class="mb-3"><label class="lbl">Interest Rate (%)</label><div class="inp-suf"><input class="inp" id="interestRate" type="number" step="0.01" placeholder="8.0"><span>%</span></div></div>
-      <div class="mb-3"><label class="lbl">Loan Origination Fee (%)</label><div class="inp-suf"><input class="inp" id="loanFees" type="number" step="0.1" placeholder="1.5"><span>%</span></div></div>
-      <div class="mb-3"><label class="lbl">Development Timeline (Months)</label><input class="inp" id="devMonths" type="number" placeholder="24"></div>
-      <div class="mb-3"><label class="lbl">Transfer Tax Rate (%)</label><div class="inp-suf"><input class="inp" id="transferTax" type="number" step="0.1" placeholder="2.0"><span>%</span></div></div>
-      <div class="mb-3"><label class="lbl">Lot Sale Absorption (Lots/Mo)</label><input class="inp" id="absorption" type="number" step="0.1" placeholder="5.0"></div>
-      <div><label class="lbl">Annual Sales &amp; Marketing (%)</label><div class="inp-suf"><input class="inp" id="marketing" type="number" step="0.1" placeholder="2.5"><span>%</span></div></div>
-
-      <!-- Live preview -->
-      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;margin-top:10px;">
-        <div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;"><span style="color:#64748b;">Est. Loan Amount</span><span id="loanDisp" style="font-weight:600;">—</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;"><span style="color:#64748b;">Total Lots</span><span id="totalLotsDisp" style="font-weight:600;">—</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;"><span style="color:#64748b;">Gross Revenue</span><span id="grossRevDisp" style="font-weight:600;">—</span></div>
+      <p class="sec">📅 Development Timeline</p>
+      <div class="f"><label class="lbl">Pre-Development Period (Months)</label><input class="inp" id="preDev" type="number" placeholder="6" oninput="liveCalc()"><p class="hint">Planning, permits, engineering before breaking ground</p></div>
+      <div class="f"><label class="lbl">Construction / Development Duration (Months)</label><input class="inp" id="devMonths" type="number" placeholder="18" oninput="liveCalc()"><p class="hint">Time to complete infrastructure and deliver lots</p></div>
+      <div class="f"><label class="lbl">First Lot Sale (Month from Closing)</label><input class="inp" id="firstSale" type="number" placeholder="20" oninput="liveCalc()"><p class="hint">Typically = pre-dev + construction period</p></div>
+      <div class="f"><label class="lbl">Annual Price Escalation on Costs (%)</label><div class="inp-s"><input class="inp" id="costEsc" type="number" step="0.5" placeholder="3.0"><span>%</span></div><p class="hint">Industry avg 2–4%/yr; apply to hard costs</p></div>
+      <div class="f"><label class="lbl">Phase Allocation (Phases w/ % of Lots)</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:4px;">
+          <div><label class="lbl" style="font-size:9px;">Phase 1 %</label><div class="inp-s"><input class="inp" id="ph1" type="number" step="5" placeholder="40" oninput="liveCalc()"><span>%</span></div></div>
+          <div><label class="lbl" style="font-size:9px;">Phase 2 %</label><div class="inp-s"><input class="inp" id="ph2" type="number" step="5" placeholder="35" oninput="liveCalc()"><span>%</span></div></div>
+          <div><label class="lbl" style="font-size:9px;">Phase 3 %</label><div class="inp-s"><input class="inp" id="ph3" type="number" step="5" placeholder="25" oninput="liveCalc()"><span>%</span></div></div>
+        </div>
+        <div id="phCheck" style="font-size:10px;margin-top:4px;min-height:14px;"></div>
       </div>
-
-      <button onclick="calculate()" class="w-full mt-4 py-3 text-base font-semibold text-white rounded-lg cursor-pointer no-print" style="background:#0043ce;border:none;">Calculate Proforma →</button>
     </div>
 
-    <!-- Sensitivity targets -->
     <div class="card">
-      <p class="sec">🎯 Return Targets</p>
-      <div class="mb-3"><label class="lbl">Target IRR (%)</label><div class="inp-suf"><input class="inp" id="targetIRR" type="number" step="0.1" placeholder="20.0"><span>%</span></div></div>
-      <div class="mb-3"><label class="lbl">Target Profit Margin (%)</label><div class="inp-suf"><input class="inp" id="targetMargin" type="number" step="0.1" placeholder="20.0"><span>%</span></div></div>
-      <div style="border-bottom:1px solid #f1f5f9;padding-bottom:10px;margin-bottom:10px;">
-        <p class="text-xs font-semibold text-gray-500 mb-2">Phasing (optional)</p>
-        <div class="mb-2"><label class="lbl">Phase 1 — % of Total Lots</label><div class="inp-suf"><input class="inp" id="phase1Pct" type="number" step="1" placeholder="40"><span>%</span></div></div>
-        <div class="mb-2"><label class="lbl">Phase 2 — % of Total Lots</label><div class="inp-suf"><input class="inp" id="phase2Pct" type="number" step="1" placeholder="35"><span>%</span></div></div>
-        <div><label class="lbl">Phase 3 — % of Total Lots</label><div class="inp-suf"><input class="inp" id="phase3Pct" type="number" step="1" placeholder="25"><span>%</span></div></div>
-      </div>
-      <div class="mb-3"><label class="lbl">Monthly Carry Cost ($)</label><div class="inp-pre"><span>$</span><input class="inp" id="carryCost" type="number" placeholder="0"></div></div>
-      <div><label class="lbl">Deal Notes</label><textarea class="inp" id="dealNotes" rows="3" style="resize:vertical;font-size:13px;" placeholder="Location, entitlement status, builder takedown schedule..."></textarea></div>
+      <p class="sec">💰 Financing Assumptions</p>
+      <div class="f"><label class="lbl">Construction Loan LTC (%)</label><div class="inp-s"><input class="inp" id="ltc" type="number" step="5" placeholder="65"><span>%</span></div><p class="hint">Lenders typically 60–75% LTC for land dev</p></div>
+      <div class="f"><label class="lbl">Interest Rate (%/yr)</label><div class="inp-s"><input class="inp" id="loanRate" type="number" step="0.25" placeholder="9.0"><span>%</span></div></div>
+      <div class="f"><label class="lbl">Loan Origination Fee (%)</label><div class="inp-s"><input class="inp" id="loanFee" type="number" step="0.25" placeholder="1.0"><span>%</span></div></div>
+      <div class="f"><label class="lbl">Developer Fee (% of total cost)</label><div class="inp-s"><input class="inp" id="devFeePct" type="number" step="0.5" placeholder="3.0"><span>%</span></div><p class="hint">Compensation for developer oversight; typically 2–5%</p></div>
+      <div class="f"><label class="lbl">Lot Sale Closing Costs (% of revenue)</label><div class="inp-s"><input class="inp" id="saleCostsP" type="number" step="0.25" placeholder="2.5"><span>%</span></div><p class="hint">Transfer tax, title, commissions — typically 2–4%</p></div>
+      <div class="f"><label class="lbl">Target Unlevered IRR (%)</label><div class="inp-s"><input class="inp" id="targetIRR" type="number" step="1" placeholder="20"><span>%</span></div><p class="hint">Industry target: 20–25% unlevered for land dev</p></div>
     </div>
+  </div>
+
+  <!-- ── SECTION 3: Hard Costs ── -->
+  <div class="g2" style="margin-bottom:16px;">
+    <div class="card">
+      <p class="sec">🔨 Hard Development Costs — Site Improvements</p>
+      <p style="font-size:11px;color:#94a3b8;margin-bottom:12px;">Enter per-lot amounts or total project amounts. All $/lot figures are multiplied by total lots automatically.</p>
+      <div class="g2" style="gap:10px;">
+        <div><div class="f"><label class="lbl">On-Site Grading &amp; Earthwork ($/lot)</label><div class="inp-p"><span>$</span><input class="inp" id="grading" type="number" placeholder="8,000"></div></div></div>
+        <div><div class="f"><label class="lbl">Underground Utilities — Wet ($/lot)</label><div class="inp-p"><span>$</span><input class="inp" id="wetUtil" type="number" placeholder="12,000"></div></div><p class="hint">Water, sewer, storm drainage</p></div>
+        <div><div class="f"><label class="lbl">Underground Utilities — Dry ($/lot)</label><div class="inp-p"><span>$</span><input class="inp" id="dryUtil" type="number" placeholder="5,000"></div></div><p class="hint">Electric, gas, telecom, fiber</p></div>
+        <div><div class="f"><label class="lbl">Roads &amp; Paving ($/lot)</label><div class="inp-p"><span>$</span><input class="inp" id="paving" type="number" placeholder="10,000"></div></div></div>
+        <div><div class="f"><label class="lbl">Curb, Gutter &amp; Sidewalks ($/lot)</label><div class="inp-p"><span>$</span><input class="inp" id="curb" type="number" placeholder="4,000"></div></div></div>
+        <div><div class="f"><label class="lbl">Landscaping &amp; Common Areas ($/lot)</label><div class="inp-p"><span>$</span><input class="inp" id="landscape" type="number" placeholder="2,500"></div></div></div>
+        <div><div class="f"><label class="lbl">Amenities / Clubhouse ($ total)</label><div class="inp-p"><span>$</span><input class="inp" id="amenity" type="number" placeholder="0"></div></div></div>
+        <div><div class="f"><label class="lbl">Off-Site Improvements ($ total)</label><div class="inp-p"><span>$</span><input class="inp" id="offSite" type="number" placeholder="0"></div></div><p class="hint">Road widening, signal work, utility extensions</p></div>
+        <div><div class="f"><label class="lbl">Stormwater / Retention ($ total)</label><div class="inp-p"><span>$</span><input class="inp" id="stormwater" type="number" placeholder="0"></div></div></div>
+        <div><div class="f"><label class="lbl">Site Lighting &amp; Signage ($ total)</label><div class="inp-p"><span>$</span><input class="inp" id="lighting" type="number" placeholder="0"></div></div></div>
+        <div><div class="f"><label class="lbl">Demolition / Site Clearing ($ total)</label><div class="inp-p"><span>$</span><input class="inp" id="demo" type="number" placeholder="0"></div></div></div>
+        <div><div class="f"><label class="lbl">Contingency (% of hard dev)</label><div class="inp-s"><input class="inp" id="contPct" type="number" step="1" placeholder="10"><span>%</span></div></div><p class="hint">Industry standard: 10–15% of hard dev costs</p></div>
+      </div>
+    </div>
+
+    <!-- Soft Costs -->
+    <div class="card">
+      <p class="sec">📋 Soft Costs</p>
+      <div class="g2" style="gap:10px;">
+        <div><div class="f"><label class="lbl">Civil Engineering &amp; Surveying ($)</label><div class="inp-p"><span>$</span><input class="inp" id="eng" type="number" placeholder="200,000"></div></div></div>
+        <div><div class="f"><label class="lbl">Architecture / Land Planning ($)</label><div class="inp-p"><span>$</span><input class="inp" id="arch" type="number" placeholder="80,000"></div></div></div>
+        <div><div class="f"><label class="lbl">Geotech / Environmental ($)</label><div class="inp-p"><span>$</span><input class="inp" id="geotech" type="number" placeholder="50,000"></div></div></div>
+        <div><div class="f"><label class="lbl">Legal &amp; Title ($)</label><div class="inp-p"><span>$</span><input class="inp" id="legal" type="number" placeholder="60,000"></div></div></div>
+        <div><div class="f"><label class="lbl">Permits &amp; Inspection Fees ($)</label><div class="inp-p"><span>$</span><input class="inp" id="permits" type="number" placeholder="100,000"></div></div></div>
+        <div><div class="f"><label class="lbl">Property Tax — Carry ($/lot/yr)</label><div class="inp-p"><span>$</span><input class="inp" id="propTax" type="number" placeholder="500"></div></div><p class="hint">Applied for full project duration</p></div>
+        <div><div class="f"><label class="lbl">Insurance — Builder's Risk ($/yr)</label><div class="inp-p"><span>$</span><input class="inp" id="insurance" type="number" placeholder="25,000"></div></div></div>
+        <div><div class="f"><label class="lbl">HOA / Association Setup ($)</label><div class="inp-p"><span>$</span><input class="inp" id="hoa" type="number" placeholder="0"></div></div></div>
+        <div><div class="f"><label class="lbl">Marketing &amp; Sales (% of revenue)</label><div class="inp-s"><input class="inp" id="mktPct" type="number" step="0.25" placeholder="1.5"><span>%</span></div></div></div>
+        <div><div class="f"><label class="lbl">Miscellaneous Soft Costs ($)</label><div class="inp-p"><span>$</span><input class="inp" id="miscSoft" type="number" placeholder="0"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin:18px 0 10px;">
+    <button class="btn-primary" onclick="calculate()" style="padding:13px 44px;font-size:15px;">Calculate Proforma →</button>
+    <p style="font-size:11px;color:#94a3b8;margin-top:8px;">Results open in the Summary Dashboard tab automatically.</p>
   </div>
 </div><!-- /inputs -->
 
-<!-- ══ RESULTS ══ -->
-<div id="tab-results" class="tab-panel">
-  <div id="metricCards" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6"></div>
+<!-- ══ SUMMARY DASHBOARD ══════════════════════════════════════════════ -->
+<div id="tab-summary" class="tab-panel">
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
-    <!-- Cost stack -->
-    <div class="card">
-      <p class="sec">Cost Stack</p>
-      <div id="costStack"></div>
+  <!-- KPI Row -->
+  <div id="kpiRow" style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:18px;"></div>
+
+  <!-- Two-column: Waterfall + Returns -->
+  <div class="g2" style="margin-bottom:16px;">
+    <div class="card card-blue">
+      <p class="sec">💧 Revenue &amp; Cost Waterfall</p>
+      <div id="waterfallDiv"></div>
     </div>
-    <!-- Revenue waterfall -->
     <div class="card">
-      <p class="sec">Revenue &amp; Returns Waterfall</p>
-      <div id="revenueWaterfall"></div>
+      <p class="sec">📈 Return Analysis vs. Industry Benchmarks</p>
+      <div id="returnsDiv"></div>
     </div>
   </div>
 
-  <div class="card mb-5">
-    <p class="sec">Full Return Analysis</p>
-    <div class="overflow-x-auto"><table class="pro-table" id="returnsTable"></table></div>
+  <!-- Unlevered vs Levered side-by-side -->
+  <div class="g2" style="margin-bottom:16px;">
+    <div class="card card-blue">
+      <p class="sec">📊 Unlevered Returns (All-Cash)</p>
+      <div id="unlevDiv"></div>
+    </div>
+    <div class="card card-green">
+      <p class="sec">📊 Levered Returns (with Construction Loan)</p>
+      <div id="levDiv"></div>
+    </div>
   </div>
 
-  <!-- Sensitivity -->
-  <div class="card">
-    <p class="sec">Sensitivity Analysis</p>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div><p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Lot Price Sensitivity</p><div id="priceSens"></div></div>
-      <div><p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Land Cost Sensitivity</p><div id="landSens"></div></div>
-      <div><p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Absorption Rate Sensitivity</p><div id="absorptionSens"></div></div>
+  <!-- Cost breakdown -->
+  <div class="card" style="margin-bottom:16px;">
+    <p class="sec">🧩 Total Development Budget Breakdown</p>
+    <div id="budgetBreakdown" style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;"></div>
+  </div>
+
+  <!-- Deal verdict -->
+  <div id="dealVerdict" style="margin-bottom:16px;"></div>
+
+  <!-- Quick metrics guide -->
+  <div class="card" style="margin-bottom:16px;">
+    <p class="sec">📘 How to Read Your Results</p>
+    <div class="g2" style="gap:12px;margin-bottom:12px;">
+      <div style="background:#f0fdf4;border-radius:8px;padding:12px;border-left:3px solid #15803d;">
+        <p style="font-size:11px;font-weight:700;color:#15803d;margin-bottom:4px;">✅ Green = Good</p>
+        <p style="font-size:11px;color:#64748b;line-height:1.5;">Margin ≥25% · Unlevered IRR ≥target · Equity multiple ≥1.5×. Project meets industry return thresholds.</p>
+      </div>
+      <div style="background:#fef9c3;border-radius:8px;padding:12px;border-left:3px solid #b45309;">
+        <p style="font-size:11px;font-weight:700;color:#b45309;margin-bottom:4px;">⚠️ Yellow = Marginal</p>
+        <p style="font-size:11px;color:#64748b;line-height:1.5;">Margin 15–25%. Possible, but little cushion for overruns. Renegotiate land price or reduce costs before proceeding.</p>
+      </div>
+    </div>
+    <div class="g3" style="gap:12px;">
+      <div style="background:#f8fafc;border-radius:8px;padding:12px;border-left:3px solid #0043ce;">
+        <p style="font-size:11px;font-weight:700;color:#0043ce;margin-bottom:4px;">Profit Margin</p>
+        <p style="font-size:11px;color:#64748b;line-height:1.5;"><strong>What it is:</strong> Gross profit ÷ net revenue.<br><strong>Why it matters:</strong> Must be ≥25% to cover unexpected cost overruns and still produce an acceptable return. Land dev is risky — 15% feels fine until costs run 10% over.<br><strong>Industry target:</strong> 25–30%+</p>
+      </div>
+      <div style="background:#f8fafc;border-radius:8px;padding:12px;border-left:3px solid #7c3aed;">
+        <p style="font-size:11px;font-weight:700;color:#7c3aed;margin-bottom:4px;">Unlevered IRR</p>
+        <p style="font-size:11px;color:#64748b;line-height:1.5;"><strong>What it is:</strong> All-cash return ignoring financing — pure project return.<br><strong>Why it matters:</strong> Lets you compare deals regardless of how they're financed. If unlevered IRR &lt; loan rate, leverage actually hurts you.<br><strong>Industry target:</strong> 20–25%</p>
+      </div>
+      <div style="background:#f8fafc;border-radius:8px;padding:12px;border-left:3px solid #15803d;">
+        <p style="font-size:11px;font-weight:700;color:#15803d;margin-bottom:4px;">Levered IRR &amp; Multiple</p>
+        <p style="font-size:11px;color:#64748b;line-height:1.5;"><strong>What it is:</strong> Return on just the developer's equity (after loan repayment). Should exceed unlevered IRR.<br><strong>Multiple:</strong> For every $1 of equity invested, how many dollars come back. 2.0× means you doubled your money.<br><strong>Industry target:</strong> Multiple ≥1.5–2.5×</p>
+      </div>
+    </div>
+    <div class="g2" style="gap:12px;margin-top:12px;">
+      <div style="background:#f8fafc;border-radius:8px;padding:12px;border-left:3px solid #f97316;">
+        <p style="font-size:11px;font-weight:700;color:#f97316;margin-bottom:4px;">Profit / Lot</p>
+        <p style="font-size:11px;color:#64748b;line-height:1.5;"><strong>What it is:</strong> Total gross profit divided by number of lots. Simple sanity check.<br><strong>Industry target:</strong> $25,000–$60,000/lot is typical for finished residential lots. Below $20k/lot is concerning; above $70k suggests either premium pricing or lean costs.</p>
+      </div>
+      <div style="background:#f8fafc;border-radius:8px;padding:12px;border-left:3px solid #64748b;">
+        <p style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:4px;">Land as % of TDC</p>
+        <p style="font-size:11px;color:#64748b;line-height:1.5;"><strong>What it is:</strong> Land acquisition cost as a % of total development cost.<br><strong>Industry rule of thumb:</strong> Land should be 20–30% of TDC. Above 35% means you overpaid for land and may struggle to hit return targets. Below 15% is often a sign of a great land buy.</p>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ══ PROFORMA ══ -->
+<!-- ══ PROFORMA TAB ════════════════════════════════════════════════════ -->
 <div id="tab-proforma" class="tab-panel">
-  <div class="card overflow-x-auto">
-    <p class="sec">Phase-by-Phase Proforma</p>
-    <table class="pro-table" id="proformaTable">
-      <tbody><tr><td class="py-12 text-center" style="color:#94a3b8;" colspan="5">Run the calculator to see your phase proforma.</td></tr></tbody>
-    </table>
+  <div class="card" style="overflow-x:auto;margin-bottom:16px;">
+    <p class="sec">Phase-by-Phase Development Proforma</p>
+    <table class="tbl" id="proTbl"><tbody><tr><td colspan="6" style="padding:40px;text-align:center;color:#94a3b8;">Run the calculator to see the phase proforma.</td></tr></tbody></table>
+  </div>
+  <div class="card" style="overflow-x:auto;">
+    <p class="sec">Sources &amp; Uses of Funds</p>
+    <div id="sourcesUses"></div>
   </div>
 </div>
 
-<!-- ══ CHARTS ══ -->
-<div id="tab-charts" class="tab-panel">
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-    <div class="card"><p class="sec">Revenue vs. Cost by Phase</p><div style="position:relative;height:240px;"><canvas id="chartPhases"></canvas></div></div>
-    <div class="card"><p class="sec">Cost Breakdown</p><div style="position:relative;height:240px;"><canvas id="chartCosts"></canvas></div></div>
-    <div class="card"><p class="sec">Lot Absorption Schedule</p><div style="position:relative;height:240px;"><canvas id="chartAbsorption"></canvas></div></div>
-    <div class="card"><p class="sec">Cumulative Cash Flow</p><div style="position:relative;height:240px;"><canvas id="chartCumulative"></canvas></div></div>
-  </div>
-</div>
-
-</div><!-- /max-w -->
-
-<!-- FOOTER -->
-<footer style="background:#0f172a;padding:48px 0;color:white;">
-  <div class="max-w-7xl mx-auto px-4">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
-      <div><div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;"><svg width="28" height="28" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg><span style="font-size:16px;font-weight:700;color:white;">RE<span style="font-weight:300;">Proforma</span></span></div><p style="font-size:13px;color:#94a3b8;">Advanced analytics for real estate investment professionals.</p></div>
-      <div>
-        <p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Tools</p>
-        <p style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#475569;margin-bottom:6px;">Pro</p>
-        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
-          <a href="index" style="font-size:13px;color:#94a3b8;text-decoration:none;">Multifamily Acquisition</a>
-          <a href="index-mixeduse" style="font-size:13px;color:#94a3b8;text-decoration:none;">Commercial &amp; NNN Retail</a>
-          <a href="index-land" style="font-size:13px;color:#94a3b8;text-decoration:none;">Land Development</a>
-        </div>
-        <p style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#475569;margin-bottom:6px;border-top:1px solid #1e293b;padding-top:8px;">Free</p>
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <a href="index-affordability" style="font-size:13px;color:#94a3b8;text-decoration:none;">🏠 Home Affordability</a>
-          <a href="index-rentvsbuy" style="font-size:13px;color:#94a3b8;text-decoration:none;">⚖️ Rent vs. Own</a>
-          <a href="index-mortgage-payoff" style="font-size:13px;color:#94a3b8;text-decoration:none;">📅 Mortgage Payoff</a>
-        </div>
-      </div>
-      <div>
-        <p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Resources</p>
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Market Reports</a>
-          <a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Investment Guide</a>
-          <a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Case Studies</a>
-          <a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Blog</a>
-          <a href="#" style="font-size:13px;color:#94a3b8;text-decoration:none;">Support</a>
-        </div>
-      </div>
-      <div>
-        <p style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Subscribe</p>
-        <p style="font-size:13px;color:#94a3b8;margin-bottom:10px;">Get the latest real estate investment insights.</p>
-        <div style="display:flex;">
-          <input type="email" placeholder="Your email" style="flex:1;padding:8px 10px;border-radius:6px 0 0 6px;border:none;font-size:13px;outline:none;color:#1e293b;">
-          <button style="background:#0056b3;color:white;border:none;padding:8px 14px;border-radius:0 6px 6px 0;font-size:13px;font-weight:600;cursor:pointer;">Go</button>
-        </div>
-      </div>
+<!-- ══ ANNUAL CASH FLOWS ════════════════════════════════════════════════ -->
+<div id="tab-cashflow" class="tab-panel">
+  <div class="card" style="overflow-x:auto;">
+    <p class="sec">Annual Unlevered Cash Flow Statement</p>
+    <div style="margin-bottom:12px;font-size:11px;color:#64748b;background:#f8fafc;border-radius:6px;padding:10px 12px;">
+      <strong>How to read:</strong> Negative values = cash going out (costs). Positive values = cash coming in (revenue). Cumulative shows your running cash position. The project breaks even when Cumulative turns positive.
     </div>
-    <div style="border-top:1px solid #1e293b;padding-top:20px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:13px;color:#64748b;">
+    <table class="tbl" id="cfTbl"><tbody><tr><td colspan="8" style="padding:40px;text-align:center;color:#94a3b8;">Run the calculator to see annual cash flows.</td></tr></tbody></table>
+  </div>
+</div>
+
+<!-- ══ SENSITIVITY ANALYSIS ════════════════════════════════════════════ -->
+<div id="tab-sensitivity" class="tab-panel">
+  <!-- 3-scenario toggle -->
+  <div class="card" style="margin-bottom:16px;">
+    <p class="sec">🔄 3-Scenario Quick Compare — Bear / Base / Bull</p>
+    <p style="font-size:11px;color:#64748b;margin-bottom:14px;">Stress-tests your base assumptions against downside (costs +10%, prices −5%) and upside (costs −5%, prices +5%) scenarios.</p>
+    <div id="scenarioDiv"></div>
+  </div>
+
+  <div class="g2" style="margin-bottom:16px;">
+    <div class="card">
+      <p class="sec">📊 Land Price Sensitivity</p>
+      <p style="font-size:11px;color:#64748b;margin-bottom:10px;">How does return change as land price moves? Your base case is highlighted.</p>
+      <div style="overflow-x:auto;"><table class="sens" id="ppSens"><tbody><tr><td colspan="6" style="padding:24px;text-align:center;color:#94a3b8;">Run calculator first.</td></tr></tbody></table></div>
+    </div>
+    <div class="card">
+      <p class="sec">📊 Lot Price Sensitivity</p>
+      <p style="font-size:11px;color:#64748b;margin-bottom:10px;">How does return change as average lot price moves?</p>
+      <div style="overflow-x:auto;"><table class="sens" id="lpSens"><tbody><tr><td colspan="6" style="padding:24px;text-align:center;color:#94a3b8;">Run calculator first.</td></tr></tbody></table></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <p class="sec">📊 Absorption Rate Sensitivity</p>
+      <p style="font-size:11px;color:#64748b;margin-bottom:10px;">Faster absorption = higher IRR due to shorter carry period.</p>
+      <div style="overflow-x:auto;"><table class="sens" id="absSens"><tbody><tr><td colspan="6" style="padding:24px;text-align:center;color:#94a3b8;">Run calculator first.</td></tr></tbody></table></div>
+    </div>
+    <div class="card">
+      <p class="sec">📊 Hard Dev Cost Sensitivity</p>
+      <p style="font-size:11px;color:#64748b;margin-bottom:10px;">Cost overruns are the #1 risk in land development. This shows the impact.</p>
+      <div style="overflow-x:auto;"><table class="sens" id="hdSens"><tbody><tr><td colspan="6" style="padding:24px;text-align:center;color:#94a3b8;">Run calculator first.</td></tr></tbody></table></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CHARTS ══════════════════════════════════════════════════════════ -->
+<div id="tab-charts" class="tab-panel">
+  <div class="g2" style="margin-bottom:16px;">
+    <div class="card"><p class="sec">Revenue vs. All-In Cost by Phase</p><div style="position:relative;height:260px;"><canvas id="chPhase"></canvas></div></div>
+    <div class="card"><p class="sec">Cost Breakdown (% of Total Budget)</p><div style="position:relative;height:260px;"><canvas id="chCostPie"></canvas></div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><p class="sec">Annual Cash Flow &amp; Cumulative Position</p><div style="position:relative;height:260px;"><canvas id="chCF"></canvas></div></div>
+    <div class="card"><p class="sec">Revenue Mix by Product Type</p><div style="position:relative;height:260px;"><canvas id="chRevMix"></canvas></div></div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+<!-- FOOTER -->
+<footer style="background:#0f172a;color:white;padding:48px 0;">
+  <div style="max-width:1280px;margin:0 auto;padding:0 20px;">
+    <div class="ft-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:28px;margin-bottom:28px;">
+      <div><div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;"><svg width="28" height="28" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#0043ce"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg><span style="font-size:15px;font-weight:700;color:white;">RE<span style="font-weight:300;">Proforma</span></span></div><p style="font-size:12px;color:#94a3b8;line-height:1.6;">Advanced analytics for real estate investors and developers.</p></div>
+      <div><p style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Tools</p><p style="font-size:10px;text-transform:uppercase;color:#475569;margin-bottom:5px;">Pro</p><div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;"><a href="index" style="font-size:12px;color:#94a3b8;">Multifamily Acquisition</a><a href="index-mixeduse" style="font-size:12px;color:#94a3b8;">Commercial &amp; NNN Retail</a><a href="index-land" style="font-size:12px;color:#94a3b8;">Land Development</a></div><p style="font-size:10px;text-transform:uppercase;color:#475569;margin-bottom:5px;border-top:1px solid #1e293b;padding-top:8px;">Free</p><div style="display:flex;flex-direction:column;gap:6px;"><a href="index-affordability" style="font-size:12px;color:#94a3b8;">🏠 Home Affordability</a><a href="index-rentvsbuy" style="font-size:12px;color:#94a3b8;">⚖️ Rent vs. Own</a><a href="index-mortgage-payoff" style="font-size:12px;color:#94a3b8;">📅 Mortgage Payoff</a></div></div>
+      <div><p style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Resources</p><div style="display:flex;flex-direction:column;gap:6px;"><a href="#" style="font-size:12px;color:#94a3b8;">Market Reports</a><a href="#" style="font-size:12px;color:#94a3b8;">Investment Guide</a><a href="#" style="font-size:12px;color:#94a3b8;">Case Studies</a><a href="#" style="font-size:12px;color:#94a3b8;">Blog</a><a href="#" style="font-size:12px;color:#94a3b8;">Support</a></div></div>
+      <div><p style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Subscribe</p><p style="font-size:12px;color:#94a3b8;margin-bottom:10px;">Get the latest real estate insights.</p><div style="display:flex;"><input type="email" placeholder="Your email" style="flex:1;padding:9px 12px;border-radius:7px 0 0 7px;border:none;font-size:12px;outline:none;color:#1e293b;min-width:0;"><button style="background:#0056b3;color:white;border:none;padding:9px 16px;border-radius:0 7px 7px 0;font-size:12px;font-weight:600;cursor:pointer;">Go</button></div></div>
+    </div>
+    <div style="border-top:1px solid #1e293b;padding-top:18px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:12px;color:#64748b;">
       <p>&copy; 2025 REProforma. All rights reserved.</p>
-      <div style="display:flex;gap:20px;">
-        <a href="../privacy" style="color:#64748b;text-decoration:none;">Privacy Policy</a>
-        <a href="../terms" style="color:#64748b;text-decoration:none;">Terms of Service</a>
-      </div>
+      <div style="display:flex;gap:20px;"><a href="../privacy" style="color:#64748b;">Privacy Policy</a><a href="../terms" style="color:#64748b;">Terms of Service</a></div>
     </div>
   </div>
 </footer>
-
 <script>
-// ── Helpers ──────────────────────────────────────────────────
-const $ = id => document.getElementById(id);
-const num = id => parseFloat($(id)?.value)||0;
-const fmt = v => isNaN(v)||!isFinite(v)?'—':'$'+Math.round(v).toLocaleString();
-const pct = (v,d=2) => isNaN(v)||!isFinite(v)?'—':v.toFixed(d)+'%';
+// ═══════════════════════════════════════════════════════════════════
+// REProforma — Land Development Proforma Engine
+// Industry-standard residential land developer model
+// ═══════════════════════════════════════════════════════════════════
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+const $  = id => document.getElementById(id);
+const num = id => parseFloat($(id)?.value) || 0;
+const set = (id, v) => { if($(id)) $(id).value = v; };
+const fmt = v => isNaN(v)||!isFinite(v) ? '—' : '$' + Math.round(v).toLocaleString();
+const fpct = (v, d=1) => isNaN(v)||!isFinite(v) ? '—' : v.toFixed(d) + '%';
+const bC = (v, warn, good) => v >= good ? '#15803d' : v >= warn ? '#b45309' : '#b91c1c';
+const neg = v => v < 0;
+
+// ── Nav ───────────────────────────────────────────────────────────────────────
+(function(){
+  function ckW(){
+    var mob = window.innerWidth < 768;
+    var dn = $('desk-nav'), mb = $('mob-btn');
+    if(dn) dn.style.display = mob ? 'none' : 'flex';
+    if(mb) mb.style.display = mob ? 'block' : 'none';
+  }
+  window.addEventListener('resize', ckW); ckW();
+  var btn = $('mob-btn'), menu = $('mob-menu');
+  if(btn && menu) btn.addEventListener('click', function(){
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+  });
+  document.querySelectorAll('.mob-tog').forEach(function(b){
+    b.addEventListener('click', function(){
+      var s = b.nextElementSibling, a = b.querySelector('.mob-arr'), open = s.style.display === 'block';
+      s.style.display = open ? 'none' : 'block';
+      if(a) a.style.transform = open ? 'rotate(0)' : 'rotate(180deg)';
+    });
+  });
+  function od(m,b){ m.classList.add('open'); if(b) b.classList.add('open'); }
+  function ca(){ document.querySelectorAll('.dd-menu').forEach(m=>m.classList.remove('open')); document.querySelectorAll('.dd-trig').forEach(b=>b.classList.remove('open')); }
+  function sDD(w,m,b){
+    var ww=$(w),mm=$(m),bb=$(b); if(!ww||!mm)return; var t;
+    ww.addEventListener('mouseenter',()=>{ clearTimeout(t); od(mm,bb); });
+    ww.addEventListener('mouseleave',()=>{ t=setTimeout(()=>{ mm.classList.remove('open'); if(bb)bb.classList.remove('open'); },120); });
+    if(bb) bb.addEventListener('click',e=>{ e.stopPropagation(); var o=mm.classList.contains('open'); ca(); if(!o)od(mm,bb); });
+  }
+  sDD('ddT','ddTm','ddTb'); sDD('ddM','ddMm','ddMb');
+  document.addEventListener('click', e => { if(!e.target.closest('.dd-wrap')) ca(); });
+})();
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function sw(name, btn){
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  $('tab-' + name).classList.add('active');
+}
+
+// ── IRR solver (bisection + Newton-Raphson) ───────────────────────────────────
+function calcIRR(flows){
+  const npv = r => flows.reduce((s,f,t) => s + f / Math.pow(1+r, t), 0);
+  let lo = -0.9999, hi = 10;
+  if(npv(lo) * npv(hi) > 0) return NaN;
+  let mid = 0.1;
+  for(let i=0; i<80; i++){
+    mid = (lo+hi)/2; const nm = npv(mid);
+    if(Math.abs(nm)<1e-6 || (hi-lo)<1e-10) break;
+    nm * npv(lo) > 0 ? lo=mid : hi=mid;
+  }
+  let r = mid;
+  for(let i=0; i<60; i++){
+    let v=0, d=0;
+    flows.forEach((f,t) => { const disc=Math.pow(1+r,t); v+=f/disc; d-=t*f/((1+r)*disc); });
+    if(Math.abs(d)<1e-14) break;
+    const rn = r - v/d;
+    if(!isFinite(rn)) break;
+    if(Math.abs(rn-r)<1e-11){ r=rn; break; }
+    r = rn;
+  }
+  return isFinite(r) && r>-0.9999 && r<50 ? r*100 : NaN;
+}
+
 const CH = {};
-function mkChart(id,cfg){if(CH[id])CH[id].destroy();CH[id]=new Chart($(id),cfg);}
+function mkC(id, cfg){ if(CH[id]) CH[id].destroy(); CH[id] = new Chart($(id), cfg); }
 
-// ── Tabs ─────────────────────────────────────────────────────
-function switchTab(name,btn){
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  if(btn)btn.classList.add('active');
-  $('tab-'+name).classList.add('active');
-}
+// ── Live preview (runs on any input change) ───────────────────────────────────
+function liveCalc(){
+  const types = getTypes();
+  const totalLots = types.reduce((s,t) => s+t.lots, 0);
+  const baseRev   = types.reduce((s,t) => s+t.lots*t.price, 0);
+  const acres     = num('siteAcres');
+  const absPerMo  = types.reduce((s,t) => s+(t.abs||0), 0) || 1;
+  const selloutMo = totalLots / absPerMo;
 
-// ── Nav ──────────────────────────────────────────────────────
-$('mob-btn').addEventListener('click',()=>$('mob-menu').classList.toggle('hidden'));
-document.querySelectorAll('.mob-toggle').forEach(b=>{
-  b.addEventListener('click',()=>{
-    const s=b.nextElementSibling,a=b.querySelector('.mob-arrow'),o=s.style.display==='block';
-    s.style.display=o?'none':'block';a.style.transform=o?'':'rotate(180deg)';
+  // Per-type displays
+  const colors = ['#0043ce','#7c3aed','#b45309'];
+  const ids    = [['sfdRevDisp','sfdLots','sfdP'],['thRevDisp','thLots','thP'],['aaRevDisp','aaLots','aaP']];
+  ids.forEach(([rid,lid,pid]) => {
+    const r = (num(lid)||0)*(num(pid)||0);
+    if($(rid)) $(rid).textContent = r > 0 ? fmt(r) : '—';
   });
-});
-function setupDD(wId,mId,bId){
-  const w=$(wId),m=$(mId),b=$(bId);if(!w||!m)return;let t;
-  w.addEventListener('mouseenter',()=>{clearTimeout(t);m.classList.add('open');b&&b.classList.add('open');});
-  w.addEventListener('mouseleave',()=>{t=setTimeout(()=>{m.classList.remove('open');b&&b.classList.remove('open');},120);});
-  b&&b.addEventListener('click',e=>{e.stopPropagation();const o=m.classList.contains('open');closeAll();if(!o){m.classList.add('open');b.classList.add('open');}});
-}
-function closeAll(){document.querySelectorAll('.dd-menu').forEach(m=>m.classList.remove('open'));document.querySelectorAll('.dd-trigger').forEach(b=>b.classList.remove('open'));}
-setupDD('ddT','ddTm','ddTb');setupDD('ddM','ddMm','ddMb');
-document.addEventListener('click',e=>{if(!e.target.closest('.dd-wrap'))closeAll();});
 
-// ── Live preview ─────────────────────────────────────────────
-function livePreview(){
-  const sfd=num('sfdCount'),twin=num('twinCount'),sfa=num('sfaCount');
-  const sp=num('sfdPrice'),tp=num('twinPrice'),ap=num('sfaPrice');
-  const totalLots=sfd+twin+sfa;
-  const grossRev=sfd*sp+twin*tp+sfa*ap;
-  const lc=num('landCost'),od=num('onsiteDev'),off=num('offsiteDev'),ls=num('landscaping');
-  const cons=num('consulting'),leg=num('legalFees'),hoa=num('hoaSetup');
-  const contPct=num('contingency')/100;
-  const devCosts=od+off+ls;
-  const totalCost=lc*(1+num('closingCost')/100)+devCosts*(1+contPct)+cons+leg+hoa;
-  const loan=totalCost*(num('loanToCost')/100);
-  $('loanDisp').textContent=fmt(loan);
-  $('totalLotsDisp').textContent=totalLots;
-  $('grossRevDisp').textContent=fmt(grossRev);
-}
-['sfdCount','twinCount','sfaCount','sfdPrice','twinPrice','sfaPrice','landCost','onsiteDev','loanToCost'].forEach(id=>{
-  const e=$(id);if(e)e.addEventListener('input',livePreview);
-});
+  if($('totLotsDisp'))  $('totLotsDisp').textContent  = totalLots || '—';
+  if($('totAvgPDisp'))  $('totAvgPDisp').textContent  = totalLots && baseRev ? fmt(baseRev/totalLots) : '—';
+  if($('totRevDisp'))   $('totRevDisp').textContent   = baseRev ? fmt(baseRev) : '—';
+  if($('totSelloutDisp')) $('totSelloutDisp').textContent = selloutMo ? Math.ceil(selloutMo) + ' mo sellout' : '—';
+  if($('totAbsDisp'))   $('totAbsDisp').textContent   = absPerMo ? absPerMo.toFixed(1) + '/mo' : '—';
+  if($('pvDensity'))    $('pvDensity').textContent    = acres && totalLots ? (totalLots/acres).toFixed(1) : '—';
+  if($('pvBlend'))      $('pvBlend').textContent      = totalLots && baseRev ? fmt(baseRev/totalLots) : '—';
+  if($('pvRev'))        $('pvRev').textContent        = baseRev ? fmt(baseRev) : '—';
 
-// ══════════════════════════════════════════════════════════════
+  // Phase check
+  const phSum = num('ph1')+num('ph2')+num('ph3');
+  const el = $('phCheck');
+  if(el){
+    if(phSum === 0){ el.textContent = ''; }
+    else {
+      const ok = Math.abs(phSum - 100) < 0.5;
+      el.innerHTML = `<span style="color:${ok?'#15803d':'#dc2626'};">${ok?'✅ Phases sum to 100%':'⚠️ Phases sum to '+phSum.toFixed(0)+'% — must equal 100%'}</span>`;
+    }
+  }
+}
+
+// ── Get active product types ──────────────────────────────────────────────────
+function getTypes(){
+  return [
+    {name:'SFD', lots:num('sfdLots'), price:num('sfdP'), esc:num('sfdEsc')/100, abs:num('sfdAbs')},
+    {name:'Townhome', lots:num('thLots'), price:num('thP'), esc:num('thEsc')/100, abs:num('thAbs')},
+    {name:'Active Adult', lots:num('aaLots'), price:num('aaP'), esc:num('aaEsc')/100, abs:num('aaAbs')},
+  ].filter(t => t.lots > 0 && t.price > 0);
+}
+
+// ═══════════════════════════════════════════════════════════════════
 // MAIN CALCULATE
-// ══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 function calculate(){
-  // Lot mix
-  const sfdC=num('sfdCount'),sfdP=num('sfdPrice'),sfdE=num('sfdEsc')/100;
-  const twnC=num('twinCount'),twnP=num('twinPrice'),twnE=num('twinEsc')/100;
-  const sfaC=num('sfaCount'),sfaP=num('sfaPrice'),sfaE=num('sfaEsc')/100;
-  const totalLots=sfdC+twnC+sfaC;
+  const types = getTypes();
+  if(!types.length){ alert('Enter at least one product type with lots and a price.'); return; }
 
-  if(!totalLots){alert('Please enter at least one lot type.');return;}
+  const totalLots = types.reduce((s,t) => s+t.lots, 0);
+  const totalAbsPerMo = types.reduce((s,t) => s+(t.abs||0), 0) || 5;
 
-  // Land & dev costs
-  const lc=num('landCost');
-  const closingPct=num('closingCost')/100||0.03;
-  const landTotal=lc*(1+closingPct);
-  const od=num('onsiteDev'),off=num('offsiteDev'),ls=num('landscaping');
-  const devBase=od+off+ls;
-  const contPct=num('contingency')/100||0.10;
-  const devTotal=devBase*(1+contPct);
-  const cons=num('consulting'),leg=num('legalFees'),hoa=num('hoaSetup');
-  const softTotal=cons+leg+hoa;
-  const totalCost=landTotal+devTotal+softTotal;
+  // ── TIMELINE ─────────────────────────────────────────────────────
+  const preDev    = num('preDev')    || 6;
+  const devMonths = num('devMonths') || 18;
+  const firstSale = num('firstSale') || (preDev + devMonths);
+  const selloutMo = Math.ceil(totalLots / totalAbsPerMo);
+  const totalMo   = Math.max(firstSale + selloutMo, preDev + devMonths + selloutMo);
+  const totalYrs  = totalMo / 12;
+  const devYrs    = (preDev + devMonths) / 12;
+  const saleYrs   = selloutMo / 12;
 
-  // Financing
-  const ltcPct=num('loanToCost')/100||0.65;
-  const iRate=num('interestRate')/100||0.08;
-  const loanFeesPct=num('loanFees')/100||0.015;
-  const devMonths=num('devMonths')||24;
-  const absorption=num('absorption')||5;
-  const marketingPct=num('marketing')/100||0.025;
-  const tfTaxPct=num('transferTax')/100||0.02;
-  const carryCost=num('carryCost');
-
-  const loanAmt=totalCost*ltcPct;
-  const loanFees=loanAmt*loanFeesPct;
-  const interestCost=loanAmt*iRate*(devMonths/12);
-  const financeTotal=loanFees+interestCost;
-
-  // Revenue with escalation
-  const grossRev=sfdC*sfdP+twnC*twnP+sfaC*sfaP;
-  const transferTax=grossRev*tfTaxPct;
-  const marketing=grossRev*marketingPct;
-  const totalCarry=carryCost*devMonths;
-  const allCosts=totalCost+financeTotal+transferTax+marketing+totalCarry;
-
-  const profit=grossRev-allCosts;
-  const margin=grossRev?profit/grossRev*100:0;
-  const roi=allCosts?profit/allCosts*100:0;
-  const targetIRR=num('targetIRR')||20;
-
-  // Simplified IRR: treat equity out at t=0, profit at t=devMonths/12
-  const equity=allCosts*(1-ltcPct);
-  const yearsToComplete=devMonths/12;
-  const irrApprox=equity>0?Math.pow((equity+profit)/equity,1/yearsToComplete)-1:0;
-
-  // Phasing
-  const p1=Math.max(0,Math.min(100,num('phase1Pct')||40))/100;
-  const p2=Math.max(0,Math.min(100,num('phase2Pct')||35))/100;
-  const p3=Math.max(0,1-p1-p2);
-  const phases=[
-    {name:'Phase 1',lotPct:p1},
-    {name:'Phase 2',lotPct:p2},
-    {name:'Phase 3',lotPct:p3}
-  ].map((ph,i)=>{
-    const pLots=Math.round(totalLots*ph.lotPct);
-    const esc=Math.pow(1+sfdE,i);
-    const pRev=Math.round(sfdC*ph.lotPct*sfdP*esc + twnC*ph.lotPct*twnP*(1+twnE*i) + sfaC*ph.lotPct*sfaP*(1+sfaE*i));
-    const pCost=Math.round(allCosts*ph.lotPct);
-    return {...ph,pLots,pRev,pCost,pProfit:pRev-pCost};
+  // ── REVENUE with annual price escalation ─────────────────────────
+  // Each lot type escalates at its % per year; sellout takes saleYrs years
+  // Avg lots sold per year = totalLots / saleYrs → avg escalation at midpoint
+  const typeRevs = types.map(t => {
+    // Simple avg escalation over sellout period: (saleYrs/2) years at esc rate
+    const avgEscFactor = t.esc > 0 ? (1 + t.esc * saleYrs/2) : 1;
+    const avgPrice = t.price * avgEscFactor;
+    const rev = Math.round(t.lots * avgPrice);
+    return { ...t, avgPrice, rev };
   });
+  const lotRevenue = typeRevs.reduce((s,t) => s+t.rev, 0);
 
-  // ── Switch to results ────────────────────────────────────────
-  switchTab('results',document.querySelectorAll('.tab-btn')[1]);
+  // Sale closing costs (transfer tax, title, commissions)
+  const saleCostsPct = $('saleCostsP')?.value.trim()==='' ? 0.025 : parseFloat($('saleCostsP').value)/100;
+  const saleCosts    = lotRevenue * saleCostsPct;
+  const netRevenue   = lotRevenue - saleCosts;
 
-  const bC=(v,lo,hi)=>v>=hi?'#15803d':v>=lo?'#b45309':'#b91c1c';
-  $('metricCards').innerHTML=[
-    {l:'Total Lots',v:totalLots,c:'#0043ce'},
-    {l:'Gross Revenue',v:fmt(grossRev),c:'#0056b3'},
-    {l:'Total Costs',v:fmt(allCosts),c:'#b91c1c'},
-    {l:'Developer Profit',v:fmt(profit),c:bC(profit,0,grossRev*0.15)},
-    {l:'Profit Margin',v:pct(margin),c:bC(margin,15,20)},
-    {l:'IRR (Est.)',v:pct(irrApprox*100),c:bC(irrApprox*100,15,targetIRR)},
-  ].map(s=>`<div class="metric" style="border-top:3px solid ${s.c};"><div class="metric-val" style="color:${s.c};">${s.v}</div><div class="metric-lbl">${s.l}</div></div>`).join('');
+  // ── ACQUISITION ──────────────────────────────────────────────────
+  const landCost    = num('landCost');
+  const closingPct  = $('closingPct')?.value.trim()==='' ? 0.02 : parseFloat($('closingPct').value)/100;
+  const closingCost = landCost * closingPct;
+  const earnest     = num('earnest');
+  const ddCost      = num('ddCost');
+  const extraAcq    = num('extraAcq');
+  const totalAcq    = landCost + closingCost + ddCost + extraAcq;
 
-  // ── Cost Stack ────────────────────────────────────────────────
-  const cRow=(l,v,pctOfTotal,bg='')=>`<div style="display:flex;align-items:center;padding:7px 10px;border-radius:6px;font-size:13px;${bg}">
-    <span style="flex:1;">${l}</span><span style="font-weight:600;min-width:90px;text-align:right;">${fmt(v)}</span>
-    <span style="min-width:50px;text-align:right;color:#94a3b8;font-size:11px;">${allCosts?pct(v/allCosts*100,0):''}</span>
+  // ── HARD DEV COSTS ────────────────────────────────────────────────
+  const grading    = num('grading')    * totalLots;
+  const wetUtil    = num('wetUtil')    * totalLots;
+  const dryUtil    = num('dryUtil')    * totalLots;
+  const paving     = num('paving')     * totalLots;
+  const curb       = num('curb')       * totalLots;
+  const landscape  = num('landscape')  * totalLots;
+  const amenity    = num('amenity');
+  const offSite    = num('offSite');
+  const stormwater = num('stormwater');
+  const lighting   = num('lighting');
+  const demo       = num('demo');
+  const hardBase   = grading+wetUtil+dryUtil+paving+curb+landscape+amenity+offSite+stormwater+lighting+demo;
+
+  // Cost escalation — allow 0
+  const costEscRate = $('costEsc')?.value.trim()==='' ? 0.03 : parseFloat($('costEsc').value||0)/100;
+  const costEscAmt  = hardBase * costEscRate * (devMonths/12/2);
+
+  // Contingency — allow 0
+  const contPct    = $('contPct')?.value.trim()==='' ? 0.10 : parseFloat($('contPct').value||0)/100;
+  const contingency = (hardBase + costEscAmt) * contPct;
+  const totalHardDev = hardBase + costEscAmt + contingency;
+
+  // ── SOFT COSTS ────────────────────────────────────────────────────
+  const eng        = num('eng');
+  const arch       = num('arch');
+  const geotech    = num('geotech');
+  const legal      = num('legal');
+  const permits    = num('permits');
+  const propTaxTotal = num('propTax') * totalLots * (totalMo/12);
+  const insurance  = num('insurance') * (totalMo/12);
+  const hoa        = num('hoa');
+  const mktRaw     = $('mktPct')?.value.trim();
+  const marketing  = netRevenue * (mktRaw==='' ? 0.015 : parseFloat(mktRaw||0)/100);
+  const miscSoft   = num('miscSoft');
+  const totalSoft  = eng+arch+geotech+legal+permits+propTaxTotal+insurance+hoa+marketing+miscSoft;
+
+  // Developer fee — 0 if user explicitly enters 0
+  const devFeeRaw  = $('devFeePct')?.value.trim();
+  const devFeePct  = devFeeRaw === '' ? 0.03 : parseFloat(devFeeRaw||0)/100;
+  const devFee     = (totalAcq + totalHardDev + totalSoft) * devFeePct;
+
+  // ── FINANCING ─────────────────────────────────────────────────────
+  const ltcRaw    = $('ltc')?.value.trim();
+  const ltcPct    = ltcRaw==='' ? 0.65 : parseFloat(ltcRaw||0)/100;
+  const rateRaw   = $('loanRate')?.value.trim();
+  const bankRate  = rateRaw==='' ? 0.09 : parseFloat(rateRaw||0)/100;
+  const feeRaw    = $('loanFee')?.value.trim();
+  const loanFee   = feeRaw==='' ? 0.01 : parseFloat(feeRaw||0)/100;
+  // LTC applied to all costs except financing itself (standard practice)
+  const loanBal    = (totalAcq + totalHardDev + totalSoft + devFee) * ltcPct;
+  const loanFeeAmt = loanBal * loanFee;
+  // Interest: avg 60% drawn during construction, declining to 30% during sellout
+  const interestCost = loanBal * 0.60 * bankRate * (devMonths/12) +
+                       loanBal * 0.30 * bankRate * (selloutMo/12);
+  const totalFinance  = loanFeeAmt + interestCost;
+
+  // ── TOTALS ────────────────────────────────────────────────────────
+  const totalCosts   = totalAcq + totalHardDev + totalSoft + devFee + totalFinance;
+  const grossProfit  = netRevenue - totalCosts;
+  const margin       = netRevenue ? grossProfit / netRevenue * 100 : 0;
+  const roi          = totalCosts ? grossProfit / totalCosts * 100 : 0;
+  const tIRR         = num('targetIRR') || 20;
+
+  // Total development cost excluding financing (for LTC base & IRR)
+  const tdcExFin    = totalAcq + totalHardDev + totalSoft + devFee;
+  const equity      = tdcExFin - loanBal;  // developer's equity required
+
+  // ── ANNUAL CASH FLOWS for IRR ────────────────────────────────────
+  // Unlevered IRR: treats project as all-cash (ignore financing)
+  // Year 0: land acquisition
+  // Dev years: hard+soft+devfee spread over construction
+  // Sale years: net revenue from lot sales
+  const devYrCt  = Math.max(1, Math.ceil(devYrs));
+  const saleYrCt = Math.max(1, Math.ceil(saleYrs));
+  const numYrs   = devYrCt + saleYrCt + 1;
+
+  const yrRevs  = Array(numYrs).fill(0);
+  const yrCosts = Array(numYrs).fill(0);
+
+  // Year 0: acquisition
+  yrCosts[0] = totalAcq;
+  // Dev years: remaining costs (hard+soft+devfee)
+  const devCostTotal = totalHardDev + totalSoft + devFee;
+  for(let y=1; y<=devYrCt; y++) yrCosts[y] = devCostTotal / devYrCt;
+  // Sale years: revenue
+  for(let y=devYrCt+1; y<numYrs; y++) yrRevs[y] = netRevenue / saleYrCt;
+
+  // Unlevered CFs (all-equity, no financing)
+  const unlevCFs = yrCosts.map((c,y) => yrRevs[y] - c);
+  const unlevIRR = calcIRR(unlevCFs);
+  const unlevInvested = totalAcq + devCostTotal; // = tdcExFin
+  const unlevEM  = unlevInvested > 0 ? (grossProfit - totalFinance + unlevInvested) / unlevInvested : 1;
+  // Note: unlevered profit = netRevenue - tdcExFin (ignoring financing cost)
+  const unlevProfit = netRevenue - tdcExFin;
+  const unlevMargin = netRevenue ? unlevProfit / netRevenue * 100 : 0;
+
+  // Levered CFs: developer's equity in/out, loan covers its share
+  // Year 0: equity down (acquisition equity portion)
+  // Dev years: equity portion of dev costs (loan draws cover rest)
+  // Sale years: net revenue minus loan repayment (principal + interest)
+  const levCFs = Array(numYrs).fill(0);
+  levCFs[0] = -(totalAcq * (1 - ltcPct));  // equity for acquisition
+  for(let y=1; y<=devYrCt; y++) levCFs[y] = -(devCostTotal/devYrCt) * (1-ltcPct);
+  for(let y=devYrCt+1; y<numYrs; y++){
+    const rev = netRevenue / saleYrCt;
+    const loanRepay = loanBal / saleYrCt;
+    const finCost   = totalFinance / saleYrCt;
+    levCFs[y] = rev - loanRepay - finCost;
+  }
+  const levIRR  = calcIRR(levCFs);
+  const equityIn = -levCFs.reduce((s,v)=>s+(v<0?v:0),0);
+  const levEM   = equityIn > 0 ? (grossProfit - totalFinance + equityIn) / equityIn : 1;
+
+  // ── Switch to Summary ──────────────────────────────────────────────
+  sw('summary', document.querySelectorAll('.tab-btn')[1]);
+
+  // ═══════════════════════════════════════════════════════════════
+  // RENDER RESULTS
+  // ═══════════════════════════════════════════════════════════════
+
+  // ── KPI Row ────────────────────────────────────────────────────
+  const projName = $('projName')?.value || 'Your Project';
+  const kpis = [
+    { l:'Net Revenue',       v: fmt(netRevenue),                                       c: '#0043ce' },
+    { l:'Total All-In Cost', v: fmt(totalCosts),                                       c: '#b91c1c' },
+    { l:'Gross Profit',      v: fmt(grossProfit),                                      c: bC(margin, 20, 28) },
+    { l:'Profit Margin',     v: fpct(margin),                                          c: bC(margin, 20, 28) },
+    { l:'Unlevered IRR',     v: isNaN(unlevIRR) ? 'N/A' : fpct(unlevIRR),            c: bC(unlevIRR||0, tIRR*0.8, tIRR) },
+    { l:'Equity Multiple',   v: isNaN(unlevEM)  ? '—'   : unlevEM.toFixed(2)+'×',    c: bC((unlevEM-1)*100||0, 40, 70) },
+  ];
+  $('kpiRow').innerHTML = kpis.map(k => `
+    <div class="kpi" style="border-top:3px solid ${k.c};">
+      <div class="kpi-val" style="color:${k.c};">${k.v}</div>
+      <div class="kpi-lbl">${k.l}</div>
+      <div class="pbar"><div class="pbar-fill" style="background:${k.c};width:${Math.min(100,Math.abs(parseFloat(k.v))||0)}%;"></div></div>
+    </div>`).join('');
+
+  // ── Waterfall ──────────────────────────────────────────────────
+  const wfR = (l, v, style='', isNeg=false) => {
+    const disp = typeof v === 'number'
+      ? (isNeg && v > 0 ? `<span style="color:#dc2626;">(${fmt(v)})</span>` : fmt(v))
+      : v;
+    return `<div class="wf-row" style="${style}"><span>${l}</span><span style="font-weight:600;">${disp}</span></div>`;
+  };
+  $('waterfallDiv').innerHTML =
+    wfR('Gross Lot Revenue',     lotRevenue,   'background:#f0fdf4;') +
+    wfR('  Sale Closing Costs',  saleCosts,    '', true) +
+    wfR('Net Revenue',           netRevenue,   'background:#eff6ff;font-weight:700;color:#0043ce;') +
+    wfR('  Land &amp; Acquisition', totalAcq,  '', true) +
+    wfR('  Hard Dev + Contingency', totalHardDev, '', true) +
+    wfR('  Soft Costs',          totalSoft,    '', true) +
+    wfR('  Developer Fee',       devFee,       '', true) +
+    wfR('  Financing Costs',     totalFinance, '', true) +
+    wfR('Total All-In Costs',    totalCosts,   'background:#fef2f2;font-weight:700;', true) +
+    wfR('Gross Profit',          grossProfit,  `background:${grossProfit>=0?'#eff6ff':'#fee2e2'};font-weight:700;color:${grossProfit>=0?'#0043ce':'#dc2626'};`) +
+    `<div style="margin-top:10px;padding:10px;background:#f8fafc;border-radius:7px;font-size:11px;color:#64748b;line-height:1.8;">
+      ${totalLots} lots · ${fmt(netRevenue/totalLots)}/lot revenue · ${fmt(totalCosts/totalLots)}/lot cost · ${fmt(grossProfit/totalLots)}/lot profit<br>
+      Land as % of TDC: <strong>${fpct(totalAcq/totalCosts*100)}</strong> · Hard Dev: <strong>${fpct(totalHardDev/totalCosts*100)}</strong>
+    </div>`;
+
+  // ── Returns Panel ──────────────────────────────────────────────
+  const rpR = (l, v, bench, c='') => `<div class="qs">
+    <div><span style="font-size:12px;color:#475569;">${l}</span><br><span style="font-size:10px;color:#94a3b8;">${bench}</span></div>
+    <strong style="color:${c||'#1e293b'};">${v}</strong>
   </div>`;
-  $('costStack').innerHTML=
-    cRow('Land + Closing',landTotal,landTotal/allCosts)+
-    cRow('Site Development',devTotal,devTotal/allCosts)+
-    cRow('Soft Costs',softTotal,softTotal/allCosts)+
-    cRow('Finance (Interest + Fees)',financeTotal,financeTotal/allCosts)+
-    cRow('Transfer Tax',transferTax,transferTax/allCosts)+
-    cRow('Marketing & Sales',marketing,marketing/allCosts)+
-    cRow('Carry Costs',totalCarry,totalCarry/allCosts)+
-    cRow('TOTAL COSTS',allCosts,1,'background:#f1f5f9;font-weight:700;');
+  $('returnsDiv').innerHTML =
+    rpR('Profit Margin',     fpct(margin),   'Target: ≥25–30% for land dev',      bC(margin, 20, 28)) +
+    rpR('Return on Cost',    fpct(roi),      'Target: 25–40%',                     bC(roi, 20, 30)) +
+    rpR('Unlevered IRR',     isNaN(unlevIRR)?'N/A':fpct(unlevIRR), `Target ≥${tIRR}%`,  bC(unlevIRR||0, tIRR*0.8, tIRR)) +
+    rpR('Equity Multiple',   isNaN(unlevEM)?'—':unlevEM.toFixed(2)+'×', 'Target: 1.5–2.5×', bC((unlevEM-1)*100||0,40,70)) +
+    rpR('Levered IRR',       isNaN(levIRR)?'N/A':fpct(levIRR),   'Should exceed unlevered',  bC(levIRR||0, tIRR, tIRR*1.3)) +
+    rpR('Sellout Period',    `${Math.round(selloutMo)} months`, `${totalAbsPerMo.toFixed(1)} lots/mo pace`, '#475569') +
+    rpR('Profit / Lot',      fmt(grossProfit/totalLots), 'Target: $25k–$60k/lot', bC(grossProfit/totalLots,20000,40000)) +
+    rpR('Land % of TDC',     fpct(totalAcq/totalCosts*100), 'Rule of thumb: 20–30% of TDC', '');
 
-  // ── Revenue Waterfall ────────────────────────────────────────
-  const rRow=(l,v,style='')=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:6px;font-size:13px;${style}">${l}<span>${v}</span></div>`;
-  $('revenueWaterfall').innerHTML=
-    rRow('Gross Revenue',fmt(grossRev))+
-    rRow('Total Costs',`<span style="color:#dc2626;">(${fmt(allCosts)})</span>`,'')+
-    rRow('Developer Profit',fmt(profit),'background:#eff6ff;font-weight:700;color:#0043ce;margin-top:4px;')+
-    rRow('Profit Margin',pct(margin),'background:#f8fafc;')+
-    rRow('Return on Cost',pct(roi),'background:#f8fafc;')+
-    rRow('IRR (Est.)',pct(irrApprox*100),'background:#f8fafc;')+
-    rRow('Equity Required',fmt(equity),'background:#f8fafc;');
+  // ── Unlevered vs Levered panels ────────────────────────────────
+  const pR = (l,v) => `<div class="qs"><span style="color:#475569;font-size:12px;">${l}</span><strong>${v}</strong></div>`;
+  $('unlevDiv').innerHTML =
+    pR('Net Revenue',        fmt(netRevenue)) +
+    pR('Total Cost (ex fin)',fmt(tdcExFin)) +
+    pR('Profit (ex fin)',    fmt(unlevProfit)) +
+    pR('Margin (ex fin)',    fpct(unlevMargin)) +
+    pR('Total All-In Cost',  fmt(totalCosts)) +
+    pR('All-In Margin',      fpct(margin)) +
+    pR('Unlevered IRR',      isNaN(unlevIRR)?'N/A':fpct(unlevIRR)) +
+    pR('Equity Multiple',    isNaN(unlevEM)?'—':unlevEM.toFixed(2)+'×') +
+    `<div style="background:#dbeafe;border-radius:6px;padding:8px;margin-top:8px;font-size:11px;color:#1d4ed8;text-align:center;">Industry target: 25–30% margin · 20–25% unlevered IRR</div>`;
 
-  // ── Returns table ────────────────────────────────────────────
-  $('returnsTable').innerHTML=`<thead><tr><th>Metric</th><th>Value</th><th>Benchmark</th></tr></thead><tbody>
-    <tr><td>Total Lots</td><td class="r">${totalLots}</td><td style="color:#64748b;font-size:12px;">Depends on project</td></tr>
-    <tr><td>Gross Revenue</td><td class="r">${fmt(grossRev)}</td><td style="color:#64748b;font-size:12px;">Lot price × count</td></tr>
-    <tr><td>Total All-In Costs</td><td class="r">${fmt(allCosts)}</td><td style="color:#64748b;font-size:12px;">Land + dev + finance + selling</td></tr>
-    <tr><td>Revenue / Lot</td><td class="r">${fmt(grossRev/totalLots)}</td><td style="color:#64748b;font-size:12px;">Blended average</td></tr>
-    <tr><td>Cost / Lot</td><td class="r">${fmt(allCosts/totalLots)}</td><td style="color:#64748b;font-size:12px;">Typical $80k–$200k</td></tr>
-    <tr><td>Profit / Lot</td><td class="r">${fmt(profit/totalLots)}</td><td style="color:#64748b;font-size:12px;">$20k–$60k target</td></tr>
-    <tr class="hi"><td>Developer Profit</td><td class="r">${fmt(profit)}</td><td style="color:#64748b;font-size:12px;">—</td></tr>
-    <tr class="hi"><td>Profit Margin</td><td class="r">${pct(margin)}</td><td style="color:#64748b;font-size:12px;">15–25% typical</td></tr>
-    <tr><td>Return on Cost</td><td class="r">${pct(roi)}</td><td style="color:#64748b;font-size:12px;">25–35% strong</td></tr>
-    <tr class="hi"><td>IRR (Est.)</td><td class="r">${pct(irrApprox*100)}</td><td style="color:#64748b;font-size:12px;">Target ≥${pct(targetIRR,0)}</td></tr>
-    <tr><td>Equity Required</td><td class="r">${fmt(equity)}</td><td style="color:#64748b;font-size:12px;">= Total Cost × (1 - LTC)</td></tr>
-    <tr><td>Loan Amount</td><td class="r">${fmt(loanAmt)}</td><td style="color:#64748b;font-size:12px;">= Total Cost × LTC%</td></tr>
-    <tr><td>Finance Costs</td><td class="r">${fmt(financeTotal)}</td><td style="color:#64748b;font-size:12px;">Interest + origination fees</td></tr>
+  $('levDiv').innerHTML =
+    pR('Construction Loan ('+fpct(ltcPct*100)+'% LTC)', fmt(loanBal)) +
+    pR('Loan Origination Fee',   fmt(loanFeeAmt)) +
+    pR('Construction Interest',  fmt(interestCost)) +
+    pR('Total Financing Cost',   fmt(totalFinance)) +
+    pR('Developer Equity In',    fmt(equityIn)) +
+    pR('Net After Debt Service', fmt(grossProfit - totalFinance)) +
+    pR('Levered IRR',            isNaN(levIRR)?'N/A':fpct(levIRR)) +
+    pR('Levered Multiple',       isNaN(levEM)?'—':levEM.toFixed(2)+'×') +
+    `<div style="background:#dcfce7;border-radius:6px;padding:8px;margin-top:8px;font-size:11px;color:#15803d;text-align:center;">Leverage amplifies returns — and risk. Levered IRR should exceed unlevered.</div>`;
+
+  // ── Budget Breakdown ───────────────────────────────────────────
+  const cats = [
+    { l:'Acquisition',  sub:'Land + closing + DD + rights', v:totalAcq,     c:'#0043ce' },
+    { l:'Hard Dev',     sub:'Site + utilities + contingency', v:totalHardDev, c:'#7c3aed' },
+    { l:'Soft Costs',   sub:'Eng + legal + permits + carry', v:totalSoft,    c:'#f97316' },
+    { l:'Developer Fee',sub:`${fpct(devFeePct*100)} of pre-fee costs`,       v:devFee, c:'#64748b' },
+    { l:'Financing',    sub:'Interest + loan fees',          v:totalFinance, c:'#ef4444' },
+  ];
+  $('budgetBreakdown').innerHTML = cats.map(c => `
+    <div style="background:#f8fafc;border-radius:8px;padding:14px;">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#64748b;margin-bottom:2px;">${c.l}</div>
+      <div style="font-size:10px;color:#94a3b8;margin-bottom:8px;">${c.sub}</div>
+      <div style="font-size:20px;font-weight:700;color:${c.c};">${fmt(c.v)}</div>
+      <div style="font-size:10px;color:#94a3b8;margin-top:3px;">${fpct(c.v/totalCosts*100)} of TDC · ${fmt(c.v/totalLots)}/lot</div>
+      <div class="pbar" style="margin-top:8px;"><div class="pbar-fill" style="background:${c.c};width:${Math.min(100,c.v/totalCosts*100)}%;"></div></div>
+    </div>`).join('');
+
+  // ── Deal Verdict ───────────────────────────────────────────────
+  const isGood = margin >= 25 && !isNaN(unlevIRR) && unlevIRR >= tIRR;
+  const isWarn = margin >= 15 && (isNaN(unlevIRR) || unlevIRR >= tIRR * 0.75);
+  const vColor = isGood ? '#15803d' : isWarn ? '#b45309' : '#b91c1c';
+  const vBg    = isGood ? '#dcfce7' : isWarn ? '#fef9c3' : '#fee2e2';
+  $('dealVerdict').innerHTML = `<div style="background:${vBg};border:2px solid ${vColor};border-radius:10px;padding:18px 22px;">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <p style="font-size:18px;font-weight:700;color:${vColor};">
+        ${isGood ? '✅ Feasible — Returns Meet Thresholds' : isWarn ? '⚠️ Marginal — Review Assumptions' : '❌ Below Threshold — Renegotiate or Pass'}
+      </p>
+      <div style="margin-left:auto;text-align:right;">
+        <p style="font-size:12px;color:#475569;">${fpct(margin)} margin · ${isNaN(unlevIRR)?'N/A':fpct(unlevIRR)} unlevered IRR · ${isNaN(levIRR)?'N/A':fpct(levIRR)} levered IRR</p>
+        <p style="font-size:12px;color:#475569;">${fmt(grossProfit/totalLots)}/lot profit · ${totalLots} lots · ${Math.round(totalMo)}-month total project</p>
+      </div>
+    </div>
+  </div>`;
+
+  // ── Phase Proforma ─────────────────────────────────────────────
+  const rawPh = [num('ph1'), num('ph2'), num('ph3')];
+  const phSum  = rawPh.reduce((a,b) => a+b, 0);
+  const phPcts = phSum > 0 && Math.abs(phSum-100) < 1
+    ? rawPh.filter(p => p > 0).map(p => p/100)
+    : [0.4, 0.35, 0.25];
+  const phases = phPcts.map((pc, i) => {
+    const rev  = Math.round(netRevenue * pc);
+    const acq  = Math.round(totalAcq * pc);
+    const hd   = Math.round(totalHardDev * pc);
+    const soft = Math.round((totalSoft + devFee) * pc);
+    const fin  = Math.round(totalFinance * pc);
+    const cost = acq + hd + soft + fin;
+    return { name:'Phase '+(i+1), pc, lots:Math.round(totalLots*pc), rev, acq, hd, soft, fin, cost, profit:rev-cost, margin:rev?(rev-cost)/rev*100:0 };
+  });
+  const nph = phases.length;
+  const SH = l => `<tr class="row-head"><td colspan="${nph+2}">${l}</td></tr>`;
+  const DR = (l, vals, isNeg=false) => `<tr><td style="padding-left:20px;font-size:11px;">${l}</td>${vals.map(v => `<td class="${isNeg&&v>0?'red':''}">${isNeg&&v>0?'('+fmt(v)+')':fmt(v)}</td>`).join('')}</tr>`;
+  const TR = (l, vals) => `<tr class="row-total"><td>${l}</td>${vals.map(v=>`<td>${fmt(v)}</td>`).join('')}</tr>`;
+  const SR = (l, vals) => `<tr class="row-sub"><td>${l}</td>${vals.map(v=>`<td>${typeof v==='string'?v:fmt(v)}</td>`).join('')}</tr>`;
+
+  $('proTbl').innerHTML = `<colgroup><col style="width:200px">${phases.map(()=>'<col>').join('')}<col></colgroup>
+  <thead><tr><th>Line Item</th>${phases.map(p=>`<th>${p.name}<br><span style="font-weight:400;font-size:9px;">${Math.round(p.pc*100)}% · ${p.lots} lots</span></th>`).join('')}<th>Total</th></tr></thead>
+  <tbody>
+    ${SH('REVENUE')}
+    ${typeRevs.map(t=>DR(t.name+' ('+t.lots+' lots @ '+fmt(t.avgPrice)+' avg)',phases.map(ph=>Math.round(t.rev*ph.pc)))).join('')}
+    ${TR('Net Revenue (after sale costs)',[...phases.map(p=>p.rev),netRevenue])}
+    ${SH('ACQUISITION COSTS')}
+    ${DR('Land Purchase Price',[...phases.map(p=>Math.round(landCost*p.pc)),landCost],true)}
+    ${DR('Closing Costs ('+fpct(closingPct*100)+')',[...phases.map(p=>Math.round(closingCost*p.pc)),closingCost],true)}
+    ${ddCost>0?DR('Due Diligence &amp; Entitlement',[...phases.map(p=>Math.round(ddCost*p.pc)),ddCost],true):''}
+    ${extraAcq>0?DR('Additional Acquisition',[...phases.map(p=>Math.round(extraAcq*p.pc)),extraAcq],true):''}
+    ${TR('Total Acquisition',[...phases.map(p=>p.acq),totalAcq])}
+    ${SH('HARD DEVELOPMENT COSTS')}
+    ${grading>0?DR('Grading &amp; Earthwork',[...phases.map(p=>Math.round(grading*p.pc)),grading],true):''}
+    ${wetUtil>0?DR('Wet Utilities (Water/Sewer)',[...phases.map(p=>Math.round(wetUtil*p.pc)),wetUtil],true):''}
+    ${dryUtil>0?DR('Dry Utilities (Electric/Gas)',[...phases.map(p=>Math.round(dryUtil*p.pc)),dryUtil],true):''}
+    ${paving>0?DR('Roads &amp; Paving',[...phases.map(p=>Math.round(paving*p.pc)),paving],true):''}
+    ${curb>0?DR('Curb, Gutter &amp; Sidewalks',[...phases.map(p=>Math.round(curb*p.pc)),curb],true):''}
+    ${landscape>0?DR('Landscaping &amp; Common Areas',[...phases.map(p=>Math.round(landscape*p.pc)),landscape],true):''}
+    ${(amenity+offSite+stormwater+lighting+demo)>0?DR('Other Hard Costs',[...phases.map(p=>Math.round((amenity+offSite+stormwater+lighting+demo)*p.pc)),amenity+offSite+stormwater+lighting+demo],true):''}
+    ${DR('Cost Escalation ('+fpct(costEscRate*100)+'%/yr)',[...phases.map(p=>Math.round(costEscAmt*p.pc)),costEscAmt],true)}
+    ${DR('Contingency ('+fpct(contPct*100)+'%)',[...phases.map(p=>Math.round(contingency*p.pc)),contingency],true)}
+    ${TR('Total Hard Development',[...phases.map(p=>p.hd),totalHardDev])}
+    ${SH('SOFT COSTS &amp; DEVELOPER FEE')}
+    ${DR('Engineering &amp; Architecture',[...phases.map(p=>Math.round((eng+arch)*p.pc)),eng+arch],true)}
+    ${DR('Geotech, Legal &amp; Title',[...phases.map(p=>Math.round((geotech+legal)*p.pc)),geotech+legal],true)}
+    ${DR('Permits &amp; Inspections',[...phases.map(p=>Math.round(permits*p.pc)),permits],true)}
+    ${DR('Property Tax (carry)',[...phases.map(p=>Math.round(propTaxTotal*p.pc)),propTaxTotal],true)}
+    ${DR('Insurance, Marketing &amp; Other',[...phases.map(p=>Math.round((insurance+hoa+marketing+miscSoft)*p.pc)),insurance+hoa+marketing+miscSoft],true)}
+    ${DR('Developer Fee ('+fpct(devFeePct*100)+'%)',[...phases.map(p=>Math.round(devFee*p.pc)),devFee],true)}
+    ${TR('Total Soft + Dev Fee',[...phases.map(p=>p.soft),totalSoft+devFee])}
+    ${SH('FINANCING')}
+    ${DR('Loan Origination Fee',[...phases.map(p=>Math.round(loanFeeAmt*p.pc)),loanFeeAmt],true)}
+    ${DR('Construction Loan Interest',[...phases.map(p=>Math.round(interestCost*p.pc)),interestCost],true)}
+    ${TR('Total Financing',[...phases.map(p=>p.fin),totalFinance])}
+    ${SH('TOTALS')}
+    ${TR('Total All-In Costs',[...phases.map(p=>p.cost),totalCosts])}
+    ${TR('Gross Profit',[...phases.map(p=>p.profit),grossProfit])}
+    <tr><td style="padding-left:16px;color:#64748b;font-size:11px;">Profit Margin</td>${phases.map(p=>`<td>${fpct(p.margin)}</td>`).join('')}<td>${fpct(margin)}</td></tr>
+    <tr><td style="padding-left:16px;color:#64748b;font-size:11px;">Profit / Lot</td>${phases.map(p=>`<td>${fmt(p.profit/p.lots)}</td>`).join('')}<td>${fmt(grossProfit/totalLots)}</td></tr>
   </tbody>`;
 
-  // ── Sensitivity tables ───────────────────────────────────────
-  const senTable=(rows)=>`<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr>
-    ${Object.keys(rows[0]).map((k,i)=>`<th style="padding:5px 8px;background:#f8fafc;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0;${i>0?'text-align:right;':''}">${k}</th>`).join('')}
-  </tr></thead><tbody>${rows.map((r,i)=>`<tr style="${i===Math.floor(rows.length/2)?'background:#eff6ff;font-weight:600;':''}">${Object.values(r).map((v,j)=>`<td style="padding:5px 8px;border-bottom:1px solid #f8fafc;${j>0?'text-align:right;font-variant-numeric:tabular-nums;':''}">${v}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  // ── Sources & Uses ──────────────────────────────────────────────
+  $('sourcesUses').innerHTML = `<div class="g2" style="gap:16px;">
+    <div><p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;letter-spacing:.05em;margin-bottom:10px;">USES OF FUNDS</p>
+      ${[['Land Acquisition',totalAcq],['Hard Development',totalHardDev],['Soft Costs',totalSoft],['Developer Fee ('+fpct(devFeePct*100)+'%)',devFee],['Financing Costs',totalFinance]].map(([l,v])=>`<div class="qs"><span>${l}</span><div><strong>${fmt(v)}</strong><span style="font-size:10px;color:#94a3b8;margin-left:8px;">${fpct(v/totalCosts*100)}</span></div></div>`).join('')}
+      <div class="qs" style="background:#eff6ff;border-radius:6px;padding:8px 12px;margin-top:4px;font-weight:700;"><span style="color:#0043ce;">Total Development Cost (TDC)</span><strong style="color:#0043ce;">${fmt(totalCosts)}</strong></div>
+    </div>
+    <div><p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;letter-spacing:.05em;margin-bottom:10px;">SOURCES OF FUNDS</p>
+      ${[['Construction Loan ('+fpct(ltcPct*100)+'% LTC)',loanBal],['Developer Equity',equityIn]].map(([l,v])=>`<div class="qs"><span>${l}</span><div><strong>${fmt(v)}</strong><span style="font-size:10px;color:#94a3b8;margin-left:8px;">${fpct(v/tdcExFin*100)}</span></div></div>`).join('')}
+      <div class="qs" style="background:#eff6ff;border-radius:6px;padding:8px 12px;margin-top:4px;font-weight:700;"><span style="color:#0043ce;">Total Sources</span><strong style="color:#0043ce;">${fmt(tdcExFin)}</strong></div>
+      <div style="background:#f0fdf4;border-radius:6px;padding:10px 12px;margin-top:8px;font-size:11px;color:#15803d;">
+        <strong>Return on Equity:</strong> ${fpct((grossProfit-totalFinance)/equityIn*100)} cash-on-cash &nbsp;·&nbsp; ${isNaN(levIRR)?'N/A':fpct(levIRR)} levered IRR
+      </div>
+    </div>
+  </div>`;
 
-  const changes=[-20,-10,-5,0,5,10,20];
-  $('priceSens').innerHTML=senTable(changes.map(c=>{
-    const r=grossRev*(1+c/100),pr=r-allCosts;
-    return {'Price Chg':c>0?'+'+c+'%':c+'%','Profit':fmt(pr),'Margin':pct(pr/r*100)};
-  }));
-  $('landSens').innerHTML=senTable(changes.map(c=>{
-    const newLand=lc*(1+c/100),newLC=newLand*(1+closingPct);
-    const newAll=newLC+devTotal+softTotal+financeTotal+transferTax+marketing+totalCarry;
-    const pr=grossRev-newAll;
-    return {'Land Chg':c>0?'+'+c+'%':c+'%','Profit':fmt(pr),'Margin':pct(pr/grossRev*100)};
-  }));
-  const absRates=[2,3,4,5,6,8,10];
-  $('absorptionSens').innerHTML=senTable(absRates.map(a=>{
-    const months=totalLots/a;
-    const intC=loanAmt*iRate*(months/12);
-    const carry=carryCost*months;
-    const newAll=totalCost+loanFees+intC+transferTax+marketing+carry;
-    const pr=grossRev-newAll;
-    return {'Lots/Mo':a,'Months':Math.round(months),'Profit':fmt(pr)};
-  }));
-
-  // ── Phase proforma ────────────────────────────────────────────
-  const phCols=`<colgroup><col style="width:200px">${phases.map(()=>'<col>').join('')}<col></colgroup>`;
-  const phTh=`<thead><tr><th>Line Item</th>${phases.map(p=>`<th>${p.name}<br><span style="font-weight:400;font-size:10px;">${Math.round(p.lotPct*100)}% of project</span></th>`).join('')}<th>Total</th></tr></thead>`;
-  const phSecRow=l=>`<tr class="sec-hd"><td colspan="${phases.length+2}">${l}</td></tr>`;
-  const phDataRow=(l,vals,neg=false)=>`<tr><td class="indent">${l}</td>${vals.map(v=>`<td${neg&&v>0?' class="neg"':''}>${neg&&v>0?'('+fmt(v)+')':typeof v==='string'?v:fmt(v)}</td>`).join('')}</tr>`;
-  const phTotRow=(l,vals)=>`<tr class="hi"><td>${l}</td>${vals.map(v=>`<td>${fmt(v)}</td>`).join('')}</tr>`;
-
-  $('proformaTable').innerHTML=phCols+phTh+`<tbody>
-    ${phSecRow('Revenue')}
-    ${phDataRow('Lots Sold', [...phases.map(p=>p.pLots), totalLots].map(v=>{ return {toString:()=>v.toString()}; }))}
-    ${phDataRow('Gross Revenue', [...phases.map(p=>p.pRev), grossRev])}
-    ${phSecRow('Costs')}
-    ${phDataRow('Allocated Costs', [...phases.map(p=>p.pCost), allCosts], true)}
-    ${phTotRow('Phase Profit', [...phases.map(p=>p.pProfit), profit])}
-    ${phDataRow('Profit Margin', [...phases.map(p=>pct(p.pProfit/p.pRev*100)), pct(margin)])}
+  // ── Annual Cash Flow Table ─────────────────────────────────────
+  const cfYrs = Array.from({length: numYrs}, (_,i) => i);
+  let cumCF = 0;
+  const cfCols = `<colgroup><col style="width:180px">${cfYrs.map(()=>'<col>').join('')}</colgroup>`;
+  const cfHead = `<thead><tr><th>Line Item</th>${cfYrs.map(y=>`<th>${y===0?'Year 0 (Closing)':'Year '+y}</th>`).join('')}</tr></thead>`;
+  const cfBody = `<tbody>
+    <tr class="row-head"><td colspan="${numYrs+1}">REVENUE (Net lot sales)</td></tr>
+    <tr><td style="padding-left:16px;color:#475569;">Net Lot Revenue</td>${cfYrs.map(y=>`<td class="${yrRevs[y]>0?'green':''}">${yrRevs[y]>0?fmt(yrRevs[y]):'—'}</td>`).join('')}</tr>
+    <tr class="row-head"><td colspan="${numYrs+1}">COSTS (Negative = cash out)</td></tr>
+    <tr><td style="padding-left:16px;color:#475569;">Land &amp; Acquisition</td>${cfYrs.map(y=>`<td class="${yrCosts[y]>0&&y===0?'red':''}">${y===0?'('+fmt(yrCosts[0])+')':'—'}</td>`).join('')}</tr>
+    <tr><td style="padding-left:16px;color:#475569;">Development Costs</td>${cfYrs.map(y=>`<td class="${y>0&&y<=devYrCt?'red':''}">${y>0&&y<=devYrCt?'('+fmt(devCostTotal/devYrCt)+')':'—'}</td>`).join('')}</tr>
+    <tr class="row-total"><td>Net Cash Flow (Unlevered)</td>${cfYrs.map(y=>{const v=unlevCFs[y];return`<td style="color:${v>=0?'#15803d':'#dc2626'};">${v>=0?fmt(v):'('+fmt(-v)+')'}</td>`;}).join('')}</tr>
+    <tr><td style="padding-left:16px;color:#64748b;font-size:11px;">Cumulative (Unlevered)</td>${cfYrs.map(y=>{cumCF+=unlevCFs[y];return`<td style="color:${cumCF>=0?'#15803d':'#dc2626'};">${cumCF>=0?fmt(cumCF):'('+fmt(-cumCF)+')'}</td>`;}).join('')}</tr>
   </tbody>`;
+  $('cfTbl').innerHTML = cfCols + cfHead + cfBody;
 
-  // ── Charts ────────────────────────────────────────────────────
-  const co={responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},
-    scales:{y:{ticks:{font:{size:10},callback:v=>'$'+Math.round(v/1000)+'k'},grid:{color:'#f1f5f9'}},
-            x:{ticks:{font:{size:10}},grid:{display:false}}}};
+  // ── 3-Scenario Analysis ────────────────────────────────────────
+  function runScenario(costMult, priceMult, label, color){
+    // Revenue: scale net revenue by price multiplier
+    const adjRev     = netRevenue * priceMult;
+    // Costs: scale TDC-ex-finance by cost multiplier, then recalculate finance
+    const adjTDCexFin = tdcExFin * costMult;
+    const adjLoan    = adjTDCexFin * ltcPct;
+    const adjFinance = adjLoan * loanFee + adjLoan * 0.60 * bankRate * (devMonths/12) + adjLoan * 0.30 * bankRate * (selloutMo/12);
+    const adjCost    = adjTDCexFin + adjFinance;
+    const adjProfit  = adjRev - adjCost;
+    const adjMargin  = adjRev ? adjProfit/adjRev*100 : 0;
+    // IRR: use clean unlevered CF structure scaled by multipliers
+    const adjAcq    = totalAcq * costMult;
+    const adjDevCost= devCostTotal * costMult;
+    const adjSaleRevYr = adjRev / saleYrCt;
+    const adjCFs = [-adjAcq];
+    for(let y=1; y<=devYrCt; y++) adjCFs.push(-adjDevCost/devYrCt);
+    for(let y=devYrCt+1; y<numYrs; y++) adjCFs.push(adjSaleRevYr);
+    const adjIRR = calcIRR(adjCFs);
+    const adjEqIn = adjAcq + adjDevCost - adjLoan;
+    const adjEM  = adjEqIn > 0 ? (adjProfit - adjFinance + adjEqIn)/adjEqIn : 1;
+    return { label, color, rev:adjRev, cost:adjCost, profit:adjProfit, margin:adjMargin, irr:adjIRR, em:adjEM };
+  }
+  const scenarios = [
+    runScenario(1.10, 0.95, '🐻 Bear — Costs +10%, Prices −5%', '#b91c1c'),
+    runScenario(1.00, 1.00, '⚖️ Base — Your Assumptions',        '#0043ce'),
+    runScenario(0.95, 1.05, '🐂 Bull — Costs −5%, Prices +5%',  '#15803d'),
+  ];
+  $('scenarioDiv').innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">` +
+    scenarios.map(s => `<div style="border:2px solid ${s.color};border-radius:8px;padding:14px;background:${s.color==='#0043ce'?'#eff6ff':'#f8fafc'};">
+      <p style="font-size:12px;font-weight:700;color:${s.color};margin-bottom:8px;">${s.label}</p>
+      ${[['Net Revenue',fmt(s.rev)],['Total Costs',fmt(s.cost)],['Gross Profit',fmt(s.profit)],['Margin',fpct(s.margin)],['Unlevered IRR',isNaN(s.irr)?'N/A':fpct(s.irr)],['Multiple',s.em.toFixed(2)+'×']].map(([l,v])=>`<div class="qs"><span style="font-size:11px;">${l}</span><strong style="font-size:12px;color:${s.color};">${v}</strong></div>`).join('')}
+    </div>`).join('') + '</div>';
 
-  mkChart('chartPhases',{type:'bar',data:{labels:phases.map(p=>p.name),datasets:[
-    {label:'Revenue',data:phases.map(p=>p.pRev),backgroundColor:'#3b82f6',borderRadius:4},
-    {label:'Costs',data:phases.map(p=>p.pCost),backgroundColor:'#fca5a5',borderRadius:4},
-    {label:'Profit',data:phases.map(p=>p.pProfit),backgroundColor:'#22c55e',borderRadius:4},
+  // ── Sensitivity Tables ─────────────────────────────────────────
+  function makeST(rows, lhdr){
+    let tbl = `<table class="sens"><thead><tr><th>${lhdr}</th><th>Profit</th><th>Margin</th><th>Unl. IRR</th><th>Multiple</th><th>$/Lot</th></tr></thead><tbody>`;
+    rows.forEach(r => {
+      tbl += `<tr class="${r.b?'base':''}"><td>${r.l}</td><td style="color:${r.pr>=0?'#0043ce':'#dc2626'};">${fmt(r.pr)}</td><td style="color:${bC(r.mg,20,28)};">${fpct(r.mg)}</td><td style="color:${bC(r.ir||0,tIRR*0.8,tIRR)};">${isNaN(r.ir)?'N/A':fpct(r.ir)}</td><td>${r.em.toFixed(2)}×</td><td>${fmt(r.pl)}</td></tr>`;
+    });
+    return tbl + '</tbody></table>';
+  }
+
+  // Build scenario CFs using correct unlevered method
+  function scenCFs(adjAcq2, adjDevCost2, adjRev2){
+    const cfs = [-adjAcq2];
+    for(let y=1; y<=devYrCt; y++) cfs.push(-adjDevCost2/devYrCt);
+    for(let y=devYrCt+1; y<numYrs; y++) cfs.push(adjRev2/saleYrCt);
+    return cfs;
+  }
+
+  // Land price sensitivity
+  const ppVals = [0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4].map(m => Math.round(landCost*m));
+  $('ppSens').innerHTML = makeST(ppVals.map(lc2 => {
+    const cl2 = (lc2+ddCost+extraAcq)*closingPct;
+    const acq2 = lc2+cl2+ddCost+extraAcq;
+    const c2 = acq2+totalHardDev+totalSoft+devFee+totalFinance;
+    const pr2 = netRevenue-c2, mg2 = netRevenue?pr2/netRevenue*100:0;
+    const eq2In = acq2+devCostTotal-(acq2+devCostTotal)*ltcPct;
+    const cfs2 = scenCFs(acq2, devCostTotal, netRevenue);
+    const ir2 = calcIRR(cfs2);
+    const em2 = eq2In>0 ? (pr2-totalFinance+eq2In)/eq2In : 1;
+    const isBase = Math.abs(lc2-landCost) < 1;
+    return {l:fmt(lc2)+(isBase?' ★':''), pr:pr2, mg:mg2, ir:ir2, em:em2, pl:pr2/totalLots, b:isBase};
+  }), 'Land Price');
+
+  // Lot price sensitivity
+  $('lpSens').innerHTML = makeST([0.80,0.85,0.90,0.95,1.00,1.05,1.10,1.15,1.20].map(m => {
+    const rev2   = lotRevenue * m * (1-saleCostsPct);
+    const mkt2   = rev2 * (mktRaw===''?0.015:parseFloat(mktRaw||0)/100);
+    const soft2  = eng+arch+geotech+legal+permits+propTaxTotal+insurance+hoa+mkt2+miscSoft;
+    const fee2   = (totalAcq+totalHardDev+soft2)*devFeePct;
+    const fin2   = (totalAcq+totalHardDev+soft2+fee2)*ltcPct*loanFee +
+                   (totalAcq+totalHardDev+soft2+fee2)*ltcPct*0.60*bankRate*(devMonths/12) +
+                   (totalAcq+totalHardDev+soft2+fee2)*ltcPct*0.30*bankRate*(selloutMo/12);
+    const c2 = totalAcq+totalHardDev+soft2+fee2+fin2;
+    const pr2=rev2-c2, mg2=rev2?pr2/rev2*100:0;
+    const eq2In = (totalAcq+totalHardDev+soft2+fee2)*(1-ltcPct);
+    const cfs2 = scenCFs(totalAcq, totalHardDev+soft2+fee2, rev2);
+    const ir2 = calcIRR(cfs2);
+    const em2 = eq2In>0?(pr2-fin2+eq2In)/eq2In:1;
+    const lbl = m===1?'Base ★':(fpct((m-1)*100));
+    return {l:lbl, pr:pr2, mg:mg2, ir:ir2, em:em2, pl:pr2/totalLots, b:m===1};
+  }), 'Lot Price Change');
+
+  // Absorption sensitivity
+  $('absSens').innerHTML = makeST([1,2,3,4,5,6,8,10,12,15].map(a => {
+    const sm2 = totalLots/a;
+    const int2 = loanBal*0.60*bankRate*(devMonths/12) + loanBal*0.30*bankRate*(sm2/12);
+    const fin2 = loanFeeAmt+int2;
+    const c2 = tdcExFin+fin2;
+    const pr2 = netRevenue-c2, mg2 = netRevenue?pr2/netRevenue*100:0;
+    const syr2 = Math.max(1,Math.ceil(sm2/12));
+    const cfs2 = scenCFs(totalAcq, devCostTotal, netRevenue);
+    // Rebuild with correct sale period
+    const cfs3 = [-totalAcq];
+    for(let y=1;y<=devYrCt;y++) cfs3.push(-devCostTotal/devYrCt);
+    for(let y=devYrCt+1;y<=devYrCt+syr2;y++) cfs3.push(netRevenue/syr2);
+    const ir2 = calcIRR(cfs3);
+    const eq2In = tdcExFin*(1-ltcPct);
+    const em2 = eq2In>0?(pr2-fin2+eq2In)/eq2In:1;
+    const isBase = Math.abs(a-totalAbsPerMo)<0.01;
+    return {l:a+' lots/mo'+(isBase?' ★':''), pr:pr2, mg:mg2, ir:ir2, em:em2, pl:pr2/totalLots, b:isBase};
+  }), 'Absorption Rate');
+
+  // Hard dev cost sensitivity
+  $('hdSens').innerHTML = makeST([-0.20,-0.15,-0.10,-0.05,0,0.05,0.10,0.15,0.20].map(pc => {
+    const hd2 = totalHardDev*(1+pc);
+    const fee2 = (totalAcq+hd2+totalSoft)*devFeePct;
+    const loan2 = (totalAcq+hd2+totalSoft+fee2)*ltcPct;
+    const fin2 = loan2*loanFee + loan2*0.60*bankRate*(devMonths/12) + loan2*0.30*bankRate*(selloutMo/12);
+    const c2 = totalAcq+hd2+totalSoft+fee2+fin2;
+    const pr2 = netRevenue-c2, mg2 = netRevenue?pr2/netRevenue*100:0;
+    const eq2In = (totalAcq+hd2+totalSoft+fee2)*(1-ltcPct);
+    const cfs2 = scenCFs(totalAcq, hd2+totalSoft+fee2, netRevenue);
+    const ir2 = calcIRR(cfs2);
+    const em2 = eq2In>0?(pr2-fin2+eq2In)/eq2In:1;
+    const lbl = pc===0?'Base ★':(pc<0?fpct(pc*100):'+'+fpct(pc*100));
+    return {l:lbl, pr:pr2, mg:mg2, ir:ir2, em:em2, pl:pr2/totalLots, b:pc===0};
+  }), 'Hard Dev Cost Change');
+
+  // ── Charts ─────────────────────────────────────────────────────
+  const yrLabels = Array.from({length: numYrs}, (_,i) => i===0?'Yr 0':'Yr '+i);
+  const co = {responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},scales:{y:{ticks:{font:{size:9},callback:v=>'$'+(Math.abs(v)>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'k')},grid:{color:'#f8fafc'}},x:{ticks:{font:{size:9}},grid:{display:false}}}};
+
+  mkC('chPhase',{type:'bar',data:{labels:[...phases.map(p=>p.name),'Total'],datasets:[
+    {label:'Revenue',data:[...phases.map(p=>p.rev),netRevenue],backgroundColor:'#0043ce',borderRadius:4},
+    {label:'All-In Cost',data:[...phases.map(p=>p.cost),totalCosts],backgroundColor:'#fca5a5',borderRadius:4},
+    {label:'Profit',data:[...phases.map(p=>p.profit),grossProfit],backgroundColor:'#22c55e',borderRadius:4},
   ]},options:co});
 
-  mkChart('chartCosts',{type:'doughnut',data:{
-    labels:['Land','Development','Soft','Finance','Selling'],
-    datasets:[{data:[landTotal,devTotal,softTotal,financeTotal,transferTax+marketing],
-      backgroundColor:['#ef4444','#f97316','#f59e0b','#8b5cf6','#3b82f6'],borderWidth:0}]
+  mkC('chCostPie',{type:'doughnut',data:{
+    labels:['Acquisition','Hard Dev','Soft + Dev Fee','Financing'],
+    datasets:[{data:[totalAcq,totalHardDev,totalSoft+devFee,totalFinance].map(Math.round),backgroundColor:['#0043ce','#7c3aed','#f97316','#ef4444'],borderWidth:0}]
   },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}}}});
 
-  // Absorption: cumulative lots sold over months
-  const totalMonths=Math.ceil(totalLots/(absorption||5));
-  const absMonths=Array.from({length:Math.min(totalMonths,36)},(_, i)=>i+1);
-  const absCum=absMonths.map(m=>Math.min(totalLots,Math.round((absorption||5)*m)));
-  mkChart('chartAbsorption',{type:'line',data:{labels:absMonths.map(m=>'Mo '+m),datasets:[
-    {label:'Cumulative Lots Sold',data:absCum,borderColor:'#0043ce',backgroundColor:'rgba(0,67,206,.07)',fill:true,tension:.3,pointRadius:2}
-  ]},options:{...co,scales:{...co.scales,y:{...co.scales.y,ticks:{...co.scales.y.ticks,callback:v=>v+' lots'}}}}});
-
-  // Cumulative cash flow (simplified: costs up front, revenue spread over months)
-  const cumCF=absMonths.map(m=>{
-    const rev=(Math.min(totalLots,(absorption||5)*m)/totalLots)*grossRev;
-    const cost=allCosts;
-    return rev-cost;
-  });
-  mkChart('chartCumulative',{type:'line',data:{labels:absMonths.map(m=>'Mo '+m),datasets:[
-    {label:'Cumulative P&L',data:cumCF,borderColor:cumCF[cumCF.length-1]>=0?'#15803d':'#dc2626',
-     backgroundColor:cumCF[cumCF.length-1]>=0?'rgba(21,128,61,.07)':'rgba(220,38,38,.07)',fill:true,tension:.3,pointRadius:2}
+  let cum2=0;
+  const cfVals = unlevCFs;
+  const cumArr = cfVals.map(v=>{cum2+=v;return Math.round(cum2);});
+  mkC('chCF',{type:'bar',data:{labels:yrLabels,datasets:[
+    {label:'Annual CF',data:cfVals.map(Math.round),backgroundColor:cfVals.map(v=>v>=0?'#22c55e':'#fca5a5'),borderRadius:3},
+    {label:'Cumulative',data:cumArr,type:'line',borderColor:'#0043ce',backgroundColor:'transparent',tension:.3,pointRadius:3},
   ]},options:co});
+
+  mkC('chRevMix',{type:'doughnut',data:{
+    labels:typeRevs.map(t=>t.name+' ('+t.lots+' lots)'),
+    datasets:[{data:typeRevs.map(t=>t.rev),backgroundColor:['#0043ce','#7c3aed','#b45309','#22c55e'],borderWidth:0}]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}}}});
 }
 
-// ══════════════════════════════════════════════════════════════
-// DEMO — 200-lot subdivision, Loudoun County VA (realistic 2024)
-// ══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+// DEMO DATA — Sussex County, DE-style 150-lot subdivision
+// Realistic industry-standard values
+// ═══════════════════════════════════════════════════════════════════
 function loadDemo(){
-  // 120 SFD @ $185k | 50 twin @ $130k | 30 SFA @ $110k = $38.3M revenue
-  [['sfdCount',120],['sfdPrice',185000],['sfdEsc',3.5],
-   ['twinCount',50],['twinPrice',130000],['twinEsc',4.0],
-   ['sfaCount',30],['sfaPrice',110000],['sfaEsc',3.0],
-   ['landCost',5800000],['closingCost',3.0],
-   ['onsiteDev',9200000],['offsiteDev',1100000],
-   ['landscaping',650000],['contingency',10.0],
-   ['consulting',380000],['legalFees',220000],['hoaSetup',75000],
-   ['loanToCost',65],['interestRate',8.5],['loanFees',1.5],
-   ['devMonths',26],['transferTax',2.5],
-   ['absorption',6],['marketing',2.5],
-   ['targetIRR',22],['targetMargin',20],
-   ['phase1Pct',40],['phase2Pct',35],['phase3Pct',25],
-   ['carryCost',45000],
-  ].forEach(([id,v])=>{if($(id))$(id).value=v;});
-  livePreview();
+  set('projName',  'Maple Ridge Estates');
+  set('projLoc',   'Sussex County, DE');
+  set('siteAcres', '58');
+  $('productType').value = 'mix';
+  const today = new Date().toISOString().split('T')[0];
+  set('analysisDate', today);
+
+  // Lot mix: 80 SFD + 40 townhomes + 30 active adult
+  set('sfdLots', '80');  set('sfdP', '185000'); set('sfdEsc', '3.0'); set('sfdAbs', '4');
+  set('thLots',  '40');  set('thP',  '138000'); set('thEsc',  '2.5'); set('thAbs',  '3');
+  set('aaLots',  '30');  set('aaP',  '162000'); set('aaEsc',  '2.5'); set('aaAbs',  '2');
+
+  // Acquisition
+  set('landCost',   '4200000');
+  set('closingPct', '2.5');
+  set('earnest',    '200000');
+  set('ddCost',     '150000');
+  set('ddMonths',   '6');
+  set('extraAcq',   '0');
+
+  // Timeline
+  set('preDev',    '6');
+  set('devMonths', '18');
+  set('firstSale', '22');
+  set('costEsc',   '3.0');
+  set('ph1', '40'); set('ph2', '35'); set('ph3', '25');
+
+  // Financing
+  set('ltc',        '65');
+  set('loanRate',   '9.25');
+  set('loanFee',    '1.0');
+  set('devFeePct',  '3.0');
+  set('saleCostsP', '2.5');
+  set('targetIRR',  '20');
+
+  // Hard costs (per lot)
+  set('grading',    '6500');
+  set('wetUtil',    '14000');
+  set('dryUtil',    '4500');
+  set('paving',     '9000');
+  set('curb',       '3500');
+  set('landscape',  '2500');
+  set('amenity',    '250000');
+  set('offSite',    '350000');
+  set('stormwater', '280000');
+  set('lighting',   '85000');
+  set('demo',       '50000');
+  set('contPct',    '12');
+
+  // Soft costs
+  set('eng',        '220000');
+  set('arch',       '75000');
+  set('geotech',    '45000');
+  set('legal',      '65000');
+  set('permits',    '120000');
+  set('propTax',    '400');
+  set('insurance',  '22000');
+  set('hoa',        '35000');
+  set('mktPct',     '1.5');
+  set('miscSoft',   '30000');
+
+  liveCalc();
   calculate();
 }
 
 function resetAll(){
-  document.querySelectorAll('.inp').forEach(e=>e.value='');
-  ['metricCards','costStack','revenueWaterfall','returnsTable','proformaTable','priceSens','landSens','absorptionSens'].forEach(id=>{const e=$(id);if(e)e.innerHTML='';});
-  ['loanDisp','totalLotsDisp','grossRevDisp'].forEach(id=>{const e=$(id);if(e)e.textContent='—';});
-  Object.values(CH).forEach(c=>c.destroy());
-  switchTab('inputs',document.querySelectorAll('.tab-btn')[0]);
+  document.querySelectorAll('.inp').forEach(e => e.value = '');
+  ['kpiRow','waterfallDiv','returnsDiv','unlevDiv','levDiv','budgetBreakdown','dealVerdict','sourcesUses','scenarioDiv','ppSens','lpSens','absSens','hdSens'].forEach(id => { const e=$(id); if(e) e.innerHTML=''; });
+  [$('proTbl'),$('cfTbl')].forEach(t => { if(t) t.innerHTML='<tbody><tr><td colspan="8" style="padding:40px;text-align:center;color:#94a3b8;">Run the calculator to see results.</td></tr></tbody>'; });
+  Object.values(CH).forEach(c => { try{ c.destroy(); }catch(e){} });
+  sw('inputs', document.querySelectorAll('.tab-btn')[0]);
+  liveCalc();
 }
 
 function exportXLS(){
-  if(!window.XLSX){alert('XLSX not loaded.');return;}
-  const wb=XLSX.utils.book_new();
-  const ws=XLSX.utils.aoa_to_sheet([
-    ['REProforma – Land Development'],[''],
-    ['SFD Lots',num('sfdCount')],['SFD Price',num('sfdPrice')],
-    ['Twin Lots',num('twinCount')],['Twin Price',num('twinPrice')],
-    ['SFA Lots',num('sfaCount')],['SFA Price',num('sfaPrice')],
-    ['Land Cost',num('landCost')],['On-Site Dev',num('onsiteDev')],
-    ['Loan-to-Cost',num('loanToCost')+'%'],['Interest Rate',num('interestRate')+'%'],
-  ]);
-  XLSX.utils.book_append_sheet(wb,ws,'Summary');
-  const t=$('proformaTable');if(t){XLSX.utils.book_append_sheet(wb,XLSX.utils.table_to_sheet(t),'Phases');}
-  XLSX.writeFile(wb,'Land_Development_Proforma.xlsx');
+  if(!window.XLSX){ alert('Export library not loaded — please check your internet connection and try again.'); return; }
+
+  const wb = XLSX.utils.book_new();
+
+  // ── Sheet 1: Summary ─────────────────────────────────────────────
+  // Pull data directly from rendered KPI divs
+  const sumRows = [
+    ['LAND DEVELOPMENT PROFORMA — SUMMARY'],
+    ['Project', $('projName')?.value || '—'],
+    ['Location', $('projLoc')?.value || '—'],
+    ['Date', $('analysisDate')?.value || new Date().toLocaleDateString()],
+    [],
+    ['RETURN METRICS'],
+  ];
+  // Extract KPI text
+  document.querySelectorAll('#kpiRow .kpi').forEach(kpi => {
+    const val = kpi.querySelector('.kpi-val')?.textContent?.trim() || '';
+    const lbl = kpi.querySelector('.kpi-lbl')?.textContent?.trim() || '';
+    sumRows.push([lbl, val]);
+  });
+  sumRows.push([]);
+  sumRows.push(['BUDGET BREAKDOWN']);
+  document.querySelectorAll('#budgetBreakdown > div').forEach(card => {
+    const lbl = card.children[0]?.textContent?.trim() || '';
+    const val = card.children[2]?.textContent?.trim() || '';
+    const pct = card.children[3]?.textContent?.trim() || '';
+    sumRows.push([lbl, val, pct]);
+  });
+
+  const wsSummary = XLSX.utils.aoa_to_sheet(sumRows);
+  wsSummary['!cols'] = [{wch:35},{wch:20},{wch:15}];
+  XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+
+  // ── Sheet 2: Phase Proforma (from rendered table) ─────────────────
+  const pt = $('proTbl');
+  if(pt && pt.rows.length > 2){
+    const wsProforma = XLSX.utils.table_to_sheet(pt);
+    wsProforma['!cols'] = [{wch:32},{wch:16},{wch:16},{wch:16},{wch:16}];
+    XLSX.utils.book_append_sheet(wb, wsProforma, 'Phase Proforma');
+  }
+
+  // ── Sheet 3: Annual Cash Flows ────────────────────────────────────
+  const ct = $('cfTbl');
+  if(ct && ct.rows.length > 2){
+    const wsCF = XLSX.utils.table_to_sheet(ct);
+    wsCF['!cols'] = [{wch:25},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14}];
+    XLSX.utils.book_append_sheet(wb, wsCF, 'Annual Cash Flows');
+  }
+
+  // ── Sheet 4: Sensitivity Tables ───────────────────────────────────
+  const sensTbls = [
+    {id:'ppSens',  name:'Land Price Sensitivity'},
+    {id:'lpSens',  name:'Lot Price Sensitivity'},
+    {id:'absSens', name:'Absorption Sensitivity'},
+    {id:'hdSens',  name:'Hard Dev Cost Sensitivity'},
+  ];
+  const sensRows = [['SENSITIVITY ANALYSIS'], []];
+  sensTbls.forEach(({id, name}) => {
+    const el = $(id);
+    if(!el) return;
+    sensRows.push([name]);
+    el.querySelectorAll('tr').forEach(tr => {
+      sensRows.push(Array.from(tr.querySelectorAll('th,td')).map(c => c.textContent.trim()));
+    });
+    sensRows.push([]);
+  });
+  const wsSens = XLSX.utils.aoa_to_sheet(sensRows);
+  wsSens['!cols'] = [{wch:22},{wch:14},{wch:10},{wch:10},{wch:10},{wch:12}];
+  XLSX.utils.book_append_sheet(wb, wsSens, 'Sensitivity Analysis');
+
+  // ── Sheet 5: Inputs ───────────────────────────────────────────────
+  const inputRows = [
+    ['INPUTS', 'Value'],
+    [],
+    ['PROJECT'],
+    ['Project Name', $('projName')?.value || ''],
+    ['Location', $('projLoc')?.value || ''],
+    ['Site Acres', $('siteAcres')?.value || ''],
+    [],
+    ['LOT MIX'],
+    ['SFD Lots', $('sfdLots')?.value || 0],
+    ['SFD Base Price', $('sfdP')?.value || 0],
+    ['SFD Escalation %/yr', $('sfdEsc')?.value || 0],
+    ['SFD Absorption (lots/mo)', $('sfdAbs')?.value || 0],
+    ['Townhome Lots', $('thLots')?.value || 0],
+    ['Townhome Base Price', $('thP')?.value || 0],
+    ['Townhome Escalation %/yr', $('thEsc')?.value || 0],
+    ['Townhome Absorption (lots/mo)', $('thAbs')?.value || 0],
+    ['Active Adult Lots', $('aaLots')?.value || 0],
+    ['AA Base Price', $('aaP')?.value || 0],
+    ['AA Escalation %/yr', $('aaEsc')?.value || 0],
+    ['AA Absorption (lots/mo)', $('aaAbs')?.value || 0],
+    [],
+    ['ACQUISITION'],
+    ['Land Purchase Price', $('landCost')?.value || 0],
+    ['Closing Costs %', $('closingPct')?.value || 0],
+    ['Earnest Money', $('earnest')?.value || 0],
+    ['Due Diligence Cost', $('ddCost')?.value || 0],
+    [],
+    ['TIMELINE'],
+    ['Pre-Development Months', $('preDev')?.value || 0],
+    ['Construction Months', $('devMonths')?.value || 0],
+    ['First Sale Month', $('firstSale')?.value || 0],
+    ['Cost Escalation %/yr', $('costEsc')?.value || 0],
+    [],
+    ['FINANCING'],
+    ['Construction Loan LTC %', $('ltc')?.value || 0],
+    ['Interest Rate %/yr', $('loanRate')?.value || 0],
+    ['Loan Fee %', $('loanFee')?.value || 0],
+    ['Developer Fee %', $('devFeePct')?.value || 0],
+    ['Sale Closing Costs %', $('saleCostsP')?.value || 0],
+    ['Target IRR %', $('targetIRR')?.value || 0],
+  ];
+  const wsInputs = XLSX.utils.aoa_to_sheet(inputRows);
+  wsInputs['!cols'] = [{wch:35},{wch:20}];
+  XLSX.utils.book_append_sheet(wb, wsInputs, 'Inputs');
+
+  const projName = $('projName')?.value || 'Land_Dev';
+  XLSX.writeFile(wb, projName.replace(/[^a-zA-Z0-9_\-]/g, '_') + '_Proforma.xlsx');
 }
 
-livePreview();
+// Init
+liveCalc();
 </script>
 </body>
 </html>
