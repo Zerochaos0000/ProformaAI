@@ -6,6 +6,7 @@
 <link rel="icon" type="image/png" href="../favicon.ico">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;}
@@ -45,7 +46,16 @@ a{text-decoration:none;color:inherit;}
 .verdict-rent{background:#dbeafe;border:2px solid #1d4ed8;border-radius:12px;padding:22px;text-align:center;}
 .verdict-tie{background:#fef9c3;border:2px solid #ca8a04;border-radius:12px;padding:22px;text-align:center;}
 .side-card{border:1px solid #e2e8f0;border-radius:10px;padding:16px;}
-@media print{header,.no-print{display:none!important;}}
+@media print{
+  header,.no-print,button{display:none!important;}
+  body{font-size:11pt;background:white!important;}
+  .tp{display:none!important;}
+  #tr,#tl{display:block!important;}
+  .tab-bar{display:none!important;}
+  .card,.side-card{border:1px solid #ccc!important;break-inside:avoid;}
+  .g2,.g3{display:block!important;}
+  .g2>*,.g3>*{margin-bottom:12px;}
+}
 </style>
 <style>
 @media(max-width:768px){
@@ -173,6 +183,8 @@ a{text-decoration:none;color:inherit;}
     <div style="display:flex;gap:8px;" class="no-print">
       <button class="btn-o" onclick="loadDemo()">📋 Demo (Denver CO)</button>
       <button class="btn-o" onclick="resetAll()">↺ Reset</button>
+      <button style="background:#15803d;color:white;border:none;border-radius:8px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer;" onclick="exportXLS()">⬇ Excel</button>
+      <button style="background:#1e293b;color:white;border:none;border-radius:8px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer;" onclick="window.print()">🖨 Print/PDF</button>
     </div>
   </div>
 </div>
@@ -220,20 +232,20 @@ a{text-decoration:none;color:inherit;}
       <div class="f"><label class="lb">Home Appreciation (%/yr)</label><div class="s"><input class="inp" id="app" type="number" step="0.1" placeholder="3.5"><span>%</span></div></div>
       <div class="f"><label class="lb">Your Tax Bracket (%)</label>
         <select class="inp" id="txbkt">
-          <option value="10">10% — up to $47k (Single) / $94k (MFJ)</option>
-          <option value="12">12% — up to $100k (Single) / $201k (MFJ)</option>
-          <option value="22" selected>22% — up to $191k (Single) / $383k (MFJ)</option>
-          <option value="24">24% — up to $243k (Single) / $487k (MFJ)</option>
-          <option value="32">32% — up to $609k</option>
-          <option value="35">35%</option>
-          <option value="37">37% — over $609k</option>
+          <option value="10">10% — up to $11.9k (Single) / $23.9k (MFJ) 2025</option>
+          <option value="12">12% — up to $48.5k (Single) / $96.9k (MFJ) 2025</option>
+          <option value="22" selected>22% — up to $103.4k (Single) / $206.7k (MFJ) 2025</option>
+          <option value="24">24% — up to $197.3k (Single) / $394.6k (MFJ) 2025</option>
+          <option value="32">32% — up to $250.5k (Single) / $501k (MFJ) 2025</option>
+          <option value="35">35% — up to $626.4k (Single) / $751.6k (MFJ) 2025</option>
+          <option value="37">37% — over $626.4k (Single) / $751.6k (MFJ) 2025</option>
         </select></div>
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px;margin-bottom:10px;font-size:12px;color:#166534;">
         <strong>💡 Tax Benefit of Owning:</strong> Mortgage interest is tax-deductible. Your bracket determines how much the government effectively subsidizes your ownership cost. At 22%, every $1,000 in interest costs you only $780 net.
       </div>
       <div class="f"><label class="lb">How Long Do You Plan to Stay? (Years)</label><input class="inp" id="hold" type="number" placeholder="10"></div>
       <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;font-size:12px;color:#64748b;">
-        The longer you stay, the more owning tends to win. Break-even is typically 4–7 years in most markets.
+        The longer you stay, the more owning tends to win. Break-even is typically 4–7 years nationally (2025). In high price-to-rent markets (NYC, SF, LA), renting often wins for shorter holds.
       </div>
     </div>
   </div>
@@ -412,18 +424,30 @@ function calc(){
   const closingCosts=homePrice*closingPct;
   const pmi=dp/homePrice<0.20?loan*0.005/12:0;
 
+  // Standard deduction 2025 (MFJ assumption — can't know filing status precisely)
+  // Single: $15,000 | MFJ: $30,000
+  // We use MFJ as it's more common for homebuyers
+  const stdDeduction=30000; // 2025 MFJ standard deduction
+  // SALT cap: $40,000 (raised from $10,000 under One Big Beautiful Bill Act, 2025-2029)
+  const saltCap=40000;
+
   _data=[]; let cumRent=0, cumOwn=closingCosts+dp;
-  let rentInvest=dp+closingCosts, loanBal=loan;
-  let curRent=monthlyRent, homeVal=homePrice, cumTaxSave=0;
+  let loanBal=loan, homeVal=homePrice, cumTaxSave=0;
+  let curRent=monthlyRent;
+
+  // Renter: invests down payment amount (closing costs were never spent by renter)
+  let rentInvest=dp;  // renter invests the equivalent of down payment
 
   for(let yr=1;yr<=Math.max(holdYears,30);yr++){
-    // RENT side
+    // ── RENT side ─────────────────────────────────────────────────
     let yrRent=0;
     for(let m=0;m<12;m++){yrRent+=curRent+rIns;curRent*=(1+rentInc/12);}
     cumRent+=yrRent;
+    // Renter's invested down payment grows at investment return
+    // ALSO: renter invests the monthly savings vs owning (if any) — simplified: just grow dp
     rentInvest*=(1+invRet);
 
-    // OWN side — mortgage
+    // ── OWN side — mortgage ────────────────────────────────────────
     homeVal*=(1+appreciation);
     let yrInt=0,yrPrin=0;
     for(let m=0;m<12;m++){
@@ -432,73 +456,90 @@ function calc(){
         yrInt+=ip; yrPrin+=pp; loanBal-=pp;
       }
     }
-    // Tax deduction benefit — applied to own side (reduces true cost)
-    // Mortgage interest is tax deductible up to $750k loan
-    const taxSave=yrInt*taxBracket;
-    cumTaxSave+=taxSave;
-    // Property tax deduction (SALT, simplified — limited but real)
-    const propTaxAmt=homeVal*txRate;
-    const saltSave=Math.min(propTaxAmt*taxBracket, 10000*taxBracket); // SALT $10k cap
-    const totalTaxSave=taxSave+saltSave;
-    cumTaxSave+=(saltSave); // already added yrInt part above, add salt part
 
-    const yrOwnBase=moPI*12+homeVal*txRate+homeIns*12+hoaM*12+homeVal*maintPct+(loanBal/homePrice>0.80?pmi*12:0);
-    const yrOwnNet=yrOwnBase-totalTaxSave; // true after-tax cost
+    // ── Tax deduction (2025 rules) ─────────────────────────────────
+    // Mortgage interest deduction (up to $750k loan)
+    const deductibleMortgageInt=Math.min(yrInt, loan>750000?yrInt*(750000/loan):yrInt);
+    // Property tax (SALT, now $40k cap per OBBBA 2025)
+    const propTaxAmt=homeVal*txRate;
+    const deductiblePropTax=Math.min(propTaxAmt,saltCap);
+    // Total itemizable deductions
+    const totalItemizable=deductibleMortgageInt+deductiblePropTax;
+    // Only benefits taxpayer if itemized > standard deduction
+    const itemizingBenefit=Math.max(0,totalItemizable-stdDeduction)*taxBracket;
+    cumTaxSave+=itemizingBenefit;
+
+    const yrMaintAmt=homeVal*maintPct;
+    const yrOwnBase=moPI*12+homeVal*txRate+homeIns*12+hoaM*12+yrMaintAmt+(loanBal/homePrice>0.80?pmi*12:0);
+    const yrOwnNet=yrOwnBase-itemizingBenefit;
     cumOwn+=yrOwnNet;
 
     const equity=homeVal-Math.max(0,loanBal);
+    // Net cost of owning = what you paid - equity you built
     const netOwn=cumOwn-equity;
-    const netRent=cumRent-(Math.max(0,rentInvest-dp-closingCosts));
+    // Net cost of renting = rent paid - investment gains on down payment
+    const netRent=cumRent-(rentInvest-dp);
 
-    _data.push({yr,cumRent:Math.round(cumRent),cumOwn:Math.round(cumOwn),netOwn:Math.round(netOwn),netRent:Math.round(netRent),homeVal:Math.round(homeVal),equity:Math.round(equity),loanBal:Math.round(Math.max(0,loanBal)),yrInt:Math.round(yrInt),taxSave:Math.round(totalTaxSave),cumTaxSave:Math.round(cumTaxSave)});
+    _data.push({yr,cumRent:Math.round(cumRent),cumOwn:Math.round(cumOwn),netOwn:Math.round(netOwn),netRent:Math.round(netRent),homeVal:Math.round(homeVal),equity:Math.round(equity),loanBal:Math.round(Math.max(0,loanBal)),yrInt:Math.round(yrInt),taxSave:Math.round(itemizingBenefit),cumTaxSave:Math.round(cumTaxSave)});
   }
 
   const hd=_data[holdYears-1]||_data[_data.length-1];
-  const diff=hd.netRent-hd.netOwn;
+
+  // Add selling costs when owner exits (agent commissions + closing ≈ 5-6%)
+  const sellCostsPct=0.055; // 5.5% typical (3% buyer agent + 2.5% seller costs)
+  const exitSellCosts=Math.round(hd.homeVal*sellCostsPct);
+  const netOwnAfterSale=hd.netOwn+exitSellCosts; // selling costs added to total own cost
+
+  const diff=hd.netRent-netOwnAfterSale;
   const ownWins=diff>0;
   const isTie=Math.abs(diff)<hd.cumRent*0.03;
+
   let beYr=null;
-  for(let i=0;i<_data.length;i++){if(_data[i].netOwn<_data[i].netRent){beYr=_data[i].yr;break;}}
+  for(let i=0;i<_data.length;i++){
+    const sellCostExit=Math.round(_data[i].homeVal*sellCostsPct);
+    if(_data[i].netOwn+sellCostExit<_data[i].netRent){beYr=_data[i].yr;break;}
+  }
 
   // Verdict
   let vhtml='';
-  if(isTie) vhtml=`<div class="verdict-tie"><p style="font-size:22px;font-weight:700;color:#92400e;margin-bottom:8px;">🤝 Too Close to Call Over ${holdYears} Years</p><p style="color:#78350f;font-size:14px;">The difference is under 3% — either option works financially. Your lifestyle should decide.</p></div>`;
-  else if(ownWins) vhtml=`<div class="verdict-own"><p style="font-size:22px;font-weight:700;color:#15803d;margin-bottom:8px;">🏠 Owning Wins Over ${holdYears} Years</p><p style="color:#166534;font-size:14px;">You save approximately <strong>${fmt(Math.abs(diff))}</strong> by owning vs. renting over your ${holdYears}-year horizon.</p></div>`;
-  else vhtml=`<div class="verdict-rent"><p style="font-size:22px;font-weight:700;color:#1d4ed8;margin-bottom:8px;">🏘️ Renting Wins Over ${holdYears} Years</p><p style="color:#1e40af;font-size:14px;">Renting saves approximately <strong>${fmt(Math.abs(diff))}</strong> over ${holdYears} years. Owning wins if you stay longer.</p></div>`;
+  if(isTie) vhtml=`<div class="verdict-tie"><p style="font-size:22px;font-weight:700;color:#92400e;margin-bottom:8px;">🤝 Too Close to Call Over ${holdYears} Years</p><p style="color:#78350f;font-size:14px;">Within 3% — lifestyle factors should decide. Finances are nearly equal.</p></div>`;
+  else if(ownWins) vhtml=`<div class="verdict-own"><p style="font-size:22px;font-weight:700;color:#15803d;margin-bottom:8px;">🏠 Owning Wins Over ${holdYears} Years</p><p style="color:#166534;font-size:14px;">Net savings of approximately <strong>${fmt(Math.abs(diff))}</strong> by owning vs. renting over your ${holdYears}-year horizon (including ~5.5% selling costs at exit).</p></div>`;
+  else vhtml=`<div class="verdict-rent"><p style="font-size:22px;font-weight:700;color:#1d4ed8;margin-bottom:8px;">🏘️ Renting Wins Over ${holdYears} Years</p><p style="color:#1e40af;font-size:14px;">Renting saves approximately <strong>${fmt(Math.abs(diff))}</strong> over ${holdYears} years. Owning may win if you stay longer — break-even at year ${beYr||'30+'}</p></div>`;
   $('verdict').innerHTML=vhtml;
 
-  // Rent breakdown
-  const crr=(l,v,hi=false,c='')=>`<div class="cr${hi?' tot':''}"><span style="color:${c||'#374151'}">${l}</span><span style="color:${c||'inherit'};font-weight:${hi?700:500}">${v}</span></div>`;
+  const crr=(l,v,hi=false,c='')=>`<div class="cr${hi?' tot':''}" style="${c?'background:'+(c==='#15803d'?'#f0fdf4':'#eff6ff')+';border-radius:6px;':''}"><span style="color:${c||'#374151'}">${l}</span><span style="color:${c||'inherit'};font-weight:${hi?700:500}">${v}</span></div>`;
   $('rentCost').innerHTML=
     crr('Total Rent Paid',fmt(hd.cumRent))+
     crr('Renter\'s Insurance',fmt(Math.round(rIns*12*holdYears)))+
-    crr('Opportunity Gain on Down Payment',`+${fmt(Math.round(Math.max(0,rentInvest-dp-closingCosts)))}`,false,'#15803d')+
+    crr('Investment Gain on Down Payment ($'+Math.round(dp/1000)+'k @ '+pct(invRet*100)+')',`+${fmt(Math.round(rentInvest-dp))}`,false,'#15803d')+
     crr('Net True Cost of Renting',fmt(hd.netRent),true,'#1d4ed8');
 
-  // Own breakdown with TAX BENEFIT highlighted
   $('ownCost').innerHTML=
     crr('Down Payment + Closing Costs',fmt(Math.round(dp+closingCosts)))+
     crr('Total Mortgage Payments',fmt(Math.round(moPI*12*holdYears)))+
-    crr('Property Taxes (est.)',fmt(Math.round(homePrice*txRate*holdYears)))+
+    crr('Property Taxes',fmt(Math.round(homePrice*txRate*holdYears)))+
     crr('Maintenance + Insurance + HOA',fmt(Math.round((homeIns*12+hoaM*12+homePrice*maintPct)*holdYears)))+
-    `<div class="cr" style="background:#f0fdf4;border-radius:6px;"><span style="color:#15803d;font-weight:600;">✅ Tax Savings (interest deduction)</span><span style="color:#15803d;font-weight:700;">-${fmt(hd.cumTaxSave)}</span></div>`+
-    crr('Equity Built (your asset)',`+${fmt(hd.equity)}`,false,'#15803d')+
-    crr('Net True Cost of Owning',fmt(hd.netOwn),true,'#15803d');
+    `<div class="cr" style="background:#f0fdf4;border-radius:6px;"><span style="color:#15803d;font-weight:600;">✅ Tax Savings (itemized deductions)</span><span style="color:#15803d;font-weight:700;">-${fmt(hd.cumTaxSave)}</span></div>`+
+    `<div class="cr" style="background:#fef3c7;border-radius:6px;"><span style="color:#b45309;">⚠️ Selling Costs at Exit (~5.5%)</span><span style="color:#b45309;">+${fmt(exitSellCosts)}</span></div>`+
+    crr('Equity Built',`+${fmt(hd.equity)}`,false,'#15803d')+
+    crr('Net True Cost of Owning (incl. exit costs)',fmt(netOwnAfterSale),true,'#15803d');
 
-  // Break-even
   $('breakEven').innerHTML=beYr
     ?`<div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
         <div style="text-align:center;"><div style="font-size:48px;font-weight:800;color:#0043ce;line-height:1;">${beYr}</div><div style="font-size:12px;color:#64748b;font-weight:600;">BREAK-EVEN YEAR</div></div>
         <div style="flex:1;min-width:200px;">
           <p style="font-size:14px;font-weight:600;margin-bottom:6px;">After year ${beYr}, owning becomes the cheaper option.</p>
           <p style="font-size:13px;color:#64748b;">${holdYears>=beYr?'✅ You plan to stay past break-even — owning likely makes sense.':'⚠️ You plan to leave before break-even — renting may be smarter financially.'}</p>
+          <p style="font-size:11px;color:#94a3b8;margin-top:6px;">Note: Break-even includes ~5.5% selling costs. Typical break-even is 4–7 years nationally (2025).</p>
         </div>
       </div>`
-    :`<p style="color:#64748b;font-size:13px;">Renting remains cheaper throughout the analysis period at current assumptions. Consider staying put or waiting for better conditions.</p>`;
+    :`<p style="color:#64748b;font-size:13px;">Renting remains cheaper throughout the analysis period, even after including investment returns on the down payment. This can happen when home prices are high relative to rents (price-to-rent ratio &gt;20×).</p>`;
 
-  // Tax benefit callout
   $('taxBenCard').innerHTML=`
-    <p style="font-size:13px;font-weight:700;color:#166534;margin-bottom:8px;">💡 Tax Benefit of Owning — Your ${pct(taxBracket*100,0)} Bracket</p>
+    <p style="font-size:13px;font-weight:700;color:#166534;margin-bottom:8px;">💡 2025 Tax Law Update — Your ${pct(taxBracket*100,0)} Bracket</p>
+    <div style="background:#fef9c3;border:1px solid #fde68a;border-radius:7px;padding:10px;margin-bottom:10px;font-size:12px;color:#854d0e;">
+      <strong>⚡ 2025 Tax Change:</strong> SALT deduction cap raised from $10,000 to $40,000 under the One Big Beautiful Bill Act (2025–2029). This significantly improves tax benefits for homeowners in high-tax states. However, you only benefit if total itemized deductions exceed the standard deduction ($30,000 MFJ / $15,000 single in 2025).
+    </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
       <div style="background:white;padding:12px;border-radius:8px;border:1px solid #bbf7d0;">
         <p style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#166534;font-weight:600;margin-bottom:4px;">Year 1 Interest Paid</p>
@@ -506,21 +547,20 @@ function calc(){
       </div>
       <div style="background:white;padding:12px;border-radius:8px;border:1px solid #bbf7d0;">
         <p style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#166534;font-weight:600;margin-bottom:4px;">Year 1 Tax Saving</p>
-        <p style="font-size:20px;font-weight:700;color:#15803d;">${fmt(_data[0].taxSave)}</p>
+        <p style="font-size:20px;font-weight:700;color:${_data[0].taxSave>0?'#15803d':'#b91c1c'};">${_data[0].taxSave>0?fmt(_data[0].taxSave):'$0 (std ded. better)'}</p>
       </div>
       <div style="background:white;padding:12px;border-radius:8px;border:1px solid #bbf7d0;">
         <p style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#166534;font-weight:600;margin-bottom:4px;">Total Tax Savings (${holdYears}yr)</p>
         <p style="font-size:20px;font-weight:700;color:#15803d;">${fmt(hd.cumTaxSave)}</p>
       </div>
     </div>
-    <p style="font-size:12px;color:#475569;margin-top:10px;">At your <strong>${pct(taxBracket*100,0)} tax bracket</strong>, every $1,000 in mortgage interest effectively costs you only <strong>${fmt((1-taxBracket)*1000)}</strong> after the deduction. This makes owning more affordable than it appears on paper.</p>`;
+    <p style="font-size:11px;color:#475569;margin-top:10px;">Tax benefit only applies when itemized deductions (mortgage interest + up to $40k SALT + other) exceed the standard deduction. Roughly 10% of Americans itemize. At your <strong>${pct(taxBracket*100,0)} bracket</strong>, each $1 of deductible interest saves you <strong>${pct(taxBracket*100,0)} in taxes</strong>.</p>`;
 
-  // Timeline table
   let tbody='';
   for(let i=0;i<Math.min(holdYears,_data.length);i++){
     const d=_data[i];
-    const ownWinsRow=d.netOwn<d.netRent;
-    const diff2=d.netRent-d.netOwn;
+    const sc=Math.round(d.homeVal*sellCostsPct);
+    const ownWinsRow=d.netOwn+sc<d.netRent;
     tbody+=`<tr style="border-bottom:1px solid #f8fafc;${i===holdYears-1?'background:#eff6ff;font-weight:600;':''}">
       <td style="padding:7px 10px;">${d.yr}${i===holdYears-1?' ⭐':''}</td>
       <td style="padding:7px 10px;text-align:right;color:#1d4ed8;">${fmt(d.cumRent)}</td>
@@ -534,9 +574,12 @@ function calc(){
   $('timelineBody').innerHTML=tbody;
   if($('yrLabel'))$('yrLabel').textContent=holdYears;
 
+  _ownMonthlyPI=moPI;
   renderChart();
   sw('tr');
 }
+
+let _ownMonthlyPI=0;
 
 function renderChart(){
   if(!_data.length) return;
@@ -548,7 +591,42 @@ function renderChart(){
     {label:'Net Cost of Renting',data:slice.map(d=>d.netRent),borderColor:'#1d4ed8',backgroundColor:'rgba(29,78,216,.06)',fill:true,tension:.4,borderWidth:2},
     {label:'Net Cost of Owning',data:slice.map(d=>d.netOwn),borderColor:'#15803d',backgroundColor:'rgba(21,128,61,.06)',fill:true,tension:.4,borderWidth:2},
   ]},options:copts});
-  mkC('cDonut',{type:'doughnut',data:{labels:['Mortgage Payments','Property Tax','Maintenance','Insurance/HOA','Tax Savings (benefit)','Equity'],datasets:[{data:[Math.round(num('mr')&&num('mt')?((num('hp')-num('dpv'))*(num('mr')/100/12)/(1-Math.pow(1+num('mr')/100/12,-(parseInt($('mt').value)||30)*12))*12*holdY):0),Math.round(num('hp')*num('ptax')/100*holdY),Math.round(num('hp')*num('mnt')/100*holdY),Math.round((num('hins')+num('hoav')*12)*holdY),hd.cumTaxSave,hd.equity].map(v=>Math.max(0,v)),backgroundColor:['#0043ce','#f97316','#64748b','#a855f7','#15803d','#22c55e'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}}}});
+  mkC('cDonut',{type:'doughnut',data:{labels:['Mortgage Payments','Property Tax','Maintenance','Insurance/HOA','Tax Savings (benefit)','Equity'],datasets:[{data:[Math.round(_ownMonthlyPI*12*holdY),Math.round(num('hp')*num('ptax')/100*holdY),Math.round(num('hp')*num('mnt')/100*holdY),Math.round((num('hins')+num('hoav')*12)*holdY),hd.cumTaxSave,hd.equity].map(v=>Math.max(0,v)),backgroundColor:['#0043ce','#f97316','#64748b','#a855f7','#15803d','#22c55e'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}}}});
+}
+
+
+function exportXLS(){
+  if(!window.XLSX){alert('XLSX library not loaded.');return;}
+  if(!_data||!_data.length){alert('Please run the calculator first.');return;}
+  const hold=Math.max(1,Math.min(30,num('hold')||10));
+  const hd=_data[hold-1]||_data[_data.length-1];
+  const wb=XLSX.utils.book_new();
+  // Summary sheet
+  const ws1=XLSX.utils.aoa_to_sheet([
+    ['RENT vs. OWN ANALYSIS — REProforma'],
+    [''],
+    ['INPUTS','Renting','Owning'],
+    ['Monthly Rent / Home Price',num('rent'),num('hp')],
+    ['Annual Increase / Appreciation',num('ri')+'%',num('app')+'%'],
+    ['Down Payment','—',num('dpv')],
+    ['Mortgage Rate / Term','—',num('mr')+'% / '+$('mt').value+' yr'],
+    ['Annual Property Tax Rate','—',num('ptax')+'%'],
+    [''],
+    ['RESULTS AT YEAR '+hold,'Renting','Owning'],
+    ['Cumulative Gross Costs',hd.cumRent,hd.cumOwn],
+    ['Investment/Equity Built',Math.round(num('inv')?(_data.reduce((a,b,i)=>i>0?a:0,0)):0),hd.equity],
+    ['Cumulative Tax Savings','—',hd.cumTaxSave],
+    ['Net True Cost',hd.netRent,hd.netOwn],
+    ['Home Value at Exit','—',hd.homeVal],
+    ['Loan Balance at Exit','—',hd.loanBal],
+    [''],
+    ['YEAR-BY-YEAR','Cum Rent','Cum Own Cost','Equity','Home Value','Tax Savings (cum)','Winner'],
+    ..._data.slice(0,hold).map(d=>[d.yr,d.cumRent,d.cumOwn,d.equity,d.homeVal,d.cumTaxSave,d.netOwn<d.netRent?'OWN':'RENT']),
+  ]);
+  ws1['!cols']=[{wch:28},{wch:18},{wch:18}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Analysis');
+  const fname='RentVsOwn_'+num('hp').toString().replace(/000$/,'k')+'_'+hold+'yr.xlsx';
+  XLSX.writeFile(wb,fname);
 }
 
 // Demo: Denver CO, 2024 — renter considering buying a townhome
