@@ -6,6 +6,7 @@
 <link rel="icon" type="image/png" href="../favicon.ico">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;}
@@ -41,7 +42,16 @@ a{text-decoration:none;color:inherit;}
 .sr{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-bottom:1px solid #f8fafc;font-size:13px;}
 .sr:last-child{border-bottom:none;}
 .sr:hover{background:#fafbff;}
-@media print{header,.no-print{display:none!important;}}
+@media print{
+  header,.no-print,button{display:none!important;}
+  body{font-size:11pt;background:white!important;}
+  .tp{display:none!important;}
+  #tr,#ts{display:block!important;}
+  .tab-bar{display:none!important;}
+  .card{border:1px solid #ccc!important;break-inside:avoid;}
+  .g2,.g3{display:block!important;}
+  .g2>*,.g3>*{margin-bottom:12px;}
+}
 </style>
 <style>
 @media(max-width:768px){
@@ -169,6 +179,8 @@ a{text-decoration:none;color:inherit;}
     <div style="display:flex;gap:8px;" class="no-print">
       <button class="btn-o" onclick="loadDemo()">📋 Demo ($380k loan)</button>
       <button class="btn-o" onclick="resetAll()">↺ Reset</button>
+      <button style="background:#15803d;color:white;border:none;border-radius:8px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer;" onclick="exportXLS()">⬇ Excel</button>
+      <button style="background:#1e293b;color:white;border:none;border-radius:8px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer;" onclick="window.print()">🖨 Print/PDF</button>
     </div>
   </div>
 </div>
@@ -210,6 +222,14 @@ a{text-decoration:none;color:inherit;}
       <div class="f"><label class="lb">Extra Annual Payment ($) <span style="font-weight:400;text-transform:none;font-size:10px;">e.g. year-end bonus</span></label><div class="p"><span>$</span><input class="inp" id="ea" type="number" placeholder="0"></div></div>
       <div class="f"><label class="lb">One-Time Lump Sum ($)</label><div class="p"><span>$</span><input class="inp" id="ls" type="number" placeholder="0"></div></div>
       <div class="f"><label class="lb">Apply Lump Sum in Month #</label><input class="inp" id="lm" type="number" placeholder="1" value="1"></div>
+      <!-- Biweekly option -->
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px;margin-top:12px;">
+        <p style="font-size:12px;font-weight:700;color:#166534;margin-bottom:6px;">📅 Biweekly Payment Simulation</p>
+        <p style="font-size:11px;color:#64748b;margin-bottom:8px;">Biweekly payments = 26 half-payments/yr = 13 full payments/yr (1 extra). Saves ~3–7 years on a 30yr mortgage.</p>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#166534;cursor:pointer;">
+          <input type="checkbox" id="biweekly" style="accent-color:#15803d;"> Simulate biweekly payments (adds ~1/12 monthly payment extra/mo)
+        </label>
+      </div>
     </div>
 
     <!-- Tips -->
@@ -253,6 +273,7 @@ a{text-decoration:none;color:inherit;}
       <div id="accelStats"></div>
     </div>
   </div>
+  <div id="investComp" class="card" style="margin-top:16px;"></div>
 </div>
 
 <!-- SCENARIOS -->
@@ -277,7 +298,7 @@ a{text-decoration:none;color:inherit;}
 <!-- AMORTIZATION -->
 <div id="ta" class="tp">
   <div class="card" style="overflow-x:auto;">
-    <p style="font-size:13px;font-weight:600;margin-bottom:14px;">Accelerated Amortization Schedule</p>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><p style="font-size:13px;font-weight:600;">Accelerated Amortization Schedule</p><label style="font-size:12px;color:#64748b;cursor:pointer;display:flex;align-items:center;gap:6px;"><input type="checkbox" id="yrView" onchange="toggleYrView()" style="accent-color:#0043ce;"> Yearly summary</label></div>
     <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:600px;">
       <thead>
         <tr style="background:#f8fafc;">
@@ -399,7 +420,7 @@ function amortize(startBal,rate,termMo,extraMo,extraAnn,lumpSum,lumpMo){
   const std=startBal*mr/(1-Math.pow(1+mr,-termMo));
   let totInt=0,totPrin=0,totPaid=0;
   const sched=[];
-  for(let m=1;bal>0.01&&m<=termMo+1;m++){
+  for(let m=1;bal>0.01&&m<=termMo+240;m++){
     const ip=bal*mr;
     let pp=Math.min(std-ip,bal);
     let ex=extraMo;
@@ -428,10 +449,12 @@ function calc(){
   const la=num('la'), bal=num('bal')||la, rate=num('ir')/100;
   const term=parseInt($('lt').value)||30, mp=num('mp');
   const em=num('em'), ea=num('ea'), ls=num('ls'), lm=Math.max(1,num('lm')||1);
+  const bw=$("biweekly")?.checked;
+  const bwExtra=bw?_orig.std/12:0; // biweekly adds 1/12 payment per month
   if(!la||!rate){alert('Please enter loan amount and interest rate.');return;}
   const remTerm=term*12-mp;
   _orig =amortize(bal,rate,remTerm,0,0,0,1);
-  _accel=amortize(bal,rate,remTerm,em,ea,ls,lm);
+  _accel=amortize(bal,rate,remTerm,em+bwExtra,ea,ls,lm);
 
   const oY=Math.floor(_orig.months/12),oM=_orig.months%12;
   const aY=Math.floor(_accel.months/12),aM=_accel.months%12;
@@ -469,8 +492,35 @@ function calc(){
       </div>`
     :`<div style="background:#fef9c3;border:1px solid #fde68a;border-radius:10px;padding:16px;text-align:center;font-size:13px;color:#92400e;">Enter extra payment amounts on the inputs tab to see your savings here.</div>`;
 
+  // Investment comparison
+  const extraPerMo=em+bwExtra;
+  const investReturn=0.07;
+  let investTotal=0;
+  for(let m=0;m<_accel.months;m++) investTotal=investTotal*(1+investReturn/12)+extraPerMo;
+  const investGain=investTotal-(extraPerMo*_accel.months);
+  const invComp=$('investComp');
+  if(invComp&&extraPerMo>0){
+    invComp.innerHTML=`<p style="font-size:13px;font-weight:600;margin-bottom:12px;">📊 Extra Payment vs. Investing That Money Instead</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div style="background:#f0fdf4;padding:14px;border-radius:8px;border-left:3px solid #15803d;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#15803d;margin-bottom:6px;">Pay Off Mortgage Early</p>
+        <p style="font-size:22px;font-weight:700;color:#15803d;">${fmt(Math.round(iSaved))}</p>
+        <p style="font-size:11px;color:#64748b;margin-top:4px;">Guaranteed interest saved · Risk-free return equal to your mortgage rate (${(rate*100).toFixed(2)}%)</p>
+      </div>
+      <div style="background:#eff6ff;padding:14px;border-radius:8px;border-left:3px solid #0043ce;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#0043ce;margin-bottom:6px;">Invest Instead (7% avg S&P return)</p>
+        <p style="font-size:22px;font-weight:700;color:#0043ce;">${fmt(Math.round(Math.max(0,investGain)))}</p>
+        <p style="font-size:11px;color:#64748b;margin-top:4px;">Potential investment gain · Higher expected return but market risk applies</p>
+      </div>
+    </div>
+    <p style="font-size:11px;color:#94a3b8;margin-top:10px;">Rule of thumb: if your mortgage rate &lt; expected investment return (~7%), investing may build more wealth. If rate ≥ 7%, paying off early is the guaranteed winner. Always maintain a 3–6 month emergency fund before allocating extra to either.</p>`;
+  } else if(invComp) {
+    invComp.innerHTML='';
+  }
+
   // Scenarios
-  const scens=[{l:'No extra payment',e:0,a:0},{l:'+$100/month',e:100,a:0},{l:'+$200/month',e:200,a:0},{l:'+$300/month',e:300,a:0},{l:'+$500/month',e:500,a:0},{l:'+$1,000/month',e:1000,a:0},{l:'+$5,000/year lump',e:0,a:5000},{l:`Your scenario (+${fmt(em)}/mo)`,e:em,a:ea,cur:true}];
+  const biweeklyAmt=Math.round(_orig.std/12);
+  const scens=[{l:'No extra payment',e:0,a:0},{l:'+$100/month',e:100,a:0},{l:'+$200/month',e:200,a:0},{l:'+$300/month',e:300,a:0},{l:'+$500/month',e:500,a:0},{l:'+$1,000/month',e:1000,a:0},{l:`Biweekly (+${fmt(biweeklyAmt)}/mo equiv)`,e:biweeklyAmt,a:0},{l:'+$5,000/year lump',e:0,a:5000},{l:`Your scenario (+${fmt(em+bwExtra)}/mo)`,e:em+bwExtra,a:ea,cur:true}];
   let sbody='';
   scens.forEach(s=>{
     const r=amortize(bal,rate,remTerm,s.e,s.a,0,1);
@@ -487,18 +537,7 @@ function calc(){
   $('scenBody').innerHTML=sbody;
 
   // Amortization
-  let abody='';
-  _accel.sched.forEach(r=>{
-    abody+=`<tr style="border-bottom:1px solid #f8fafc;">
-      <td style="padding:7px 10px;">${r.m}</td>
-      <td style="padding:7px 10px;text-align:right;">${fmt(r.pmt)}</td>
-      <td style="padding:7px 10px;text-align:right;color:#15803d;">${fmt(r.prin)}</td>
-      <td style="padding:7px 10px;text-align:right;color:#dc2626;">${fmt(r.int)}</td>
-      <td style="padding:7px 10px;text-align:right;color:#0043ce;">${r.ex>0?fmt(r.ex):'—'}</td>
-      <td style="padding:7px 10px;text-align:right;font-weight:600;">${fmt(r.bal)}</td>
-    </tr>`;
-  });
-  $('amortBody').innerHTML=abody;
+  buildAmortTable($('yrView')?.checked);
 
   renderCharts();
   sw('tr');
@@ -523,11 +562,86 @@ function renderCharts(){
   mkC('cPI',{type:'line',data:{labels:lbPI,datasets:[{label:'Cumulative Principal',data:cumPrin,borderColor:'#0043ce',backgroundColor:'rgba(0,67,206,.06)',fill:true,tension:.3,borderWidth:2},{label:'Cumulative Interest',data:cumInt,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.06)',fill:true,tension:.3,borderWidth:2}]},options:copts});
 }
 
+
+function exportXLS(){
+  if(!window.XLSX){alert('XLSX library not loaded.');return;}
+  if(!_orig||!_accel){alert('Please run the calculator first.');return;}
+  const wb=XLSX.utils.book_new();
+  const la=num('la'), rate=num('ir'), term=$('lt').value, mp=num('mp');
+  const em=num('em'), ea=num('ea'), bwLabel=$('biweekly')?.checked?'+ biweekly':'';
+  const iSaved=Math.round(_orig.totInt-_accel.totInt);
+  const savedMo=_orig.months-_accel.months;
+
+  // Summary sheet
+  const ws1=XLSX.utils.aoa_to_sheet([
+    ['MORTGAGE PAYOFF ANALYSIS — REProforma'],
+    [''],
+    ['LOAN DETAILS','',''],
+    ['Original Loan Amount',la,''],
+    ['Interest Rate',rate/100,''],
+    ['Loan Term',parseInt(term)+' years',''],
+    ['Months Already Paid',mp,''],
+    [''],
+    ['EXTRA PAYMENTS','',''],
+    ['Extra Monthly Payment',num('em'),''],
+    ['Extra Annual Payment',num('ea'),''],
+    ['Lump Sum',num('ls'),''],
+    ['Biweekly Mode',$('biweekly')?.checked?'Yes':'No',''],
+    [''],
+    ['RESULTS','Original','With Extra Payments'],
+    ['Total Months',_orig.months,_accel.months],
+    ['Payoff (years+months)',Math.floor(_orig.months/12)+'y '+(_orig.months%12)+'m',Math.floor(_accel.months/12)+'y '+(_accel.months%12)+'m'],
+    ['Total Interest Paid',_orig.totInt,_accel.totInt],
+    ['Total Amount Paid',_orig.totPaid,_accel.totPaid],
+    ['Monthly Payment',_orig.std,_accel.std+num('em')],
+    [''],
+    ['SAVINGS','',''],
+    ['Interest Saved','',iSaved],
+    ['Months Saved','',savedMo],
+    ['Years Saved','',+(savedMo/12).toFixed(1)],
+    [''],
+    ['AMORTIZATION SCHEDULE (Accelerated)','','','','',''],
+    ['Month','Payment','Principal','Interest','Extra','Balance'],
+    ..._accel.sched.map(r=>[r.m,Math.round(r.pmt),Math.round(r.prin),Math.round(r.int),Math.round(r.ex),Math.round(r.bal)]),
+  ]);
+  ws1['!cols']=[{wch:28},{wch:16},{wch:16},{wch:16},{wch:14},{wch:16}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Payoff Analysis');
+  XLSX.writeFile(wb,'Mortgage_Payoff_'+la.toString().replace(/000$/,'k')+'.xlsx');
+}
+
 // Demo: $380k loan, 30yr at 6.75%, 24 months paid, $300/mo extra
 function loadDemo(){
   set('la','380000');set('bal','');set('ir','6.75');$('lt').value='30';
   set('mp','24');set('em','300');set('ea','2000');set('ls','0');set('lm','1');
   livePrev(); calc();
+}
+
+function toggleYrView(){
+  if(!_accel) return;
+  const yr=$('yrView')?.checked;
+  buildAmortTable(yr);
+}
+function buildAmortTable(yearly){
+  if(!_accel) return;
+  let abody='';
+  if(yearly){
+    // Annual summary
+    for(let y=1;y<=Math.ceil(_accel.months/12);y++){
+      const slice=_accel.sched.slice((y-1)*12,y*12);
+      if(!slice.length)break;
+      const totPmt=slice.reduce((a,b)=>a+b.pmt,0);
+      const totPrin=slice.reduce((a,b)=>a+b.prin,0);
+      const totInt=slice.reduce((a,b)=>a+b.int,0);
+      const totEx=slice.reduce((a,b)=>a+b.ex,0);
+      const lastBal=slice[slice.length-1].bal;
+      abody+=`<tr style="border-bottom:1px solid #f8fafc;"><td style="padding:7px 10px;">Year ${y}</td><td style="padding:7px 10px;text-align:right;">${fmt(Math.round(totPmt))}</td><td style="padding:7px 10px;text-align:right;color:#15803d;">${fmt(Math.round(totPrin))}</td><td style="padding:7px 10px;text-align:right;color:#dc2626;">${fmt(Math.round(totInt))}</td><td style="padding:7px 10px;text-align:right;color:#0043ce;">${totEx>0?fmt(Math.round(totEx)):'—'}</td><td style="padding:7px 10px;text-align:right;font-weight:600;">${fmt(Math.round(lastBal))}</td></tr>`;
+    }
+  } else {
+    _accel.sched.forEach(r=>{
+      abody+=`<tr style="border-bottom:1px solid #f8fafc;"><td style="padding:7px 10px;">${r.m}</td><td style="padding:7px 10px;text-align:right;">${fmt(r.pmt)}</td><td style="padding:7px 10px;text-align:right;color:#15803d;">${fmt(r.prin)}</td><td style="padding:7px 10px;text-align:right;color:#dc2626;">${fmt(r.int)}</td><td style="padding:7px 10px;text-align:right;color:#0043ce;">${r.ex>0?fmt(r.ex):'—'}</td><td style="padding:7px 10px;text-align:right;font-weight:600;">${fmt(r.bal)}</td></tr>`;
+    });
+  }
+  if($('amortBody')) $('amortBody').innerHTML=abody;
 }
 function resetAll(){
   ['la','bal','ir','mp','em','ea','ls','lm'].forEach(id=>{const e=$(id);if(e)e.value='';});
