@@ -1767,7 +1767,7 @@ function confirmSave(){
     var deals=[];
     try{var raw=localStorage.getItem('reproforma_deals');if(raw)deals=JSON.parse(raw);}catch(e){}
     var id='deal_'+Date.now();
-    var resultVal='Cap: '+(typeof capRateVal!=='undefined'?capRateVal.toFixed(1):'?')+'%';
+    var resultVal=(_xlsData&&!isNaN(_xlsData.irr))?(_xlsData.irr*100).toFixed(1)+'% IRR':(_xlsData&&_xlsData.goIn!==undefined)?'Cap: '+(_xlsData.goIn*100).toFixed(1)+'%':'Run calculator first';
     var deal={
       id:id, tool:'mixeduse', name:name, address:address,
       saved:new Date().toISOString(), result:resultVal,
