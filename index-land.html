@@ -2388,10 +2388,22 @@ function confirmSave(){
       id:id, tool:'land', name:name, address:address,
       saved:new Date().toISOString(), result:resultVal,
       inputs:{
-        totalLots: document.getElementById('totalLots')?.value||'',
+        projName: document.getElementById('projName')?.value||'',
+        projLoc: document.getElementById('projLoc')?.value||'',
         landCost: document.getElementById('landCost')?.value||'',
-        infraCost: document.getElementById('infraCost')?.value||'',
-        sfLots: document.getElementById('sfLots')?.value||'',
+        closingPct: document.getElementById('closingPct')?.value||'',
+        ddCost: document.getElementById('ddCost')?.value||'',
+        sfdLots: document.getElementById('sfdLots')?.value||'',
+        sfdP: document.getElementById('sfdP')?.value||'',
+        sfdAbs: document.getElementById('sfdAbs')?.value||'',
+        sfdEsc: document.getElementById('sfdEsc')?.value||'',
+        loanRate: document.getElementById('loanRate')?.value||'',
+        loanFee: document.getElementById('loanFee')?.value||'',
+        devFeePct: document.getElementById('devFeePct')?.value||'',
+        saleCostsP: document.getElementById('saleCostsP')?.value||'',
+        targetIRR: document.getElementById('targetIRR')?.value||'',
+        costEsc: document.getElementById('costEsc')?.value||'',
+        contPct: document.getElementById('contPct')?.value||'',
       }
     };
     deals.unshift(deal);
@@ -2403,6 +2415,39 @@ function confirmSave(){
   }catch(e){document.getElementById('saveModal').style.display='none';alert('Save failed: '+e.message);}
 }
 document.getElementById('saveModal')?.addEventListener('click',function(e){if(e.target===this)this.style.display='none';});
+
+
+// ── Toast notification ────────────────────────────────────────
+function showToast(msg){
+  var el=document.getElementById('saveToast');
+  if(!el)return;
+  el.textContent=msg;el.style.display='block';
+  setTimeout(function(){el.style.display='none';},3000);
+}
+
+// ── Restore saved deal from URL ───────────────────────────────
+(function(){
+  var params=new URLSearchParams(window.location.search);
+  var dealId=params.get('deal');
+  if(!dealId)return;
+  try{
+    var raw=localStorage.getItem('reproforma_deals');
+    if(!raw)return;
+    var deals=JSON.parse(raw);
+    var deal=deals.find(function(d){return d.id===dealId;});
+    if(!deal||!deal.inputs)return;
+    Object.keys(deal.inputs).forEach(function(key){
+      var el=document.getElementById(key);
+      if(el&&deal.inputs[key])el.value=deal.inputs[key];
+    });
+    setTimeout(function(){
+      try{ calculate(); }catch(e){}
+      setTimeout(function(){
+        showToast('Deal "'+deal.name+'" restored');
+      },400);
+    },300);
+  }catch(e){console.log('Restore error:',e);}
+})();
 
 </script>
 
