@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Home Affordability Calculator | REProforma</title>
+<link rel="icon" type="image/png" href="favicon.ico">
+
+
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;}
+a{text-decoration:none;color:inherit;}
+.dd-menu{display:none;position:absolute;left:0;top:100%;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.12);border:1px solid #f1f5f9;z-index:50;min-width:220px;padding:6px 0;}
+.dd-menu.open{display:block;}.dd-wrap{position:relative;}
+.dd-trig{display:flex;align-items:center;gap:4px;font-size:13px;background:none;border:none;cursor:pointer;padding:20px 0;font-family:'Inter',sans-serif;font-weight:500;color:#525252;}
+.dd-trig:hover{color:#0043ce;}
+.dd-item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:#374151;text-decoration:none;border-left:2px solid transparent;}
+.dd-item:hover,.dd-item.cur{background:#eff6ff;color:#0043ce;border-left-color:#0043ce;}
+.dd-lbl{padding:6px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;}
+.dd-div{height:1px;background:#f1f5f9;margin:4px 16px;}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+@media(max-width:900px){.g3{grid-template-columns:1fr 1fr;}.g4{grid-template-columns:1fr 1fr;}}
+@media(max-width:580px){.g2,.g3,.g4{grid-template-columns:1fr;}}
+.card{background:white;border:1px solid #e2e8f0;border-radius:12px;padding:20px;}
+.sec{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#94a3b8;padding-bottom:8px;border-bottom:1px solid #f1f5f9;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.f{margin-bottom:10px;}
+.lb{display:block;font-size:11px;font-weight:600;color:#64748b;letter-spacing:.03em;text-transform:uppercase;margin-bottom:3px;}
+.hint{font-size:10px;color:#94a3b8;margin-top:2px;line-height:1.3;}
+.inp{width:100%;padding:8px 10px;border:1px solid #cbd5e1;border-radius:7px;font-size:13px;font-family:'Inter',sans-serif;color:#1e293b;background:white;outline:none;}
+.inp:focus{border-color:#0043ce;box-shadow:0 0 0 3px rgba(0,67,206,.08);}
+.p{position:relative;}.p span{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:12px;color:#94a3b8;pointer-events:none;}.p .inp{padding-left:18px;}
+.s{position:relative;}.s span{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:12px;color:#94a3b8;pointer-events:none;}.s .inp{padding-right:22px;}
+.tab-bar{display:flex;border-bottom:1px solid #e2e8f0;background:white;overflow-x:auto;}
+.tb{padding:12px 18px;font-size:13px;font-weight:500;color:#64748b;border:none;border-bottom:2px solid transparent;background:none;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;}
+.tb.on{color:#0043ce;border-bottom-color:#0043ce;font-weight:600;}
+.tp{display:none;}.tp.on{display:block;}
+.btn-b{background:#0043ce;color:white;border:none;border-radius:8px;padding:11px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-o{background:white;color:#475569;border:1px solid #cbd5e1;border-radius:8px;padding:8px 15px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-g{background:#15803d;color:white;border:none;border-radius:8px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer;}
+.btn-d{background:#1e293b;color:white;border:none;border-radius:8px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer;}
+.mc{background:white;border:1px solid #e2e8f0;border-radius:10px;padding:16px;border-top:3px solid #0043ce;}
+.mv{font-size:22px;font-weight:700;line-height:1;}
+.ml{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#94a3b8;margin-top:4px;}
+.ms{font-size:11px;color:#94a3b8;margin-top:2px;}
+.rr{display:flex;justify-content:space-between;padding:8px 10px;border-bottom:1px solid #f8fafc;font-size:13px;}
+.rr.tot{background:#eff6ff;font-weight:700;color:#0043ce;border-radius:6px;border-bottom:none;}
+.gauge{height:8px;border-radius:4px;background:#e2e8f0;overflow:hidden;margin-top:5px;}
+.gf{height:100%;border-radius:4px;transition:width .7s ease;}
+.range-bar{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:8px;}
+@media print{
+  header,.no-print,button{display:none!important;}
+  body{font-size:11pt;background:white!important;}
+  .tp{display:none!important;}
+  #tr,#tb{display:block!important;}
+  #ti{display:none!important;}
+  .tab-bar{display:none!important;}
+  .card,.mc{border:1px solid #ccc!important;break-inside:avoid;}
+  .g2,.g3,.g4{display:block!important;}
+  .g2>*,.g3>*,.g4>*{margin-bottom:12px;}
+}
+@media(max-width:768px){.ft-grid{grid-template-columns:1fr 1fr!important;}}
+@media(max-width:480px){.ft-grid{grid-template-columns:1fr!important;}}
+</style>
+<style id="repro-nav-footer">
+/* ── REProforma Nav + Footer ── */
+/* Scoped so tool CSS wins for everything else */
+:root{
+  --repro-blue:#2563eb;
+  --repro-blue-l:#3b82f6;
+  --repro-blue-bg:#eff6ff;
+  --repro-border:#e4e4e7;
+  --repro-ink:#09090b;
+  --repro-ink2:#18181b;
+  --repro-muted:#71717a;
+  --repro-off:#fafafa;
+  --repro-dark:#0f172a;
+  --repro-dark2:#111827;
+  --repro-green:#16a34a;
+  --repro-shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --repro-shadow-lg:0 12px 40px rgba(0,0,0,.12);
+  --repro-mono:'Geist Mono',monospace;
+  --repro-sans:'DM Sans',sans-serif;
+}
+
+/* NAV */
+.repro-nav{
+  position:sticky;top:0;z-index:9999;height:60px;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(0,0,0,.06);
+  box-shadow:0 1px 0 rgba(0,0,0,.04);
+}
+.repro-nav-inner{
+  max-width:1280px;margin:0 auto;padding:0 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  height:100%;gap:16px;
+}
+.repro-logo{display:flex;align-items:center;gap:9px;flex-shrink:0;text-decoration:none;}
+.repro-wm{font-family:var(--repro-sans);font-size:19px;font-weight:800;letter-spacing:-.5px;line-height:1;}
+.repro-wm .r{color:var(--repro-blue);}
+.repro-wm .p{color:var(--repro-blue);font-weight:400;}
+.repro-nav-links{display:flex;align-items:center;gap:1px;margin-left:auto;}
+.repro-nl{
+  font-size:13px;font-weight:500;color:var(--repro-muted);
+  padding:6px 12px;border-radius:7px;cursor:pointer;
+  border:none;background:none;font-family:var(--repro-sans);
+  display:inline-flex;align-items:center;gap:4px;
+  transition:color .15s,background .15s;white-space:nowrap;
+  text-decoration:none;
+}
+.repro-nl:hover{color:var(--repro-ink);background:var(--repro-off);}
+.repro-nl.on{color:var(--repro-blue);font-weight:600;}
+.repro-cta{
+  background:var(--repro-blue);color:white;
+  font-family:var(--repro-sans);font-size:13px;font-weight:700;
+  padding:8px 18px;border-radius:9px;border:none;cursor:pointer;
+  flex-shrink:0;transition:background .15s;white-space:nowrap;
+  text-decoration:none;display:inline-block;
+}
+.repro-cta:hover{background:#1d4ed8;}
+
+/* DROPDOWN */
+.repro-ddr{position:relative;display:inline-block;}
+.repro-ddp{
+  display:none;position:absolute;top:calc(100%+6px);left:0;
+  background:white;border:1px solid var(--repro-border);border-radius:12px;
+  box-shadow:var(--repro-shadow-lg);padding:8px;min-width:216px;z-index:10000;
+}
+.repro-ddp.right{left:auto;right:0;}
+.repro-ddp.open{display:block;}
+.repro-dds{
+  font-family:var(--repro-mono);font-size:9px;font-weight:500;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--repro-muted);
+  padding:6px 10px 3px;
+}
+.repro-ddi{
+  display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;
+  font-size:13px;color:var(--repro-ink2);transition:background .1s,color .1s;
+  text-decoration:none;
+}
+.repro-ddi:hover{background:var(--repro-blue-bg);color:var(--repro-blue);}
+.repro-ddi.cur{background:var(--repro-blue-bg);color:var(--repro-blue);font-weight:600;}
+.repro-sep{height:1px;background:var(--repro-border);margin:4px 0;}
+.repro-mob-btn{display:none;background:none;border:none;cursor:pointer;color:var(--repro-ink);padding:4px;}
+
+/* FOOTER */
+.repro-footer{background:#07101f;border-top:1px solid rgba(255,255,255,.07);padding:56px 0 32px;}
+.repro-ft-inner{max-width:1280px;margin:0 auto;padding:0 24px;}
+.repro-ft-grid{display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr;gap:36px;margin-bottom:36px;}
+.repro-ft-brand p{font-size:12px;color:rgba(255,255,255,.35);line-height:1.65;max-width:220px;margin-top:12px;}
+.repro-ft-note{font-size:11px;color:rgba(255,255,255,.15);margin-top:8px;line-height:1.5;}
+.repro-ft-lbl{font-family:var(--repro-mono);font-size:9px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:14px;}
+.repro-ft-links{display:flex;flex-direction:column;gap:8px;}
+.repro-ft-links a{font-size:12px;color:rgba(255,255,255,.35);transition:color .15s;text-decoration:none;}
+.repro-ft-links a:hover{color:rgba(255,255,255,.75);}
+.repro-ft-bot{border-top:1px solid rgba(255,255,255,.07);padding-top:20px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:11px;color:rgba(255,255,255,.2);}
+.repro-ft-bot a{color:rgba(255,255,255,.2);text-decoration:none;}.repro-ft-bot a:hover{color:rgba(255,255,255,.5);}
+.repro-email-row{display:flex;margin-top:14px;}
+.repro-ei{flex:1;padding:8px 10px;border-radius:7px 0 0 7px;border:1px solid rgba(255,255,255,.12);border-right:none;background:rgba(255,255,255,.05);font-size:12px;color:white;outline:none;min-width:0;}
+.repro-ei::placeholder{color:rgba(255,255,255,.25);}
+.repro-eb{background:var(--repro-blue);color:white;border:none;padding:8px 14px;border-radius:0 7px 7px 0;font-size:12px;font-weight:600;cursor:pointer;}
+.repro-eb:hover{background:#1d4ed8;}
+
+/* OTHER TOOLS SECTION */
+.repro-other-tools{max-width:1280px;margin:0 auto;padding:40px 24px 0;border-top:1px solid var(--repro-border);margin-top:40px;}
+.repro-other-lbl{font-family:var(--repro-mono);font-size:10px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--repro-muted);margin-bottom:14px;}
+.repro-other-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.repro-tool-link{
+  background:var(--repro-off);border:1px solid var(--repro-border);border-radius:9px;
+  padding:12px 16px;display:flex;align-items:center;gap:8px;
+  font-size:13px;color:var(--repro-ink2);font-weight:500;
+  text-decoration:none;transition:box-shadow .15s,border-color .15s;
+}
+.repro-tool-link:hover{box-shadow:0 4px 16px rgba(0,0,0,.08);border-color:#bfdbfe;color:var(--repro-blue);}
+
+/* MOBILE NAV */
+.repro-mob-menu{
+  display:none;background:white;border-top:1px solid var(--repro-border);
+  padding:14px 18px 18px;box-shadow:0 4px 12px rgba(0,0,0,.08);
+}
+.repro-mob-home{display:block;padding:8px 0;font-size:14px;font-weight:700;color:var(--repro-blue);border-bottom:1px solid var(--repro-border);margin-bottom:10px;text-decoration:none;}
+.repro-mob-section{font-family:var(--repro-mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--repro-muted);padding:6px 0 4px;}
+.repro-mob-item{display:block;padding:7px 0;font-size:13px;color:var(--repro-ink2);text-decoration:none;}
+.repro-mob-cta{display:block;margin-top:12px;padding:11px;text-align:center;font-size:13px;font-weight:700;color:white;background:var(--repro-blue);border-radius:8px;text-decoration:none;}
+
+@media(max-width:640px){
+  .repro-nav-links,.repro-cta{display:none;}
+  .repro-mob-btn{display:flex;}
+  .repro-ft-grid{grid-template-columns:1fr;}
+  .repro-other-grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:900px){
+  .repro-ft-grid{grid-template-columns:1fr 1fr;}
+  .repro-ft-brand{grid-column:1/-1;}
+}
+</style>
+
+<!-- Google Analytics GA4 — replace G-XXXXXXXXXX with your Measurement ID -->
+<!-- Get your ID from analytics.google.com → Admin → Data Streams → Web Stream -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX', {
+    page_title: document.title,
+    page_location: window.location.href
+  });
+</script>
+</head>
+<body>
+
+<nav class="repro-nav">
+  <div class="repro-nav-inner">
+    <a href="index" class="repro-logo">
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#2563eb"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
+      <span class="repro-wm"><span class="r">RE</span><span class="p">Proforma</span></span>
+    </a>
+    <div class="repro-nav-links" id="repro-nav-links">
+      <a href="index" class="repro-nl">Home</a>
+      <div class="repro-ddr" id="rddT">
+        <button class="repro-nl" id="rddTb">Tools <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="repro-ddp" id="rddTm">
+          <div class="repro-dds">Investment Analysis</div>
+<a class="repro-ddi" href="index-multifamily">🏢 Multifamily Acquisition</a>
+<a class="repro-ddi" href="index-mixeduse">🏬 Commercial &amp; NNN Retail</a>
+<a class="repro-ddi" href="index-land">🗺️ Land Development</a>
+          <div class="repro-sep"></div>
+          <div class="repro-dds">Personal Finance</div>
+<a class="repro-ddi cur" href="index-affordability">🏠 Home Affordability</a>
+<a class="repro-ddi" href="index-rentvsbuy">⚖️ Rent vs. Own</a>
+<a class="repro-ddi" href="index-mortgage-payoff">📅 Mortgage Payoff</a>
+        </div>
+      </div>
+      <div class="repro-ddr" id="rddL">
+        <button class="repro-nl" id="rddLb">Learn <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="repro-ddp right" id="rddLm" style="min-width:230px;">
+          <div class="repro-dds">Guides</div>
+<a class="repro-ddi" href="how-to-underwrite-multifamily">Multifamily Underwriting 2025</a>
+<a class="repro-ddi" href="how-to-analyze-commercial-retail">Commercial Analysis Guide</a>
+<a class="repro-ddi" href="land-development-proforma-guide">Land Development Guide</a>
+          <div class="repro-sep"></div>
+          <a class="repro-ddi" href="https://www.cbre.com/insights/reports/us-cap-rate-survey-h1-2025" target="_blank">CBRE Cap Rates 2026 ↗</a>
+        </div>
+      </div>
+      <a href="about" class="repro-nl">About</a>
+    </div>
+    <a href="about" class="repro-cta">Let's talk</a>
+    <button class="repro-mob-btn" id="repro-mob-btn" aria-label="Menu">
+      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+  </div>
+  <div class="repro-mob-menu" id="repro-mob-menu">
+    <a href="index" class="repro-mob-home">Home</a>
+    <div class="repro-mob-section">Tools</div>
+    <a href="index-multifamily" class="repro-mob-item">🏢 Multifamily</a>
+    <a href="index-mixeduse" class="repro-mob-item">🏬 Commercial/NNN</a>
+    <a href="index-land" class="repro-mob-item">🗺️ Land Development</a>
+    <a href="index-affordability" class="repro-mob-item">🏠 Affordability</a>
+    <a href="index-rentvsbuy" class="repro-mob-item">⚖️ Rent vs. Own</a>
+    <a href="index-mortgage-payoff" class="repro-mob-item">📅 Mortgage Payoff</a>
+    <a href="about" class="repro-mob-cta">Let's talk</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div style="background:linear-gradient(135deg,#EBF5FF,#f8fafc);border-bottom:1px solid #e2e8f0;padding:24px 0;">
+  <div class="wrap" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;">
+    <div>
+      <span style="background:#dcfce7;color:#15803d;font-size:11px;font-weight:700;padding:2px 10px;border-radius:99px;display:inline-block;margin-bottom:6px;">Free · No Sign-Up</span>
+      <h1 style="font-size:24px;font-weight:700;color:#0043ce;">🏠 Home Affordability Calculator</h1>
+      <p style="font-size:13px;color:#64748b;margin-top:3px;">Find out exactly how much home you can afford using lender DTI guidelines — conventional, FHA, and VA.</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;" class="no-print">
+      <button class="btn-o" onclick="loadDemo()">📋 Demo</button>
+      <button class="btn-o" onclick="resetAll()">↺ Reset</button>
+      <button class="btn-g" onclick="exportXLS()">⬇ Excel</button>
+      <button class="btn-d" onclick="window.print()">🖨 Print/PDF</button>
+    </div>
+  </div>
+</div>
+
+<div class="tab-bar no-print">
+  <button class="tb on" data-t="ti">Your Finances</button>
+  <button class="tb" data-t="tr">Results &amp; Scenarios</button>
+  <button class="tb" data-t="tb">Payment Breakdown</button>
+</div>
+
+<div class="wrap" style="padding:22px 0 48px;">
+
+<!-- INPUTS -->
+<div id="ti" class="tp on">
+  <div class="g3" style="margin-bottom:16px;">
+
+    <!-- Income -->
+    <div class="card">
+      <div class="sec">💰 Income</div>
+      <div class="f"><label class="lb">Annual Gross Income ($)</label><div class="p"><span>$</span><input class="inp" id="ai" type="number" placeholder="95,000" oninput="liveDP()"></div></div>
+      <div class="f"><label class="lb">Co-Borrower Annual Income ($) <span style="font-weight:400;text-transform:none;">optional</span></label><div class="p"><span>$</span><input class="inp" id="ci2" type="number" placeholder="0" oninput="liveDP()"></div></div>
+      <div class="f"><label class="lb">Other Monthly Income ($)</label><div class="p"><span>$</span><input class="inp" id="oi" type="number" placeholder="0" oninput="liveDP()"></div></div>
+      <div class="f"><label class="lb">Loan Program</label>
+        <select class="inp" id="loanPgm" onchange="onPgmChange()">
+          <option value="conv">Conventional (28% front / 43–50% back)</option>
+          <option value="fha">FHA Loan (31% front / 43% back)</option>
+          <option value="va">VA Loan (no front-end / 41% back)</option>
+        </select>
+      </div>
+      <div id="pgmNote" style="background:#eff6ff;border-radius:7px;padding:10px;font-size:11px;color:#1d4ed8;line-height:1.5;margin-top:4px;">
+        Conventional: Best for 680+ credit, 20% down. Up to 50% back-end DTI with automated underwriting (DU/LP).
+      </div>
+    </div>
+
+    <!-- Debts -->
+    <div class="card">
+      <div class="sec">💳 Monthly Debts</div>
+      <div class="f"><label class="lb">Car Payment(s) ($)</label><div class="p"><span>$</span><input class="inp" id="car" type="number" placeholder="0" oninput="liveDP()"></div></div>
+      <div class="f"><label class="lb">Student Loan ($)</label><div class="p"><span>$</span><input class="inp" id="sl" type="number" placeholder="0" oninput="liveDP()"></div></div>
+      <div class="f"><label class="lb">Credit Card Min. Payments ($)</label><div class="p"><span>$</span><input class="inp" id="cc" type="number" placeholder="0" oninput="liveDP()"></div></div>
+      <div class="f"><label class="lb">Child Support / Alimony ($)</label><div class="p"><span>$</span><input class="inp" id="cs" type="number" placeholder="0" oninput="liveDP()"></div></div>
+      <div class="f"><label class="lb">Other Monthly Debts ($)</label><div class="p"><span>$</span><input class="inp" id="od" type="number" placeholder="0" oninput="liveDP()"></div></div>
+      <div id="debtTotal" style="background:#f8fafc;border-radius:7px;padding:8px 10px;font-size:12px;color:#64748b;margin-top:6px;"></div>
+    </div>
+
+    <!-- Loan Details -->
+    <div class="card">
+      <div class="sec">🏦 Loan Details</div>
+      <div class="f"><label class="lb">Down Payment ($)</label><div class="p"><span>$</span><input class="inp" id="dp" type="number" placeholder="60,000" oninput="liveDP()"></div></div>
+      <div id="dpHint" style="font-size:11px;color:#94a3b8;margin:-6px 0 8px;line-height:1.4;"></div>
+      <div class="f"><label class="lb">Interest Rate (%)</label><div class="s"><input class="inp" id="ir" type="number" step="0.01" placeholder="6.75"><span>%</span></div><p class="hint">30yr fixed avg Mar 2026: ~6.6–7.0%</p></div>
+      <div class="f"><label class="lb">Loan Term</label>
+        <select class="inp" id="lt"><option value="30">30 Years</option><option value="20">20 Years</option><option value="15">15 Years</option><option value="10">10 Years</option></select></div>
+      <div class="f"><label class="lb">Annual Property Tax Rate (%)</label><div class="s"><input class="inp" id="tr2" type="number" step="0.01" placeholder="1.20"><span>%</span></div><p class="hint">National avg ~1.0–1.5% · varies by state</p></div>
+      <div class="f"><label class="lb">Annual Home Insurance ($)</label><div class="p"><span>$</span><input class="inp" id="ins" type="number" placeholder="1,800"></div></div>
+      <div class="f"><label class="lb">Monthly HOA ($)</label><div class="p"><span>$</span><input class="inp" id="hoa" type="number" placeholder="0"></div></div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin:18px 0 8px;">
+    <button class="btn-b" onclick="calc()" style="padding:13px 40px;font-size:15px;">Calculate Affordability →</button>
+  </div>
+
+  <div class="card" style="margin-top:18px;">
+    <p style="font-size:13px;font-weight:600;margin-bottom:12px;">📐 How This Calculator Works — 2025 Lender Guidelines</p>
+    <div class="g3" style="gap:12px;">
+      <div style="background:#f8fafc;padding:12px;border-radius:8px;border-left:3px solid #0043ce;">
+        <p style="font-size:12px;font-weight:600;color:#0043ce;margin-bottom:3px;">Front-End DTI</p>
+        <p style="font-size:12px;color:#64748b;line-height:1.5;">Housing costs (P&amp;I + tax + insurance + HOA + PMI) vs gross monthly income. <strong>Conventional: 28%</strong> · <strong>FHA: 31%</strong> · <strong>VA: no limit</strong></p>
+      </div>
+      <div style="background:#f8fafc;padding:12px;border-radius:8px;border-left:3px solid #15803d;">
+        <p style="font-size:12px;font-weight:600;color:#15803d;margin-bottom:3px;">Back-End DTI</p>
+        <p style="font-size:12px;color:#64748b;line-height:1.5;">All debts + housing vs income. <strong>Conventional: 43–50%</strong> (Fannie/Freddie automated underwriting can approve up to 50%) · <strong>FHA: 43%</strong> · <strong>VA: 41%</strong></p>
+      </div>
+      <div style="background:#f8fafc;padding:12px;border-radius:8px;border-left:3px solid #b45309;">
+        <p style="font-size:12px;font-weight:600;color:#b45309;margin-bottom:3px;">PMI &amp; MIP</p>
+        <p style="font-size:12px;color:#64748b;line-height:1.5;">Conventional: PMI required if down payment &lt;20%, typically 0.5–1.5%/yr. FHA: upfront MIP 1.75% + annual 0.55–1.05%. VA: funding fee, no ongoing PMI.</p>
+      </div>
+    </div>
+  </div>
+</div><!-- /inputs -->
+
+<!-- RESULTS -->
+<div id="tr" class="tp">
+  <div id="summaryCards" class="g4" style="margin-bottom:18px;"></div>
+
+  <!-- Price ranges -->
+  <div class="card" style="margin-bottom:16px;">
+    <p style="font-size:13px;font-weight:600;margin-bottom:12px;">🏷️ Affordable Price Ranges</p>
+    <div id="priceRanges" class="g3" style="gap:12px;"></div>
+  </div>
+
+  <div class="g2" style="margin-bottom:16px;">
+    <div class="card">
+      <p style="font-size:13px;font-weight:600;margin-bottom:12px;">Monthly Payment Breakdown</p>
+      <div id="payD"></div>
+    </div>
+    <div class="card">
+      <p style="font-size:13px;font-weight:600;margin-bottom:12px;">Debt-to-Income Analysis</p>
+      <div id="dtiD"></div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid #f1f5f9;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;margin-bottom:8px;">2025 DTI Reference</p>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;">
+          <thead><tr><th style="padding:4px 8px;background:#f8fafc;text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0;">Range</th><th style="padding:4px 8px;background:#f8fafc;font-size:9px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0;">Rating</th><th style="padding:4px 8px;background:#f8fafc;font-size:9px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0;">Lender Options</th></tr></thead>
+          <tbody>
+            <tr><td style="padding:5px 8px;">&lt;28%</td><td style="padding:5px 8px;color:#15803d;font-weight:600;">✅ Excellent</td><td style="padding:5px 8px;color:#64748b;">All loans, best rates</td></tr>
+            <tr><td style="padding:5px 8px;">28–36%</td><td style="padding:5px 8px;color:#0369a1;font-weight:600;">✅ Good</td><td style="padding:5px 8px;color:#64748b;">All conventional</td></tr>
+            <tr><td style="padding:5px 8px;">36–43%</td><td style="padding:5px 8px;color:#b45309;font-weight:600;">⚠️ Marginal</td><td style="padding:5px 8px;color:#64748b;">FHA / strong file</td></tr>
+            <tr><td style="padding:5px 8px;">43–50%</td><td style="padding:5px 8px;color:#b45309;font-weight:600;">⚠️ Stretch</td><td style="padding:5px 8px;color:#64748b;">Conv w/ DU/LP approval</td></tr>
+            <tr><td style="padding:5px 8px;">&gt;50%</td><td style="padding:5px 8px;color:#b91c1c;font-weight:600;">❌ Too High</td><td style="padding:5px 8px;color:#64748b;">Most lenders decline</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px;">
+    <p style="font-size:13px;font-weight:600;margin-bottom:10px;">💡 Ways to Improve Your Buying Power</p>
+    <div class="g2" style="gap:10px;">
+      <div style="background:#eff6ff;padding:12px;border-radius:8px;border-left:3px solid #0043ce;"><p style="font-size:12px;font-weight:600;color:#0043ce;margin-bottom:3px;">⬆️ Increase Down Payment</p><p style="font-size:11px;color:#64748b;line-height:1.4;">Extra $10k down adds ~$15–20k buying power and eliminates PMI at 20% (saving $100–200/mo on a $400k loan).</p></div>
+      <div style="background:#dcfce7;padding:12px;border-radius:8px;border-left:3px solid #15803d;"><p style="font-size:12px;font-weight:600;color:#15803d;margin-bottom:3px;">💳 Pay Down Debt</p><p style="font-size:11px;color:#64748b;line-height:1.4;">Each $100/mo of debt eliminated adds ~$15–20k to your max purchase price under back-end DTI rules.</p></div>
+      <div style="background:#fef3c7;padding:12px;border-radius:8px;border-left:3px solid #b45309;"><p style="font-size:12px;font-weight:600;color:#b45309;margin-bottom:3px;">📉 Shop for Lower Rate</p><p style="font-size:11px;color:#64748b;line-height:1.4;">0.5% lower rate saves ~$120/mo on $400k loan. Get quotes from 3+ lenders including credit unions.</p></div>
+      <div style="background:#fdf4ff;padding:12px;border-radius:8px;border-left:3px solid #7c3aed;"><p style="font-size:12px;font-weight:600;color:#7c3aed;margin-bottom:3px;">🏦 FHA vs Conventional</p><p style="font-size:11px;color:#64748b;line-height:1.4;">FHA allows higher DTI (43%) and lower credit scores (580+). Tradeoff: MIP required for life of most FHA loans.</p></div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;" class="no-print">
+    <a href="index-rentvsbuy" class="btn-o" style="font-size:12px;">⚖️ Rent vs. Own Analysis →</a>
+    <a href="index-mortgage-payoff" class="btn-o" style="font-size:12px;">📅 Payoff Calculator →</a>
+  </div>
+</div><!-- /results -->
+
+<!-- BREAKDOWN -->
+<div id="tb" class="tp">
+  <div class="g2">
+    <div class="card"><p style="font-size:13px;font-weight:600;margin-bottom:14px;">Monthly Payment Composition</p><div style="position:relative;height:280px;"><canvas id="cpie"></canvas></div></div>
+    <div class="card"><p style="font-size:13px;font-weight:600;margin-bottom:14px;">Buying Power at Different Loan Rates</p><div style="position:relative;height:280px;"><canvas id="cbar"></canvas></div></div>
+  </div>
+  <div class="card" style="margin-top:16px;">
+    <p style="font-size:13px;font-weight:600;margin-bottom:12px;">📊 Rate Sensitivity — How Rate Changes Your Max Price</p>
+    <div id="rateTable" style="overflow-x:auto;"></div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<!-- FOOTER -->
+
+<div class="repro-other-tools">
+  <div class="repro-other-lbl">Other Tools</div>
+  <div class="repro-other-grid">
+    <a href="index-rentvsbuy" class="repro-tool-link">⚖️ Rent vs. Own</a>
+    <a href="index-mortgage-payoff" class="repro-tool-link">📅 Mortgage Payoff</a>
+    <a href="index-multifamily" class="repro-tool-link">🏢 Multifamily</a>
+  </div>
+</div>
+<div style="height:48px;background:var(--repro-off,#fafafa);"></div>
+
+<footer class="repro-footer">
+  <div class="repro-ft-inner">
+    <div class="repro-ft-grid">
+      <div class="repro-ft-brand">
+        <a href="index" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;">
+          <svg width="28" height="28" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#2563eb"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
+          <span style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:800;color:white;letter-spacing:-.4px;">RE<span style="font-weight:400;">Proforma</span></span>
+        </a>
+        <p>Free institutional-grade real estate investment tools. Browser-based. 2026 benchmarks.</p>
+        <p class="repro-ft-note">All calculations run locally. Your data never leaves your device.</p>
+      </div>
+      <div>
+        <div class="repro-ft-lbl">Tools</div>
+        <div class="repro-ft-links">
+          <a href="index-multifamily">Multifamily</a>
+          <a href="index-mixeduse">Commercial/NNN</a>
+          <a href="index-land">Land Dev</a>
+          <a href="index-affordability">Home Affordability</a>
+          <a href="index-rentvsbuy">Rent vs. Own</a>
+          <a href="index-mortgage-payoff">Mortgage Payoff</a>
+        </div>
+      </div>
+      <div>
+        <div class="repro-ft-lbl">Learn</div>
+        <div class="repro-ft-links">
+          <a href="how-to-underwrite-multifamily">Multifamily Guide</a>
+          <a href="how-to-analyze-commercial-retail">Commercial Guide</a>
+          <a href="land-development-proforma-guide">Land Dev Guide</a>
+          <a href="https://www.cbre.com/insights/reports/us-cap-rate-survey-h1-2025" target="_blank">CBRE 2026 ↗</a>
+        </div>
+      </div>
+      <div>
+        <div class="repro-ft-lbl">Company</div>
+        <div class="repro-ft-links" style="margin-bottom:18px;">
+          <a href="about">About</a><a href="privacy">Privacy</a><a href="terms">Terms</a>
+        </div>
+        <div class="repro-ft-lbl">Stay updated</div>
+        <div class="repro-email-row"><input type="email" class="repro-ei" placeholder="your@email.com"><button class="repro-eb">→</button></div>
+      </div>
+    </div>
+    <div class="repro-ft-bot">
+      <span>&copy; 2026 REProforma. Not financial advice.</span>
+      <div style="display:flex;gap:16px;"><a href="privacy">Privacy</a><a href="terms">Terms</a></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var mb=document.getElementById('repro-mob-btn'),mm=document.getElementById('repro-mob-menu');
+  if(mb&&mm)mb.addEventListener('click',function(){mm.style.display=mm.style.display==='block'?'none':'block';});
+  function closeAll(){document.querySelectorAll('.repro-ddp').forEach(function(p){p.classList.remove('open');});}
+  [['rddT','rddTm','rddTb'],['rddL','rddLm','rddLb']].forEach(function(ids){
+    var w=document.getElementById(ids[0]),p=document.getElementById(ids[1]),b=document.getElementById(ids[2]);
+    if(!w||!p)return;var t;
+    w.addEventListener('mouseenter',function(){clearTimeout(t);p.classList.add('open');});
+    w.addEventListener('mouseleave',function(){t=setTimeout(function(){p.classList.remove('open');},180);});
+    if(b)b.addEventListener('click',function(e){e.stopPropagation();var o=p.classList.contains('open');closeAll();if(!o)p.classList.add('open');});
+  });
+  document.addEventListener('click',function(e){if(!e.target.closest('.repro-ddr'))closeAll();});
+})();
+</script>
+
+<script>
+const $=id=>document.getElementById(id);
+const num=id=>parseFloat($(id)?.value)||0;
+const set=(id,v)=>{if($(id))$(id).value=v;};
+const fmt=v=>'$'+Math.round(v).toLocaleString();
+const pct=(v,d=1)=>v.toFixed(d)+'%';
+const CH={};
+function mkC(id,cfg){if(CH[id])CH[id].destroy();CH[id]=new Chart($(id),cfg);}
+function sw(id){document.querySelectorAll('.tb').forEach(x=>x.classList.toggle('on',x.dataset.t===id));document.querySelectorAll('.tp').forEach(x=>x.classList.toggle('on',x.id===id));}
+
+// ── Nav ────────────────────────────────────────────────────────
+(function(){
+  function ckW(){var mob=window.innerWidth<768,dn=$('desk-nav'),mb=$('mob-btn');if(dn)dn.style.display=mob?'none':'flex';if(mb)mb.style.display=mob?'block':'none';}
+  window.addEventListener('resize',ckW);ckW();
+  var btn=$('mob-btn'),menu=$('mob-menu');
+  if(btn&&menu)btn.addEventListener('click',function(){menu.style.display=menu.style.display==='block'?'none':'block';});
+  document.querySelectorAll('.mob-tog').forEach(function(b){b.addEventListener('click',function(){var s=b.nextElementSibling,a=b.querySelector('.mob-arr'),open=s.style.display==='block';s.style.display=open?'none':'block';if(a)a.style.transform=open?'rotate(0)':'rotate(180deg)';});});
+  function openDD(m,b){var mm=$(m);if(mm)mm.classList.add('open');}
+  function closeAll(){document.querySelectorAll('.dd-menu').forEach(m=>m.classList.remove('open'));}
+  [['ddT','ddTm','ddTb'],['ddM','ddMm','ddMb']].forEach(function([w,m,b]){var ww=$(w),mm=$(m),bb=$(b);if(!ww||!mm)return;var t;ww.addEventListener('mouseenter',function(){clearTimeout(t);openDD(m,b);});ww.addEventListener('mouseleave',function(){t=setTimeout(function(){mm.classList.remove('open');},120);});if(bb)bb.addEventListener('click',function(e){e.stopPropagation();var o=mm.classList.contains('open');closeAll();if(!o)openDD(m,b);});});
+  document.addEventListener('click',function(e){if(!e.target.closest('.dd-wrap'))closeAll();});
+  document.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>sw(b.dataset.t)));
+})();
+
+// ── Program notes ────────────────────────────────────────────
+const PGM_NOTES={
+  conv:'Conventional: Best for 680+ credit, 20% down. Up to 50% back-end DTI with automated underwriting (Fannie/Freddie DU/LP). Front-end 28%, back-end 43–50%.',
+  fha:'FHA Loan: Min 3.5% down (580+ credit) or 10% (500-579). Upfront MIP 1.75% + annual 0.55%. Front-end 31%, back-end 43%. Good for lower credit/higher DTI borrowers.',
+  va:'VA Loan: No down payment, no PMI, no front-end DTI limit. Back-end 41%. For eligible veterans/active duty. Best benefit available for those who qualify.',
+};
+const PGM_DTI={
+  conv:{front:0.28,back:0.43},
+  fha:{front:0.31,back:0.43},
+  va:{front:null,back:0.41},
+};
+function onPgmChange(){
+  const pgm=$('loanPgm').value;
+  $('pgmNote').textContent=PGM_NOTES[pgm];
+}
+
+// ── Live preview ────────────────────────────────────────────────
+function liveDP(){
+  const dp=num('dp'),h=$('dpHint');
+  const ai=num('ai')+num('ci2');
+  const moDebts=num('car')+num('sl')+num('cc')+num('cs')+num('od');
+  
+  // Update debt total display
+  if($('debtTotal')) $('debtTotal').textContent = moDebts>0 ? `Total monthly debts: ${fmt(moDebts)}/mo` : '';
+  
+  if(!h)return;
+  if(dp>0){
+    const pmiNote=dp<40000?'⚠️ Under 20% — PMI/MIP required':'✅ 20%+ avoids PMI on conventional loans';
+    h.innerHTML=`Down payment: ${fmt(dp)} · <span style="color:${dp<40000?'#b45309':'#15803d'}">${pmiNote}</span>`;
+  } else {
+    h.textContent='';
+  }
+}
+
+// ── Main calculate ───────────────────────────────────────────────
+let _result = null;
+
+function calc(){
+  const annInc=num('ai')+num('ci2'), moInc=annInc/12+num('oi');
+  const moDebts=num('car')+num('sl')+num('cc')+num('cs')+num('od');
+  const dp=num('dp'), rate=num('ir')/100, term=parseInt($('lt').value)||30;
+  const txRate=num('tr2')/100, insAnn=num('ins'), moHOA=num('hoa');
+  const pgm=$('loanPgm').value;
+  const dti=PGM_DTI[pgm];
+
+  if(!annInc||!rate){alert('Please enter your income and interest rate.');return;}
+  const moRate=rate/12, n=term*12, moIns=insAnn/12;
+
+  // Solve max price for a given front/back DTI budget
+  function solveMax(budget){
+    if(budget<=0)return 0;
+    const f=moRate/(1-Math.pow(1+moRate,-n));
+    // payment includes PI + tax + ins + HOA + PMI
+    // for PMI we iterate: PMI depends on price which depends on PMI...
+    // Approximate without PMI first, then check
+    const denom=f+txRate/12;
+    if(denom<=0)return 0;
+    let p=(budget+dp*f)/denom;
+    // If p*0.8 > dp (i.e., dp < 20%), add PMI
+    // PMI ≈ (p-dp)*pmRate/12 as additional cost → solve again
+    const pmRate=(pgm==='conv'?0.008:0); // 0.8% avg conventional PMI; FHA uses MIP differently
+    if(dp<p*0.20&&pmRate>0){
+      const denom2=denom+pmRate/12;
+      p=(budget+dp*f)/denom2;
+    }
+    return Math.max(0,p);
+  }
+
+  const frontBudget=dti.front!=null?moInc*dti.front-moIns-moHOA:Infinity;
+  const backBudget=moInc*dti.back-moDebts-moIns-moHOA;
+
+  const maxFront=dti.front!=null?solveMax(frontBudget):Infinity;
+  const maxBack=solveMax(backBudget);
+  const maxP=Math.max(0,Math.min(maxFront,maxBack));
+
+  // FHA — add upfront MIP to loan
+  const fhaUpfront=pgm==='fha'?0.0175:0; // 1.75% of loan
+  const loan=Math.max(0,maxP-dp);
+  const actualLoan=pgm==='fha'?loan*(1+fhaUpfront):loan;
+  const moPI=actualLoan&&moRate?actualLoan*moRate/(1-Math.pow(1+moRate,-n)):0;
+  const moTax=maxP*txRate/12;
+  
+  // PMI / MIP
+  let pmi=0, mip=0;
+  if(pgm==='conv'&&dp>0&&maxP>0&&dp/maxP<0.20) pmi=loan*0.008/12;
+  if(pgm==='fha') mip=actualLoan*0.0055/12;  // annual MIP 0.55%
+  
+  const moTotal=moPI+moTax+moIns+moHOA+pmi+mip;
+  const fDTI=dti.front!=null&&moInc?moTotal/moInc*100:null;
+  const bDTI=moInc?(moTotal+moDebts)/moInc*100:0;
+
+  // Color helpers
+  const bC=(v,g,w)=>v<=g?'#15803d':v<=w?'#b45309':'#b91c1c';
+  const bCf=(v,lim)=>v<=lim?'#15803d':v<=lim*1.15?'#b45309':'#b91c1c';
+
+  // Conservative (28%/36%) and stretch (35%/50%) ranges
+  function solveAtDTI(backDTI, frontDTI){
+    const fBudget=frontDTI!=null?moInc*frontDTI-moIns-moHOA:Infinity;
+    const bBudget=moInc*backDTI-moDebts-moIns-moHOA;
+    const mF=frontDTI!=null?solveMax(fBudget):Infinity;
+    const mB=solveMax(bBudget);
+    return Math.max(0,Math.min(mF,mB));
+  }
+
+  const conservative=solveAtDTI(0.36, 0.28);
+  const moderate=maxP; // as calculated
+  const stretch=pgm==='conv'?solveAtDTI(0.50,0.35):pgm==='fha'?solveAtDTI(0.43,0.31):solveAtDTI(0.41,null);
+
+  _result={moInc,moDebts,dp,rate,term,txRate,insAnn,moHOA,pgm,maxP,loan,actualLoan,moPI,moTax,moIns,moHOA,pmi,mip,moTotal,fDTI,bDTI,conservative,moderate,stretch,n,moRate,fhaUpfront};
+
+  // ── KPI Cards ───────────────────────────────────────────────────
+  $('summaryCards').innerHTML=[
+    {l:'Max Home Price',v:fmt(maxP),c:'#0043ce',s:'Based on '+$('loanPgm').options[$('loanPgm').selectedIndex].text.split('(')[0].trim()},
+    {l:'Max Loan Amount',v:fmt(loan),c:'#0056b3',s:pgm==='fha'?`+${fmt(loan*fhaUpfront)} upfront MIP`:'Down payment: '+fmt(dp)},
+    {l:'Monthly PITI'+(pmi||mip?' + PMI':''),v:fmt(moTotal),c:'#475569',s:'Principal · Interest · Tax · Insurance'},
+    {l:'Back-End DTI',v:pct(bDTI),c:bC(bDTI,dti.back*100,(dti.back+0.05)*100),s:`Limit: ${pct(dti.back*100,0)} (${pgm.toUpperCase()})`},
+  ].map(c=>`<div class="mc" style="border-top-color:${c.c};">
+    <div class="mv" style="color:${c.c};">${c.v}</div>
+    <div class="ml">${c.l}</div>
+    <div class="ms">${c.s}</div>
+  </div>`).join('');
+
+  // ── Price Ranges ─────────────────────────────────────────────────
+  const ranges=[
+    {l:'🟢 Conservative',p:conservative,d:'28–36% DTI · Most comfortable budget',c:'#15803d',bg:'#f0fdf4'},
+    {l:'🟡 Recommended',p:moderate,d:`${pgm==='conv'?'28/43':'31/43'}% DTI · Standard qualification`,c:'#b45309',bg:'#fefce8'},
+    {l:'🔴 Maximum Stretch',p:stretch,d:`${pgm==='conv'?'35/50':'31/43'}% DTI · Approved but tight`,c:'#b91c1c',bg:'#fef2f2'},
+  ];
+  $('priceRanges').innerHTML=ranges.map(r=>`<div class="range-bar" style="background:${r.bg};border-color:${r.c}30;">
+    <div style="font-size:12px;font-weight:700;color:${r.c};margin-bottom:4px;">${r.l}</div>
+    <div style="font-size:22px;font-weight:700;color:${r.c};margin-bottom:3px;">${fmt(r.p)}</div>
+    <div style="font-size:11px;color:#64748b;">${r.d}</div>
+  </div>`).join('');
+
+  // ── Payment Breakdown ─────────────────────────────────────────────
+  const rr=(l,v,hi=false,c='')=>`<div class="rr${hi?' tot':''}" style="${c?'background:#f0fdf4;':''}"><span style="${c?'color:'+c+';font-weight:600;':''}">${l}</span><span style="font-weight:${hi?700:500};color:${c||'inherit'}">${v}</span></div>`;
+  $('payD').innerHTML=
+    rr('Principal & Interest',fmt(moPI))+
+    rr('Property Tax',fmt(moTax))+
+    rr('Home Insurance',fmt(moIns))+
+    (moHOA>0?rr('HOA',fmt(moHOA)):'')+
+    (pmi>0?`<div class="rr"><span style="color:#b45309;">⚠️ PMI (< 20% down)</span><span style="color:#b45309;">${fmt(pmi)}/mo</span></div>`:'')+
+    (mip>0?`<div class="rr"><span style="color:#b45309;">⚠️ FHA MIP (annual)</span><span style="color:#b45309;">${fmt(mip)}/mo</span></div>`:'')+
+    rr('Total Monthly Payment',fmt(moTotal),true)+
+    `<div style="margin-top:10px;padding:10px;background:#f8fafc;border-radius:7px;font-size:12px;color:#64748b;line-height:1.7;">
+      Annual housing cost: <strong>${fmt(moTotal*12)}</strong><br>
+      Over ${term} years (P&I only): <strong>${fmt(moPI*12*term)}</strong><br>
+      Total interest paid: <strong>${fmt(moPI*12*term - actualLoan)}</strong><br>
+      <span style="color:#94a3b8;font-size:11px;">Budget cushion vs ${pct(dti.back*100,0)} DTI limit: <strong style="color:${bDTI<=dti.back*100?'#15803d':'#b91c1c'}">${fmt(Math.max(0,(dti.back-bDTI/100)*moInc))}/mo</strong></span>
+    </div>`;
+
+  // ── DTI Gauges ────────────────────────────────────────────────────
+  const gRow=(lbl,val,lim,c)=>`<div style="margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+      <span style="font-weight:600;color:#475569;">${lbl}</span>
+      <span style="font-weight:700;color:${c};">${val!=null?pct(val):'N/A'} <span style="font-weight:400;color:#94a3b8;">/ ${pct(lim*100,0)} limit</span></span>
+    </div>
+    <div class="gauge"><div class="gf" style="width:${val!=null?Math.min(val/lim/100*100,100):0}%;background:${c};"></div></div>
+  </div>`;
+  const bCf2=(v,lim)=>v!=null?(v<=lim*100?'#15803d':v<=lim*115?'#b45309':'#b91c1c'):'#94a3b8';
+  $('dtiD').innerHTML=
+    (fDTI!=null?gRow('Front-End DTI (housing only)',fDTI,dti.front,bCf2(fDTI,dti.front)):'')+
+    gRow('Back-End DTI (all debts)',bDTI,dti.back,bCf2(bDTI,dti.back))+
+    `<div style="font-size:11px;color:#64748b;padding:8px 0;border-top:1px solid #f1f5f9;margin-top:4px;">
+      Monthly income: <strong>${fmt(moInc)}</strong> · Monthly debts: <strong>${fmt(moDebts)}</strong> · Remaining: <strong style="color:#15803d;">${fmt(Math.max(0,moInc-moTotal-moDebts))}</strong>
+    </div>`;
+
+  // ── Charts ─────────────────────────────────────────────────────────
+  mkC('cpie',{type:'doughnut',data:{
+    labels:['P&I','Property Tax','Insurance','HOA','PMI/MIP'],
+    datasets:[{data:[moPI,moTax,moIns,moHOA,pmi||mip].map(v=>Math.round(v)),backgroundColor:['#0043ce','#f97316','#22c55e','#a855f7','#ef4444'],borderWidth:0}]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:10}}}}});
+
+  const rates=[rate-0.01,rate-0.005,rate,rate+0.005,rate+0.01,rate+0.015].filter(r=>r>0);
+  mkC('cbar',{type:'bar',data:{
+    labels:rates.map(r=>pct(r*100,2)),
+    datasets:[{label:'Max Home Price',data:rates.map(r=>{
+      const mr2=r/12;const f2=mr2/(1-Math.pow(1+mr2,-n));const d2=f2+txRate/12;
+      return d2>0?Math.round((backBudget+dp*f2)/d2):0;
+    }),backgroundColor:rates.map((_,i)=>i===rates.findIndex(r=>Math.abs(r-rate)<0.0001)?'#0043ce':'#93c5fd'),borderRadius:4}]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{font:{size:10},callback:v=>fmt(v)},grid:{color:'#f8fafc'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}});
+
+  // Rate sensitivity table
+  const rateRows=rates.map(r=>{
+    const mr2=r/12;const f2=mr2/(1-Math.pow(1+mr2,-n));const d2=f2+txRate/12;
+    const p=d2>0?Math.round((backBudget+dp*f2)/d2):0;
+    const pmt=(p-dp)&&mr2?(p-dp)*mr2/(1-Math.pow(1+mr2,-n)):0;
+    return{rate:r,price:p,pmt:pmt};
+  });
+  const curIdx=rateRows.findIndex(r=>Math.abs(r.rate-rate)<0.0001);
+  $('rateTable').innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead><tr><th style="padding:6px 10px;background:#f8fafc;text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0;">Rate</th><th style="padding:6px 10px;background:#f8fafc;text-align:right;font-size:9px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0;">Max Home Price</th><th style="padding:6px 10px;background:#f8fafc;text-align:right;font-size:9px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0;">Monthly P&I</th><th style="padding:6px 10px;background:#f8fafc;text-align:right;font-size:9px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0;">vs Base</th></tr></thead>
+    <tbody>${rateRows.map((r,i)=>`<tr style="background:${i===curIdx?'#eff6ff':'transparent'};font-weight:${i===curIdx?600:400};border-bottom:1px solid #f8fafc;">
+      <td style="padding:6px 10px;">${pct(r.rate*100,2)}${i===curIdx?' ← current':''}</td>
+      <td style="padding:6px 10px;text-align:right;color:#0043ce;">${fmt(r.price)}</td>
+      <td style="padding:6px 10px;text-align:right;">${fmt(r.pmt)}/mo</td>
+      <td style="padding:6px 10px;text-align:right;color:${r.price>rateRows[curIdx].price?'#15803d':'#b91c1c'};">${i===curIdx?'—':(r.price>rateRows[curIdx].price?'+':'')+fmt(r.price-rateRows[curIdx].price)}</td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+
+  sw('tr');
+}
+
+// ── Excel Export ─────────────────────────────────────────────────────
+function exportXLS(){
+  if(!window.XLSX){alert('XLSX library not loaded.');return;}
+  if(!_result){alert('Please run the calculator first.');return;}
+  const D=_result;
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet([
+    ['HOME AFFORDABILITY ANALYSIS — REProforma','','',''],
+    ['Generated: '+new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),'','',''],
+    [''],
+    ['INCOME & DEBT','Value','',''],
+    ['Annual Gross Income',(num('ai')+num('ci2')),'',''],
+    ['Monthly Income (gross)',D.moInc,'',''],
+    ['Monthly Debts',D.moDebts,'',''],
+    ['Loan Program',$('loanPgm').options[$('loanPgm').selectedIndex].text.split('(')[0].trim(),'',''],
+    [''],
+    ['RESULTS','Conservative','Recommended','Stretch'],
+    ['Max Home Price',D.conservative,D.moderate,D.stretch],
+    ['Loan Amount',Math.max(0,D.conservative-D.dp),Math.max(0,D.moderate-D.dp),Math.max(0,D.stretch-D.dp)],
+    [''],
+    ['MONTHLY PAYMENT BREAKDOWN','','',''],
+    ['Principal & Interest',D.moPI,'',''],
+    ['Property Tax',D.moTax,'',''],
+    ['Home Insurance',D.moIns,'',''],
+    ['HOA',D.moHOA,'',''],
+    ['PMI / MIP',(D.pmi||D.mip),'',''],
+    ['TOTAL Monthly Payment',D.moTotal,'',''],
+    [''],
+    ['DTI ANALYSIS','','',''],
+    ['Front-End DTI',D.fDTI!=null?D.fDTI/100:null,'',''],
+    ['Back-End DTI',D.bDTI/100,'',''],
+    ['Front-End Limit',D.pgm==='conv'?0.28:D.pgm==='fha'?0.31:null,'',''],
+    ['Back-End Limit',D.pgm==='conv'?0.43:D.pgm==='fha'?0.43:0.41,'',''],
+    [''],
+    ['LOAN DETAILS','','',''],
+    ['Down Payment',D.dp,'',''],
+    ['Interest Rate',D.rate,'',''],
+    ['Loan Term (years)',D.term,'',''],
+    ['Property Tax Rate',D.txRate,'',''],
+    ['Annual Insurance',D.insAnn,'',''],
+    ['Monthly HOA',D.moHOA,'',''],
+    [''],
+    ['LOAN TOTALS (at recommended price)','','',''],
+    ['Total P&I Payments (lifetime)',D.moPI*12*D.term,'',''],
+    ['Total Interest Paid',D.moPI*12*D.term-D.actualLoan,'',''],
+    ['Annual Housing Cost',D.moTotal*12,'',''],
+  ]);
+  // Set number formats
+  const currFmt='$#,##0;($#,##0);"-"', pctFmt='0.0%';
+  [[5,2],[6,2],[7,2],[11,2],[11,3],[11,4],[12,2],[12,3],[12,4],[16,2],[17,2],[18,2],[19,2],[20,2],[21,2],[24,2],[25,2],[26,2],[27,2],[30,2],[31,2],[33,2],[34,2],[35,2],[36,2],[39,2],[40,2],[41,2]].forEach(([r,c])=>{
+    const addr=XLSX.utils.encode_cell({r:r-1,c:c-1});
+    if(ws[addr])ws[addr].z=currFmt;
+  });
+  [[24,2],[25,2],[26,2],[27,2]].forEach(([r,c])=>{
+    const addr=XLSX.utils.encode_cell({r:r-1,c:c-1});
+    if(ws[addr])ws[addr].z=pctFmt;
+  });
+  ws['!cols']=[{wch:32},{wch:18},{wch:18},{wch:18}];
+  XLSX.utils.book_append_sheet(wb,ws,'Affordability');
+  XLSX.writeFile(wb,'Home_Affordability_Analysis.xlsx');
+}
+
+// ── Demo & Reset ────────────────────────────────────────────────
+function loadDemo(){
+  // Charlotte NC couple: dual income $130k, moderate debt
+  set('ai','88000');set('ci2','42000');set('oi','0');
+  set('car','480');set('sl','320');set('cc','150');set('cs','0');set('od','0');
+  set('dp','75000');set('ir','6.875');$('lt').value='30';
+  set('tr2','0.95');set('ins','1650');set('hoa','0');
+  $('loanPgm').value='conv';onPgmChange();
+  liveDP();calc();
+}
+function resetAll(){
+  ['ai','ci2','oi','car','sl','cc','cs','od','dp','ir','tr2','ins','hoa'].forEach(id=>{const e=$(id);if(e)e.value='';});
+  $('lt').value='30';$('loanPgm').value='conv';onPgmChange();
+  if($('dpHint'))$('dpHint').textContent='';
+  if($('debtTotal'))$('debtTotal').textContent='';
+  ['summaryCards','priceRanges','payD','dtiD','rateTable'].forEach(id=>{if($(id))$(id).innerHTML='';});
+  _result=null;sw('ti');
+}
+
+// ── Save Deal ──────────────────────────────────────────────────
+function saveDeal(){
+  var modal=document.getElementById('saveModal');
+  if(!modal)return;
+  modal.style.display='flex';
+  setTimeout(function(){var ne=document.getElementById('dealName');if(ne)ne.focus();},100);
+}
+function confirmSave(){
+  var name=document.getElementById('dealName')?.value||'Untitled Deal';
+  var address=document.getElementById('dealAddress')?.value||'';
+  try{
+    var deals=[];
+    try{var raw=localStorage.getItem('reproforma_deals');if(raw)deals=JSON.parse(raw);}catch(e){}
+    var id='deal_'+Date.now();
+    var resultVal='Max: '+(typeof maxPrice!=='undefined'?'$'+Math.round(maxPrice/1000)+'k':'?');
+    var deal={
+      id:id, tool:'affordability', name:name, address:address,
+      saved:new Date().toISOString(), result:resultVal,
+      inputs:{
+        income: document.getElementById('ai')?.value||'',
+        coIncome: document.getElementById('ci2')?.value||'',
+        downPayment: document.getElementById('dp')?.value||'',
+        rate: document.getElementById('ir')?.value||'',
+        term: document.getElementById('lt')?.value||'',
+        loanPgm: document.getElementById('loanPgm')?.value||'',
+      }
+    };
+    deals.unshift(deal);
+    if(deals.length>20)deals=deals.slice(0,20);
+    localStorage.setItem('reproforma_deals',JSON.stringify(deals));
+    document.getElementById('saveModal').style.display='none';
+    var t=document.getElementById('saveToast');
+    if(t){t.textContent='✓ Saved: '+name;t.style.display='block';setTimeout(function(){t.style.display='none';},3000);}
+  }catch(e){document.getElementById('saveModal').style.display='none';alert('Save failed: '+e.message);}
+}
+document.getElementById('saveModal')?.addEventListener('click',function(e){if(e.target===this)this.style.display='none';});
+
+</script>
+
+<!-- SAVE DEAL MODAL -->
+<div id="saveModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:14px;padding:28px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+    <h3 style="font-size:16px;font-weight:700;margin-bottom:6px;">💾 Save this deal</h3>
+    <p style="font-size:13px;color:#64748b;margin-bottom:16px;">Give it a name to find it later. Stored in your browser — no account needed.</p>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#64748b;display:block;margin-bottom:4px;">Deal Name</label>
+      <input id="dealName" type="text" placeholder="e.g. My Deal Analysis" style="width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;font-family:Inter,sans-serif;outline:none;">
+    </div>
+    <div style="margin-bottom:16px;">
+      <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#64748b;display:block;margin-bottom:4px;">Address / Location (optional)</label>
+      <input id="dealAddress" type="text" placeholder="e.g. 123 Main St, Austin TX" style="width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;font-family:Inter,sans-serif;outline:none;">
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="confirmSave()" style="flex:1;background:#0043ce;color:white;border:none;border-radius:8px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;">Save Deal</button>
+      <button onclick="document.getElementById('saveModal').style.display='none'" style="background:white;color:#475569;border:1px solid #cbd5e1;border-radius:8px;padding:11px 18px;font-size:14px;cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+</div>
+<div id="saveToast" style="display:none;position:fixed;bottom:24px;right:24px;background:#15803d;color:white;padding:14px 20px;border-radius:10px;font-size:14px;font-weight:600;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,.2);">✓ Deal saved!</div>
+
+</body>
+</html>

@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mortgage Payoff | REProforma</title>
+<link rel="icon" type="image/png" href="favicon.ico">
+
+
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;}
+a{text-decoration:none;color:inherit;}
+.nav-dd{display:none;position:absolute;left:0;top:100%;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.12);border:1px solid #f1f5f9;z-index:50;min-width:220px;padding:6px 0;}
+.nav-dd.open{display:block;}.nav-wrap{position:relative;}
+.nav-btn{font-size:13px;background:none;border:none;cursor:pointer;padding:20px 0;color:#525252;font-family:'Inter',sans-serif;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:#374151;text-decoration:none;border-left:2px solid transparent;}
+.nav-item:hover,.nav-item.cur{background:#eff6ff;color:#0043ce;border-left-color:#0043ce;}
+.nav-lbl{padding:6px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;}
+.nav-div{height:1px;background:#f1f5f9;margin:4px 16px;}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+@media(max-width:860px){.g3{grid-template-columns:1fr 1fr;}}
+@media(max-width:580px){.g2,.g3{grid-template-columns:1fr;}}
+.card{background:white;border:1px solid #e2e8f0;border-radius:12px;padding:20px;}
+.ch{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #f1f5f9;}
+.ci{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.ct{font-size:14px;font-weight:600;}
+.f{margin-bottom:10px;}
+.lb{display:block;font-size:11px;font-weight:600;color:#64748b;letter-spacing:.03em;text-transform:uppercase;margin-bottom:3px;}
+.inp{width:100%;padding:8px 10px;border:1px solid #cbd5e1;border-radius:7px;font-size:13px;font-family:'Inter',sans-serif;color:#1e293b;background:white;outline:none;}
+.inp:focus{border-color:#0043ce;box-shadow:0 0 0 3px rgba(0,67,206,.08);}
+.p{position:relative;}.p span{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:12px;color:#94a3b8;pointer-events:none;}.p .inp{padding-left:18px;}
+.s{position:relative;}.s span{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:12px;color:#94a3b8;pointer-events:none;}.s .inp{padding-right:22px;}
+.tab-bar{display:flex;border-bottom:1px solid #e2e8f0;background:white;overflow-x:auto;}
+.tb{padding:12px 18px;font-size:13px;font-weight:500;color:#64748b;border:none;border-bottom:2px solid transparent;background:none;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;}
+.tb.on{color:#0043ce;border-bottom-color:#0043ce;font-weight:600;}
+.tp{display:none;}.tp.on{display:block;}
+.btn-b{background:#0043ce;color:white;border:none;border-radius:8px;padding:11px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-o{background:white;color:#475569;border:1px solid #cbd5e1;border-radius:8px;padding:9px 16px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;}
+.sr{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-bottom:1px solid #f8fafc;font-size:13px;}
+.sr:last-child{border-bottom:none;}
+.sr:hover{background:#fafbff;}
+@media print{
+  header,.no-print,button{display:none!important;}
+  body{font-size:11pt;background:white!important;}
+  .tp{display:none!important;}
+  #tr,#ts{display:block!important;}
+  .tab-bar{display:none!important;}
+  .card{border:1px solid #ccc!important;break-inside:avoid;}
+  .g2,.g3{display:block!important;}
+  .g2>*,.g3>*{margin-bottom:12px;}
+}
+</style>
+<style>
+@media(max-width:768px){
+  .ft-grid{grid-template-columns:1fr 1fr!important;}
+}
+@media(max-width:480px){
+  .ft-grid{grid-template-columns:1fr!important;}
+}
+</style>
+<style id="repro-nav-footer">
+/* ── REProforma Nav + Footer ── */
+/* Scoped so tool CSS wins for everything else */
+:root{
+  --repro-blue:#2563eb;
+  --repro-blue-l:#3b82f6;
+  --repro-blue-bg:#eff6ff;
+  --repro-border:#e4e4e7;
+  --repro-ink:#09090b;
+  --repro-ink2:#18181b;
+  --repro-muted:#71717a;
+  --repro-off:#fafafa;
+  --repro-dark:#0f172a;
+  --repro-dark2:#111827;
+  --repro-green:#16a34a;
+  --repro-shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --repro-shadow-lg:0 12px 40px rgba(0,0,0,.12);
+  --repro-mono:'Geist Mono',monospace;
+  --repro-sans:'DM Sans',sans-serif;
+}
+
+/* NAV */
+.repro-nav{
+  position:sticky;top:0;z-index:9999;height:60px;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(0,0,0,.06);
+  box-shadow:0 1px 0 rgba(0,0,0,.04);
+}
+.repro-nav-inner{
+  max-width:1280px;margin:0 auto;padding:0 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  height:100%;gap:16px;
+}
+.repro-logo{display:flex;align-items:center;gap:9px;flex-shrink:0;text-decoration:none;}
+.repro-wm{font-family:var(--repro-sans);font-size:19px;font-weight:800;letter-spacing:-.5px;line-height:1;}
+.repro-wm .r{color:var(--repro-blue);}
+.repro-wm .p{color:var(--repro-blue);font-weight:400;}
+.repro-nav-links{display:flex;align-items:center;gap:1px;margin-left:auto;}
+.repro-nl{
+  font-size:13px;font-weight:500;color:var(--repro-muted);
+  padding:6px 12px;border-radius:7px;cursor:pointer;
+  border:none;background:none;font-family:var(--repro-sans);
+  display:inline-flex;align-items:center;gap:4px;
+  transition:color .15s,background .15s;white-space:nowrap;
+  text-decoration:none;
+}
+.repro-nl:hover{color:var(--repro-ink);background:var(--repro-off);}
+.repro-nl.on{color:var(--repro-blue);font-weight:600;}
+.repro-cta{
+  background:var(--repro-blue);color:white;
+  font-family:var(--repro-sans);font-size:13px;font-weight:700;
+  padding:8px 18px;border-radius:9px;border:none;cursor:pointer;
+  flex-shrink:0;transition:background .15s;white-space:nowrap;
+  text-decoration:none;display:inline-block;
+}
+.repro-cta:hover{background:#1d4ed8;}
+
+/* DROPDOWN */
+.repro-ddr{position:relative;display:inline-block;}
+.repro-ddp{
+  display:none;position:absolute;top:calc(100%+6px);left:0;
+  background:white;border:1px solid var(--repro-border);border-radius:12px;
+  box-shadow:var(--repro-shadow-lg);padding:8px;min-width:216px;z-index:10000;
+}
+.repro-ddp.right{left:auto;right:0;}
+.repro-ddp.open{display:block;}
+.repro-dds{
+  font-family:var(--repro-mono);font-size:9px;font-weight:500;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--repro-muted);
+  padding:6px 10px 3px;
+}
+.repro-ddi{
+  display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;
+  font-size:13px;color:var(--repro-ink2);transition:background .1s,color .1s;
+  text-decoration:none;
+}
+.repro-ddi:hover{background:var(--repro-blue-bg);color:var(--repro-blue);}
+.repro-ddi.cur{background:var(--repro-blue-bg);color:var(--repro-blue);font-weight:600;}
+.repro-sep{height:1px;background:var(--repro-border);margin:4px 0;}
+.repro-mob-btn{display:none;background:none;border:none;cursor:pointer;color:var(--repro-ink);padding:4px;}
+
+/* FOOTER */
+.repro-footer{background:#07101f;border-top:1px solid rgba(255,255,255,.07);padding:56px 0 32px;}
+.repro-ft-inner{max-width:1280px;margin:0 auto;padding:0 24px;}
+.repro-ft-grid{display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr;gap:36px;margin-bottom:36px;}
+.repro-ft-brand p{font-size:12px;color:rgba(255,255,255,.35);line-height:1.65;max-width:220px;margin-top:12px;}
+.repro-ft-note{font-size:11px;color:rgba(255,255,255,.15);margin-top:8px;line-height:1.5;}
+.repro-ft-lbl{font-family:var(--repro-mono);font-size:9px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:14px;}
+.repro-ft-links{display:flex;flex-direction:column;gap:8px;}
+.repro-ft-links a{font-size:12px;color:rgba(255,255,255,.35);transition:color .15s;text-decoration:none;}
+.repro-ft-links a:hover{color:rgba(255,255,255,.75);}
+.repro-ft-bot{border-top:1px solid rgba(255,255,255,.07);padding-top:20px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:11px;color:rgba(255,255,255,.2);}
+.repro-ft-bot a{color:rgba(255,255,255,.2);text-decoration:none;}.repro-ft-bot a:hover{color:rgba(255,255,255,.5);}
+.repro-email-row{display:flex;margin-top:14px;}
+.repro-ei{flex:1;padding:8px 10px;border-radius:7px 0 0 7px;border:1px solid rgba(255,255,255,.12);border-right:none;background:rgba(255,255,255,.05);font-size:12px;color:white;outline:none;min-width:0;}
+.repro-ei::placeholder{color:rgba(255,255,255,.25);}
+.repro-eb{background:var(--repro-blue);color:white;border:none;padding:8px 14px;border-radius:0 7px 7px 0;font-size:12px;font-weight:600;cursor:pointer;}
+.repro-eb:hover{background:#1d4ed8;}
+
+/* OTHER TOOLS SECTION */
+.repro-other-tools{max-width:1280px;margin:0 auto;padding:40px 24px 0;border-top:1px solid var(--repro-border);margin-top:40px;}
+.repro-other-lbl{font-family:var(--repro-mono);font-size:10px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--repro-muted);margin-bottom:14px;}
+.repro-other-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.repro-tool-link{
+  background:var(--repro-off);border:1px solid var(--repro-border);border-radius:9px;
+  padding:12px 16px;display:flex;align-items:center;gap:8px;
+  font-size:13px;color:var(--repro-ink2);font-weight:500;
+  text-decoration:none;transition:box-shadow .15s,border-color .15s;
+}
+.repro-tool-link:hover{box-shadow:0 4px 16px rgba(0,0,0,.08);border-color:#bfdbfe;color:var(--repro-blue);}
+
+/* MOBILE NAV */
+.repro-mob-menu{
+  display:none;background:white;border-top:1px solid var(--repro-border);
+  padding:14px 18px 18px;box-shadow:0 4px 12px rgba(0,0,0,.08);
+}
+.repro-mob-home{display:block;padding:8px 0;font-size:14px;font-weight:700;color:var(--repro-blue);border-bottom:1px solid var(--repro-border);margin-bottom:10px;text-decoration:none;}
+.repro-mob-section{font-family:var(--repro-mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--repro-muted);padding:6px 0 4px;}
+.repro-mob-item{display:block;padding:7px 0;font-size:13px;color:var(--repro-ink2);text-decoration:none;}
+.repro-mob-cta{display:block;margin-top:12px;padding:11px;text-align:center;font-size:13px;font-weight:700;color:white;background:var(--repro-blue);border-radius:8px;text-decoration:none;}
+
+@media(max-width:640px){
+  .repro-nav-links,.repro-cta{display:none;}
+  .repro-mob-btn{display:flex;}
+  .repro-ft-grid{grid-template-columns:1fr;}
+  .repro-other-grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:900px){
+  .repro-ft-grid{grid-template-columns:1fr 1fr;}
+  .repro-ft-brand{grid-column:1/-1;}
+}
+</style>
+
+<!-- Google Analytics GA4 — replace G-XXXXXXXXXX with your Measurement ID -->
+<!-- Get your ID from analytics.google.com → Admin → Data Streams → Web Stream -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX', {
+    page_title: document.title,
+    page_location: window.location.href
+  });
+</script>
+</head>
+<body>
+
+<nav class="repro-nav">
+  <div class="repro-nav-inner">
+    <a href="index" class="repro-logo">
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#2563eb"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
+      <span class="repro-wm"><span class="r">RE</span><span class="p">Proforma</span></span>
+    </a>
+    <div class="repro-nav-links" id="repro-nav-links">
+      <a href="index" class="repro-nl">Home</a>
+      <div class="repro-ddr" id="rddT">
+        <button class="repro-nl" id="rddTb">Tools <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="repro-ddp" id="rddTm">
+          <div class="repro-dds">Investment Analysis</div>
+<a class="repro-ddi" href="index-multifamily">🏢 Multifamily Acquisition</a>
+<a class="repro-ddi" href="index-mixeduse">🏬 Commercial &amp; NNN Retail</a>
+<a class="repro-ddi" href="index-land">🗺️ Land Development</a>
+          <div class="repro-sep"></div>
+          <div class="repro-dds">Personal Finance</div>
+<a class="repro-ddi" href="index-affordability">🏠 Home Affordability</a>
+<a class="repro-ddi" href="index-rentvsbuy">⚖️ Rent vs. Own</a>
+<a class="repro-ddi cur" href="index-mortgage-payoff">📅 Mortgage Payoff</a>
+        </div>
+      </div>
+      <div class="repro-ddr" id="rddL">
+        <button class="repro-nl" id="rddLb">Learn <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="repro-ddp right" id="rddLm" style="min-width:230px;">
+          <div class="repro-dds">Guides</div>
+<a class="repro-ddi" href="how-to-underwrite-multifamily">Multifamily Underwriting 2025</a>
+<a class="repro-ddi" href="how-to-analyze-commercial-retail">Commercial Analysis Guide</a>
+<a class="repro-ddi" href="land-development-proforma-guide">Land Development Guide</a>
+          <div class="repro-sep"></div>
+          <a class="repro-ddi" href="https://www.cbre.com/insights/reports/us-cap-rate-survey-h1-2025" target="_blank">CBRE Cap Rates 2026 ↗</a>
+        </div>
+      </div>
+      <a href="about" class="repro-nl">About</a>
+    </div>
+    <a href="about" class="repro-cta">Let's talk</a>
+    <button class="repro-mob-btn" id="repro-mob-btn" aria-label="Menu">
+      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+  </div>
+  <div class="repro-mob-menu" id="repro-mob-menu">
+    <a href="index" class="repro-mob-home">Home</a>
+    <div class="repro-mob-section">Tools</div>
+    <a href="index-multifamily" class="repro-mob-item">🏢 Multifamily</a>
+    <a href="index-mixeduse" class="repro-mob-item">🏬 Commercial/NNN</a>
+    <a href="index-land" class="repro-mob-item">🗺️ Land Development</a>
+    <a href="index-affordability" class="repro-mob-item">🏠 Affordability</a>
+    <a href="index-rentvsbuy" class="repro-mob-item">⚖️ Rent vs. Own</a>
+    <a href="index-mortgage-payoff" class="repro-mob-item">📅 Mortgage Payoff</a>
+    <a href="about" class="repro-mob-cta">Let's talk</a>
+  </div>
+</nav>
+
+<div style="background:linear-gradient(to right,#f0fdf4,white);border-bottom:1px solid #e2e8f0;padding:24px 0;">
+  <div class="wrap" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;">
+    <div>
+      <span style="background:#dcfce7;color:#15803d;font-size:11px;font-weight:700;padding:2px 10px;border-radius:99px;display:inline-block;margin-bottom:6px;">Free · No Sign-Up</span>
+      <h1 style="font-size:24px;font-weight:700;color:#0043ce;">📅 Mortgage Payoff Calculator</h1>
+      <p style="font-size:13px;color:#64748b;margin-top:3px;">See how much interest you save and how many years you cut off with extra payments.</p>
+    </div>
+    <div style="display:flex;gap:8px;" class="no-print">
+      <button class="btn-o" onclick="loadDemo()">📋 Demo ($380k loan)</button>
+      <button class="btn-o" onclick="resetAll()">↺ Reset</button>
+      <button style="background:#15803d;color:white;border:none;border-radius:8px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer;" onclick="exportXLS()">⬇ Excel</button>
+      <button style="background:#1e293b;color:white;border:none;border-radius:8px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer;" onclick="window.print()">🖨 Print/PDF</button>
+    </div>
+  </div>
+</div>
+
+<div class="tab-bar no-print">
+  <button class="tb on" data-t="ti">Your Mortgage</button>
+  <button class="tb" data-t="tr">Results &amp; Savings</button>
+  <button class="tb" data-t="ts">Scenarios</button>
+  <button class="tb" data-t="ta">Amortization</button>
+  <button class="tb" data-t="tc">Chart</button>
+</div>
+
+<div class="wrap" style="padding:22px 0 48px;">
+
+<!-- INPUTS -->
+<div id="ti" class="tp on">
+  <div class="g3" style="margin-bottom:18px;">
+    <!-- Loan Details -->
+    <div class="card">
+      <div class="ch"><div class="ci" style="background:#dbeafe;">🏦</div><span class="ct">Your Mortgage</span></div>
+      <div class="f"><label class="lb">Original Loan Amount ($)</label><div class="p"><span>$</span><input class="inp" id="la" type="number" placeholder="380,000"></div></div>
+      <div class="f"><label class="lb">Current Balance ($) <span style="font-weight:400;text-transform:none;font-size:10px;">leave blank if just starting</span></label><div class="p"><span>$</span><input class="inp" id="bal" type="number" placeholder="0"></div></div>
+      <div class="f"><label class="lb">Interest Rate (%)</label><div class="s"><input class="inp" id="ir" type="number" step="0.01" placeholder="6.75"><span>%</span></div></div>
+      <div class="f"><label class="lb">Original Loan Term</label>
+        <select class="inp" id="lt"><option value="30">30 Years</option><option value="20">20 Years</option><option value="15">15 Years</option><option value="10">10 Years</option></select></div>
+      <div class="f"><label class="lb">Months Already Paid</label><input class="inp" id="mp" type="number" placeholder="0"></div>
+      <!-- Live preview -->
+      <div id="livePrev" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;padding:10px;margin-top:6px;font-size:12px;color:#64748b;display:none;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span>Monthly Payment:</span><span id="lpmt" style="font-weight:600;color:#1e293b;"></span></div>
+        <div style="display:flex;justify-content:space-between;"><span>Total Interest (original):</span><span id="ltint" style="font-weight:600;color:#dc2626;"></span></div>
+      </div>
+    </div>
+
+    <!-- Extra Payments -->
+    <div class="card">
+      <div class="ch"><div class="ci" style="background:#dcfce7;">💰</div><span class="ct">Extra Payments</span></div>
+      <p style="font-size:12px;color:#64748b;margin-bottom:12px;">Adding even small extra payments can save tens of thousands in interest. Try different amounts below.</p>
+      <div class="f"><label class="lb">Extra Monthly Payment ($)</label><div class="p"><span>$</span><input class="inp" id="em" type="number" placeholder="0" oninput="livePrev()"></div></div>
+      <div class="f"><label class="lb">Extra Annual Payment ($) <span style="font-weight:400;text-transform:none;font-size:10px;">e.g. year-end bonus</span></label><div class="p"><span>$</span><input class="inp" id="ea" type="number" placeholder="0"></div></div>
+      <div class="f"><label class="lb">One-Time Lump Sum ($)</label><div class="p"><span>$</span><input class="inp" id="ls" type="number" placeholder="0"></div></div>
+      <div class="f"><label class="lb">Apply Lump Sum in Month #</label><input class="inp" id="lm" type="number" placeholder="1" value="1"></div>
+      <!-- Biweekly option -->
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px;margin-top:12px;">
+        <p style="font-size:12px;font-weight:700;color:#166534;margin-bottom:6px;">📅 Biweekly Payment Simulation</p>
+        <p style="font-size:11px;color:#64748b;margin-bottom:8px;">Biweekly payments = 26 half-payments/yr = 13 full payments/yr (1 extra). Saves ~3–7 years on a 30yr mortgage.</p>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#166534;cursor:pointer;">
+          <input type="checkbox" id="biweekly" style="accent-color:#15803d;"> Simulate biweekly payments (adds ~1/12 monthly payment extra/mo)
+        </label>
+      </div>
+    </div>
+
+    <!-- Tips -->
+    <div class="card">
+      <div class="ch"><div class="ci" style="background:#fef3c7;">💡</div><span class="ct">Payoff Strategies</span></div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="background:#f8fafc;padding:12px;border-radius:8px;border-left:3px solid #0043ce;">
+          <p style="font-size:12px;font-weight:600;color:#0043ce;margin-bottom:3px;">Round Up Your Payment</p>
+          <p style="font-size:12px;color:#64748b;">If your payment is $1,847, round to $2,000. The extra $153/mo adds up to years off your mortgage.</p>
+        </div>
+        <div style="background:#f8fafc;padding:12px;border-radius:8px;border-left:3px solid #15803d;">
+          <p style="font-size:12px;font-weight:600;color:#15803d;margin-bottom:3px;">Biweekly Payments</p>
+          <p style="font-size:12px;color:#64748b;">Pay half your monthly payment every 2 weeks. You'll make 26 half-payments = 13 full payments/year — one extra per year.</p>
+        </div>
+        <div style="background:#f8fafc;padding:12px;border-radius:8px;border-left:3px solid #b45309;">
+          <p style="font-size:12px;font-weight:600;color:#b45309;margin-bottom:3px;">Apply Windfalls</p>
+          <p style="font-size:12px;color:#64748b;">Tax refunds, bonuses, and raises applied to principal early in the loan have the biggest impact on total interest.</p>
+        </div>
+        <div style="background:#f8fafc;padding:12px;border-radius:8px;border-left:3px solid #7c3aed;">
+          <p style="font-size:12px;font-weight:600;color:#7c3aed;margin-bottom:3px;">Refinance Consideration</p>
+          <p style="font-size:12px;color:#64748b;">If rates drop 1%+, refinancing to a shorter term can dramatically cut total interest, especially in early years.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center;">
+    <button class="btn-b" onclick="calc()" style="padding:13px 36px;font-size:15px;">Calculate Payoff →</button>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="tr" class="tp">
+  <div id="banner" style="margin-bottom:18px;"></div>
+  <div class="g2" style="margin-bottom:18px;">
+    <div class="card" style="border-top:3px solid #475569;">
+      <p style="font-size:13px;font-weight:700;color:#475569;margin-bottom:12px;">Original Loan</p>
+      <div id="origStats"></div>
+    </div>
+    <div class="card" style="border-top:3px solid #15803d;">
+      <p style="font-size:13px;font-weight:700;color:#15803d;margin-bottom:12px;">With Extra Payments</p>
+      <div id="accelStats"></div>
+    </div>
+  </div>
+  <div id="investComp" class="card" style="margin-top:16px;"></div>
+</div>
+
+<!-- SCENARIOS -->
+<div id="ts" class="tp">
+  <div class="card" style="overflow-x:auto;">
+    <p style="font-size:13px;font-weight:600;margin-bottom:14px;">Extra Payment Scenarios — Side-by-Side Comparison</p>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead>
+        <tr style="background:#f8fafc;">
+          <th style="padding:9px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Scenario</th>
+          <th style="padding:9px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Payoff Date</th>
+          <th style="padding:9px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Time Saved</th>
+          <th style="padding:9px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#15803d;border-bottom:2px solid #e2e8f0;">Interest Saved</th>
+          <th style="padding:9px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Monthly Payment</th>
+        </tr>
+      </thead>
+      <tbody id="scenBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- AMORTIZATION -->
+<div id="ta" class="tp">
+  <div class="card" style="overflow-x:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><p style="font-size:13px;font-weight:600;">Accelerated Amortization Schedule</p><label style="font-size:12px;color:#64748b;cursor:pointer;display:flex;align-items:center;gap:6px;"><input type="checkbox" id="yrView" onchange="toggleYrView()" style="accent-color:#0043ce;"> Yearly summary</label></div>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:600px;">
+      <thead>
+        <tr style="background:#f8fafc;">
+          <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Month</th>
+          <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Payment</th>
+          <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#15803d;border-bottom:2px solid #e2e8f0;">Principal</th>
+          <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#dc2626;border-bottom:2px solid #e2e8f0;">Interest</th>
+          <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#0043ce;border-bottom:2px solid #e2e8f0;">Extra</th>
+          <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#475569;border-bottom:2px solid #e2e8f0;">Balance</th>
+        </tr>
+      </thead>
+      <tbody id="amortBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- CHART -->
+<div id="tc" class="tp">
+  <div class="g2">
+    <div class="card"><p style="font-size:13px;font-weight:600;margin-bottom:14px;">Loan Balance Over Time</p><div style="position:relative;height:300px;"><canvas id="cBal"></canvas></div></div>
+    <div class="card"><p style="font-size:13px;font-weight:600;margin-bottom:14px;">Principal vs. Interest Paid Over Time</p><div style="position:relative;height:300px;"><canvas id="cPI"></canvas></div></div>
+  </div>
+</div>
+
+</div>
+
+<div class="repro-other-tools">
+  <div class="repro-other-lbl">Other Tools</div>
+  <div class="repro-other-grid">
+    <a href="index-affordability" class="repro-tool-link">🏠 Affordability</a>
+    <a href="index-rentvsbuy" class="repro-tool-link">⚖️ Rent vs. Own</a>
+    <a href="index-multifamily" class="repro-tool-link">🏢 Multifamily</a>
+  </div>
+</div>
+<div style="height:48px;background:var(--repro-off,#fafafa);"></div>
+
+<footer class="repro-footer">
+  <div class="repro-ft-inner">
+    <div class="repro-ft-grid">
+      <div class="repro-ft-brand">
+        <a href="index" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;">
+          <svg width="28" height="28" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#2563eb"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
+          <span style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:800;color:white;letter-spacing:-.4px;">RE<span style="font-weight:400;">Proforma</span></span>
+        </a>
+        <p>Free institutional-grade real estate investment tools. Browser-based. 2026 benchmarks.</p>
+        <p class="repro-ft-note">All calculations run locally. Your data never leaves your device.</p>
+      </div>
+      <div>
+        <div class="repro-ft-lbl">Tools</div>
+        <div class="repro-ft-links">
+          <a href="index-multifamily">Multifamily</a>
+          <a href="index-mixeduse">Commercial/NNN</a>
+          <a href="index-land">Land Dev</a>
+          <a href="index-affordability">Home Affordability</a>
+          <a href="index-rentvsbuy">Rent vs. Own</a>
+          <a href="index-mortgage-payoff">Mortgage Payoff</a>
+        </div>
+      </div>
+      <div>
+        <div class="repro-ft-lbl">Learn</div>
+        <div class="repro-ft-links">
+          <a href="how-to-underwrite-multifamily">Multifamily Guide</a>
+          <a href="how-to-analyze-commercial-retail">Commercial Guide</a>
+          <a href="land-development-proforma-guide">Land Dev Guide</a>
+          <a href="https://www.cbre.com/insights/reports/us-cap-rate-survey-h1-2025" target="_blank">CBRE 2026 ↗</a>
+        </div>
+      </div>
+      <div>
+        <div class="repro-ft-lbl">Company</div>
+        <div class="repro-ft-links" style="margin-bottom:18px;">
+          <a href="about">About</a><a href="privacy">Privacy</a><a href="terms">Terms</a>
+        </div>
+        <div class="repro-ft-lbl">Stay updated</div>
+        <div class="repro-email-row"><input type="email" class="repro-ei" placeholder="your@email.com"><button class="repro-eb">→</button></div>
+      </div>
+    </div>
+    <div class="repro-ft-bot">
+      <span>&copy; 2026 REProforma. Not financial advice.</span>
+      <div style="display:flex;gap:16px;"><a href="privacy">Privacy</a><a href="terms">Terms</a></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var mb=document.getElementById('repro-mob-btn'),mm=document.getElementById('repro-mob-menu');
+  if(mb&&mm)mb.addEventListener('click',function(){mm.style.display=mm.style.display==='block'?'none':'block';});
+  function closeAll(){document.querySelectorAll('.repro-ddp').forEach(function(p){p.classList.remove('open');});}
+  [['rddT','rddTm','rddTb'],['rddL','rddLm','rddLb']].forEach(function(ids){
+    var w=document.getElementById(ids[0]),p=document.getElementById(ids[1]),b=document.getElementById(ids[2]);
+    if(!w||!p)return;var t;
+    w.addEventListener('mouseenter',function(){clearTimeout(t);p.classList.add('open');});
+    w.addEventListener('mouseleave',function(){t=setTimeout(function(){p.classList.remove('open');},180);});
+    if(b)b.addEventListener('click',function(e){e.stopPropagation();var o=p.classList.contains('open');closeAll();if(!o)p.classList.add('open');});
+  });
+  document.addEventListener('click',function(e){if(!e.target.closest('.repro-ddr'))closeAll();});
+})();
+</script>
+
+<script>
+const $=id=>document.getElementById(id);
+const num=id=>parseFloat($(id)?.value)||0;
+const set=(id,v)=>{if($(id))$(id).value=v;};
+const fmt=v=>'$'+Math.round(v).toLocaleString();
+document.addEventListener('click',e=>{if(!e.target.closest('.nav-wrap'))document.querySelectorAll('.nav-dd').forEach(d=>d.classList.remove('open'));});
+document.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.tp').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); $(b.dataset.t).classList.add('on');
+  if(b.dataset.t==='tc'&&_orig) renderCharts();
+}));
+function sw(id){document.querySelectorAll('.tb').forEach(x=>x.classList.toggle('on',x.dataset.t===id));document.querySelectorAll('.tp').forEach(x=>x.classList.toggle('on',x.id===id));}
+const CH={};
+function mkC(id,cfg){if(CH[id])CH[id].destroy();CH[id]=new Chart($(id),cfg);}
+
+let _orig=null,_accel=null;
+
+function amortize(startBal,rate,termMo,extraMo,extraAnn,lumpSum,lumpMo){
+  let bal=startBal;
+  const mr=rate/12;
+  const std=startBal*mr/(1-Math.pow(1+mr,-termMo));
+  let totInt=0,totPrin=0,totPaid=0;
+  const sched=[];
+  for(let m=1;bal>0.01&&m<=termMo+240;m++){
+    const ip=bal*mr;
+    let pp=Math.min(std-ip,bal);
+    let ex=extraMo;
+    if(m%12===0)ex+=extraAnn;
+    if(m===lumpMo)ex+=lumpSum;
+    ex=Math.min(ex,bal-pp);
+    bal-=(pp+ex); totInt+=ip; totPrin+=(pp+ex); totPaid+=(std+ex);
+    sched.push({m,pmt:std+ex,prin:pp+ex,int:ip,ex,bal:Math.max(0,bal)});
+    if(bal<=0)break;
+  }
+  return{sched,totInt,totPrin,totPaid,months:sched.length,std};
+}
+
+function livePrev(){
+  const la=num('la'),rate=num('ir')/100,term=parseInt($('lt').value)||30;
+  if(!la||!rate)return;
+  const mr=rate/12,n=term*12;
+  const pmt=la*mr/(1-Math.pow(1+mr,-n));
+  const totInt=pmt*n-la;
+  const p=$('livePrev'),lp=$('lpmt'),lt=$('ltint');
+  if(p){p.style.display='block';if(lp)lp.textContent=fmt(pmt)+'/mo';if(lt)lt.textContent=fmt(totInt);}
+}
+['la','ir','lt'].forEach(id=>{const e=$(id);if(e)e.addEventListener('input',livePrev);});
+
+function calc(){
+  const la=num('la'), bal=num('bal')||la, rate=num('ir')/100;
+  const term=parseInt($('lt').value)||30, mp=num('mp');
+  const em=num('em'), ea=num('ea'), ls=num('ls'), lm=Math.max(1,num('lm')||1);
+  const bw=$("biweekly")?.checked;
+  const bwExtra=bw?_orig.std/12:0; // biweekly adds 1/12 payment per month
+  if(!la||!rate){alert('Please enter loan amount and interest rate.');return;}
+  const remTerm=term*12-mp;
+  _orig =amortize(bal,rate,remTerm,0,0,0,1);
+  _accel=amortize(bal,rate,remTerm,em+bwExtra,ea,ls,lm);
+
+  const oY=Math.floor(_orig.months/12),oM=_orig.months%12;
+  const aY=Math.floor(_accel.months/12),aM=_accel.months%12;
+  const savedMo=_orig.months-_accel.months;
+  const sY=Math.floor(savedMo/12),sM=savedMo%12;
+  const iSaved=_orig.totInt-_accel.totInt;
+
+  const now=new Date();
+  const payoffDate=mo=>{const d=new Date(now.getFullYear(),now.getMonth()+mo,1);return d.toLocaleDateString('en-US',{month:'short',year:'numeric'});};
+  const sr=(l,v,c='')=>`<div class="sr"><span>${l}</span><span style="font-weight:600;color:${c||'#1e293b'}">${v}</span></div>`;
+
+  $('origStats').innerHTML=
+    sr('Monthly Payment',fmt(_orig.std))+
+    sr('Payoff In',oY+'y '+oM+'m')+
+    sr('Payoff Date',payoffDate(_orig.months))+
+    sr('Total Interest',fmt(_orig.totInt),'#dc2626')+
+    sr('Total Paid',fmt(_orig.totPaid));
+
+  $('accelStats').innerHTML=
+    sr('Monthly Payment',fmt(_accel.std+em),'#15803d')+
+    sr('Payoff In',aY+'y '+aM+'m','#15803d')+
+    sr('Payoff Date',payoffDate(_accel.months),'#15803d')+
+    sr('Total Interest',fmt(_accel.totInt),'#15803d')+
+    sr('Total Paid',fmt(_accel.totPaid));
+
+  const hasSav=savedMo>0||iSaved>100;
+  $('banner').innerHTML=hasSav
+    ?`<div style="background:linear-gradient(135deg,#dcfce7,#bbf7d0);border:2px solid #16a34a;border-radius:12px;padding:24px;text-align:center;">
+        <p style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#166534;margin-bottom:12px;">💰 Your Extra Payment Savings</p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+          <div><p style="font-size:32px;font-weight:800;color:#15803d;line-height:1;">${fmt(iSaved)}</p><p style="font-size:12px;color:#166534;margin-top:4px;">Interest Saved</p></div>
+          <div><p style="font-size:32px;font-weight:800;color:#15803d;line-height:1;">${sY}y ${sM}m</p><p style="font-size:12px;color:#166534;margin-top:4px;">Time Saved</p></div>
+          <div><p style="font-size:24px;font-weight:800;color:#15803d;line-height:1;">${payoffDate(_accel.months)}</p><p style="font-size:12px;color:#166534;margin-top:4px;">New Payoff Date</p></div>
+        </div>
+      </div>`
+    :`<div style="background:#fef9c3;border:1px solid #fde68a;border-radius:10px;padding:16px;text-align:center;font-size:13px;color:#92400e;">Enter extra payment amounts on the inputs tab to see your savings here.</div>`;
+
+  // Investment comparison
+  const extraPerMo=em+bwExtra;
+  const investReturn=0.07;
+  let investTotal=0;
+  for(let m=0;m<_accel.months;m++) investTotal=investTotal*(1+investReturn/12)+extraPerMo;
+  const investGain=investTotal-(extraPerMo*_accel.months);
+  const invComp=$('investComp');
+  if(invComp&&extraPerMo>0){
+    invComp.innerHTML=`<p style="font-size:13px;font-weight:600;margin-bottom:12px;">📊 Extra Payment vs. Investing That Money Instead</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div style="background:#f0fdf4;padding:14px;border-radius:8px;border-left:3px solid #15803d;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#15803d;margin-bottom:6px;">Pay Off Mortgage Early</p>
+        <p style="font-size:22px;font-weight:700;color:#15803d;">${fmt(Math.round(iSaved))}</p>
+        <p style="font-size:11px;color:#64748b;margin-top:4px;">Guaranteed interest saved · Risk-free return equal to your mortgage rate (${(rate*100).toFixed(2)}%)</p>
+      </div>
+      <div style="background:#eff6ff;padding:14px;border-radius:8px;border-left:3px solid #0043ce;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#0043ce;margin-bottom:6px;">Invest Instead (7% avg S&P return)</p>
+        <p style="font-size:22px;font-weight:700;color:#0043ce;">${fmt(Math.round(Math.max(0,investGain)))}</p>
+        <p style="font-size:11px;color:#64748b;margin-top:4px;">Potential investment gain · Higher expected return but market risk applies</p>
+      </div>
+    </div>
+    <p style="font-size:11px;color:#94a3b8;margin-top:10px;">Rule of thumb: if your mortgage rate &lt; expected investment return (~7%), investing may build more wealth. If rate ≥ 7%, paying off early is the guaranteed winner. Always maintain a 3–6 month emergency fund before allocating extra to either.</p>`;
+  } else if(invComp) {
+    invComp.innerHTML='';
+  }
+
+  // Scenarios
+  const biweeklyAmt=Math.round(_orig.std/12);
+  const scens=[{l:'No extra payment',e:0,a:0},{l:'+$100/month',e:100,a:0},{l:'+$200/month',e:200,a:0},{l:'+$300/month',e:300,a:0},{l:'+$500/month',e:500,a:0},{l:'+$1,000/month',e:1000,a:0},{l:`Biweekly (+${fmt(biweeklyAmt)}/mo equiv)`,e:biweeklyAmt,a:0},{l:'+$5,000/year lump',e:0,a:5000},{l:`Your scenario (+${fmt(em+bwExtra)}/mo)`,e:em+bwExtra,a:ea,cur:true}];
+  let sbody='';
+  scens.forEach(s=>{
+    const r=amortize(bal,rate,remTerm,s.e,s.a,0,1);
+    const mSav=_orig.months-r.months, iSav=_orig.totInt-r.totInt;
+    const syR=Math.floor(mSav/12),smR=mSav%12;
+    sbody+=`<tr style="${s.cur?'background:#eff6ff;font-weight:600;':''}border-bottom:1px solid #f8fafc;">
+      <td style="padding:9px 12px;color:#374151;">${s.l}${s.cur?' ⭐':''}</td>
+      <td style="padding:9px 12px;text-align:right;font-size:12px;">${payoffDate(r.months)}</td>
+      <td style="padding:9px 12px;text-align:right;color:${mSav>0?'#15803d':'#94a3b8'};font-size:12px;">${mSav>0?syR+'y '+smR+'m':'—'}</td>
+      <td style="padding:9px 12px;text-align:right;font-weight:600;color:${iSav>0?'#15803d':'#94a3b8'};">${iSav>100?fmt(iSav):'—'}</td>
+      <td style="padding:9px 12px;text-align:right;font-size:12px;">${fmt(r.std+s.e)}/mo</td>
+    </tr>`;
+  });
+  $('scenBody').innerHTML=sbody;
+
+  // Amortization
+  buildAmortTable($('yrView')?.checked);
+
+  renderCharts();
+  sw('tr');
+}
+
+function renderCharts(){
+  if(!_orig||!_accel)return;
+  const sliceOrig=_orig.sched.filter((_,i)=>i%6===0||i===_orig.sched.length-1);
+  const sliceAccel=_accel.sched.filter((_,i)=>i%6===0||i===_accel.sched.length-1);
+  const maxLen=sliceOrig.length;
+  const accelPadded=Array.from({length:maxLen},(_,i)=>sliceAccel[i]?sliceAccel[i].bal:0);
+  const lbls=sliceOrig.map(r=>'Mo '+r.m);
+  const copts={responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:11},boxWidth:10}}},scales:{y:{ticks:{font:{size:10},callback:v=>fmt(v)},grid:{color:'#f8fafc'}},x:{ticks:{font:{size:9}},grid:{display:false}}}};
+  mkC('cBal',{type:'line',data:{labels:lbls,datasets:[{label:'Original Balance',data:sliceOrig.map(r=>r.bal),borderColor:'#94a3b8',backgroundColor:'rgba(148,163,184,.06)',fill:true,tension:.3,borderWidth:2,borderDash:[4,4]},{label:'Accelerated Balance',data:accelPadded,borderColor:'#15803d',backgroundColor:'rgba(21,128,61,.07)',fill:true,tension:.3,borderWidth:2}]},options:copts});
+  // Cumulative principal vs interest
+  let cumPrin=[],cumInt=[],tot=0;
+  _orig.sched.forEach((r,i)=>{
+    tot+=r.int;
+    if(i%6===0||i===_orig.sched.length-1){cumPrin.push(Math.round(_orig.sched.slice(0,i+1).reduce((a,b)=>a+b.prin,0)));cumInt.push(Math.round(tot));}
+  });
+  const lbPI=_orig.sched.filter((_,i)=>i%6===0||i===_orig.sched.length-1).map(r=>'Mo '+r.m);
+  mkC('cPI',{type:'line',data:{labels:lbPI,datasets:[{label:'Cumulative Principal',data:cumPrin,borderColor:'#0043ce',backgroundColor:'rgba(0,67,206,.06)',fill:true,tension:.3,borderWidth:2},{label:'Cumulative Interest',data:cumInt,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.06)',fill:true,tension:.3,borderWidth:2}]},options:copts});
+}
+
+
+function exportXLS(){
+  if(!window.XLSX){alert('XLSX library not loaded.');return;}
+  if(!_orig||!_accel){alert('Please run the calculator first.');return;}
+  const wb=XLSX.utils.book_new();
+  const la=num('la'), rate=num('ir'), term=$('lt').value, mp=num('mp');
+  const em=num('em'), ea=num('ea'), bwLabel=$('biweekly')?.checked?'+ biweekly':'';
+  const iSaved=Math.round(_orig.totInt-_accel.totInt);
+  const savedMo=_orig.months-_accel.months;
+
+  // Summary sheet
+  const ws1=XLSX.utils.aoa_to_sheet([
+    ['MORTGAGE PAYOFF ANALYSIS — REProforma'],
+    [''],
+    ['LOAN DETAILS','',''],
+    ['Original Loan Amount',la,''],
+    ['Interest Rate',rate/100,''],
+    ['Loan Term',parseInt(term)+' years',''],
+    ['Months Already Paid',mp,''],
+    [''],
+    ['EXTRA PAYMENTS','',''],
+    ['Extra Monthly Payment',num('em'),''],
+    ['Extra Annual Payment',num('ea'),''],
+    ['Lump Sum',num('ls'),''],
+    ['Biweekly Mode',$('biweekly')?.checked?'Yes':'No',''],
+    [''],
+    ['RESULTS','Original','With Extra Payments'],
+    ['Total Months',_orig.months,_accel.months],
+    ['Payoff (years+months)',Math.floor(_orig.months/12)+'y '+(_orig.months%12)+'m',Math.floor(_accel.months/12)+'y '+(_accel.months%12)+'m'],
+    ['Total Interest Paid',_orig.totInt,_accel.totInt],
+    ['Total Amount Paid',_orig.totPaid,_accel.totPaid],
+    ['Monthly Payment',_orig.std,_accel.std+num('em')],
+    [''],
+    ['SAVINGS','',''],
+    ['Interest Saved','',iSaved],
+    ['Months Saved','',savedMo],
+    ['Years Saved','',+(savedMo/12).toFixed(1)],
+    [''],
+    ['AMORTIZATION SCHEDULE (Accelerated)','','','','',''],
+    ['Month','Payment','Principal','Interest','Extra','Balance'],
+    ..._accel.sched.map(r=>[r.m,Math.round(r.pmt),Math.round(r.prin),Math.round(r.int),Math.round(r.ex),Math.round(r.bal)]),
+  ]);
+  ws1['!cols']=[{wch:28},{wch:16},{wch:16},{wch:16},{wch:14},{wch:16}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Payoff Analysis');
+  XLSX.writeFile(wb,'Mortgage_Payoff_'+la.toString().replace(/000$/,'k')+'.xlsx');
+}
+
+// Demo: $380k loan, 30yr at 6.75%, 24 months paid, $300/mo extra
+function loadDemo(){
+  set('la','380000');set('bal','');set('ir','6.75');$('lt').value='30';
+  set('mp','24');set('em','300');set('ea','2000');set('ls','0');set('lm','1');
+  livePrev(); calc();
+}
+
+function toggleYrView(){
+  if(!_accel) return;
+  const yr=$('yrView')?.checked;
+  buildAmortTable(yr);
+}
+function buildAmortTable(yearly){
+  if(!_accel) return;
+  let abody='';
+  if(yearly){
+    // Annual summary
+    for(let y=1;y<=Math.ceil(_accel.months/12);y++){
+      const slice=_accel.sched.slice((y-1)*12,y*12);
+      if(!slice.length)break;
+      const totPmt=slice.reduce((a,b)=>a+b.pmt,0);
+      const totPrin=slice.reduce((a,b)=>a+b.prin,0);
+      const totInt=slice.reduce((a,b)=>a+b.int,0);
+      const totEx=slice.reduce((a,b)=>a+b.ex,0);
+      const lastBal=slice[slice.length-1].bal;
+      abody+=`<tr style="border-bottom:1px solid #f8fafc;"><td style="padding:7px 10px;">Year ${y}</td><td style="padding:7px 10px;text-align:right;">${fmt(Math.round(totPmt))}</td><td style="padding:7px 10px;text-align:right;color:#15803d;">${fmt(Math.round(totPrin))}</td><td style="padding:7px 10px;text-align:right;color:#dc2626;">${fmt(Math.round(totInt))}</td><td style="padding:7px 10px;text-align:right;color:#0043ce;">${totEx>0?fmt(Math.round(totEx)):'—'}</td><td style="padding:7px 10px;text-align:right;font-weight:600;">${fmt(Math.round(lastBal))}</td></tr>`;
+    }
+  } else {
+    _accel.sched.forEach(r=>{
+      abody+=`<tr style="border-bottom:1px solid #f8fafc;"><td style="padding:7px 10px;">${r.m}</td><td style="padding:7px 10px;text-align:right;">${fmt(r.pmt)}</td><td style="padding:7px 10px;text-align:right;color:#15803d;">${fmt(r.prin)}</td><td style="padding:7px 10px;text-align:right;color:#dc2626;">${fmt(r.int)}</td><td style="padding:7px 10px;text-align:right;color:#0043ce;">${r.ex>0?fmt(r.ex):'—'}</td><td style="padding:7px 10px;text-align:right;font-weight:600;">${fmt(r.bal)}</td></tr>`;
+    });
+  }
+  if($('amortBody')) $('amortBody').innerHTML=abody;
+}
+function resetAll(){
+  ['la','bal','ir','mp','em','ea','ls','lm'].forEach(id=>{const e=$(id);if(e)e.value='';});
+  $('lt').value='30'; _orig=null; _accel=null;
+  if($('livePrev'))$('livePrev').style.display='none';
+  ['banner','origStats','accelStats','scenBody','amortBody'].forEach(id=>{if($(id))$(id).innerHTML='';});
+  sw('ti');
+}
+</script><script>
+(function(){
+  // Show/hide desktop nav vs hamburger based on viewport
+  function ckW(){
+    var mob = window.innerWidth < 768;
+    var dn  = document.getElementById('desk-nav');
+    var mb  = document.getElementById('mob-btn');
+    if(dn) dn.style.display = mob ? 'none' : 'flex';
+    if(mb) mb.style.display = mob ? 'block' : 'none';
+  }
+  window.addEventListener('resize', ckW);
+  ckW(); // run immediately on load
+
+  // Hamburger opens/closes mobile menu via style.display (not Tailwind 'hidden')
+  var btn = document.getElementById('mob-btn');
+  var menu = document.getElementById('mob-menu');
+  if(btn && menu) btn.addEventListener('click', function(){
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+  });
+
+  // Mobile sub-accordions
+  document.querySelectorAll('.mob-tog').forEach(function(b){
+    b.addEventListener('click', function(){
+      var sub = b.nextElementSibling;
+      var arr = b.querySelector('.mob-arr');
+      var open = sub.style.display === 'block';
+      sub.style.display = open ? 'none' : 'block';
+      if(arr) arr.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
+    });
+  });
+
+  // Desktop dropdowns
+  function openDD(m, b){ m.classList.add('open'); if(b) b.classList.add('open'); }
+  function closeAll(){
+    document.querySelectorAll('.dd-menu').forEach(function(m){ m.classList.remove('open'); });
+    document.querySelectorAll('.dd-trig').forEach(function(b){ b.classList.remove('open'); });
+  }
+  function setupDD(wId, mId, bId){
+    var w = document.getElementById(wId);
+    var m = document.getElementById(mId);
+    var b = document.getElementById(bId);
+    if(!w || !m) return;
+    var t;
+    w.addEventListener('mouseenter', function(){ clearTimeout(t); openDD(m, b); });
+    w.addEventListener('mouseleave', function(){
+      t = setTimeout(function(){ m.classList.remove('open'); if(b) b.classList.remove('open'); }, 120);
+    });
+    if(b) b.addEventListener('click', function(e){
+      e.stopPropagation();
+      var open = m.classList.contains('open');
+      closeAll();
+      if(!open) openDD(m, b);
+    });
+  }
+  setupDD('ddT', 'ddTm', 'ddTb');
+  setupDD('ddM', 'ddMm', 'ddMb');
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('.dd-wrap')) closeAll();
+  });
+})();
+
+// ── Save Deal ──────────────────────────────────────────────────
+function saveDeal(){
+  var modal=document.getElementById('saveModal');
+  if(!modal)return;
+  modal.style.display='flex';
+  setTimeout(function(){var ne=document.getElementById('dealName');if(ne)ne.focus();},100);
+}
+function confirmSave(){
+  var name=document.getElementById('dealName')?.value||'Untitled Deal';
+  var address=document.getElementById('dealAddress')?.value||'';
+  try{
+    var deals=[];
+    try{var raw=localStorage.getItem('reproforma_deals');if(raw)deals=JSON.parse(raw);}catch(e){}
+    var id='deal_'+Date.now();
+    var resultVal='Saves: '+(typeof iSaved!=='undefined'?'$'+Math.round(iSaved/1000)+'k':'?');
+    var deal={
+      id:id, tool:'mortgagepayoff', name:name, address:address,
+      saved:new Date().toISOString(), result:resultVal,
+      inputs:{
+        loanAmount: document.getElementById('la')?.value||'',
+        rate: document.getElementById('ir')?.value||'',
+        term: document.getElementById('lt')?.value||'',
+        extraMonthly: document.getElementById('em')?.value||'',
+        extraAnnual: document.getElementById('ea')?.value||'',
+      }
+    };
+    deals.unshift(deal);
+    if(deals.length>20)deals=deals.slice(0,20);
+    localStorage.setItem('reproforma_deals',JSON.stringify(deals));
+    document.getElementById('saveModal').style.display='none';
+    var t=document.getElementById('saveToast');
+    if(t){t.textContent='✓ Saved: '+name;t.style.display='block';setTimeout(function(){t.style.display='none';},3000);}
+  }catch(e){document.getElementById('saveModal').style.display='none';alert('Save failed: '+e.message);}
+}
+document.getElementById('saveModal')?.addEventListener('click',function(e){if(e.target===this)this.style.display='none';});
+
+</script>
+
+<!-- SAVE DEAL MODAL -->
+<div id="saveModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:14px;padding:28px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+    <h3 style="font-size:16px;font-weight:700;margin-bottom:6px;">💾 Save this deal</h3>
+    <p style="font-size:13px;color:#64748b;margin-bottom:16px;">Give it a name to find it later. Stored in your browser — no account needed.</p>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#64748b;display:block;margin-bottom:4px;">Deal Name</label>
+      <input id="dealName" type="text" placeholder="e.g. My Deal Analysis" style="width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;font-family:Inter,sans-serif;outline:none;">
+    </div>
+    <div style="margin-bottom:16px;">
+      <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#64748b;display:block;margin-bottom:4px;">Address / Location (optional)</label>
+      <input id="dealAddress" type="text" placeholder="e.g. 123 Main St, Austin TX" style="width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;font-family:Inter,sans-serif;outline:none;">
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="confirmSave()" style="flex:1;background:#0043ce;color:white;border:none;border-radius:8px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;">Save Deal</button>
+      <button onclick="document.getElementById('saveModal').style.display='none'" style="background:white;color:#475569;border:1px solid #cbd5e1;border-radius:8px;padding:11px 18px;font-size:14px;cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+</div>
+<div id="saveToast" style="display:none;position:fixed;bottom:24px;right:24px;background:#15803d;color:white;padding:14px 20px;border-radius:10px;font-size:14px;font-weight:600;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,.2);">✓ Deal saved!</div>
+
+</body>
+</html>

@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rent vs. Own | REProforma</title>
+<link rel="icon" type="image/png" href="favicon.ico">
+
+
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;}
+a{text-decoration:none;color:inherit;}
+.nav-dd{display:none;position:absolute;left:0;top:100%;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.12);border:1px solid #f1f5f9;z-index:50;min-width:220px;padding:6px 0;}
+.nav-dd.open{display:block;}.nav-wrap{position:relative;}
+.nav-btn{font-size:13px;background:none;border:none;cursor:pointer;padding:20px 0;color:#525252;font-family:'Inter',sans-serif;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:#374151;text-decoration:none;border-left:2px solid transparent;}
+.nav-item:hover,.nav-item.cur{background:#eff6ff;color:#0043ce;border-left-color:#0043ce;}
+.nav-lbl{padding:6px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;}
+.nav-div{height:1px;background:#f1f5f9;margin:4px 16px;}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+@media(max-width:860px){.g3{grid-template-columns:1fr 1fr;}}
+@media(max-width:580px){.g2,.g3{grid-template-columns:1fr;}}
+.card{background:white;border:1px solid #e2e8f0;border-radius:12px;padding:20px;}
+.ch{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #f1f5f9;}
+.ci{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.ct{font-size:14px;font-weight:600;}
+.f{margin-bottom:10px;}
+.lb{display:block;font-size:11px;font-weight:600;color:#64748b;letter-spacing:.03em;text-transform:uppercase;margin-bottom:3px;}
+.inp{width:100%;padding:8px 10px;border:1px solid #cbd5e1;border-radius:7px;font-size:13px;font-family:'Inter',sans-serif;color:#1e293b;background:white;outline:none;}
+.inp:focus{border-color:#0043ce;box-shadow:0 0 0 3px rgba(0,67,206,.08);}
+.p{position:relative;}.p span{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:12px;color:#94a3b8;pointer-events:none;}.p .inp{padding-left:18px;}
+.s{position:relative;}.s span{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:12px;color:#94a3b8;pointer-events:none;}.s .inp{padding-right:22px;}
+.tab-bar{display:flex;border-bottom:1px solid #e2e8f0;background:white;overflow-x:auto;}
+.tb{padding:12px 18px;font-size:13px;font-weight:500;color:#64748b;border:none;border-bottom:2px solid transparent;background:none;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;}
+.tb.on{color:#0043ce;border-bottom-color:#0043ce;font-weight:600;}
+.tp{display:none;}.tp.on{display:block;}
+.btn-b{background:#0043ce;color:white;border:none;border-radius:8px;padding:11px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-o{background:white;color:#475569;border:1px solid #cbd5e1;border-radius:8px;padding:9px 16px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;}
+.cr{display:flex;justify-content:space-between;padding:9px 12px;border-bottom:1px solid #f8fafc;font-size:13px;}
+.cr:hover{background:#fafbff;}
+.cr.tot{font-weight:700;border-radius:6px;}
+.verdict-own{background:#dcfce7;border:2px solid #16a34a;border-radius:12px;padding:22px;text-align:center;}
+.verdict-rent{background:#dbeafe;border:2px solid #1d4ed8;border-radius:12px;padding:22px;text-align:center;}
+.verdict-tie{background:#fef9c3;border:2px solid #ca8a04;border-radius:12px;padding:22px;text-align:center;}
+.side-card{border:1px solid #e2e8f0;border-radius:10px;padding:16px;}
+@media print{
+  header,.no-print,button{display:none!important;}
+  body{font-size:11pt;background:white!important;}
+  .tp{display:none!important;}
+  #tr,#tl{display:block!important;}
+  .tab-bar{display:none!important;}
+  .card,.side-card{border:1px solid #ccc!important;break-inside:avoid;}
+  .g2,.g3{display:block!important;}
+  .g2>*,.g3>*{margin-bottom:12px;}
+}
+</style>
+<style>
+@media(max-width:768px){
+  .ft-grid{grid-template-columns:1fr 1fr!important;}
+}
+@media(max-width:480px){
+  .ft-grid{grid-template-columns:1fr!important;}
+}
+</style>
+<style id="repro-nav-footer">
+/* ── REProforma Nav + Footer ── */
+/* Scoped so tool CSS wins for everything else */
+:root{
+  --repro-blue:#2563eb;
+  --repro-blue-l:#3b82f6;
+  --repro-blue-bg:#eff6ff;
+  --repro-border:#e4e4e7;
+  --repro-ink:#09090b;
+  --repro-ink2:#18181b;
+  --repro-muted:#71717a;
+  --repro-off:#fafafa;
+  --repro-dark:#0f172a;
+  --repro-dark2:#111827;
+  --repro-green:#16a34a;
+  --repro-shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --repro-shadow-lg:0 12px 40px rgba(0,0,0,.12);
+  --repro-mono:'Geist Mono',monospace;
+  --repro-sans:'DM Sans',sans-serif;
+}
+
+/* NAV */
+.repro-nav{
+  position:sticky;top:0;z-index:9999;height:60px;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(0,0,0,.06);
+  box-shadow:0 1px 0 rgba(0,0,0,.04);
+}
+.repro-nav-inner{
+  max-width:1280px;margin:0 auto;padding:0 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  height:100%;gap:16px;
+}
+.repro-logo{display:flex;align-items:center;gap:9px;flex-shrink:0;text-decoration:none;}
+.repro-wm{font-family:var(--repro-sans);font-size:19px;font-weight:800;letter-spacing:-.5px;line-height:1;}
+.repro-wm .r{color:var(--repro-blue);}
+.repro-wm .p{color:var(--repro-blue);font-weight:400;}
+.repro-nav-links{display:flex;align-items:center;gap:1px;margin-left:auto;}
+.repro-nl{
+  font-size:13px;font-weight:500;color:var(--repro-muted);
+  padding:6px 12px;border-radius:7px;cursor:pointer;
+  border:none;background:none;font-family:var(--repro-sans);
+  display:inline-flex;align-items:center;gap:4px;
+  transition:color .15s,background .15s;white-space:nowrap;
+  text-decoration:none;
+}
+.repro-nl:hover{color:var(--repro-ink);background:var(--repro-off);}
+.repro-nl.on{color:var(--repro-blue);font-weight:600;}
+.repro-cta{
+  background:var(--repro-blue);color:white;
+  font-family:var(--repro-sans);font-size:13px;font-weight:700;
+  padding:8px 18px;border-radius:9px;border:none;cursor:pointer;
+  flex-shrink:0;transition:background .15s;white-space:nowrap;
+  text-decoration:none;display:inline-block;
+}
+.repro-cta:hover{background:#1d4ed8;}
+
+/* DROPDOWN */
+.repro-ddr{position:relative;display:inline-block;}
+.repro-ddp{
+  display:none;position:absolute;top:calc(100%+6px);left:0;
+  background:white;border:1px solid var(--repro-border);border-radius:12px;
+  box-shadow:var(--repro-shadow-lg);padding:8px;min-width:216px;z-index:10000;
+}
+.repro-ddp.right{left:auto;right:0;}
+.repro-ddp.open{display:block;}
+.repro-dds{
+  font-family:var(--repro-mono);font-size:9px;font-weight:500;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--repro-muted);
+  padding:6px 10px 3px;
+}
+.repro-ddi{
+  display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;
+  font-size:13px;color:var(--repro-ink2);transition:background .1s,color .1s;
+  text-decoration:none;
+}
+.repro-ddi:hover{background:var(--repro-blue-bg);color:var(--repro-blue);}
+.repro-ddi.cur{background:var(--repro-blue-bg);color:var(--repro-blue);font-weight:600;}
+.repro-sep{height:1px;background:var(--repro-border);margin:4px 0;}
+.repro-mob-btn{display:none;background:none;border:none;cursor:pointer;color:var(--repro-ink);padding:4px;}
+
+/* FOOTER */
+.repro-footer{background:#07101f;border-top:1px solid rgba(255,255,255,.07);padding:56px 0 32px;}
+.repro-ft-inner{max-width:1280px;margin:0 auto;padding:0 24px;}
+.repro-ft-grid{display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr;gap:36px;margin-bottom:36px;}
+.repro-ft-brand p{font-size:12px;color:rgba(255,255,255,.35);line-height:1.65;max-width:220px;margin-top:12px;}
+.repro-ft-note{font-size:11px;color:rgba(255,255,255,.15);margin-top:8px;line-height:1.5;}
+.repro-ft-lbl{font-family:var(--repro-mono);font-size:9px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:14px;}
+.repro-ft-links{display:flex;flex-direction:column;gap:8px;}
+.repro-ft-links a{font-size:12px;color:rgba(255,255,255,.35);transition:color .15s;text-decoration:none;}
+.repro-ft-links a:hover{color:rgba(255,255,255,.75);}
+.repro-ft-bot{border-top:1px solid rgba(255,255,255,.07);padding-top:20px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:11px;color:rgba(255,255,255,.2);}
+.repro-ft-bot a{color:rgba(255,255,255,.2);text-decoration:none;}.repro-ft-bot a:hover{color:rgba(255,255,255,.5);}
+.repro-email-row{display:flex;margin-top:14px;}
+.repro-ei{flex:1;padding:8px 10px;border-radius:7px 0 0 7px;border:1px solid rgba(255,255,255,.12);border-right:none;background:rgba(255,255,255,.05);font-size:12px;color:white;outline:none;min-width:0;}
+.repro-ei::placeholder{color:rgba(255,255,255,.25);}
+.repro-eb{background:var(--repro-blue);color:white;border:none;padding:8px 14px;border-radius:0 7px 7px 0;font-size:12px;font-weight:600;cursor:pointer;}
+.repro-eb:hover{background:#1d4ed8;}
+
+/* OTHER TOOLS SECTION */
+.repro-other-tools{max-width:1280px;margin:0 auto;padding:40px 24px 0;border-top:1px solid var(--repro-border);margin-top:40px;}
+.repro-other-lbl{font-family:var(--repro-mono);font-size:10px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--repro-muted);margin-bottom:14px;}
+.repro-other-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.repro-tool-link{
+  background:var(--repro-off);border:1px solid var(--repro-border);border-radius:9px;
+  padding:12px 16px;display:flex;align-items:center;gap:8px;
+  font-size:13px;color:var(--repro-ink2);font-weight:500;
+  text-decoration:none;transition:box-shadow .15s,border-color .15s;
+}
+.repro-tool-link:hover{box-shadow:0 4px 16px rgba(0,0,0,.08);border-color:#bfdbfe;color:var(--repro-blue);}
+
+/* MOBILE NAV */
+.repro-mob-menu{
+  display:none;background:white;border-top:1px solid var(--repro-border);
+  padding:14px 18px 18px;box-shadow:0 4px 12px rgba(0,0,0,.08);
+}
+.repro-mob-home{display:block;padding:8px 0;font-size:14px;font-weight:700;color:var(--repro-blue);border-bottom:1px solid var(--repro-border);margin-bottom:10px;text-decoration:none;}
+.repro-mob-section{font-family:var(--repro-mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--repro-muted);padding:6px 0 4px;}
+.repro-mob-item{display:block;padding:7px 0;font-size:13px;color:var(--repro-ink2);text-decoration:none;}
+.repro-mob-cta{display:block;margin-top:12px;padding:11px;text-align:center;font-size:13px;font-weight:700;color:white;background:var(--repro-blue);border-radius:8px;text-decoration:none;}
+
+@media(max-width:640px){
+  .repro-nav-links,.repro-cta{display:none;}
+  .repro-mob-btn{display:flex;}
+  .repro-ft-grid{grid-template-columns:1fr;}
+  .repro-other-grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:900px){
+  .repro-ft-grid{grid-template-columns:1fr 1fr;}
+  .repro-ft-brand{grid-column:1/-1;}
+}
+</style>
+
+<!-- Google Analytics GA4 — replace G-XXXXXXXXXX with your Measurement ID -->
+<!-- Get your ID from analytics.google.com → Admin → Data Streams → Web Stream -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX', {
+    page_title: document.title,
+    page_location: window.location.href
+  });
+</script>
+</head>
+<body>
+
+<nav class="repro-nav">
+  <div class="repro-nav-inner">
+    <a href="index" class="repro-logo">
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#2563eb"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
+      <span class="repro-wm"><span class="r">RE</span><span class="p">Proforma</span></span>
+    </a>
+    <div class="repro-nav-links" id="repro-nav-links">
+      <a href="index" class="repro-nl">Home</a>
+      <div class="repro-ddr" id="rddT">
+        <button class="repro-nl" id="rddTb">Tools <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="repro-ddp" id="rddTm">
+          <div class="repro-dds">Investment Analysis</div>
+<a class="repro-ddi" href="index-multifamily">🏢 Multifamily Acquisition</a>
+<a class="repro-ddi" href="index-mixeduse">🏬 Commercial &amp; NNN Retail</a>
+<a class="repro-ddi" href="index-land">🗺️ Land Development</a>
+          <div class="repro-sep"></div>
+          <div class="repro-dds">Personal Finance</div>
+<a class="repro-ddi" href="index-affordability">🏠 Home Affordability</a>
+<a class="repro-ddi cur" href="index-rentvsbuy">⚖️ Rent vs. Own</a>
+<a class="repro-ddi" href="index-mortgage-payoff">📅 Mortgage Payoff</a>
+        </div>
+      </div>
+      <div class="repro-ddr" id="rddL">
+        <button class="repro-nl" id="rddLb">Learn <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="repro-ddp right" id="rddLm" style="min-width:230px;">
+          <div class="repro-dds">Guides</div>
+<a class="repro-ddi" href="how-to-underwrite-multifamily">Multifamily Underwriting 2025</a>
+<a class="repro-ddi" href="how-to-analyze-commercial-retail">Commercial Analysis Guide</a>
+<a class="repro-ddi" href="land-development-proforma-guide">Land Development Guide</a>
+          <div class="repro-sep"></div>
+          <a class="repro-ddi" href="https://www.cbre.com/insights/reports/us-cap-rate-survey-h1-2025" target="_blank">CBRE Cap Rates 2026 ↗</a>
+        </div>
+      </div>
+      <a href="about" class="repro-nl">About</a>
+    </div>
+    <a href="about" class="repro-cta">Let's talk</a>
+    <button class="repro-mob-btn" id="repro-mob-btn" aria-label="Menu">
+      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+  </div>
+  <div class="repro-mob-menu" id="repro-mob-menu">
+    <a href="index" class="repro-mob-home">Home</a>
+    <div class="repro-mob-section">Tools</div>
+    <a href="index-multifamily" class="repro-mob-item">🏢 Multifamily</a>
+    <a href="index-mixeduse" class="repro-mob-item">🏬 Commercial/NNN</a>
+    <a href="index-land" class="repro-mob-item">🗺️ Land Development</a>
+    <a href="index-affordability" class="repro-mob-item">🏠 Affordability</a>
+    <a href="index-rentvsbuy" class="repro-mob-item">⚖️ Rent vs. Own</a>
+    <a href="index-mortgage-payoff" class="repro-mob-item">📅 Mortgage Payoff</a>
+    <a href="about" class="repro-mob-cta">Let's talk</a>
+  </div>
+</nav>
+
+<div style="background:linear-gradient(to right,#eff6ff,white);border-bottom:1px solid #e2e8f0;padding:24px 0;">
+  <div class="wrap" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;">
+    <div>
+      <span style="background:#dcfce7;color:#15803d;font-size:11px;font-weight:700;padding:2px 10px;border-radius:99px;display:inline-block;margin-bottom:6px;">Free · No Sign-Up</span>
+      <h1 style="font-size:24px;font-weight:700;color:#0043ce;">⚖️ Rent vs. Own Calculator</h1>
+      <p style="font-size:13px;color:#64748b;margin-top:3px;">True 10–30 year cost comparison including tax savings, equity, opportunity cost &amp; appreciation.</p>
+    </div>
+    <div style="display:flex;gap:8px;" class="no-print">
+      <button class="btn-o" onclick="loadDemo()">📋 Demo (Denver CO)</button>
+      <button class="btn-o" onclick="resetAll()">↺ Reset</button>
+      <button style="background:#15803d;color:white;border:none;border-radius:8px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer;" onclick="exportXLS()">⬇ Excel</button>
+      <button style="background:#1e293b;color:white;border:none;border-radius:8px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer;" onclick="window.print()">🖨 Print/PDF</button>
+    </div>
+  </div>
+</div>
+
+<div class="tab-bar no-print">
+  <button class="tb on" data-t="ti">Inputs</button>
+  <button class="tb" data-t="tr">Results &amp; Comparison</button>
+  <button class="tb" data-t="tl">Year-by-Year Timeline</button>
+  <button class="tb" data-t="tc">Chart</button>
+</div>
+
+<div class="wrap" style="padding:22px 0 48px;">
+
+<!-- INPUTS -->
+<div id="ti" class="tp on">
+  <div class="g3" style="margin-bottom:18px;">
+
+    <!-- Renting -->
+    <div class="card" style="border-top:3px solid #1d4ed8;">
+      <div class="ch"><div class="ci" style="background:#dbeafe;">🏘️</div><span class="ct" style="color:#1d4ed8;">Renting</span></div>
+      <div class="f"><label class="lb">Current Monthly Rent ($)</label><div class="p"><span>$</span><input class="inp" id="rent" type="number" placeholder="2,200"></div></div>
+      <div class="f"><label class="lb">Annual Rent Increase (%)</label><div class="s"><input class="inp" id="ri" type="number" step="0.1" placeholder="3.0"><span>%</span></div></div>
+      <div class="f"><label class="lb">Monthly Renter's Insurance ($)</label><div class="p"><span>$</span><input class="inp" id="rins" type="number" placeholder="25"></div></div>
+      <div class="f"><label class="lb">Investment Return on Down Payment (%) <span style="font-weight:400;text-transform:none;font-size:10px;">if invested instead</span></label><div class="s"><input class="inp" id="inv" type="number" step="0.1" placeholder="7.0"><span>%</span></div></div>
+    </div>
+
+    <!-- Owning -->
+    <div class="card" style="border-top:3px solid #15803d;">
+      <div class="ch"><div class="ci" style="background:#dcfce7;">🏠</div><span class="ct" style="color:#15803d;">Owning</span></div>
+      <div class="f"><label class="lb">Home Purchase Price ($)</label><div class="p"><span>$</span><input class="inp" id="hp" type="number" placeholder="450,000"></div></div>
+      <div class="f"><label class="lb">Down Payment ($)</label><div class="p"><span>$</span><input class="inp" id="dpv" type="number" placeholder="90,000"></div></div>
+      <div class="f"><label class="lb">Mortgage Interest Rate (%)</label><div class="s"><input class="inp" id="mr" type="number" step="0.01" placeholder="6.75"><span>%</span></div></div>
+      <div class="f"><label class="lb">Loan Term</label>
+        <select class="inp" id="mt"><option value="30">30 Years</option><option value="20">20 Years</option><option value="15">15 Years</option></select></div>
+      <div class="f"><label class="lb">Annual Property Tax Rate (%)</label><div class="s"><input class="inp" id="ptax" type="number" step="0.01" placeholder="0.55"><span>%</span></div></div>
+      <div class="f"><label class="lb">Annual Home Insurance ($)</label><div class="p"><span>$</span><input class="inp" id="hins" type="number" placeholder="2,000"></div></div>
+      <div class="f"><label class="lb">Monthly HOA ($)</label><div class="p"><span>$</span><input class="inp" id="hoav" type="number" placeholder="0"></div></div>
+      <div class="f"><label class="lb">Annual Maintenance (% of value)</label><div class="s"><input class="inp" id="mnt" type="number" step="0.1" placeholder="1.0"><span>%</span></div></div>
+      <div class="f"><label class="lb">Closing Costs (%)</label><div class="s"><input class="inp" id="cc" type="number" step="0.1" placeholder="3.0"><span>%</span></div></div>
+    </div>
+
+    <!-- Analysis Parameters -->
+    <div class="card">
+      <div class="ch"><div class="ci" style="background:#fef3c7;">📊</div><span class="ct">Analysis Parameters</span></div>
+      <div class="f"><label class="lb">Home Appreciation (%/yr)</label><div class="s"><input class="inp" id="app" type="number" step="0.1" placeholder="3.5"><span>%</span></div></div>
+      <div class="f"><label class="lb">Your Tax Bracket (%)</label>
+        <select class="inp" id="txbkt">
+          <option value="10">10% — up to $11.9k (Single) / $23.9k (MFJ) 2025</option>
+          <option value="12">12% — up to $48.5k (Single) / $96.9k (MFJ) 2025</option>
+          <option value="22" selected>22% — up to $103.4k (Single) / $206.7k (MFJ) 2025</option>
+          <option value="24">24% — up to $197.3k (Single) / $394.6k (MFJ) 2025</option>
+          <option value="32">32% — up to $250.5k (Single) / $501k (MFJ) 2025</option>
+          <option value="35">35% — up to $626.4k (Single) / $751.6k (MFJ) 2025</option>
+          <option value="37">37% — over $626.4k (Single) / $751.6k (MFJ) 2025</option>
+        </select></div>
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px;margin-bottom:10px;font-size:12px;color:#166534;">
+        <strong>💡 Tax Benefit of Owning:</strong> Mortgage interest is tax-deductible. Your bracket determines how much the government effectively subsidizes your ownership cost. At 22%, every $1,000 in interest costs you only $780 net.
+      </div>
+      <div class="f"><label class="lb">How Long Do You Plan to Stay? (Years)</label><input class="inp" id="hold" type="number" placeholder="10"></div>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;font-size:12px;color:#64748b;">
+        The longer you stay, the more owning tends to win. Break-even is typically 4–7 years nationally (2025). In high price-to-rent markets (NYC, SF, LA), renting often wins for shorter holds.
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin:8px 0;">
+    <button class="btn-b" onclick="calc()" style="padding:13px 36px;font-size:15px;">Compare Rent vs. Own →</button>
+  </div>
+</div><!-- /inputs -->
+
+<!-- RESULTS -->
+<div id="tr" class="tp">
+  <div id="verdict" style="margin-bottom:18px;"></div>
+
+  <div class="g2" style="margin-bottom:18px;">
+    <!-- Rent side -->
+    <div class="card" style="border-top:3px solid #1d4ed8;">
+      <p style="font-size:13px;font-weight:700;color:#1d4ed8;margin-bottom:12px;">🏘️ True Cost of Renting</p>
+      <div id="rentCost"></div>
+    </div>
+    <!-- Own side -->
+    <div class="card" style="border-top:3px solid #15803d;">
+      <p style="font-size:13px;font-weight:700;color:#15803d;margin-bottom:12px;">🏠 True Cost of Owning</p>
+      <div id="ownCost"></div>
+    </div>
+  </div>
+
+  <!-- Break-even -->
+  <div class="card" style="margin-bottom:18px;">
+    <p style="font-size:13px;font-weight:600;margin-bottom:12px;">⏱️ Break-Even Analysis</p>
+    <div id="breakEven"></div>
+  </div>
+
+  <!-- Tax benefit callout -->
+  <div id="taxBenCard" class="card" style="margin-bottom:18px;background:#f0fdf4;border:1px solid #bbf7d0;"></div>
+
+  <div style="display:flex;gap:8px;" class="no-print">
+    <a href="index-affordability" class="btn-o" style="font-size:13px;">🏠 Check Affordability →</a>
+    <a href="index-mortgage-payoff" class="btn-o" style="font-size:13px;">📅 Mortgage Payoff →</a>
+  </div>
+</div>
+
+<!-- TIMELINE -->
+<div id="tl" class="tp">
+  <div class="card" style="overflow-x:auto;">
+    <p style="font-size:13px;font-weight:600;margin-bottom:14px;">Year-by-Year Comparison</p>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:700px;">
+      <thead>
+        <tr style="background:#f8fafc;">
+          <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Year</th>
+          <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#1d4ed8;border-bottom:2px solid #e2e8f0;">Cum. Rent Cost</th>
+          <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#15803d;border-bottom:2px solid #e2e8f0;">Cum. Own Cost</th>
+          <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#15803d;border-bottom:2px solid #e2e8f0;">Equity Built</th>
+          <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#15803d;border-bottom:2px solid #e2e8f0;">Home Value</th>
+          <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Tax Savings (Cum.)</th>
+          <th style="padding:8px 10px;text-align:center;font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Winner</th>
+        </tr>
+      </thead>
+      <tbody id="timelineBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- CHART -->
+<div id="tc" class="tp">
+  <div class="g2">
+    <div class="card"><p style="font-size:13px;font-weight:600;margin-bottom:14px;">Net Cost Over Time (after equity &amp; tax savings)</p><div style="position:relative;height:300px;"><canvas id="cLine"></canvas></div></div>
+    <div class="card"><p style="font-size:13px;font-weight:600;margin-bottom:14px;">Year <span id="yrLabel">10</span>: Cost Breakdown</p><div style="position:relative;height:300px;"><canvas id="cDonut"></canvas></div></div>
+  </div>
+</div>
+
+</div>
+
+<div class="repro-other-tools">
+  <div class="repro-other-lbl">Other Tools</div>
+  <div class="repro-other-grid">
+    <a href="index-affordability" class="repro-tool-link">🏠 Affordability</a>
+    <a href="index-mortgage-payoff" class="repro-tool-link">📅 Mortgage Payoff</a>
+    <a href="index-multifamily" class="repro-tool-link">🏢 Multifamily</a>
+  </div>
+</div>
+<div style="height:48px;background:var(--repro-off,#fafafa);"></div>
+
+<footer class="repro-footer">
+  <div class="repro-ft-inner">
+    <div class="repro-ft-grid">
+      <div class="repro-ft-brand">
+        <a href="index" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;">
+          <svg width="28" height="28" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#2563eb"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
+          <span style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:800;color:white;letter-spacing:-.4px;">RE<span style="font-weight:400;">Proforma</span></span>
+        </a>
+        <p>Free institutional-grade real estate investment tools. Browser-based. 2026 benchmarks.</p>
+        <p class="repro-ft-note">All calculations run locally. Your data never leaves your device.</p>
+      </div>
+      <div>
+        <div class="repro-ft-lbl">Tools</div>
+        <div class="repro-ft-links">
+          <a href="index-multifamily">Multifamily</a>
+          <a href="index-mixeduse">Commercial/NNN</a>
+          <a href="index-land">Land Dev</a>
+          <a href="index-affordability">Home Affordability</a>
+          <a href="index-rentvsbuy">Rent vs. Own</a>
+          <a href="index-mortgage-payoff">Mortgage Payoff</a>
+        </div>
+      </div>
+      <div>
+        <div class="repro-ft-lbl">Learn</div>
+        <div class="repro-ft-links">
+          <a href="how-to-underwrite-multifamily">Multifamily Guide</a>
+          <a href="how-to-analyze-commercial-retail">Commercial Guide</a>
+          <a href="land-development-proforma-guide">Land Dev Guide</a>
+          <a href="https://www.cbre.com/insights/reports/us-cap-rate-survey-h1-2025" target="_blank">CBRE 2026 ↗</a>
+        </div>
+      </div>
+      <div>
+        <div class="repro-ft-lbl">Company</div>
+        <div class="repro-ft-links" style="margin-bottom:18px;">
+          <a href="about">About</a><a href="privacy">Privacy</a><a href="terms">Terms</a>
+        </div>
+        <div class="repro-ft-lbl">Stay updated</div>
+        <div class="repro-email-row"><input type="email" class="repro-ei" placeholder="your@email.com"><button class="repro-eb">→</button></div>
+      </div>
+    </div>
+    <div class="repro-ft-bot">
+      <span>&copy; 2026 REProforma. Not financial advice.</span>
+      <div style="display:flex;gap:16px;"><a href="privacy">Privacy</a><a href="terms">Terms</a></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var mb=document.getElementById('repro-mob-btn'),mm=document.getElementById('repro-mob-menu');
+  if(mb&&mm)mb.addEventListener('click',function(){mm.style.display=mm.style.display==='block'?'none':'block';});
+  function closeAll(){document.querySelectorAll('.repro-ddp').forEach(function(p){p.classList.remove('open');});}
+  [['rddT','rddTm','rddTb'],['rddL','rddLm','rddLb']].forEach(function(ids){
+    var w=document.getElementById(ids[0]),p=document.getElementById(ids[1]),b=document.getElementById(ids[2]);
+    if(!w||!p)return;var t;
+    w.addEventListener('mouseenter',function(){clearTimeout(t);p.classList.add('open');});
+    w.addEventListener('mouseleave',function(){t=setTimeout(function(){p.classList.remove('open');},180);});
+    if(b)b.addEventListener('click',function(e){e.stopPropagation();var o=p.classList.contains('open');closeAll();if(!o)p.classList.add('open');});
+  });
+  document.addEventListener('click',function(e){if(!e.target.closest('.repro-ddr'))closeAll();});
+})();
+</script>
+
+<script>
+const $=id=>document.getElementById(id);
+const num=id=>parseFloat($(id)?.value)||0;
+const set=(id,v)=>{if($(id))$(id).value=v;};
+const fmt=v=>'$'+Math.round(v).toLocaleString();
+const pct=(v,d=1)=>v.toFixed(d)+'%';
+document.addEventListener('click',e=>{if(!e.target.closest('.nav-wrap'))document.querySelectorAll('.nav-dd').forEach(d=>d.classList.remove('open'));});
+document.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.tp').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); $(b.dataset.t).classList.add('on');
+  if(b.dataset.t==='tc' && _data.length) renderChart();
+}));
+function sw(id){document.querySelectorAll('.tb').forEach(x=>x.classList.toggle('on',x.dataset.t===id));document.querySelectorAll('.tp').forEach(x=>x.classList.toggle('on',x.id===id));}
+const CH={};
+function mkC(id,cfg){if(CH[id])CH[id].destroy();CH[id]=new Chart($(id),cfg);}
+
+let _data=[];
+
+function calc(){
+  const monthlyRent=num('rent'), rentInc=num('ri')/100, rIns=num('rins');
+  const invRet=num('inv')/100, homePrice=num('hp'), dp=num('dpv');
+  const rate=num('mr')/100, term=parseInt($('mt').value)||30;
+  const txRate=num('ptax')/100, homeIns=num('hins')/12, hoaM=num('hoav');
+  const maintPct=num('mnt')/100, closingPct=num('cc')/100;
+  const appreciation=num('app')/100, taxBracket=num('txbkt')/100;
+  const holdYears=Math.max(1,Math.min(30,num('hold')||10));
+
+  if(!monthlyRent||!homePrice||!rate){alert('Please fill in rent, home price, and mortgage rate.');return;}
+
+  const loan=homePrice-dp, moRate=rate/12, n=term*12;
+  const moPI=loan&&moRate?loan*moRate/(1-Math.pow(1+moRate,-n)):0;
+  const closingCosts=homePrice*closingPct;
+  const pmi=dp/homePrice<0.20?loan*0.005/12:0;
+
+  // Standard deduction 2025 (MFJ assumption — can't know filing status precisely)
+  // Single: $15,000 | MFJ: $30,000
+  // We use MFJ as it's more common for homebuyers
+  const stdDeduction=30000; // 2025 MFJ standard deduction
+  // SALT cap: $40,000 (raised from $10,000 under One Big Beautiful Bill Act, 2025-2029)
+  const saltCap=40000;
+
+  _data=[]; let cumRent=0, cumOwn=closingCosts+dp;
+  let loanBal=loan, homeVal=homePrice, cumTaxSave=0;
+  let curRent=monthlyRent;
+
+  // Renter: invests down payment amount (closing costs were never spent by renter)
+  let rentInvest=dp;  // renter invests the equivalent of down payment
+
+  for(let yr=1;yr<=Math.max(holdYears,30);yr++){
+    // ── RENT side ─────────────────────────────────────────────────
+    let yrRent=0;
+    for(let m=0;m<12;m++){yrRent+=curRent+rIns;curRent*=(1+rentInc/12);}
+    cumRent+=yrRent;
+    // Renter's invested down payment grows at investment return
+    // ALSO: renter invests the monthly savings vs owning (if any) — simplified: just grow dp
+    rentInvest*=(1+invRet);
+
+    // ── OWN side — mortgage ────────────────────────────────────────
+    homeVal*=(1+appreciation);
+    let yrInt=0,yrPrin=0;
+    for(let m=0;m<12;m++){
+      if(loanBal>0){
+        const ip=loanBal*moRate, pp=Math.min(moPI-ip,loanBal);
+        yrInt+=ip; yrPrin+=pp; loanBal-=pp;
+      }
+    }
+
+    // ── Tax deduction (2025 rules) ─────────────────────────────────
+    // Mortgage interest deduction (up to $750k loan)
+    const deductibleMortgageInt=Math.min(yrInt, loan>750000?yrInt*(750000/loan):yrInt);
+    // Property tax (SALT, now $40k cap per OBBBA 2025)
+    const propTaxAmt=homeVal*txRate;
+    const deductiblePropTax=Math.min(propTaxAmt,saltCap);
+    // Total itemizable deductions
+    const totalItemizable=deductibleMortgageInt+deductiblePropTax;
+    // Only benefits taxpayer if itemized > standard deduction
+    const itemizingBenefit=Math.max(0,totalItemizable-stdDeduction)*taxBracket;
+    cumTaxSave+=itemizingBenefit;
+
+    const yrMaintAmt=homeVal*maintPct;
+    const yrOwnBase=moPI*12+homeVal*txRate+homeIns*12+hoaM*12+yrMaintAmt+(loanBal/homePrice>0.80?pmi*12:0);
+    const yrOwnNet=yrOwnBase-itemizingBenefit;
+    cumOwn+=yrOwnNet;
+
+    const equity=homeVal-Math.max(0,loanBal);
+    // Net cost of owning = what you paid - equity you built
+    const netOwn=cumOwn-equity;
+    // Net cost of renting = rent paid - investment gains on down payment
+    const netRent=cumRent-(rentInvest-dp);
+
+    _data.push({yr,cumRent:Math.round(cumRent),cumOwn:Math.round(cumOwn),netOwn:Math.round(netOwn),netRent:Math.round(netRent),homeVal:Math.round(homeVal),equity:Math.round(equity),loanBal:Math.round(Math.max(0,loanBal)),yrInt:Math.round(yrInt),taxSave:Math.round(itemizingBenefit),cumTaxSave:Math.round(cumTaxSave)});
+  }
+
+  const hd=_data[holdYears-1]||_data[_data.length-1];
+
+  // Add selling costs when owner exits (agent commissions + closing ≈ 5-6%)
+  const sellCostsPct=0.055; // 5.5% typical (3% buyer agent + 2.5% seller costs)
+  const exitSellCosts=Math.round(hd.homeVal*sellCostsPct);
+  const netOwnAfterSale=hd.netOwn+exitSellCosts; // selling costs added to total own cost
+
+  const diff=hd.netRent-netOwnAfterSale;
+  const ownWins=diff>0;
+  const isTie=Math.abs(diff)<hd.cumRent*0.03;
+
+  let beYr=null;
+  for(let i=0;i<_data.length;i++){
+    const sellCostExit=Math.round(_data[i].homeVal*sellCostsPct);
+    if(_data[i].netOwn+sellCostExit<_data[i].netRent){beYr=_data[i].yr;break;}
+  }
+
+  // Verdict
+  let vhtml='';
+  if(isTie) vhtml=`<div class="verdict-tie"><p style="font-size:22px;font-weight:700;color:#92400e;margin-bottom:8px;">🤝 Too Close to Call Over ${holdYears} Years</p><p style="color:#78350f;font-size:14px;">Within 3% — lifestyle factors should decide. Finances are nearly equal.</p></div>`;
+  else if(ownWins) vhtml=`<div class="verdict-own"><p style="font-size:22px;font-weight:700;color:#15803d;margin-bottom:8px;">🏠 Owning Wins Over ${holdYears} Years</p><p style="color:#166534;font-size:14px;">Net savings of approximately <strong>${fmt(Math.abs(diff))}</strong> by owning vs. renting over your ${holdYears}-year horizon (including ~5.5% selling costs at exit).</p></div>`;
+  else vhtml=`<div class="verdict-rent"><p style="font-size:22px;font-weight:700;color:#1d4ed8;margin-bottom:8px;">🏘️ Renting Wins Over ${holdYears} Years</p><p style="color:#1e40af;font-size:14px;">Renting saves approximately <strong>${fmt(Math.abs(diff))}</strong> over ${holdYears} years. Owning may win if you stay longer — break-even at year ${beYr||'30+'}</p></div>`;
+  $('verdict').innerHTML=vhtml;
+
+  const crr=(l,v,hi=false,c='')=>`<div class="cr${hi?' tot':''}" style="${c?'background:'+(c==='#15803d'?'#f0fdf4':'#eff6ff')+';border-radius:6px;':''}"><span style="color:${c||'#374151'}">${l}</span><span style="color:${c||'inherit'};font-weight:${hi?700:500}">${v}</span></div>`;
+  $('rentCost').innerHTML=
+    crr('Total Rent Paid',fmt(hd.cumRent))+
+    crr('Renter\'s Insurance',fmt(Math.round(rIns*12*holdYears)))+
+    crr('Investment Gain on Down Payment ($'+Math.round(dp/1000)+'k @ '+pct(invRet*100)+')',`+${fmt(Math.round(rentInvest-dp))}`,false,'#15803d')+
+    crr('Net True Cost of Renting',fmt(hd.netRent),true,'#1d4ed8');
+
+  $('ownCost').innerHTML=
+    crr('Down Payment + Closing Costs',fmt(Math.round(dp+closingCosts)))+
+    crr('Total Mortgage Payments',fmt(Math.round(moPI*12*holdYears)))+
+    crr('Property Taxes',fmt(Math.round(homePrice*txRate*holdYears)))+
+    crr('Maintenance + Insurance + HOA',fmt(Math.round((homeIns*12+hoaM*12+homePrice*maintPct)*holdYears)))+
+    `<div class="cr" style="background:#f0fdf4;border-radius:6px;"><span style="color:#15803d;font-weight:600;">✅ Tax Savings (itemized deductions)</span><span style="color:#15803d;font-weight:700;">-${fmt(hd.cumTaxSave)}</span></div>`+
+    `<div class="cr" style="background:#fef3c7;border-radius:6px;"><span style="color:#b45309;">⚠️ Selling Costs at Exit (~5.5%)</span><span style="color:#b45309;">+${fmt(exitSellCosts)}</span></div>`+
+    crr('Equity Built',`+${fmt(hd.equity)}`,false,'#15803d')+
+    crr('Net True Cost of Owning (incl. exit costs)',fmt(netOwnAfterSale),true,'#15803d');
+
+  $('breakEven').innerHTML=beYr
+    ?`<div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+        <div style="text-align:center;"><div style="font-size:48px;font-weight:800;color:#0043ce;line-height:1;">${beYr}</div><div style="font-size:12px;color:#64748b;font-weight:600;">BREAK-EVEN YEAR</div></div>
+        <div style="flex:1;min-width:200px;">
+          <p style="font-size:14px;font-weight:600;margin-bottom:6px;">After year ${beYr}, owning becomes the cheaper option.</p>
+          <p style="font-size:13px;color:#64748b;">${holdYears>=beYr?'✅ You plan to stay past break-even — owning likely makes sense.':'⚠️ You plan to leave before break-even — renting may be smarter financially.'}</p>
+          <p style="font-size:11px;color:#94a3b8;margin-top:6px;">Note: Break-even includes ~5.5% selling costs. Typical break-even is 4–7 years nationally (2025).</p>
+        </div>
+      </div>`
+    :`<p style="color:#64748b;font-size:13px;">Renting remains cheaper throughout the analysis period, even after including investment returns on the down payment. This can happen when home prices are high relative to rents (price-to-rent ratio &gt;20×).</p>`;
+
+  $('taxBenCard').innerHTML=`
+    <p style="font-size:13px;font-weight:700;color:#166534;margin-bottom:8px;">💡 2025 Tax Law Update — Your ${pct(taxBracket*100,0)} Bracket</p>
+    <div style="background:#fef9c3;border:1px solid #fde68a;border-radius:7px;padding:10px;margin-bottom:10px;font-size:12px;color:#854d0e;">
+      <strong>⚡ 2025 Tax Change:</strong> SALT deduction cap raised from $10,000 to $40,000 under the One Big Beautiful Bill Act (2025–2029). This significantly improves tax benefits for homeowners in high-tax states. However, you only benefit if total itemized deductions exceed the standard deduction ($30,000 MFJ / $15,000 single in 2025).
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+      <div style="background:white;padding:12px;border-radius:8px;border:1px solid #bbf7d0;">
+        <p style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#166534;font-weight:600;margin-bottom:4px;">Year 1 Interest Paid</p>
+        <p style="font-size:20px;font-weight:700;">${fmt(_data[0].yrInt)}</p>
+      </div>
+      <div style="background:white;padding:12px;border-radius:8px;border:1px solid #bbf7d0;">
+        <p style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#166534;font-weight:600;margin-bottom:4px;">Year 1 Tax Saving</p>
+        <p style="font-size:20px;font-weight:700;color:${_data[0].taxSave>0?'#15803d':'#b91c1c'};">${_data[0].taxSave>0?fmt(_data[0].taxSave):'$0 (std ded. better)'}</p>
+      </div>
+      <div style="background:white;padding:12px;border-radius:8px;border:1px solid #bbf7d0;">
+        <p style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#166534;font-weight:600;margin-bottom:4px;">Total Tax Savings (${holdYears}yr)</p>
+        <p style="font-size:20px;font-weight:700;color:#15803d;">${fmt(hd.cumTaxSave)}</p>
+      </div>
+    </div>
+    <p style="font-size:11px;color:#475569;margin-top:10px;">Tax benefit only applies when itemized deductions (mortgage interest + up to $40k SALT + other) exceed the standard deduction. Roughly 10% of Americans itemize. At your <strong>${pct(taxBracket*100,0)} bracket</strong>, each $1 of deductible interest saves you <strong>${pct(taxBracket*100,0)} in taxes</strong>.</p>`;
+
+  let tbody='';
+  for(let i=0;i<Math.min(holdYears,_data.length);i++){
+    const d=_data[i];
+    const sc=Math.round(d.homeVal*sellCostsPct);
+    const ownWinsRow=d.netOwn+sc<d.netRent;
+    tbody+=`<tr style="border-bottom:1px solid #f8fafc;${i===holdYears-1?'background:#eff6ff;font-weight:600;':''}">
+      <td style="padding:7px 10px;">${d.yr}${i===holdYears-1?' ⭐':''}</td>
+      <td style="padding:7px 10px;text-align:right;color:#1d4ed8;">${fmt(d.cumRent)}</td>
+      <td style="padding:7px 10px;text-align:right;color:#15803d;">${fmt(d.cumOwn)}</td>
+      <td style="padding:7px 10px;text-align:right;color:#15803d;">${fmt(d.equity)}</td>
+      <td style="padding:7px 10px;text-align:right;">${fmt(d.homeVal)}</td>
+      <td style="padding:7px 10px;text-align:right;color:#15803d;">${fmt(d.cumTaxSave)}</td>
+      <td style="padding:7px 10px;text-align:center;font-weight:600;color:${ownWinsRow?'#15803d':'#1d4ed8'}">${ownWinsRow?'🏠 Own':'🏘️ Rent'}</td>
+    </tr>`;
+  }
+  $('timelineBody').innerHTML=tbody;
+  if($('yrLabel'))$('yrLabel').textContent=holdYears;
+
+  _ownMonthlyPI=moPI;
+  renderChart();
+  sw('tr');
+}
+
+let _ownMonthlyPI=0;
+
+function renderChart(){
+  if(!_data.length) return;
+  const holdY=num('hold')||10;
+  const slice=_data.slice(0,Math.min(Math.max(holdY,10),30));
+  const hd=_data[holdY-1]||_data[_data.length-1];
+  const copts={responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:11},boxWidth:10}}},scales:{y:{ticks:{font:{size:10},callback:v=>'$'+(v/1000).toFixed(0)+'k'},grid:{color:'#f8fafc'}},x:{ticks:{font:{size:10}},grid:{display:false}}}};
+  mkC('cLine',{type:'line',data:{labels:slice.map(d=>'Yr '+d.yr),datasets:[
+    {label:'Net Cost of Renting',data:slice.map(d=>d.netRent),borderColor:'#1d4ed8',backgroundColor:'rgba(29,78,216,.06)',fill:true,tension:.4,borderWidth:2},
+    {label:'Net Cost of Owning',data:slice.map(d=>d.netOwn),borderColor:'#15803d',backgroundColor:'rgba(21,128,61,.06)',fill:true,tension:.4,borderWidth:2},
+  ]},options:copts});
+  mkC('cDonut',{type:'doughnut',data:{labels:['Mortgage Payments','Property Tax','Maintenance','Insurance/HOA','Tax Savings (benefit)','Equity'],datasets:[{data:[Math.round(_ownMonthlyPI*12*holdY),Math.round(num('hp')*num('ptax')/100*holdY),Math.round(num('hp')*num('mnt')/100*holdY),Math.round((num('hins')+num('hoav')*12)*holdY),hd.cumTaxSave,hd.equity].map(v=>Math.max(0,v)),backgroundColor:['#0043ce','#f97316','#64748b','#a855f7','#15803d','#22c55e'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}}}});
+}
+
+
+function exportXLS(){
+  if(!window.XLSX){alert('XLSX library not loaded.');return;}
+  if(!_data||!_data.length){alert('Please run the calculator first.');return;}
+  const hold=Math.max(1,Math.min(30,num('hold')||10));
+  const hd=_data[hold-1]||_data[_data.length-1];
+  const wb=XLSX.utils.book_new();
+  // Summary sheet
+  const ws1=XLSX.utils.aoa_to_sheet([
+    ['RENT vs. OWN ANALYSIS — REProforma'],
+    [''],
+    ['INPUTS','Renting','Owning'],
+    ['Monthly Rent / Home Price',num('rent'),num('hp')],
+    ['Annual Increase / Appreciation',num('ri')+'%',num('app')+'%'],
+    ['Down Payment','—',num('dpv')],
+    ['Mortgage Rate / Term','—',num('mr')+'% / '+$('mt').value+' yr'],
+    ['Annual Property Tax Rate','—',num('ptax')+'%'],
+    [''],
+    ['RESULTS AT YEAR '+hold,'Renting','Owning'],
+    ['Cumulative Gross Costs',hd.cumRent,hd.cumOwn],
+    ['Investment/Equity Built',Math.round(num('inv')?(_data.reduce((a,b,i)=>i>0?a:0,0)):0),hd.equity],
+    ['Cumulative Tax Savings','—',hd.cumTaxSave],
+    ['Net True Cost',hd.netRent,hd.netOwn],
+    ['Home Value at Exit','—',hd.homeVal],
+    ['Loan Balance at Exit','—',hd.loanBal],
+    [''],
+    ['YEAR-BY-YEAR','Cum Rent','Cum Own Cost','Equity','Home Value','Tax Savings (cum)','Winner'],
+    ..._data.slice(0,hold).map(d=>[d.yr,d.cumRent,d.cumOwn,d.equity,d.homeVal,d.cumTaxSave,d.netOwn<d.netRent?'OWN':'RENT']),
+  ]);
+  ws1['!cols']=[{wch:28},{wch:18},{wch:18}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Analysis');
+  const fname='RentVsOwn_'+num('hp').toString().replace(/000$/,'k')+'_'+hold+'yr.xlsx';
+  XLSX.writeFile(wb,fname);
+}
+
+// Demo: Denver CO, 2024 — renter considering buying a townhome
+function loadDemo(){
+  set('rent','2400'); set('ri','3.5'); set('rins','28'); set('inv','7');
+  set('hp','480000'); set('dpv','96000'); set('mr','6.875'); $('mt').value='30';
+  set('ptax','0.52'); set('hins','2200'); set('hoav','250'); set('mnt','1.0');
+  set('cc','2.5'); set('app','4.0'); $('txbkt').value='22'; set('hold','10');
+  calc();
+}
+function resetAll(){
+  ['rent','ri','rins','inv','hp','dpv','mr','ptax','hins','hoav','mnt','cc','app','hold'].forEach(id=>{const e=$(id);if(e)e.value='';});
+  $('mt').value='30'; $('txbkt').value='22'; _data=[];
+  ['verdict','rentCost','ownCost','breakEven','taxBenCard','timelineBody'].forEach(id=>{if($(id))$(id).innerHTML='';});
+  sw('ti');
+}
+</script><script>
+(function(){
+  // Show/hide desktop nav vs hamburger based on viewport
+  function ckW(){
+    var mob = window.innerWidth < 768;
+    var dn  = document.getElementById('desk-nav');
+    var mb  = document.getElementById('mob-btn');
+    if(dn) dn.style.display = mob ? 'none' : 'flex';
+    if(mb) mb.style.display = mob ? 'block' : 'none';
+  }
+  window.addEventListener('resize', ckW);
+  ckW(); // run immediately on load
+
+  // Hamburger opens/closes mobile menu via style.display (not Tailwind 'hidden')
+  var btn = document.getElementById('mob-btn');
+  var menu = document.getElementById('mob-menu');
+  if(btn && menu) btn.addEventListener('click', function(){
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+  });
+
+  // Mobile sub-accordions
+  document.querySelectorAll('.mob-tog').forEach(function(b){
+    b.addEventListener('click', function(){
+      var sub = b.nextElementSibling;
+      var arr = b.querySelector('.mob-arr');
+      var open = sub.style.display === 'block';
+      sub.style.display = open ? 'none' : 'block';
+      if(arr) arr.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
+    });
+  });
+
+  // Desktop dropdowns
+  function openDD(m, b){ m.classList.add('open'); if(b) b.classList.add('open'); }
+  function closeAll(){
+    document.querySelectorAll('.dd-menu').forEach(function(m){ m.classList.remove('open'); });
+    document.querySelectorAll('.dd-trig').forEach(function(b){ b.classList.remove('open'); });
+  }
+  function setupDD(wId, mId, bId){
+    var w = document.getElementById(wId);
+    var m = document.getElementById(mId);
+    var b = document.getElementById(bId);
+    if(!w || !m) return;
+    var t;
+    w.addEventListener('mouseenter', function(){ clearTimeout(t); openDD(m, b); });
+    w.addEventListener('mouseleave', function(){
+      t = setTimeout(function(){ m.classList.remove('open'); if(b) b.classList.remove('open'); }, 120);
+    });
+    if(b) b.addEventListener('click', function(e){
+      e.stopPropagation();
+      var open = m.classList.contains('open');
+      closeAll();
+      if(!open) openDD(m, b);
+    });
+  }
+  setupDD('ddT', 'ddTm', 'ddTb');
+  setupDD('ddM', 'ddMm', 'ddMb');
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('.dd-wrap')) closeAll();
+  });
+})();
+
+// ── Save Deal ──────────────────────────────────────────────────
+function saveDeal(){
+  var modal=document.getElementById('saveModal');
+  if(!modal)return;
+  modal.style.display='flex';
+  setTimeout(function(){var ne=document.getElementById('dealName');if(ne)ne.focus();},100);
+}
+function confirmSave(){
+  var name=document.getElementById('dealName')?.value||'Untitled Deal';
+  var address=document.getElementById('dealAddress')?.value||'';
+  try{
+    var deals=[];
+    try{var raw=localStorage.getItem('reproforma_deals');if(raw)deals=JSON.parse(raw);}catch(e){}
+    var id='deal_'+Date.now();
+    var resultVal='Hold: '+(num('hold')||10)+' yr analysis';
+    var deal={
+      id:id, tool:'rentvsbuy', name:name, address:address,
+      saved:new Date().toISOString(), result:resultVal,
+      inputs:{
+        rent: document.getElementById('rent')?.value||'',
+        homePrice: document.getElementById('hp')?.value||'',
+        dp: document.getElementById('dpv')?.value||'',
+        rate: document.getElementById('mr')?.value||'',
+        hold: document.getElementById('hold')?.value||'',
+        app: document.getElementById('app')?.value||'',
+      }
+    };
+    deals.unshift(deal);
+    if(deals.length>20)deals=deals.slice(0,20);
+    localStorage.setItem('reproforma_deals',JSON.stringify(deals));
+    document.getElementById('saveModal').style.display='none';
+    var t=document.getElementById('saveToast');
+    if(t){t.textContent='✓ Saved: '+name;t.style.display='block';setTimeout(function(){t.style.display='none';},3000);}
+  }catch(e){document.getElementById('saveModal').style.display='none';alert('Save failed: '+e.message);}
+}
+document.getElementById('saveModal')?.addEventListener('click',function(e){if(e.target===this)this.style.display='none';});
+
+</script>
+
+<!-- SAVE DEAL MODAL -->
+<div id="saveModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:14px;padding:28px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+    <h3 style="font-size:16px;font-weight:700;margin-bottom:6px;">💾 Save this deal</h3>
+    <p style="font-size:13px;color:#64748b;margin-bottom:16px;">Give it a name to find it later. Stored in your browser — no account needed.</p>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#64748b;display:block;margin-bottom:4px;">Deal Name</label>
+      <input id="dealName" type="text" placeholder="e.g. My Deal Analysis" style="width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;font-family:Inter,sans-serif;outline:none;">
+    </div>
+    <div style="margin-bottom:16px;">
+      <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#64748b;display:block;margin-bottom:4px;">Address / Location (optional)</label>
+      <input id="dealAddress" type="text" placeholder="e.g. 123 Main St, Austin TX" style="width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;font-family:Inter,sans-serif;outline:none;">
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="confirmSave()" style="flex:1;background:#0043ce;color:white;border:none;border-radius:8px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;">Save Deal</button>
+      <button onclick="document.getElementById('saveModal').style.display='none'" style="background:white;color:#475569;border:1px solid #cbd5e1;border-radius:8px;padding:11px 18px;font-size:14px;cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+</div>
+<div id="saveToast" style="display:none;position:fixed;bottom:24px;right:24px;background:#15803d;color:white;padding:14px 20px;border-radius:10px;font-size:14px;font-weight:600;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,.2);">✓ Deal saved!</div>
+
+</body>
+</html>

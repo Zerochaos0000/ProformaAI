@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Multifamily Acquisition Proforma | REProforma</title>
+<link rel="icon" type="image/png" href="favicon.ico"/>
+
+
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;font-size:13px;}
+a{text-decoration:none;color:inherit;}
+/* ── Nav ── */
+.dd-menu{display:none;position:absolute;left:0;top:100%;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.12);border:1px solid #f1f5f9;z-index:50;min-width:220px;padding:6px 0;}
+.dd-menu.open{display:block;}.dd-wrap{position:relative;}
+.dd-trig{display:flex;align-items:center;gap:4px;font-size:13px;background:none;border:none;cursor:pointer;padding:20px 0;color:#525252;font-family:'Inter',sans-serif;font-weight:500;}
+.dd-trig:hover{color:#0043ce;}.dd-item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:#374151;text-decoration:none;border-left:2px solid transparent;}
+.dd-item:hover,.dd-item.cur{background:#eff6ff;color:#0043ce;border-left-color:#0043ce;}
+.dd-lbl{padding:6px 16px 3px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;}
+.dd-div{height:1px;background:#f1f5f9;margin:4px 16px;}
+/* ── Layout ── */
+.wrap{max-width:1280px;margin:0 auto;padding:0 16px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.g8{display:grid;grid-template-columns:repeat(8,1fr);gap:10px;}
+@media(max-width:1100px){.g4{grid-template-columns:repeat(2,1fr);}.g8{grid-template-columns:repeat(4,1fr);}}
+@media(max-width:700px){.g2,.g3,.g4,.g8{grid-template-columns:1fr;}}
+/* ── Cards ── */
+.card{background:white;border:1px solid #e2e8f0;border-radius:12px;padding:18px;}
+.sec{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#94a3b8;padding-bottom:8px;border-bottom:1px solid #f1f5f9;margin-bottom:14px;}
+/* ── Form ── */
+.f{margin-bottom:10px;}
+.lbl{font-size:10px;font-weight:700;color:#64748b;letter-spacing:.04em;text-transform:uppercase;display:block;margin-bottom:3px;}
+.inp{width:100%;padding:7px 10px;border:1px solid #cbd5e1;border-radius:7px;font-size:13px;font-family:'Inter',sans-serif;color:#1e293b;background:white;outline:none;transition:border-color .15s;}
+.inp:focus{border-color:#0043ce;box-shadow:0 0 0 3px rgba(0,67,206,.08);}
+.inp-p{position:relative;}.inp-p span{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:11px;color:#94a3b8;pointer-events:none;}.inp-p .inp{padding-left:18px;}
+.inp-s{position:relative;}.inp-s span{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:11px;color:#94a3b8;pointer-events:none;}.inp-s .inp{padding-right:24px;}
+.hint{font-size:10px;color:#94a3b8;margin-top:2px;line-height:1.3;}
+/* ── Tabs ── */
+.tab-bar{display:flex;border-bottom:1px solid #e2e8f0;background:white;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.tab-btn{padding:12px 18px;font-size:12px;font-weight:500;color:#64748b;border:none;border-bottom:2px solid transparent;background:none;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;flex-shrink:0;}
+.tab-btn.active{color:#0043ce;border-bottom-color:#0043ce;font-weight:600;}
+.tab-panel{display:none;}.tab-panel.active{display:block;}
+/* ── KPI ── */
+.kpi{background:white;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;}
+.kpi-val{font-size:20px;font-weight:700;line-height:1;margin-bottom:3px;}
+.kpi-lbl{font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#94a3b8;}
+.kpi-sub{font-size:10px;color:#94a3b8;margin-top:2px;}
+.pbar{height:4px;background:#e2e8f0;border-radius:2px;margin-top:6px;overflow:hidden;}
+.pbar-f{height:100%;border-radius:2px;transition:width .5s;}
+/* ── Proforma table ── */
+.pro-table{width:100%;border-collapse:collapse;font-size:12px;}
+.pro-table th{background:#f8fafc;padding:8px 12px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;white-space:nowrap;}
+.pro-table th:first-child{text-align:left;min-width:200px;}
+.pro-table th:not(:first-child){text-align:right;}
+.pro-table td{padding:7px 12px;border-bottom:1px solid #f8fafc;white-space:nowrap;}
+.pro-table td:first-child{text-align:left;color:#475569;}
+.pro-table td:not(:first-child){text-align:right;font-variant-numeric:tabular-nums;}
+.pro-table tr.sec-hd td{background:#f1f5f9;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#475569;padding:5px 12px;border-top:1px solid #e2e8f0;}
+.pro-table tr.hi td{background:#eff6ff;font-weight:700;color:#0043ce;border-top:1px solid #bfdbfe;}
+.pro-table td.neg{color:#dc2626;}.pro-table td.ind{padding-left:22px;}
+.pro-table tr:hover:not(.sec-hd):not(.hi) td{background:#fafbff;}
+/* ── Sensitivity table ── */
+.sen-tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.sen-tbl th{padding:6px 10px;background:#f8fafc;font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0;}
+.sen-tbl td{padding:6px 10px;border-bottom:1px solid #f8fafc;font-variant-numeric:tabular-nums;}
+.sen-tbl td:not(:first-child),.sen-tbl th:not(:first-child){text-align:right;}
+.sen-tbl tr.base td{background:#eff6ff;font-weight:600;color:#0043ce;}
+/* ── Waterfall ── */
+.wf{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-radius:5px;font-size:13px;}
+/* ── Buttons ── */
+.btn-p{background:#0043ce;color:white;border:none;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-p:hover{background:#0035a8;}
+.btn-o{background:white;color:#475569;border:1px solid #cbd5e1;border-radius:8px;padding:7px 14px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-g{background:#15803d;color:white;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;}
+.btn-d{background:#1e293b;color:white;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;}
+/* ── Badges ── */
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:600;}
+/* ── Score bar ── */
+.sb{height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden;margin-top:4px;}
+.sb-f{height:100%;border-radius:3px;transition:width .5s;}
+/* ── Live preview box ── */
+.lpv{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;}
+.lpv-row{display:flex;justify-content:space-between;font-size:12px;padding:2px 0;}
+.lpv-row span:first-child{color:#64748b;}.lpv-row span:last-child{font-weight:600;}
+/* ── Unit mix sub-section ── */
+.unit-sec{border-bottom:1px solid #f1f5f9;padding-bottom:10px;margin-bottom:10px;}
+.unit-sec:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+/* ── Print ── */
+@media print{
+  header,.no-print,button,nav{display:none!important;}
+  body{font-size:10pt;background:white!important;}
+  .tab-panel{display:block!important;}
+  .tab-bar{display:none!important;}
+  .card{border:1px solid #ccc!important;break-inside:avoid;}
+  #tab-inputs{display:none!important;}
+  #tab-results,#tab-proforma{display:block!important;page-break-after:always;}
+  #tab-charts,#tab-sensitivity{display:none!important;}
+  .g2,.g3,.g4,.g8{display:block!important;}
+  .g2>*,.g3>*,.g4>*{margin-bottom:12px;}
+  .pro-table{font-size:9pt;}
+  .wrap{padding:0!important;}
+}
+/* ── Responsive footer ── */
+@media(max-width:768px){.ft-grid{grid-template-columns:1fr 1fr!important;}}
+@media(max-width:480px){.ft-grid{grid-template-columns:1fr!important;}}
+</style>
+<style id="repro-nav-footer">
+/* ── REProforma Nav + Footer ── */
+/* Scoped so tool CSS wins for everything else */
+:root{
+  --repro-blue:#2563eb;
+  --repro-blue-l:#3b82f6;
+  --repro-blue-bg:#eff6ff;
+  --repro-border:#e4e4e7;
+  --repro-ink:#09090b;
+  --repro-ink2:#18181b;
+  --repro-muted:#71717a;
+  --repro-off:#fafafa;
+  --repro-dark:#0f172a;
+  --repro-dark2:#111827;
+  --repro-green:#16a34a;
+  --repro-shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --repro-shadow-lg:0 12px 40px rgba(0,0,0,.12);
+  --repro-mono:'Geist Mono',monospace;
+  --repro-sans:'DM Sans',sans-serif;
+}
+
+/* NAV */
+.repro-nav{
+  position:sticky;top:0;z-index:9999;height:60px;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(0,0,0,.06);
+  box-shadow:0 1px 0 rgba(0,0,0,.04);
+}
+.repro-nav-inner{
+  max-width:1280px;margin:0 auto;padding:0 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  height:100%;gap:16px;
+}
+.repro-logo{display:flex;align-items:center;gap:9px;flex-shrink:0;text-decoration:none;}
+.repro-wm{font-family:var(--repro-sans);font-size:19px;font-weight:800;letter-spacing:-.5px;line-height:1;}
+.repro-wm .r{color:var(--repro-blue);}
+.repro-wm .p{color:var(--repro-blue);font-weight:400;}
+.repro-nav-links{display:flex;align-items:center;gap:1px;margin-left:auto;}
+.repro-nl{
+  font-size:13px;font-weight:500;color:var(--repro-muted);
+  padding:6px 12px;border-radius:7px;cursor:pointer;
+  border:none;background:none;font-family:var(--repro-sans);
+  display:inline-flex;align-items:center;gap:4px;
+  transition:color .15s,background .15s;white-space:nowrap;
+  text-decoration:none;
+}
+.repro-nl:hover{color:var(--repro-ink);background:var(--repro-off);}
+.repro-nl.on{color:var(--repro-blue);font-weight:600;}
+.repro-cta{
+  background:var(--repro-blue);color:white;
+  font-family:var(--repro-sans);font-size:13px;font-weight:700;
+  padding:8px 18px;border-radius:9px;border:none;cursor:pointer;
+  flex-shrink:0;transition:background .15s;white-space:nowrap;
+  text-decoration:none;display:inline-block;
+}
+.repro-cta:hover{background:#1d4ed8;}
+
+/* DROPDOWN */
+.repro-ddr{position:relative;display:inline-block;}
+.repro-ddp{
+  display:none;position:absolute;top:calc(100%+6px);left:0;
+  background:white;border:1px solid var(--repro-border);border-radius:12px;
+  box-shadow:var(--repro-shadow-lg);padding:8px;min-width:216px;z-index:10000;
+}
+.repro-ddp.right{left:auto;right:0;}
+.repro-ddp.open{display:block;}
+.repro-dds{
+  font-family:var(--repro-mono);font-size:9px;font-weight:500;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--repro-muted);
+  padding:6px 10px 3px;
+}
+.repro-ddi{
+  display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;
+  font-size:13px;color:var(--repro-ink2);transition:background .1s,color .1s;
+  text-decoration:none;
+}
+.repro-ddi:hover{background:var(--repro-blue-bg);color:var(--repro-blue);}
+.repro-ddi.cur{background:var(--repro-blue-bg);color:var(--repro-blue);font-weight:600;}
+.repro-sep{height:1px;background:var(--repro-border);margin:4px 0;}
+.repro-mob-btn{display:none;background:none;border:none;cursor:pointer;color:var(--repro-ink);padding:4px;}
+
+/* FOOTER */
+.repro-footer{background:#07101f;border-top:1px solid rgba(255,255,255,.07);padding:56px 0 32px;}
+.repro-ft-inner{max-width:1280px;margin:0 auto;padding:0 24px;}
+.repro-ft-grid{display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr;gap:36px;margin-bottom:36px;}
+.repro-ft-brand p{font-size:12px;color:rgba(255,255,255,.35);line-height:1.65;max-width:220px;margin-top:12px;}
+.repro-ft-note{font-size:11px;color:rgba(255,255,255,.15);margin-top:8px;line-height:1.5;}
+.repro-ft-lbl{font-family:var(--repro-mono);font-size:9px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:14px;}
+.repro-ft-links{display:flex;flex-direction:column;gap:8px;}
+.repro-ft-links a{font-size:12px;color:rgba(255,255,255,.35);transition:color .15s;text-decoration:none;}
+.repro-ft-links a:hover{color:rgba(255,255,255,.75);}
+.repro-ft-bot{border-top:1px solid rgba(255,255,255,.07);padding-top:20px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:11px;color:rgba(255,255,255,.2);}
+.repro-ft-bot a{color:rgba(255,255,255,.2);text-decoration:none;}.repro-ft-bot a:hover{color:rgba(255,255,255,.5);}
+.repro-email-row{display:flex;margin-top:14px;}
+.repro-ei{flex:1;padding:8px 10px;border-radius:7px 0 0 7px;border:1px solid rgba(255,255,255,.12);border-right:none;background:rgba(255,255,255,.05);font-size:12px;color:white;outline:none;min-width:0;}
+.repro-ei::placeholder{color:rgba(255,255,255,.25);}
+.repro-eb{background:var(--repro-blue);color:white;border:none;padding:8px 14px;border-radius:0 7px 7px 0;font-size:12px;font-weight:600;cursor:pointer;}
+.repro-eb:hover{background:#1d4ed8;}
+
+/* OTHER TOOLS SECTION */
+.repro-other-tools{max-width:1280px;margin:0 auto;padding:40px 24px 0;border-top:1px solid var(--repro-border);margin-top:40px;}
+.repro-other-lbl{font-family:var(--repro-mono);font-size:10px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--repro-muted);margin-bottom:14px;}
+.repro-other-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.repro-tool-link{
+  background:var(--repro-off);border:1px solid var(--repro-border);border-radius:9px;
+  padding:12px 16px;display:flex;align-items:center;gap:8px;
+  font-size:13px;color:var(--repro-ink2);font-weight:500;
+  text-decoration:none;transition:box-shadow .15s,border-color .15s;
+}
+.repro-tool-link:hover{box-shadow:0 4px 16px rgba(0,0,0,.08);border-color:#bfdbfe;color:var(--repro-blue);}
+
+/* MOBILE NAV */
+.repro-mob-menu{
+  display:none;background:white;border-top:1px solid var(--repro-border);
+  padding:14px 18px 18px;box-shadow:0 4px 12px rgba(0,0,0,.08);
+}
+.repro-mob-home{display:block;padding:8px 0;font-size:14px;font-weight:700;color:var(--repro-blue);border-bottom:1px solid var(--repro-border);margin-bottom:10px;text-decoration:none;}
+.repro-mob-section{font-family:var(--repro-mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--repro-muted);padding:6px 0 4px;}
+.repro-mob-item{display:block;padding:7px 0;font-size:13px;color:var(--repro-ink2);text-decoration:none;}
+.repro-mob-cta{display:block;margin-top:12px;padding:11px;text-align:center;font-size:13px;font-weight:700;color:white;background:var(--repro-blue);border-radius:8px;text-decoration:none;}
+
+@media(max-width:640px){
+  .repro-nav-links,.repro-cta{display:none;}
+  .repro-mob-btn{display:flex;}
+  .repro-ft-grid{grid-template-columns:1fr;}
+  .repro-other-grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:900px){
+  .repro-ft-grid{grid-template-columns:1fr 1fr;}
+  .repro-ft-brand{grid-column:1/-1;}
+}
+</style>
+
+<!-- Google Analytics GA4 — replace G-XXXXXXXXXX with your Measurement ID -->
+<!-- Get your ID from analytics.google.com → Admin → Data Streams → Web Stream -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX', {
+    page_title: document.title,
+    page_location: window.location.href
+  });
+</script>
+</head>
+<body>
+
+<nav class="repro-nav">
+  <div class="repro-nav-inner">
+    <a href="index" class="repro-logo">
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#2563eb"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
+      <span class="repro-wm"><span class="r">RE</span><span class="p">Proforma</span></span>
+    </a>
+    <div class="repro-nav-links" id="repro-nav-links">
+      <a href="index" class="repro-nl">Home</a>
+      <div class="repro-ddr" id="rddT">
+        <button class="repro-nl" id="rddTb">Tools <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="repro-ddp" id="rddTm">
+          <div class="repro-dds">Investment Analysis</div>
+<a class="repro-ddi cur" href="index-multifamily">🏢 Multifamily Acquisition</a>
+<a class="repro-ddi" href="index-mixeduse">🏬 Commercial &amp; NNN Retail</a>
+<a class="repro-ddi" href="index-land">🗺️ Land Development</a>
+          <div class="repro-sep"></div>
+          <div class="repro-dds">Personal Finance</div>
+<a class="repro-ddi" href="index-affordability">🏠 Home Affordability</a>
+<a class="repro-ddi" href="index-rentvsbuy">⚖️ Rent vs. Own</a>
+<a class="repro-ddi" href="index-mortgage-payoff">📅 Mortgage Payoff</a>
+        </div>
+      </div>
+      <div class="repro-ddr" id="rddL">
+        <button class="repro-nl" id="rddLb">Learn <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="repro-ddp right" id="rddLm" style="min-width:230px;">
+          <div class="repro-dds">Guides</div>
+<a class="repro-ddi" href="how-to-underwrite-multifamily">Multifamily Underwriting 2025</a>
+<a class="repro-ddi" href="how-to-analyze-commercial-retail">Commercial Analysis Guide</a>
+<a class="repro-ddi" href="land-development-proforma-guide">Land Development Guide</a>
+          <div class="repro-sep"></div>
+          <a class="repro-ddi" href="https://www.cbre.com/insights/reports/us-cap-rate-survey-h1-2025" target="_blank">CBRE Cap Rates 2026 ↗</a>
+        </div>
+      </div>
+      <a href="about" class="repro-nl">About</a>
+    </div>
+    <a href="about" class="repro-cta">Let's talk</a>
+    <button class="repro-mob-btn" id="repro-mob-btn" aria-label="Menu">
+      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+  </div>
+  <div class="repro-mob-menu" id="repro-mob-menu">
+    <a href="index" class="repro-mob-home">Home</a>
+    <div class="repro-mob-section">Tools</div>
+    <a href="index-multifamily" class="repro-mob-item">🏢 Multifamily</a>
+    <a href="index-mixeduse" class="repro-mob-item">🏬 Commercial/NNN</a>
+    <a href="index-land" class="repro-mob-item">🗺️ Land Development</a>
+    <a href="index-affordability" class="repro-mob-item">🏠 Affordability</a>
+    <a href="index-rentvsbuy" class="repro-mob-item">⚖️ Rent vs. Own</a>
+    <a href="index-mortgage-payoff" class="repro-mob-item">📅 Mortgage Payoff</a>
+    <a href="about" class="repro-mob-cta">Let's talk</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div style="background:linear-gradient(135deg,#eff6ff 0%,#f8fafc 60%,white 100%);border-bottom:1px solid #e2e8f0;padding:20px 0;">
+  <div class="wrap" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:14px;">
+    <div>
+      <div style="display:flex;gap:6px;margin-bottom:6px;">
+        <span class="badge" style="background:#dbeafe;color:#1d4ed8;">Pro Tool</span>
+        <span class="badge" style="background:#dcfce7;color:#15803d;">Multifamily</span>
+        <span class="badge" style="background:#fef3c7;color:#b45309;">Acquisition Proforma</span>
+      </div>
+      <h1 style="font-size:22px;font-weight:700;color:#1e293b;margin-bottom:4px;">🏢 Multifamily Acquisition Proforma</h1>
+      <p style="font-size:13px;color:#64748b;max-width:560px;line-height:1.5;">Full-cycle apartment underwriting — unit mix, NOI, IRR, DSCR, breakeven occupancy, sensitivity analysis, and 10-year proforma.</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;" class="no-print">
+      <button class="btn-o" onclick="loadDemo()">📋 Demo Deal</button>
+      <button class="btn-o" onclick="resetAll()">↺ Reset</button>
+      <button class="btn-g" onclick="exportXLS()">⬇ Excel</button>
+      <button class="btn-d" onclick="window.print()">🖨 Print / PDF</button>
+      <button style="background:#7c3aed;color:white;border:none;border-radius:8px;padding:9px 14px;font-size:12px;font-weight:600;cursor:pointer;" onclick="saveDeal()">💾 Save Deal</button>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tab-bar no-print" style="position:sticky;top:60px;z-index:40;">
+  <button class="tab-btn active" onclick="switchTab('inputs',this)">📥 Inputs</button>
+  <button class="tab-btn" onclick="switchTab('results',this)">📊 Summary Dashboard</button>
+  <button class="tab-btn" onclick="switchTab('proforma',this)">📋 Annual Proforma</button>
+  <button class="tab-btn" onclick="switchTab('sensitivity',this)">🎯 Sensitivity</button>
+  <button class="tab-btn" onclick="switchTab('charts',this)">📈 Charts</button>
+</div>
+
+<div class="wrap" style="padding:20px 0 60px;">
+
+<!-- ══ INPUTS ══ -->
+<div id="tab-inputs" class="tab-panel active">
+  <div class="g4">
+
+    <!-- Unit Mix -->
+    <div class="card">
+      <p class="sec">🏠 Unit Mix &amp; Rents</p>
+      <div id="unitMixLive" style="background:#eff6ff;border-radius:7px;padding:10px;margin-bottom:12px;font-size:12px;display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <div><span style="color:#64748b;">Total Units</span><br><strong id="pvTotalUnits" style="font-size:16px;">—</strong></div>
+        <div><span style="color:#64748b;">Avg Rent/Unit</span><br><strong id="pvAvgRent" style="font-size:16px;">—</strong></div>
+        <div><span style="color:#64748b;">Gross Pot. Rent</span><br><strong id="pvGPR" style="font-size:14px;color:#0043ce;">—</strong></div>
+        <div><span style="color:#64748b;">Sellout Period</span><br><strong id="pvEGI" style="font-size:14px;color:#15803d;">—</strong></div>
+      </div>
+
+      <div class="unit-sec">
+        <p style="font-size:11px;font-weight:700;color:#0043ce;margin-bottom:8px;">Studio / Efficiency</p>
+        <div class="g2" style="gap:8px;">
+          <div class="f"><label class="lbl"># Units</label><input class="inp" id="studioUnits" type="number" placeholder="0" oninput="liveCalc()"></div>
+          <div class="f"><label class="lbl">Rent/Unit/Mo ($)</label><div class="inp-p"><span>$</span><input class="inp" id="studioRent" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+        </div>
+      </div>
+      <div class="unit-sec">
+        <p style="font-size:11px;font-weight:700;color:#0043ce;margin-bottom:8px;">1-Bedroom</p>
+        <div class="g2" style="gap:8px;">
+          <div class="f"><label class="lbl"># Units</label><input class="inp" id="oneBedUnits" type="number" placeholder="0" oninput="liveCalc()"></div>
+          <div class="f"><label class="lbl">Rent/Unit/Mo ($)</label><div class="inp-p"><span>$</span><input class="inp" id="rent1Bed" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+        </div>
+      </div>
+      <div class="unit-sec">
+        <p style="font-size:11px;font-weight:700;color:#0043ce;margin-bottom:8px;">2-Bedroom</p>
+        <div class="g2" style="gap:8px;">
+          <div class="f"><label class="lbl"># Units</label><input class="inp" id="twoBedUnits" type="number" placeholder="0" oninput="liveCalc()"></div>
+          <div class="f"><label class="lbl">Rent/Unit/Mo ($)</label><div class="inp-p"><span>$</span><input class="inp" id="rent2Bed" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+        </div>
+      </div>
+      <div class="unit-sec">
+        <p style="font-size:11px;font-weight:700;color:#0043ce;margin-bottom:8px;">3-Bedroom+</p>
+        <div class="g2" style="gap:8px;">
+          <div class="f"><label class="lbl"># Units</label><input class="inp" id="threeBedUnits" type="number" placeholder="0" oninput="liveCalc()"></div>
+          <div class="f"><label class="lbl">Rent/Unit/Mo ($)</label><div class="inp-p"><span>$</span><input class="inp" id="rent3Bed" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+        </div>
+      </div>
+      <div class="f"><label class="lbl">Property Name / Address</label><input class="inp" id="propName" type="text" placeholder="e.g. Riverside Apartments – Austin, TX"></div>
+      <div class="f"><label class="lbl">Other Income ($/yr) <span style="font-weight:400;text-transform:none;font-size:9px;">parking, laundry, storage</span></label><div class="inp-p"><span>$</span><input class="inp" id="otherIncome" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+    </div>
+
+    <!-- Income, Vacancy & Hold -->
+    <div class="card">
+      <p class="sec">💰 Income &amp; Hold Assumptions</p>
+      <div class="f"><label class="lbl">Vacancy Rate (%)</label><div class="inp-s"><input class="inp" id="vacancyRate" type="number" step="0.5" placeholder="5.0" oninput="liveCalc()"><span>%</span></div><p class="hint">5–7% stabilized · 10–15% value-add</p></div>
+      <div class="f"><label class="lbl">Annual Rent Growth (%)</label><div class="inp-s"><input class="inp" id="rentGrowth" type="number" step="0.25" placeholder="3.0" oninput="liveCalc()"><span>%</span></div><p class="hint">Yardi Matrix 2025 forecast: 2.4% A/B, 1.7% C</p></div>
+      <div class="f"><label class="lbl">Annual Expense Growth (%)</label><div class="inp-s"><input class="inp" id="expGrowth" type="number" step="0.25" placeholder="3.0" oninput="liveCalc()"><span>%</span></div><p class="hint">2025: insurance &amp; taxes driving costs up</p></div>
+      <div class="f"><label class="lbl">Hold Period (Years)</label><input class="inp" id="holdPeriod" type="number" placeholder="5" oninput="liveCalc()"></div>
+      <div class="f"><label class="lbl">Exit Cap Rate (%)</label><div class="inp-s"><input class="inp" id="exitCap" type="number" step="0.25" placeholder="5.50" oninput="liveCalc()"><span>%</span></div><p class="hint">Usually 25–50 bps above going-in</p></div>
+      <div class="f"><label class="lbl">Selling Costs at Exit (%)</label><div class="inp-s"><input class="inp" id="sellCosts" type="number" step="0.25" placeholder="2.0" oninput="liveCalc()"><span>%</span></div></div>
+      <div class="f"><label class="lbl">Discount Rate (NPV) (%)</label><div class="inp-s"><input class="inp" id="discRate" type="number" step="0.25" placeholder="7.0"><span>%</span></div></div>
+      <div class="f"><label class="lbl">Target IRR (%)</label><div class="inp-s"><input class="inp" id="targetIRR" type="number" step="0.5" placeholder="15.0"><span>%</span></div><p class="hint">Value-add: 12–18% · Core: 8–12%</p></div>
+    </div>
+
+    <!-- Operating Expenses -->
+    <div class="card">
+      <p class="sec">📋 Operating Expenses ($/yr)</p>
+      <p style="font-size:10px;color:#94a3b8;margin-bottom:10px;">Total annual amounts. Per-unit benchmarks shown in results. Target OER: 40–55% of EGI.</p>
+      <div class="f"><label class="lbl">Property Taxes</label><div class="inp-p"><span>$</span><input class="inp" id="propertyTaxes" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+      <div class="f"><label class="lbl">Insurance</label><div class="inp-p"><span>$</span><input class="inp" id="insurance" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+      <div class="f"><label class="lbl">Utilities (Common Area)</label><div class="inp-p"><span>$</span><input class="inp" id="utilities" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+      <div class="f"><label class="lbl">Repairs &amp; Maintenance</label><div class="inp-p"><span>$</span><input class="inp" id="maintenance" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+      <div class="f"><label class="lbl">Property Management</label><div class="inp-p"><span>$</span><input class="inp" id="management" type="number" placeholder="0" oninput="liveCalc()"></div><p class="hint">Or use 6–10% of EGI as guideline</p></div>
+      <div class="f"><label class="lbl">Payroll / Staff</label><div class="inp-p"><span>$</span><input class="inp" id="staff" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+      <div class="f"><label class="lbl">Supplies / Marketing</label><div class="inp-p"><span>$</span><input class="inp" id="supplies" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+      <div class="f"><label class="lbl">Reserves &amp; Misc</label><div class="inp-p"><span>$</span><input class="inp" id="misc" type="number" placeholder="0" oninput="liveCalc()"></div><p class="hint">~$250–500/unit/yr for older properties</p></div>
+    </div>
+
+    <!-- Acquisition & Financing -->
+    <div class="card">
+      <p class="sec">🏦 Acquisition &amp; Financing</p>
+      <div class="f"><label class="lbl">Purchase Price ($)</label><div class="inp-p"><span>$</span><input class="inp" id="purchasePrice" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+      <div class="f"><label class="lbl">Loan Amount ($)</label><div class="inp-p"><span>$</span><input class="inp" id="loanAmount" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+      <div class="f"><label class="lbl">Interest Rate (%/yr)</label><div class="inp-s"><input class="inp" id="interestRate" type="number" step="0.25" placeholder="6.50" oninput="liveCalc()"><span>%</span></div><p class="hint">Agency (Fannie/Freddie) ~6.0–7.0% 2025</p></div>
+      <div class="g2" style="gap:8px;">
+        <div class="f"><label class="lbl">Amortization (Yrs)</label><input class="inp" id="amortYears" type="number" placeholder="30" oninput="liveCalc()"></div>
+        <div class="f"><label class="lbl">Loan Term (Yrs)</label><input class="inp" id="loanTerm" type="number" placeholder="10"></div>
+      </div>
+      <div class="g2" style="gap:8px;">
+        <div class="f"><label class="lbl">Closing Costs (%)</label><div class="inp-s"><input class="inp" id="closingCostPct" type="number" step="0.25" placeholder="1.5" oninput="liveCalc()"><span>%</span></div></div>
+        <div class="f"><label class="lbl">CapEx Budget ($)</label><div class="inp-p"><span>$</span><input class="inp" id="capexBudget" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+      </div>
+      <!-- Live loan preview -->
+      <div class="lpv">
+        <div class="lpv-row"><span>Equity Required</span><span id="equityDisp">—</span></div>
+        <div class="lpv-row"><span>LTV</span><span id="ltvDisp">—</span></div>
+        <div class="lpv-row"><span>Monthly Payment</span><span id="monthlyDisp">—</span></div>
+        <div class="lpv-row"><span>Annual Debt Service</span><span id="annDSDisp">—</span></div>
+        <div class="lpv-row"><span>Loan Constant</span><span id="loanConstDisp">—</span></div>
+      </div>
+      <div style="margin-top:14px;text-align:center;">
+        <button class="btn-p" onclick="calculate()" style="padding:12px 36px;font-size:14px;width:100%;">Calculate Proforma →</button>
+      </div>
+    </div>
+  </div><!-- /g4 -->
+</div><!-- /inputs -->
+
+<!-- ══ RESULTS ══ -->
+<div id="tab-results" class="tab-panel">
+  <!-- Deal verdict -->
+  <div id="dealVerdict" style="margin-bottom:16px;"></div>
+  <!-- KPI Cards -->
+  <div id="kpiCards" class="g8" style="margin-bottom:16px;"></div>
+  <!-- Two column: waterfall + scorecard -->
+  <div class="g2" style="margin-bottom:16px;">
+    <div class="card"><p class="sec">💧 Year 1 Cash Flow Waterfall</p><div id="waterfallDiv"></div></div>
+    <div class="card"><p class="sec">🎯 Deal Quality Scorecard</p><div id="scorecard"></div></div>
+  </div>
+  <!-- Returns + Debt side by side -->
+  <div class="g2" style="margin-bottom:16px;">
+    <div class="card"><p class="sec">📈 Investment Returns</p><div id="returnsGrid"></div></div>
+    <div class="card"><p class="sec">🏦 Debt &amp; Lender Metrics</p><div id="debtGrid"></div></div>
+  </div>
+  <!-- Unit mix stats -->
+  <div class="card" style="margin-bottom:16px;"><p class="sec">🏠 Unit Mix Breakdown</p><div id="unitMixStats"></div></div>
+  <!-- How to read -->
+  <div class="card"><p class="sec">📘 How to Read These Results</p>
+    <div class="g3" style="gap:12px;">
+      <div style="background:#f8fafc;border-radius:7px;padding:12px;border-left:3px solid #0043ce;"><p style="font-size:11px;font-weight:700;color:#0043ce;margin-bottom:4px;">Cap Rate</p><p style="font-size:11px;color:#64748b;line-height:1.5;">NOI ÷ Purchase Price. Measures property yield before financing. 2025 benchmarks: Class A 4.7%, Class B 4.9%, Class C 5.4% stabilized. Value-add entry: 6–9%.</p></div>
+      <div style="background:#f8fafc;border-radius:7px;padding:12px;border-left:3px solid #7c3aed;"><p style="font-size:11px;font-weight:700;color:#7c3aed;margin-bottom:4px;">DSCR &amp; Debt Yield</p><p style="font-size:11px;color:#64748b;line-height:1.5;">DSCR = NOI ÷ ADS. Lenders require ≥1.25×. Debt Yield = NOI ÷ Loan — lenders target ≥8–10%. Both measure ability to service debt.</p></div>
+      <div style="background:#f8fafc;border-radius:7px;padding:12px;border-left:3px solid #15803d;"><p style="font-size:11px;font-weight:700;color:#15803d;margin-bottom:4px;">Breakeven Occupancy</p><p style="font-size:11px;color:#64748b;line-height:1.5;">(OpEx + Debt Service) ÷ GPR. The minimum occupancy needed to cover all costs. Lower is safer — target &lt;80%. At 90%+ breakeven, the deal has little cushion.</p></div>
+      <div style="background:#f8fafc;border-radius:7px;padding:12px;border-left:3px solid #f97316;"><p style="font-size:11px;font-weight:700;color:#f97316;margin-bottom:4px;">Expense Ratio (OER)</p><p style="font-size:11px;color:#64748b;line-height:1.5;">Total OpEx ÷ EGI. Industry range: 35–55%. &lt;35% = highly efficient. &gt;55% = warning sign. Key benchmark for comparing properties of similar type and age.</p></div>
+      <div style="background:#f8fafc;border-radius:7px;padding:12px;border-left:3px solid #0043ce;"><p style="font-size:11px;font-weight:700;color:#0043ce;margin-bottom:4px;">Levered IRR</p><p style="font-size:11px;color:#64748b;line-height:1.5;">Total return on equity including cash flows + appreciation over the hold period. Core target: 8–12%. Value-add: 12–18%. Strong value-add: 18%+.</p></div>
+      <div style="background:#f8fafc;border-radius:7px;padding:12px;border-left:3px solid #15803d;"><p style="font-size:11px;font-weight:700;color:#15803d;margin-bottom:4px;">Equity Multiple</p><p style="font-size:11px;color:#64748b;line-height:1.5;">Total cash returned ÷ equity invested. 2.0× = doubled your money. Target 1.5–2.5× over 5 years. Tells you total return, not speed. Compare alongside IRR.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PROFORMA ══ -->
+<div id="tab-proforma" class="tab-panel">
+  <div class="card" style="overflow-x:auto;margin-bottom:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+      <p class="sec" style="margin:0;">Annual Proforma</p>
+      <span id="proformaTitle" style="font-size:11px;color:#94a3b8;"></span>
+    </div>
+    <table class="pro-table" id="proformaTable">
+      <tbody><tr><td colspan="7" style="padding:40px;text-align:center;color:#94a3b8;">Run the calculator to see the annual proforma.</td></tr></tbody>
+    </table>
+  </div>
+  <div class="card" style="overflow-x:auto;">
+    <p class="sec">Sources &amp; Uses of Funds</p>
+    <div id="sourcesUses"></div>
+  </div>
+</div>
+
+<!-- ══ SENSITIVITY ══ -->
+<div id="tab-sensitivity" class="tab-panel">
+  <div class="card" style="margin-bottom:16px;">
+    <p class="sec">🔄 3-Scenario Quick Compare — Bear / Base / Bull</p>
+    <p style="font-size:11px;color:#64748b;margin-bottom:12px;">Bear = rents −5%, expenses +5%. Bull = rents +5%, expenses −5%.</p>
+    <div id="scenarioDiv"></div>
+  </div>
+  <div class="g2" style="margin-bottom:16px;">
+    <div class="card"><p class="sec">Exit Cap Rate Sensitivity</p><div style="overflow-x:auto;" id="capSens"></div></div>
+    <div class="card"><p class="sec">Rent Growth Sensitivity</p><div style="overflow-x:auto;" id="rentSens"></div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><p class="sec">Vacancy Rate Sensitivity</p><div style="overflow-x:auto;" id="vacSens"></div></div>
+    <div class="card"><p class="sec">Interest Rate Sensitivity</p><div style="overflow-x:auto;" id="rateSens"></div></div>
+  </div>
+</div>
+
+<!-- ══ CHARTS ══ -->
+<div id="tab-charts" class="tab-panel">
+  <div class="g2" style="margin-bottom:16px;">
+    <div class="card"><p class="sec">NOI vs. Debt Service</p><div style="position:relative;height:240px;"><canvas id="chartNOI"></canvas></div></div>
+    <div class="card"><p class="sec">Revenue Breakdown (Year 1)</p><div style="position:relative;height:240px;"><canvas id="chartBreakdown"></canvas></div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><p class="sec">Cumulative Cash Flow &amp; Equity</p><div style="position:relative;height:240px;"><canvas id="chartCumulative"></canvas></div></div>
+    <div class="card"><p class="sec">Rent Roll — All Unit Types</p><div style="position:relative;height:240px;"><canvas id="chartRent"></canvas></div></div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<!-- FOOTER -->
+
+<div class="repro-other-tools">
+  <div class="repro-other-lbl">Other Tools</div>
+  <div class="repro-other-grid">
+    <a href="index-mixeduse" class="repro-tool-link">🏬 Commercial &amp; NNN</a>
+    <a href="index-land" class="repro-tool-link">🗺️ Land Dev</a>
+    <a href="index-affordability" class="repro-tool-link">🏠 Affordability</a>
+  </div>
+</div>
+<div style="height:48px;background:var(--repro-off,#fafafa);"></div>
+
+<footer class="repro-footer">
+  <div class="repro-ft-inner">
+    <div class="repro-ft-grid">
+      <div class="repro-ft-brand">
+        <a href="index" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;">
+          <svg width="28" height="28" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#2563eb"/><rect x="7" y="22" width="6" height="9" rx="1.5" fill="white"/><rect x="15" y="16" width="6" height="15" rx="1.5" fill="white"/><rect x="23" y="10" width="6" height="21" rx="1.5" fill="white"/></svg>
+          <span style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:800;color:white;letter-spacing:-.4px;">RE<span style="font-weight:400;">Proforma</span></span>
+        </a>
+        <p>Free institutional-grade real estate investment tools. Browser-based. 2026 benchmarks.</p>
+        <p class="repro-ft-note">All calculations run locally. Your data never leaves your device.</p>
+      </div>
+      <div>
+        <div class="repro-ft-lbl">Tools</div>
+        <div class="repro-ft-links">
+          <a href="index-multifamily">Multifamily</a>
+          <a href="index-mixeduse">Commercial/NNN</a>
+          <a href="index-land">Land Dev</a>
+          <a href="index-affordability">Home Affordability</a>
+          <a href="index-rentvsbuy">Rent vs. Own</a>
+          <a href="index-mortgage-payoff">Mortgage Payoff</a>
+        </div>
+      </div>
+      <div>
+        <div class="repro-ft-lbl">Learn</div>
+        <div class="repro-ft-links">
+          <a href="how-to-underwrite-multifamily">Multifamily Guide</a>
+          <a href="how-to-analyze-commercial-retail">Commercial Guide</a>
+          <a href="land-development-proforma-guide">Land Dev Guide</a>
+          <a href="https://www.cbre.com/insights/reports/us-cap-rate-survey-h1-2025" target="_blank">CBRE 2026 ↗</a>
+        </div>
+      </div>
+      <div>
+        <div class="repro-ft-lbl">Company</div>
+        <div class="repro-ft-links" style="margin-bottom:18px;">
+          <a href="about">About</a><a href="privacy">Privacy</a><a href="terms">Terms</a>
+        </div>
+        <div class="repro-ft-lbl">Stay updated</div>
+        <div class="repro-email-row"><input type="email" class="repro-ei" placeholder="your@email.com"><button class="repro-eb">→</button></div>
+      </div>
+    </div>
+    <div class="repro-ft-bot">
+      <span>&copy; 2026 REProforma. Not financial advice.</span>
+      <div style="display:flex;gap:16px;"><a href="privacy">Privacy</a><a href="terms">Terms</a></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var mb=document.getElementById('repro-mob-btn'),mm=document.getElementById('repro-mob-menu');
+  if(mb&&mm)mb.addEventListener('click',function(){mm.style.display=mm.style.display==='block'?'none':'block';});
+  function closeAll(){document.querySelectorAll('.repro-ddp').forEach(function(p){p.classList.remove('open');});}
+  [['rddT','rddTm','rddTb'],['rddL','rddLm','rddLb']].forEach(function(ids){
+    var w=document.getElementById(ids[0]),p=document.getElementById(ids[1]),b=document.getElementById(ids[2]);
+    if(!w||!p)return;var t;
+    w.addEventListener('mouseenter',function(){clearTimeout(t);p.classList.add('open');});
+    w.addEventListener('mouseleave',function(){t=setTimeout(function(){p.classList.remove('open');},180);});
+    if(b)b.addEventListener('click',function(e){e.stopPropagation();var o=p.classList.contains('open');closeAll();if(!o)p.classList.add('open');});
+  });
+  document.addEventListener('click',function(e){if(!e.target.closest('.repro-ddr'))closeAll();});
+})();
+</script>
+
+<script>
+// ── Helpers ──────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const num = id => parseFloat($(id)?.value) || 0;
+const set = (id,v) => { if($(id)) $(id).value = v; };
+const fmt = v => (v==null||isNaN(v)||!isFinite(v)) ? '—' : '$'+Math.round(v).toLocaleString();
+const pct = (v,d=1) => (v==null||isNaN(v)||!isFinite(v)) ? '—' : v.toFixed(d)+'%';
+const fmtX = v => (v==null||isNaN(v)||!isFinite(v)) ? '—' : v.toFixed(2)+'×';
+
+// Color helpers
+const bC = (v,lo,hi) => v>=hi?'#15803d':v>=lo?'#b45309':'#b91c1c';
+const bCls = (v,lo,hi) => v>=hi?'good':v>=lo?'warn':'bad';
+
+// ── Nav ──────────────────────────────────────────────────────────────────────
+(function(){
+  function ckW(){
+    var mob=window.innerWidth<768, dn=$('desk-nav'), mb=$('mob-btn');
+    if(dn) dn.style.display=mob?'none':'flex';
+    if(mb) mb.style.display=mob?'block':'none';
+  }
+  window.addEventListener('resize',ckW); ckW();
+  var btn=$('mob-btn'), menu=$('mob-menu');
+  if(btn&&menu) btn.addEventListener('click',function(){ menu.style.display=menu.style.display==='block'?'none':'block'; });
+  document.querySelectorAll('.mob-tog').forEach(function(b){
+    b.addEventListener('click',function(){
+      var s=b.nextElementSibling, a=b.querySelector('.mob-arr'), open=s.style.display==='block';
+      s.style.display=open?'none':'block'; if(a) a.style.transform=open?'rotate(0)':'rotate(180deg)';
+    });
+  });
+  function openDD(m,b){ closeAllDD(); var mm=$(m); if(mm) mm.classList.add('open'); }
+  function closeAllDD(){ document.querySelectorAll('.dd-menu').forEach(m=>m.classList.remove('open')); }
+  [['ddT','ddTm','ddTb'],['ddM','ddMm','ddMb']].forEach(function([w,m,b]){
+    var ww=$(w),mm=$(m),bb=$(b); if(!ww||!mm) return; var t;
+    ww.addEventListener('mouseenter',function(){ clearTimeout(t); openDD(m,b); });
+    ww.addEventListener('mouseleave',function(){ t=setTimeout(function(){ var mm2=$(m); if(mm2) mm2.classList.remove('open'); },120); });
+    if(bb) bb.addEventListener('click',function(e){ e.stopPropagation(); var o=$(m)?.classList.contains('open'); closeAllDD(); if(!o) openDD(m,b); });
+  });
+  document.addEventListener('click',function(e){ if(!e.target.closest('.dd-wrap')) closeAllDD(); });
+})();
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  $('tab-'+name).classList.add('active');
+}
+
+// ── IRR solver ────────────────────────────────────────────────────────────────
+function calcIRR(flows){
+  const hasPos=flows.some(f=>f>0), hasNeg=flows.some(f=>f<0);
+  if(!hasPos||!hasNeg) return NaN;
+  const npvAt=r=>flows.reduce((s,f,t)=>s+f/Math.pow(1+r,t),0);
+  let lo=-0.9999, hi=10;
+  if(npvAt(lo)*npvAt(hi)>0) return NaN;
+  let mid=0.1;
+  for(let i=0;i<80;i++){ mid=(lo+hi)/2; const nm=npvAt(mid); if(Math.abs(nm)<1e-6||(hi-lo)<1e-10) break; nm*npvAt(lo)>0?lo=mid:hi=mid; }
+  let r=mid;
+  for(let i=0;i<80;i++){
+    let npv=0,d=0;
+    flows.forEach((f,t)=>{ const disc=Math.pow(1+r,t); npv+=f/disc; d-=t*f/((1+r)*disc); });
+    if(Math.abs(d)<1e-14) break;
+    const rn=r-npv/d; if(!isFinite(rn)) break;
+    if(Math.abs(rn-r)<1e-11){ r=rn; break; } r=rn;
+  }
+  return isFinite(r)&&r>-0.9999&&r<50 ? r*100 : NaN;
+}
+
+// ── Loan utils ────────────────────────────────────────────────────────────────
+function loanBal(loan,rate,amort,yrs){
+  if(!loan||!rate||!amort) return 0;
+  const mo=rate/100/12, n=amort*12, pmt=loan*mo/(1-Math.pow(1+mo,-n));
+  let b=loan; for(let m=0;m<yrs*12;m++) b=b*(1+mo)-pmt; return Math.max(0,b);
+}
+function annualDS(loan,rate,amort){
+  if(!loan||!rate||!amort) return 0;
+  const mo=rate/100/12, n=amort*12;
+  return loan*mo/(1-Math.pow(1+mo,-n))*12;
+}
+
+// ── Charts registry ───────────────────────────────────────────────────────────
+const CH={};
+function mkChart(id,cfg){ if(CH[id]) CH[id].destroy(); CH[id]=new Chart($(id),cfg); }
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let _xls = null;
+
+// ── Live preview ──────────────────────────────────────────────────────────────
+function liveCalc(){
+  const s0=num('studioUnits'), rs=num('studioRent') || 0;
+  const u1=num('oneBedUnits'), r1=num('rent1Bed') || 0;
+  const u2=num('twoBedUnits'), r2=num('rent2Bed') || 0;
+  const u3=num('threeBedUnits'), r3=num('rent3Bed') || 0;
+  const totalUnits = s0+u1+u2+u3;
+  const GPR = (s0*rs+u1*r1+u2*r2+u3*r3)*12;
+  const totalRent = (s0*rs+u1*r1+u2*r2+u3*r3);
+  const avgRent = totalUnits>0 ? totalRent/totalUnits : 0;
+  const vac = num('vacancyRate')||5;
+  const other = num('otherIncome')||0;
+  const egi = GPR*(1-vac/100)+other;
+
+  if($('pvTotalUnits')) $('pvTotalUnits').textContent = totalUnits||'—';
+  if($('pvAvgRent')) $('pvAvgRent').textContent = avgRent>0?fmt(avgRent)+'/mo':'—';
+  if($('pvGPR')) $('pvGPR').textContent = GPR>0?fmt(GPR)+'/yr':'—';
+  if($('pvEGI')) $('pvEGI').textContent = egi>0?fmt(egi)+' EGI':'—';
+
+  // Loan preview
+  const price=num('purchasePrice'), loan=num('loanAmount'), rate=num('interestRate'), amort=num('amortYears')||30;
+  if(price&&loan){ $('equityDisp').textContent=fmt(price-loan+price*(num('closingCostPct')/100||0.015)); $('ltvDisp').textContent=pct(loan/price*100); }
+  if(loan&&rate&&amort){
+    const mo=rate/100/12,n=amort*12;
+    const pmt=loan*mo/(1-Math.pow(1+mo,-n));
+    const ads=pmt*12;
+    $('monthlyDisp').textContent = fmt(pmt)+'/mo';
+    $('annDSDisp').textContent = fmt(ads)+'/yr';
+    $('loanConstDisp').textContent = loan>0 ? pct(ads/loan*100) : '—';
+  }
+
+  // Auto-calculate when enough inputs present
+  if(price>0 && GPR>0 && num('interestRate')>0 && num('vacancyRate')>0){
+    calculate();
+  }
+}
+['studioUnits','studioRent','oneBedUnits','rent1Bed','twoBedUnits','rent2Bed','threeBedUnits','rent3Bed',
+ 'otherIncome','vacancyRate','rentGrowth','expGrowth','holdPeriod','exitCap',
+ 'purchasePrice','loanAmount','interestRate','amortYears','closingCostPct','capexBudget',
+ 'propertyTaxes','insurance','utilities','maintenance','management','staff','supplies','misc']
+  .forEach(id=>{ const e=$(id); if(e) e.addEventListener('input',liveCalc); });
+
+// ══════════════════════════════════════════════════════════════════════════════
+// MAIN CALCULATE
+// ══════════════════════════════════════════════════════════════════════════════
+function calculate(){
+  // Unit mix
+  const s0=num('studioUnits'), rs=num('studioRent');
+  const u1=num('oneBedUnits'), r1=num('rent1Bed');
+  const u2=num('twoBedUnits'), r2=num('rent2Bed');
+  const u3=num('threeBedUnits'), r3=num('rent3Bed');
+  const totalUnits=s0+u1+u2+u3;
+  if(!totalUnits||!( (s0&&rs)||(u1&&r1)||(u2&&r2)||(u3&&r3) )) return;
+
+  // Income
+  const GPR=(s0*rs+u1*r1+u2*r2+u3*r3)*12;
+  const vacRate=num('vacancyRate')/100||0.05;
+  const vacancyLoss=GPR*vacRate;
+  const otherInc=num('otherIncome');
+  const EGI=GPR-vacancyLoss+otherInc;
+
+  // Expenses
+  const expItems={
+    'Property Taxes':num('propertyTaxes'),
+    'Insurance':num('insurance'),
+    'Utilities':num('utilities'),
+    'Repairs & Maintenance':num('maintenance'),
+    'Property Management':num('management'),
+    'Payroll / Staff':num('staff'),
+    'Supplies / Marketing':num('supplies'),
+    'Reserves & Misc':num('misc'),
+  };
+  const totalExp=Object.values(expItems).reduce((a,b)=>a+b,0);
+  const NOI=EGI-totalExp;
+
+  // Financing
+  const price=num('purchasePrice'); if(!price) return;
+  const loan=num('loanAmount');
+  const rate=num('interestRate');
+  const amort=num('amortYears')||30;
+  const loanTerm=num('loanTerm')||10;
+  const closingPct=num('closingCostPct')/100||0.015;
+  const capex=num('capexBudget');
+  const closing=price*closingPct;
+  const equityOut=price-loan+closing+capex;
+  const ADS=annualDS(loan,rate,amort);
+  const loanConst=loan>0?ADS/loan*100:0;
+  const levCF=NOI-ADS;
+  const capRate=price>0?NOI/price*100:0;
+  const CoC=equityOut>0?levCF/equityOut*100:0;
+  const DSCR=ADS>0?NOI/ADS:null;
+  const debtYield=loan>0?NOI/loan*100:0;
+  const GRM=GPR>0?price/GPR:null;
+  const pricePU=totalUnits>0?price/totalUnits:0;
+  const expPU=totalUnits>0?totalExp/totalUnits:0;
+  const OER=EGI>0?totalExp/EGI*100:0;
+  const breakEvenOcc=(totalExp+ADS)/GPR*100;
+
+  // Hold period
+  const hold=Math.min(Math.max(num('holdPeriod')||5,1),25);
+  const exitCapRate=num('exitCap')/100||0.055;
+  const sellCosts=num('sellCosts')/100||0.02;
+  const rentG=num('rentGrowth')/100||0.03;
+  const expG=num('expGrowth')/100||0.03;
+  const discR=num('discRate')/100||0.07;
+  const tIRR=num('targetIRR')||15;
+
+  // Cash flows per year
+  let rows=[], cashFlowsLev=[-equityOut];
+  for(let y=1;y<=hold;y++){
+    const g=Math.pow(1+rentG,y-1), eg=Math.pow(1+expG,y-1);
+    const yGPR=GPR*g, yVac=yGPR*vacRate, yOther=otherInc;
+    const yEGI=yGPR-yVac+yOther;
+    const yExp=totalExp*eg;
+    const yNOI=yEGI-yExp;
+    const yLevCF=yNOI-ADS;
+    const b0=loanBal(loan,rate,amort,y-1), b1=loanBal(loan,rate,amort,y);
+    const prin=b0-b1, intPaid=ADS-prin;
+    const dscr_y=ADS>0?yNOI/ADS:null;
+    const capRateY=price>0?yNOI/price*100:null;
+    const dyY=loan>0?yNOI/loan*100:null;
+    const beOccY=(yExp+ADS)/yGPR*100;
+    rows.push({y,yGPR,yVac,yOther,yEGI,yExp,yNOI,ADS,intPaid,prin,yLevCF,b0,b1,dscr_y,capRateY,dyY,beOccY,OER_y:yEGI>0?yExp/yEGI*100:0});
+    cashFlowsLev.push(yLevCF);
+  }
+  const exitNOI=rows[hold-1].yNOI;
+  const salePrice=exitNOI/exitCapRate;
+  const saleCost=salePrice*sellCosts;
+  const finalBal=rows[hold-1].b1;
+  const saleProc=salePrice-saleCost-finalBal;
+  cashFlowsLev[hold]+=saleProc;
+
+  const levIRR=calcIRR(cashFlowsLev);
+  const EM=(cashFlowsLev.slice(1).reduce((a,b)=>a+b,0)+equityOut)/equityOut;
+  const NPV=cashFlowsLev.reduce((a,f,t)=>a+f/Math.pow(1+discR,t),0);
+
+  // Unlevered IRR
+  const ufCFs=[-(price+closing+capex),...rows.map(r=>r.yNOI)];
+  ufCFs[hold]+=salePrice-saleCost;
+  const unlevIRR=calcIRR(ufCFs);
+  const unlevEM=(ufCFs.slice(1).reduce((a,b)=>a+b,0)+(price+closing+capex))/(price+closing+capex);
+
+  // ── Switch to results ──────────────────────────────────────────────────────
+  switchTab('results', document.querySelectorAll('.tab-btn')[1]);
+
+  // ── Deal Verdict ───────────────────────────────────────────────────────────
+  const checks=[capRate>=5, (levIRR||0)>=tIRR, (DSCR||0)>=1.25, debtYield>=8, breakEvenOcc<=80];
+  const passCount=checks.filter(Boolean).length;
+  const v = passCount>=4?{l:'✅ Strong Deal — Returns Meet Thresholds',bg:'#dcfce7',bd:'#15803d',c:'#15803d'}
+           :passCount>=3?{l:'⚠️ Acceptable — Review Key Assumptions',bg:'#fef9c3',bd:'#b45309',c:'#b45309'}
+                        :{l:'❌ Weak — Renegotiate Price or Pass',bg:'#fee2e2',bd:'#b91c1c',c:'#b91c1c'};
+  $('dealVerdict').innerHTML=`<div style="background:${v.bg};border:2px solid ${v.bd};border-radius:10px;padding:14px 20px;display:flex;align-items:center;flex-wrap:wrap;gap:10px;">
+    <span style="font-size:15px;font-weight:700;color:${v.c};">${v.l}</span>
+    <span style="margin-left:auto;font-size:12px;color:${v.c};">${passCount}/5 checks passed · Cap: ${pct(capRate)} · DSCR: ${DSCR?DSCR.toFixed(2)+'×':'—'} · IRR: ${isNaN(levIRR)?'N/A':pct(levIRR)}</span>
+  </div>`;
+
+  // ── KPI Cards ──────────────────────────────────────────────────────────────
+  const kpis=[
+    {l:'Purchase Price',    v:fmt(price),         c:'#0043ce',  sub:totalUnits?fmt(pricePU)+'/unit':''},
+    {l:'Going-In Cap Rate', v:pct(capRate),        c:bC(capRate,5,6.5), sub:'NOI ÷ Price'},
+    {l:'Year 1 NOI',        v:fmt(NOI),            c:'#0056b3',  sub:totalUnits?fmt(NOI/totalUnits)+'/unit':''},
+    {l:'Cash-on-Cash',      v:pct(CoC),            c:bC(CoC,6,10),   sub:'Levered Yr 1 CF ÷ Equity'},
+    {l:'Levered IRR',       v:isNaN(levIRR)?'N/A':pct(levIRR), c:bC(levIRR||0,tIRR-3,tIRR), sub:`Target: ${tIRR}%`},
+    {l:'Equity Multiple',   v:fmtX(EM),            c:bC(EM*10,15,20),sub:`${hold}-yr hold`},
+    {l:'DSCR (Yr 1)',       v:DSCR?fmtX(DSCR):'N/A', c:bC(DSCR||0,1.1,1.35), sub:'Min: 1.25×'},
+    {l:'Breakeven Occ.',    v:pct(breakEvenOcc),   c:bC(100-breakEvenOcc,10,20), sub:'Lower = safer'},
+  ];
+  $('kpiCards').innerHTML=kpis.map(k=>`<div class="kpi" style="border-top:3px solid ${k.c};">
+    <div class="kpi-val" style="color:${k.c};">${k.v}</div>
+    <div class="kpi-lbl">${k.l}</div>
+    <div class="kpi-sub">${k.sub||''}</div>
+    <div class="pbar"><div class="pbar-f" style="background:${k.c};width:60%;"></div></div>
+  </div>`).join('');
+
+  // ── Waterfall ──────────────────────────────────────────────────────────────
+  const wRow=(l,v,s='')=>`<div class="wf" style="${s}"><span>${l}</span><span style="font-weight:600;">${v}</span></div>`;
+  const wNeg=(l,v)=>`<div class="wf" style="padding-left:22px;"><span style="color:#64748b;">${l}</span><span style="color:#dc2626;">(${fmt(v)})</span></div>`;
+  $('waterfallDiv').innerHTML=
+    wRow('Gross Potential Rent',fmt(GPR),'background:#f0fdf4;')+
+    wNeg('Vacancy Loss',vacancyLoss)+
+    (otherInc?wRow('+ Other Income',fmt(otherInc)):'') +
+    wRow('Effective Gross Income (EGI)',fmt(EGI),'background:#f8fafc;font-weight:600;')+
+    wNeg('Total Operating Expenses',totalExp)+
+    wRow('Net Operating Income (NOI)',fmt(NOI),'background:#eff6ff;color:#0043ce;font-weight:700;')+
+    `<div style="font-size:10px;color:#64748b;padding:4px 10px;">${totalUnits} units · ${fmt(NOI/totalUnits)}/unit · OER ${pct(OER,0)}</div>`+
+    wNeg('Annual Debt Service',ADS)+
+    wRow('Levered Cash Flow (Yr 1)',fmt(levCF),'background:'+( levCF>=0?'#eff6ff':'#fee2e2' )+';font-weight:700;color:'+(levCF>=0?'#0043ce':'#dc2626')+';');
+
+  // ── Scorecard ──────────────────────────────────────────────────────────────
+  const scores=[
+    {l:'Cap Rate',       s:capRate>=7?5:capRate>=6?4:capRate>=5?3:2,   m:5, n:pct(capRate)+' (target ≥6%)'},
+    {l:'DSCR',           s:DSCR>=1.5?5:DSCR>=1.35?4:DSCR>=1.25?3:1,  m:5, n:DSCR?DSCR.toFixed(2)+'× (min 1.25×)':'N/A'},
+    {l:'Debt Yield',     s:debtYield>=12?5:debtYield>=10?4:debtYield>=8?3:1,m:5,n:pct(debtYield)+' (target ≥8%)'},
+    {l:'Expense Ratio',  s:OER<40?5:OER<45?4:OER<55?3:2,               m:5, n:pct(OER,0)+' (target 40–55%)'},
+    {l:'Breakeven Occ',  s:breakEvenOcc<70?5:breakEvenOcc<80?4:breakEvenOcc<90?3:1, m:5, n:pct(breakEvenOcc)+' (target <80%)'},
+    {l:'Cash-on-Cash',   s:CoC>=12?5:CoC>=8?4:CoC>=6?3:2,              m:5, n:pct(CoC)+' (target ≥6%)'},
+  ];
+  const totS=scores.reduce((a,s)=>a+s.s,0), mxS=scores.reduce((a,s)=>a+s.m,0);
+  $('scorecard').innerHTML=scores.map(s=>`<div style="margin-bottom:10px;">
+    <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+      <span style="font-size:12px;font-weight:500;">${s.l}</span>
+      <span style="font-size:10px;color:#64748b;">${s.s}/${s.m} · ${s.n}</span>
+    </div>
+    <div class="sb"><div class="sb-f" style="width:${s.s/s.m*100}%;background:${s.s>=4?'#15803d':s.s>=3?'#b45309':'#b91c1c'}"></div></div>
+  </div>`).join('')+
+  `<div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid #e2e8f0;align-items:center;">
+    <span style="font-weight:600;font-size:14px;">Overall Score</span>
+    <span style="font-size:18px;font-weight:700;color:${totS/mxS>=.8?'#15803d':totS/mxS>=.6?'#b45309':'#b91c1c'}">${totS}/${mxS} · ${Math.round(totS/mxS*100)}%</span>
+  </div>`;
+
+  // ── Returns Grid ───────────────────────────────────────────────────────────
+  const rRow=(l,v,bench,c)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f8fafc;">
+    <div><span style="font-size:12px;color:#475569;">${l}</span>${bench?`<br><span style="font-size:10px;color:#94a3b8;">${bench}</span>`:''}</div>
+    <strong style="color:${c||'#1e293b'};">${v}</strong>
+  </div>`;
+  $('returnsGrid').innerHTML=[
+    ['Unlevered IRR',isNaN(unlevIRR)?'N/A':pct(unlevIRR),'All-cash return',bC(unlevIRR||0,8,12)],
+    ['Levered IRR',isNaN(levIRR)?'N/A':pct(levIRR),`Target: ${tIRR}%`,bC(levIRR||0,tIRR-3,tIRR)],
+    ['Equity Multiple (Levered)',fmtX(EM),'Target: 1.5–2.5×',bC(EM*10,15,20)],
+    ['Equity Multiple (Unlev)',fmtX(unlevEM),'All-cash',bC(unlevEM*10,12,15)],
+    ['NPV @ '+pct(discR*100),fmt(NPV),'Positive = exceeds hurdle',''],
+    ['Year 1 Cash-on-Cash',pct(CoC),'Target: 6–10%+',bC(CoC,6,10)],
+    ['Exit Sale Price',fmt(salePrice),'Exit @ '+pct(exitCapRate*100),''],
+    ['Net Sale Proceeds',fmt(saleProc),'After loan payoff',''],
+    ['Total Distributions',fmt(cashFlowsLev.slice(1).reduce((a,b)=>a+b,0)),'CFs + exit proceeds',''],
+    ['GRM',GRM?GRM.toFixed(1)+'×':'N/A','Price ÷ Annual Rent',''],
+  ].map(([l,v,b,c])=>rRow(l,v,b,c)).join('');
+
+  // ── Debt Grid ──────────────────────────────────────────────────────────────
+  const dRow=(l,v,bench,c)=>rRow(l,v,bench,c);
+  $('debtGrid').innerHTML=[
+    ['Loan Amount',fmt(loan),'',bC(loan/price*100,60,75)?'':''],
+    ['Equity Required',fmt(equityOut),'Down pmt + closing + CapEx',''],
+    ['LTV',loan&&price?pct(loan/price*100):'N/A','Agency: 65–75% LTV',bC(100-(loan/price*100),25,35)],
+    ['Annual Debt Service',fmt(ADS),'P + I annually',''],
+    ['DSCR (Year 1)',DSCR?fmtX(DSCR):'N/A','Lenders require ≥1.25×',bC(DSCR||0,1.1,1.35)],
+    ['Debt Yield (Yr 1)',pct(debtYield),'Target: 8–10%+',bC(debtYield,8,12)],
+    ['Loan Constant',pct(loanConst),'ADS ÷ Loan',''],
+    ['Loan Balance at Exit',fmt(finalBal),'Remaining at Yr '+hold,''],
+    ['Breakeven Occupancy',pct(breakEvenOcc),'(OpEx+DS)÷GPR · Target <80%',bC(100-breakEvenOcc,10,20)],
+  ].map(([l,v,b,c])=>dRow(l,v,b,c)).join('');
+
+  // ── Unit Mix Breakdown ─────────────────────────────────────────────────────
+  const unitTypes=[
+    {n:'Studio',units:s0,rent:rs},
+    {n:'1-Bedroom',units:u1,rent:r1},
+    {n:'2-Bedroom',units:u2,rent:r2},
+    {n:'3-Bedroom+',units:u3,rent:r3},
+  ].filter(t=>t.units>0);
+  $('unitMixStats').innerHTML=`<div style="overflow-x:auto;"><table class="pro-table">
+    <thead><tr><th>Type</th><th># Units</th><th>% Mix</th><th>Monthly Rent</th><th>Annual GPR</th><th>% of GPR</th><th>Price/Unit</th></tr></thead>
+    <tbody>
+    ${unitTypes.map(t=>`<tr><td>${t.n}</td><td>${t.units}</td><td>${pct(t.units/totalUnits*100,0)}</td><td>${fmt(t.rent)}/mo</td><td>${fmt(t.units*t.rent*12)}</td><td>${pct(t.units*t.rent*12/GPR*100,0)}</td><td>${fmt(price/t.units)}</td></tr>`).join('')}
+    <tr class="hi"><td>TOTAL / BLENDED</td><td>${totalUnits}</td><td>100%</td><td>${fmt((s0*rs+u1*r1+u2*r2+u3*r3)/totalUnits)}/mo avg</td><td>${fmt(GPR)}</td><td>100%</td><td>${fmt(pricePU)}</td></tr>
+    </tbody>
+  </table>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px;font-size:12px;">
+    <div style="background:#f8fafc;border-radius:7px;padding:10px;"><div style="font-size:10px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">Expense Ratio (OER)</div><div style="font-size:18px;font-weight:700;color:${bC(55-OER,-5,10)};margin-top:3px;">${pct(OER,0)}</div><div style="font-size:10px;color:#94a3b8;">Target: 40–55%</div></div>
+    <div style="background:#f8fafc;border-radius:7px;padding:10px;"><div style="font-size:10px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">Expense / Unit / Yr</div><div style="font-size:18px;font-weight:700;margin-top:3px;">${fmt(expPU)}</div><div style="font-size:10px;color:#94a3b8;">Benchmark: $4k–8k/unit</div></div>
+    <div style="background:#f8fafc;border-radius:7px;padding:10px;"><div style="font-size:10px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">Levered CF / Unit / Yr</div><div style="font-size:18px;font-weight:700;color:${levCF>=0?'#15803d':'#dc2626'};margin-top:3px;">${fmt(levCF/totalUnits)}</div><div style="font-size:10px;color:#94a3b8;">After debt service</div></div>
+    <div style="background:#f8fafc;border-radius:7px;padding:10px;"><div style="font-size:10px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">NOI / Unit / Yr</div><div style="font-size:18px;font-weight:700;color:#0043ce;margin-top:3px;">${fmt(NOI/totalUnits)}</div><div style="font-size:10px;color:#94a3b8;">Before debt service</div></div>
+  </div></div>`;
+
+  // ── Annual Proforma ────────────────────────────────────────────────────────
+  $('proformaTitle').textContent = 'Hold: '+hold+' Years · Exit Cap: '+pct(exitCapRate*100)+' · Rent Growth: +'+pct(rentG*100)+'/yr';
+  const lbls=rows.map(r=>'Year '+r.y);
+  const cols=`<colgroup><col style="min-width:200px">${rows.map(()=>'<col style="min-width:90px">').join('')}</colgroup>`;
+  const th=`<thead><tr><th>Line Item</th>${lbls.map(l=>`<th>${l}</th>`).join('')}</tr></thead>`;
+  const sR=l=>`<tr class="sec-hd"><td colspan="${hold+1}">${l}</td></tr>`;
+  const dR=(l,vals,neg=false,ind=true)=>`<tr>
+    <td class="${ind?'ind':''}">${l}</td>
+    ${vals.map(v=>`<td class="${neg&&v>0?'neg':''}">${neg&&v>0?'('+fmt(v)+')':fmt(v)}</td>`).join('')}
+  </tr>`;
+  const tR=(l,vals)=>`<tr class="hi"><td>${l}</td>${vals.map(v=>`<td>${fmt(v)}</td>`).join('')}</tr>`;
+  const txR=(l,vals)=>`<tr class="hi"><td>${l}</td>${vals.map(v=>`<td>${v}</td>`).join('')}</tr>`;
+
+  $('proformaTable').innerHTML=cols+th+`<tbody>
+    ${sR('INCOME')}
+    ${dR('Gross Potential Rent', rows.map(r=>r.yGPR))}
+    ${dR('Vacancy Loss', rows.map(r=>r.yVac), true)}
+    ${dR('Other Income', rows.map(r=>r.yOther))}
+    ${tR('Effective Gross Income (EGI)', rows.map(r=>r.yEGI))}
+    ${sR('EXPENSES')}
+    ${Object.entries(expItems).filter(([,v])=>v>0).map(([k,v])=>dR(k,rows.map((r,i)=>Math.round(v*Math.pow(1+expG,i))),true)).join('')}
+    ${dR('Total Operating Expenses', rows.map(r=>r.yExp), true, false)}
+    ${txR('Operating Expense Ratio', rows.map(r=>pct(r.OER_y,0)))}
+    ${tR('Net Operating Income (NOI)', rows.map(r=>r.yNOI))}
+    ${txR('Cap Rate (NOI/Price)', rows.map(r=>r.capRateY!=null?pct(r.capRateY):'—'))}
+    ${txR('Debt Yield (NOI/Loan)', rows.map(r=>r.dyY!=null?pct(r.dyY):'—'))}
+    ${sR('DEBT SERVICE')}
+    ${dR('Interest', rows.map(r=>r.intPaid), true)}
+    ${dR('Principal', rows.map(r=>r.prin), true)}
+    ${tR('Levered Cash Flow', rows.map(r=>r.yLevCF))}
+    ${sR('METRICS')}
+    ${dR('Loan Balance (EOY)', rows.map(r=>r.b1))}
+    ${txR('DSCR', rows.map(r=>r.dscr_y!=null?r.dscr_y.toFixed(2)+'×':'—'))}
+    ${txR('Cash-on-Cash', rows.map(r=>pct(r.yLevCF/equityOut*100)))}
+    ${txR('Breakeven Occupancy', rows.map(r=>pct(r.beOccY,0)))}
+  </tbody>`;
+
+  // Sources & Uses
+  $('sourcesUses').innerHTML=`<div class="g2" style="gap:16px;">
+    <div><p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;margin-bottom:10px;">USES OF FUNDS</p>
+      ${[['Purchase Price',price],['Closing Costs ('+pct(closingPct*100,1)+')',closing],['CapEx Budget',capex]].filter(([,v])=>v>0).map(([l,v])=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f8fafc;font-size:12px;"><span>${l}</span><strong>${fmt(v)}</strong></div>`).join('')}
+      <div style="display:flex;justify-content:space-between;padding:7px 12px;background:#eff6ff;border-radius:6px;font-weight:700;margin-top:4px;font-size:12px;"><span style="color:#0043ce;">Total Uses</span><strong style="color:#0043ce;">${fmt(price+closing+capex)}</strong></div>
+    </div>
+    <div><p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;margin-bottom:10px;">SOURCES OF FUNDS</p>
+      ${[['Loan Amount ('+(loan&&price?pct(loan/price*100,0):'—')+'% LTV)',loan],['Developer Equity',equityOut]].filter(([,v])=>v>0).map(([l,v])=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f8fafc;font-size:12px;"><span>${l}</span><strong>${fmt(v)}</strong></div>`).join('')}
+      <div style="display:flex;justify-content:space-between;padding:7px 12px;background:#eff6ff;border-radius:6px;font-weight:700;margin-top:4px;font-size:12px;"><span style="color:#0043ce;">Total Sources</span><strong style="color:#0043ce;">${fmt(price+closing+capex)}</strong></div>
+    </div>
+  </div>`;
+
+  // ── Sensitivity ────────────────────────────────────────────────────────────
+  function runWithOverrides(rentMult, expMult, vacOvr, rateOvr){
+    const voc = vacOvr!=null?vacOvr:vacRate;
+    const r2 = rateOvr!=null?rateOvr:rate;
+    const EGI2 = GPR*(1-voc)+otherInc;
+    const exp2 = totalExp*expMult;
+    const NOI2 = EGI2*rentMult - exp2;
+    const ADS2 = annualDS(loan,r2,amort);
+    const lev2 = NOI2-ADS2;
+    const coc2 = equityOut>0?lev2/equityOut*100:0;
+    const dscr2 = ADS2>0?NOI2/ADS2:null;
+    // simple multi-year hold
+    let cfs=[-equityOut];
+    for(let y=1;y<=hold;y++){
+      const g=Math.pow(1+rentG,y-1), eg=Math.pow(1+expG,y-1);
+      const yEGI2=GPR*(1-voc)*g*rentMult+otherInc;
+      const yExp2=exp2*eg;
+      cfs.push(yEGI2-yExp2-ADS2);
+    }
+    const exitN2=((GPR*(1-voc)*Math.pow(1+rentG,hold-1)*rentMult+otherInc)-exp2*Math.pow(1+expG,hold-1));
+    const sp2=exitN2/exitCapRate; const fb2=loanBal(loan,r2,amort,hold);
+    cfs[hold]+=sp2-sp2*sellCosts-fb2;
+    const irr2=calcIRR(cfs), em2=(cfs.slice(1).reduce((a,b)=>a+b,0)+equityOut)/equityOut;
+    return {noi:Math.round(NOI2),capR:price>0?NOI2/price*100:0,coc:coc2,dscr:dscr2,irr:irr2,em:em2,lev:lev2};
+  }
+
+  function senTbl(headers, rows2){
+    return `<table class="sen-tbl"><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>
+    ${rows2.map((r,i)=>`<tr${i===Math.floor(rows2.length/2)?' class="base"':''}>${r.map((v,ci)=>`<td${ci>0?' style="color:'+( typeof v==='string'&&v.startsWith('N')? '#94a3b8':'inherit')+'"':''}>${v}</td>`).join('')}</tr>`).join('')}
+    </tbody></table>`;
+  }
+
+  // 3-Scenario
+  const scenarios=[
+    {l:'🐻 Bear',rm:0.95,em:1.05},{l:'⚖️ Base',rm:1.0,em:1.0},{l:'🐂 Bull',rm:1.05,em:0.95}
+  ].map(sc=>{const d=runWithOverrides(sc.rm,sc.em,null,null);return{...sc,...d};});
+  $('scenarioDiv').innerHTML=`<div class="g3" style="gap:12px;">${scenarios.map((s,i)=>`<div style="border:2px solid ${i===0?'#b91c1c':i===2?'#15803d':'#0043ce'};border-radius:8px;padding:14px;background:${i===1?'#eff6ff':'#f8fafc'};">
+    <p style="font-size:12px;font-weight:700;color:${i===0?'#b91c1c':i===2?'#15803d':'#0043ce'};margin-bottom:8px;">${s.l}</p>
+    ${[['NOI',fmt(s.noi)],['Cap Rate',pct(s.capR)],['DSCR',s.dscr?fmtX(s.dscr):'—'],['CoC',pct(s.coc)],['Levered IRR',isNaN(s.irr)?'N/A':pct(s.irr)],['EM',fmtX(s.em)]].map(([l,v])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:11px;border-bottom:1px solid rgba(0,0,0,.05);"><span>${l}</span><strong>${v}</strong></div>`).join('')}
+  </div>`).join('')}</div>`;
+
+  // Cap sensitivity
+  const capVals=[4.0,4.5,5.0,5.25,5.5,5.75,6.0,6.5,7.0];
+  $('capSens').innerHTML=senTbl(['Exit Cap','Sale Price','Net Proceeds','Levered IRR'],
+    capVals.map(c=>{const sp=rows[hold-1].yNOI/c*100,proc=sp-sp*sellCosts-finalBal,cf2=[...cashFlowsLev.slice(0,-1),cashFlowsLev[hold-1]+proc];return[c.toFixed(2)+'%',fmt(sp),fmt(proc),isNaN(calcIRR(cf2))?'N/A':pct(calcIRR(cf2))]}));
+
+  // Rent growth sensitivity
+  const rgVals=[0,0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,5.0];
+  $('rentSens').innerHTML=senTbl(['Rent Growth','Exit NOI','IRR','CoC Yr1'],
+    rgVals.map(g=>{
+      const rs2=buildRows(GPR,otherInc,vacRate,totalExp,loan,rate,amort,ADS,g/100,expG,hold);
+      const xNOI=rs2[hold-1].yNOI, sp2=xNOI/exitCapRate, fb2=loanBal(loan,rate,amort,hold);
+      const cf2=[-equityOut,...rs2.map(r=>r.yLevCF)]; cf2[hold]+=sp2-sp2*sellCosts-fb2;
+      return[g.toFixed(1)+'%',fmt(xNOI),isNaN(calcIRR(cf2))?'N/A':pct(calcIRR(cf2)),pct(rs2[0].yLevCF/equityOut*100)];
+    }));
+
+  // Vacancy sensitivity
+  const vacVals=[2,3,4,5,6,7,8,10,12,15];
+  $('vacSens').innerHTML=senTbl(['Vacancy','Year 1 NOI','DSCR','Levered IRR'],
+    vacVals.map(v=>{
+      const egi2=GPR*(1-v/100)+otherInc, noi2=egi2-totalExp, lev2=noi2-ADS;
+      const dscr2=ADS>0?noi2/ADS:null;
+      const cf2=[-equityOut,...Array(hold).fill(lev2)]; cf2[hold]+=saleProc;
+      return[v+'%',fmt(noi2),dscr2?fmtX(dscr2):'N/A',isNaN(calcIRR(cf2))?'N/A':pct(calcIRR(cf2))];
+    }));
+
+  // Interest rate sensitivity
+  const rateVals=[5.0,5.5,6.0,6.25,6.5,6.75,7.0,7.5,8.0];
+  $('rateSens').innerHTML=senTbl(['Int Rate','Ann DS','DSCR','Levered IRR'],
+    rateVals.map(rt=>{
+      const ads2=annualDS(loan,rt,amort), lev2=NOI-ads2, dscr2=ads2>0?NOI/ads2:null;
+      const fb2=loanBal(loan,rt,amort,hold);
+      const cf2=[-equityOut,...Array(hold).fill(lev2)]; cf2[hold]+=salePrice-saleCost-fb2;
+      return[pct(rt,1),fmt(ads2),dscr2?fmtX(dscr2):'N/A',isNaN(calcIRR(cf2))?'N/A':pct(calcIRR(cf2))];
+    }));
+
+  // ── Charts ─────────────────────────────────────────────────────────────────
+  const co={responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10,padding:10}}},
+    scales:{y:{ticks:{font:{size:9},callback:v=>'$'+Math.round(v/1000)+'k'},grid:{color:'#f1f5f9'}},
+            x:{ticks:{font:{size:9}},grid:{display:false}}}};
+
+  mkChart('chartNOI',{type:'bar',data:{labels:lbls,datasets:[
+    {label:'NOI',data:rows.map(r=>r.yNOI),backgroundColor:'#3b82f6',borderRadius:4},
+    {label:'Debt Service',data:rows.map(r=>r.ADS),backgroundColor:'#fca5a5',borderRadius:4},
+    {label:'Cash Flow',data:rows.map(r=>r.yLevCF),backgroundColor:'#22c55e',borderRadius:4},
+  ]},options:co});
+
+  mkChart('chartBreakdown',{type:'doughnut',data:{
+    labels:['Gross Rent','Vacancy','Expenses','Debt Service','Cash Flow'],
+    datasets:[{data:[GPR,vacancyLoss,totalExp,ADS,Math.max(0,levCF)].map(Math.round),
+      backgroundColor:['#3b82f6','#94a3b8','#ef4444','#f97316','#22c55e'],borderWidth:0}]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}}}});
+
+  const cumArr=[]; let cum=0;
+  rows.forEach(r=>{ cum+=r.yLevCF; cumArr.push(Math.round(cum)); });
+  mkChart('chartCumulative',{type:'line',data:{labels:lbls,datasets:[
+    {label:'Cumulative CF',data:cumArr,borderColor:'#0043ce',backgroundColor:'rgba(0,67,206,.07)',fill:true,tension:.4,pointRadius:4},
+    {label:'Equity (Value−Loan)',data:rows.map(r=>Math.max(0,Math.round(r.yNOI/exitCapRate)-r.b1)),borderColor:'#15803d',backgroundColor:'transparent',tension:.4,pointRadius:4,borderDash:[4,4]},
+  ]},options:co});
+
+  const unitTypeData=[
+    {n:'Studio',u:s0,r:rs},{n:'1BR',u:u1,r:r1},{n:'2BR',u:u2,r:r2},{n:'3BR+',u:u3,r:r3}
+  ].filter(t=>t.u>0);
+  mkChart('chartRent',{type:'bar',data:{labels:unitTypeData.map(t=>t.n),datasets:[
+    {label:'Rent/Unit/Mo',data:unitTypeData.map(t=>t.r),backgroundColor:['#0043ce','#7c3aed','#f97316','#22c55e'].slice(0,unitTypeData.length),borderRadius:6},
+  ]},options:{...co,scales:{y:{ticks:{font:{size:9},callback:v=>'$'+v.toLocaleString()},grid:{color:'#f1f5f9'}},x:{ticks:{font:{size:9}},grid:{display:false}}}}});
+
+  // ── Store for export ───────────────────────────────────────────────────────
+  _xls={
+    propName:($('propName')?.value)||'Multifamily Property',
+    totalUnits,s0,rs,u1,r1,u2,r2,u3,r3,
+    GPR,vacancyLoss,otherInc,EGI,totalExp,NOI,ADS,levCF,
+    expItems,capRate,CoC,DSCR,debtYield,loanConst,OER,
+    breakEvenOcc,GRM,pricePU,expPU,
+    price,loan,rate,amort,loanTerm,closingPct,capex,equityOut,
+    hold,exitCapRate,sellCosts,rentG,expG,discR,tIRR,
+    levIRR,unlevIRR,EM,unlevEM,NPV,
+    salePrice,saleCost,finalBal,saleProc,exitNOI,
+    rows,cashFlowsLev,unitTypes,
+  };
+}
+
+// Helper: rebuild rows with different rent growth
+function buildRows(GPR,otherInc,vacRate,totalExp,loan,rate,amort,ADS,rentG,expG,hold){
+  let rows2=[];
+  for(let y=1;y<=hold;y++){
+    const g=Math.pow(1+rentG,y-1), eg=Math.pow(1+expG,y-1);
+    const yGPR=GPR*g, yVac=yGPR*vacRate, yEGI=yGPR-yVac+otherInc, yExp=totalExp*eg, yNOI=yEGI-yExp;
+    const b1=loanBal(loan,rate,amort,y);
+    rows2.push({y,yNOI,yLevCF:yNOI-ADS,b1});
+  }
+  return rows2;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// EXPORT EXCEL — Fully formatted professional workbook
+// ══════════════════════════════════════════════════════════════════════════════
+function exportXLS(){
+  if(!window.XLSX){ alert('XLSX library not loaded.'); return; }
+  if(!_xls){ alert('Please run the calculator first.'); return; }
+  const D=_xls, wb=XLSX.utils.book_new();
+
+  const NAVY='FF002060',BLUE='FF0043CE',DBLUE='FF1E3A5F',LBLUE='FFEFF6FF';
+  const GREEN='FF15803D',LGREEN='FFDCFCE7',LGREENB='FFF0FDF4';
+  const AMBER='FFB45309',RED='FFB91C1C',COST='FFDC2626';
+  const GRAY1='FFF8FAFC',GRAY2='FFF1F5F9',DGRAY='FF64748B',WHITE='FFFFFFFF';
+  const FMT_C='$#,##0;($#,##0);"-"', FMT_P='0.0%;(0.0%);"-"', FMT_X='0.00"×"', FMT_N='#,##0';
+
+  function sc(ws,r,c,v,type,fmt,style){
+    const addr=XLSX.utils.encode_cell({r:r-1,c:c-1});
+    ws[addr]={v,t:type||(typeof v==='number'?'n':'s')};
+    if(fmt) ws[addr].z=fmt;
+    if(style) ws[addr].s=style;
+  }
+  function hdr(bg,fg,bold,sz,ha){
+    return{font:{bold:bold!==false,color:{rgb:fg||WHITE},sz:sz||10,name:'Calibri'},
+      fill:{fgColor:{rgb:bg},patternType:'solid'},alignment:{horizontal:ha||'left',vertical:'center',wrapText:true},
+      border:{top:{style:'thin',color:{rgb:'FFCBD5E1'}},bottom:{style:'thin',color:{rgb:'FFCBD5E1'}},left:{style:'thin',color:{rgb:'FFCBD5E1'}},right:{style:'thin',color:{rgb:'FFCBD5E1'}}}};
+  }
+  function dat(bg,fc,bold,ha){
+    return{font:{bold:!!bold,color:{rgb:fc||'FF000000'},sz:10,name:'Calibri'},
+      fill:{fgColor:{rgb:bg||WHITE},patternType:'solid'},alignment:{horizontal:ha||'right',vertical:'center'},
+      border:{top:{style:'thin',color:{rgb:'FFCBD5E1'}},bottom:{style:'thin',color:{rgb:'FFCBD5E1'}},left:{style:'thin',color:{rgb:'FFCBD5E1'}},right:{style:'thin',color:{rgb:'FFCBD5E1'}}}};
+  }
+  function tot(bg,fc){
+    return{font:{bold:true,color:{rgb:fc||BLUE},sz:10,name:'Calibri'},
+      fill:{fgColor:{rgb:bg||LBLUE},patternType:'solid'},alignment:{horizontal:'right',vertical:'center'},
+      border:{top:{style:'medium',color:{rgb:BLUE}},bottom:{style:'medium',color:{rgb:BLUE}},left:{style:'thin',color:{rgb:'FFCBD5E1'}},right:{style:'thin',color:{rgb:'FFCBD5E1'}}}};
+  }
+
+  // ══ SHEET 1: SUMMARY ══
+  const ws1={}; ws1['!merges']=[]; let r=1;
+  sc(ws1,r,1,'MULTIFAMILY ACQUISITION PROFORMA — SUMMARY','s',null,hdr(NAVY,WHITE,true,14,'center'));
+  ws1['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:3}}); r++;
+  sc(ws1,r,1,(D.propName||'Property')+' · '+D.totalUnits+' Units · $'+Math.round(D.pricePU).toLocaleString()+'/unit','s',null,hdr('FFF0F4FF',DGRAY,false,10,'center'));
+  ws1['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:3}}); r+=2;
+  sc(ws1,r,1,'KEY PERFORMANCE INDICATORS','s',null,hdr(BLUE,WHITE,true,11,'center')); ws1['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:3}}); r++;
+  ['Metric','Value','Benchmark','Status'].forEach((h,i)=>sc(ws1,r,i+1,h,'s',null,hdr(DBLUE,WHITE,true,9,'center'))); r++;
+
+  const kpiData=[
+    ['Purchase Price',D.price,FMT_C,'',''],
+    ['Total Units',D.totalUnits,FMT_N,'',''],
+    ['Price / Unit',D.pricePU,FMT_C,'Market comps',''],
+    ['Going-In Cap Rate',D.capRate/100,FMT_P,'Stabilized B-class: ~4.9%',D.capRate>=5?'✅ At/above market':'⚠ Below market'],
+    ['Year 1 NOI',D.NOI,FMT_C,'',''],
+    ['Expense Ratio (OER)',D.OER/100,FMT_P,'Target: 40–55%',D.OER>=35&&D.OER<=55?'✅ In range':'⚠ Review'],
+    ['DSCR (Year 1)',D.DSCR||0,FMT_X,'Lenders require ≥1.25×',(D.DSCR||0)>=1.25?'✅ Bankable':'❌ Below min'],
+    ['Debt Yield (Yr 1)',D.debtYield/100,FMT_P,'Target ≥8%',D.debtYield>=8?'✅ Strong':'⚠ Thin'],
+    ['Breakeven Occupancy',D.breakEvenOcc/100,FMT_P,'Target <80%',D.breakEvenOcc<80?'✅ Good cushion':'⚠ Tight'],
+    ['Cash-on-Cash (Yr 1)',D.CoC/100,FMT_P,'Target: 6–10%+',D.CoC>=6?'✅ '+D.CoC.toFixed(1)+'%':'⚠ '+D.CoC.toFixed(1)+'%'],
+    ['Levered IRR',isNaN(D.levIRR)?0:D.levIRR/100,FMT_P,'Value-add: 12–18%',(!isNaN(D.levIRR)&&D.levIRR>=D.tIRR)?'✅ Meets target':'⚠ Below target'],
+    ['Unlevered IRR',isNaN(D.unlevIRR)?0:D.unlevIRR/100,FMT_P,'Target: 8–12%',''],
+    ['Equity Multiple (Lev)',D.EM,FMT_X,'Target: 1.5–2.5×',D.EM>=1.5?'✅ Good':'⚠ Review'],
+    ['NPV @ '+(D.discR*100).toFixed(0)+'%',D.NPV,FMT_C,'Positive = exceeds hurdle',D.NPV>0?'✅ Positive NPV':'❌ Negative NPV'],
+    ['Exit Sale Price',D.salePrice,FMT_C,'At '+((D.exitCapRate*100).toFixed(2))+'% exit cap',''],
+    ['Net Sale Proceeds',D.saleProc,FMT_C,'After loan + costs',''],
+    ['GRM',D.GRM||0,FMT_X,'Price ÷ Annual Rent',''],
+  ];
+  kpiData.forEach((row,i)=>{
+    const bg=i%2===0?GRAY1:WHITE;
+    const iG=row[4].startsWith('✅'),iB=row[4].startsWith('❌');
+    sc(ws1,r,1,row[0],'s',null,{...dat(bg,'FF000000',true,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+    sc(ws1,r,2,row[1],'n',row[2],dat(bg,BLUE,true,'right'));
+    sc(ws1,r,3,row[3],'s',null,{...dat(bg,DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
+    sc(ws1,r,4,row[4],'s',null,dat(bg,iG?GREEN:iB?RED:AMBER,iG||iB,'left'));
+    r++;
+  });
+  r++;
+  sc(ws1,r,1,'UNIT MIX','s',null,hdr(BLUE,WHITE,true,11,'center')); ws1['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:3}}); r++;
+  ['Type','# Units','Rent/Mo','Annual GPR'].forEach((h,i)=>sc(ws1,r,i+1,h,'s',null,hdr(DBLUE,WHITE,true,9,'center'))); r++;
+  D.unitTypes.filter(t=>t.units>0).forEach((t,i)=>{
+    const bg=i%2===0?GRAY1:WHITE;
+    sc(ws1,r,1,t.n,'s',null,{...dat(bg,'FF000000',false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+    sc(ws1,r,2,t.units,'n',FMT_N,dat(bg,'FF000000',false,'right'));
+    sc(ws1,r,3,t.rent,'n',FMT_C,dat(bg,'FF000000',false,'right'));
+    sc(ws1,r,4,t.units*t.rent*12,'n',FMT_C,dat(bg,BLUE,false,'right'));
+    r++;
+  });
+  ['TOTAL',D.totalUnits,D.GPR/D.totalUnits/12,D.GPR].forEach((v,i)=>{
+    sc(ws1,r,i+1,v,i===0?'s':'n',i===0?null:i===2?FMT_C:i===3?FMT_C:FMT_N,tot(LBLUE,BLUE));
+  });
+  ws1['!ref']=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:r+2,c:4}});
+  ws1['!cols']=[{wch:32},{wch:18},{wch:24},{wch:24}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Summary');
+
+  // ══ SHEET 2: ANNUAL PROFORMA ══
+  const ws2={}; ws2['!merges']=[]; r=1;
+  sc(ws2,r,1,'ANNUAL PROFORMA','s',null,hdr(NAVY,WHITE,true,13,'center')); ws2['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:D.hold+1}}); r++;
+  sc(ws2,r,1,D.totalUnits+' Units · '+D.hold+'-Year Hold · Exit Cap '+((D.exitCapRate*100).toFixed(2))+'% · Rent Growth +'+(D.rentG*100).toFixed(1)+'%/yr','s',null,hdr('FFF0F4FF',DGRAY,false,10,'center'));
+  ws2['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:D.hold+1}}); r+=2;
+
+  sc(ws2,r,1,'Line Item','s',null,hdr(DBLUE,WHITE,true,9,'left'));
+  D.rows.forEach((rw,i)=>sc(ws2,r,i+2,'Year '+rw.y,'s',null,hdr(DBLUE,WHITE,true,9,'center')));
+  sc(ws2,r,D.hold+2,'Exit/Sale','s',null,hdr('FF4B0082',WHITE,true,9,'center')); r++;
+
+  function proSec2(ws,row,label){ sc(ws,row,1,'▸  '+label,'s',null,hdr(BLUE,WHITE,true,10,'left')); ws['!merges'].push({s:{r:row-1,c:0},e:{r:row-1,c:D.hold+1}}); return row+1; }
+  function proRow2(ws,row,label,vals,exitVal,isCost,isTot){
+    const bg=isTot?LBLUE:row%2===0?GRAY1:WHITE;
+    sc(ws,row,1,label,'s',null,{...dat(bg,isTot?BLUE:'FF000000',isTot,'left'),alignment:{horizontal:'left',vertical:'center',indent:isTot?0:1}});
+    vals.forEach((v,i)=>sc(ws,row,i+2,v,'n',FMT_C,isTot?tot(bg,isCost?COST:BLUE):dat(bg,isCost?COST:'FF000000',false,'right')));
+    if(exitVal!==undefined) sc(ws,row,vals.length+2,typeof exitVal==='number'?exitVal:null,typeof exitVal==='number'?'n':'s',FMT_C,dat('FFFFF8F0','FF4B0082',true,'right'));
+    return row+1;
+  }
+
+  r=proSec2(ws2,r,'INCOME');
+  r=proRow2(ws2,r,'Gross Potential Rent',D.rows.map(rw=>rw.yGPR),undefined,false,false); 
+  r=proRow2(ws2,r,'Vacancy Loss',D.rows.map(rw=>-rw.yVac),undefined,true,false);
+  r=proRow2(ws2,r,'Other Income',D.rows.map(rw=>rw.yOther),undefined,false,false);
+  r=proRow2(ws2,r,'Effective Gross Income (EGI)',D.rows.map(rw=>rw.yEGI),undefined,false,true);
+  r=proSec2(ws2,r,'OPERATING EXPENSES');
+  Object.entries(D.expItems).filter(([,v])=>v>0).forEach(([k,v])=>{
+    r=proRow2(ws2,r,k,D.rows.map((_,i)=>-Math.round(v*Math.pow(1+D.expG,i))),undefined,true,false);
+  });
+  r=proRow2(ws2,r,'Total Operating Expenses',D.rows.map(rw=>-rw.yExp),undefined,true,true);
+  r=proRow2(ws2,r,'Net Operating Income (NOI)',D.rows.map(rw=>rw.yNOI),D.exitNOI,false,true);
+  // Cap rate & debt yield text rows
+  sc(ws2,r,1,'Cap Rate (NOI/Price)','s',null,{...dat(GRAY1,DGRAY,false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+  D.rows.forEach((rw,i)=>sc(ws2,r,i+2,rw.capRateY!=null?rw.capRateY/100:0,'n',FMT_P,dat(GRAY1,'FF000000',false,'right'))); r++;
+  sc(ws2,r,1,'Debt Yield (NOI/Loan)','s',null,{...dat(WHITE,DGRAY,false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+  D.rows.forEach((rw,i)=>sc(ws2,r,i+2,rw.dyY!=null?rw.dyY/100:0,'n',FMT_P,dat(WHITE,'FF000000',false,'right'))); r++;
+  r=proSec2(ws2,r,'DEBT SERVICE');
+  r=proRow2(ws2,r,'Interest',D.rows.map(rw=>-rw.intPaid),undefined,true,false);
+  r=proRow2(ws2,r,'Principal',D.rows.map(rw=>-rw.prin),undefined,true,false);
+  r=proRow2(ws2,r,'Levered Cash Flow',D.rows.map(rw=>rw.yLevCF),D.saleProc,false,true);
+  r=proSec2(ws2,r,'METRICS');
+  sc(ws2,r,1,'DSCR','s',null,{...dat(GRAY1,DGRAY,false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+  D.rows.forEach((rw,i)=>sc(ws2,r,i+2,rw.dscr_y||0,'n','0.00"×"',dat(GRAY1,(rw.dscr_y||0)>=1.25?GREEN:RED,false,'right'))); r++;
+  sc(ws2,r,1,'Cash-on-Cash','s',null,{...dat(WHITE,DGRAY,false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+  D.rows.forEach((rw,i)=>sc(ws2,r,i+2,rw.yLevCF/D.equityOut,'n',FMT_P,dat(WHITE,'FF000000',false,'right'))); r++;
+  sc(ws2,r,1,'Loan Balance (EOY)','s',null,{...dat(GRAY1,DGRAY,false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+  D.rows.forEach((rw,i)=>sc(ws2,r,i+2,rw.b1,'n',FMT_C,dat(GRAY1,COST,false,'right'))); r++;
+  r=proSec2(ws2,r,'EXIT ANALYSIS');
+  ['Exit NOI','Sale Price ('+((D.exitCapRate*100).toFixed(2))+'% cap)','Selling Costs','Loan Payoff','NET SALE PROCEEDS'].forEach((lbl,i)=>{
+    const vals=[D.exitNOI,D.salePrice,-D.saleCost,-D.finalBal,D.saleProc];
+    sc(ws2,r,1,lbl,'s',null,{...dat('FFFFF8F0',i===4?'FF4B0082':'FF000000',i===4,'left'),alignment:{horizontal:'left',vertical:'center',indent:i<4?1:0}});
+    D.rows.forEach((_,ci)=>sc(ws2,r,ci+2,'','s',null,dat('FFFFF8F0',DGRAY,false,'right')));
+    sc(ws2,r,D.hold+2,vals[i],'n',FMT_C,dat('FFFFF8F0',vals[i]<0?COST:i===4?'FF4B0082':GREEN,i===4,'right'));
+    r++;
+  });
+
+  ws2['!ref']=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:r+2,c:D.hold+2}});
+  ws2['!cols']=[{wch:32},...Array(D.hold).fill({wch:14}),{wch:16}];
+  XLSX.utils.book_append_sheet(wb,ws2,'Annual Proforma');
+
+  // ══ SHEET 3: INPUTS ══
+  const ws3={}; ws3['!merges']=[]; r=1;
+  sc(ws3,r,1,'DEAL INPUTS & ASSUMPTIONS','s',null,hdr(NAVY,WHITE,true,13,'center')); ws3['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:2}}); r++;
+  sc(ws3,r,1,'Blue = user input · Yellow = key assumption to review','s',null,{...dat('FFF0F4FF',DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}}); ws3['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:2}}); r+=2;
+  ['Input','Value','Notes'].forEach((h,i)=>sc(ws3,r,i+1,h,'s',null,hdr(DBLUE,WHITE,true,9,i===1?'right':'left'))); r++;
+  const INPUT_BLUE='FF0000FF';
+  function inS(ws,row,t){ sc(ws,row,1,'▸  '+t,'s',null,hdr(BLUE,WHITE,true,10,'left')); ws['!merges'].push({s:{r:row-1,c:0},e:{r:row-1,c:2}}); return row+1; }
+  function inR(ws,row,l,v,fmt2,note,hl){
+    const bg=hl?'FFFFFFF0':row%2===0?GRAY1:WHITE;
+    sc(ws,row,1,l,'s',null,{...dat(bg,'FF000000',false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+    sc(ws,row,2,v,typeof v==='number'?'n':'s',fmt2,{...dat(bg,INPUT_BLUE,true,'right'),font:{bold:true,color:{rgb:INPUT_BLUE},sz:10,name:'Calibri'}});
+    if(note) sc(ws,row,3,note,'s',null,{...dat(bg,DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
+    return row+1;
+  }
+  r=inS(ws3,r,'UNIT MIX');
+  if(D.s0) r=inR(ws3,r,'Studio Units',D.s0,FMT_N,''); if(D.rs) r=inR(ws3,r,'Studio Rent/Mo',D.rs,FMT_C,'');
+  if(D.u1) r=inR(ws3,r,'1BR Units',D.u1,FMT_N,''); if(D.r1) r=inR(ws3,r,'1BR Rent/Mo',D.r1,FMT_C,'');
+  if(D.u2) r=inR(ws3,r,'2BR Units',D.u2,FMT_N,''); if(D.r2) r=inR(ws3,r,'2BR Rent/Mo',D.r2,FMT_C,'');
+  if(D.u3) r=inR(ws3,r,'3BR+ Units',D.u3,FMT_N,''); if(D.r3) r=inR(ws3,r,'3BR+ Rent/Mo',D.r3,FMT_C,'');
+  r=inR(ws3,r,'Other Income ($/yr)',D.otherInc,FMT_C,''); r++;
+  r=inS(ws3,r,'INCOME ASSUMPTIONS');
+  r=inR(ws3,r,'Vacancy Rate',D.vacRate,FMT_P,'5–7% stabilized',true);
+  r=inR(ws3,r,'Annual Rent Growth',D.rentG,FMT_P,'Yardi 2025: 2.4%',true);
+  r=inR(ws3,r,'Annual Expense Growth',D.expG,FMT_P,'');
+  r=inR(ws3,r,'Hold Period',D.hold,FMT_N,'');
+  r=inR(ws3,r,'Exit Cap Rate',D.exitCapRate,FMT_P,'',true);
+  r=inR(ws3,r,'Selling Costs at Exit',D.sellCosts,FMT_P,'');
+  r=inR(ws3,r,'Discount Rate (NPV)',D.discR,FMT_P,'');
+  r=inR(ws3,r,'Target IRR',D.tIRR/100,FMT_P,''); r++;
+  r=inS(ws3,r,'OPERATING EXPENSES');
+  Object.entries(D.expItems).forEach(([k,v])=>{ if(v>0) r=inR(ws3,r,k,v,FMT_C,''); });
+  r++;
+  r=inS(ws3,r,'ACQUISITION & FINANCING');
+  r=inR(ws3,r,'Purchase Price',D.price,FMT_C,'',true);
+  r=inR(ws3,r,'Loan Amount',D.loan,FMT_C,'');
+  r=inR(ws3,r,'LTV',D.price>0?D.loan/D.price:0,FMT_P,'');
+  r=inR(ws3,r,'Interest Rate',D.rate/100,FMT_P,'',true);
+  r=inR(ws3,r,'Amortization',D.amort,FMT_N,'');
+  r=inR(ws3,r,'Loan Term',D.loanTerm,FMT_N,'');
+  r=inR(ws3,r,'Closing Costs',D.closingPct,FMT_P,'');
+  r=inR(ws3,r,'CapEx Budget',D.capex,FMT_C,''); r+=2;
+  r=inS(ws3,r,'CALCULATED RESULTS (Reference)');
+  [['Total Units',D.totalUnits,FMT_N],['GPR (Annual)',D.GPR,FMT_C],['EGI (Year 1)',D.EGI,FMT_C],
+   ['NOI (Year 1)',D.NOI,FMT_C],['Cap Rate',D.capRate/100,FMT_P],['OER',D.OER/100,FMT_P],
+   ['Annual DS',D.ADS,FMT_C],['Levered CF Yr1',D.levCF,FMT_C],['DSCR Yr1',D.DSCR||0,FMT_X],
+   ['Debt Yield',D.debtYield/100,FMT_P],['Breakeven Occ',D.breakEvenOcc/100,FMT_P],
+   ['Levered IRR',isNaN(D.levIRR)?0:D.levIRR/100,FMT_P],['Equity Multiple',D.EM,FMT_X],
+   ['Exit Sale Price',D.salePrice,FMT_C],['Net Proceeds',D.saleProc,FMT_C]
+  ].forEach((ci,i)=>{
+    const bg=i%2===0?LGREEN:LGREENB;
+    sc(ws3,r,1,ci[0],'s',null,{...dat(bg,'FF000000',false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+    sc(ws3,r,2,ci[1],'n',ci[2],dat(bg,GREEN,true,'right'));
+    r++;
+  });
+  ws3['!ref']=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:r+2,c:3}});
+  ws3['!cols']=[{wch:36},{wch:20},{wch:32}];
+  XLSX.utils.book_append_sheet(wb,ws3,'Inputs');
+
+  const fname=(D.propName||'Multifamily').replace(/[^a-zA-Z0-9_\-]/g,'_')+'_Proforma.xlsx';
+  XLSX.writeFile(wb,fname);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// DEMO & RESET
+// ══════════════════════════════════════════════════════════════════════════════
+function loadDemo(){
+  // Austin TX value-add: 72-unit Class B, 24×1BR@$1,250 | 36×2BR@$1,600 | 12×3BR@$2,000
+  // $9.6M purchase, 65% LTV, 6.5% rate, 30yr amort — realistic 2025 value-add deal
+  [
+    ['studioUnits',0],['oneBedUnits',24],['rent1Bed',1250],
+    ['twoBedUnits',36],['rent2Bed',1600],['threeBedUnits',12],['rent3Bed',2000],
+    ['otherIncome',36000],['vacancyRate',5.0],
+    ['rentGrowth',3.0],['expGrowth',3.0],['holdPeriod',5],['exitCap',5.50],
+    ['sellCosts',2.0],['discRate',7.0],['targetIRR',15.0],
+    ['propertyTaxes',130000],['insurance',58000],['utilities',62000],
+    ['maintenance',68000],['management',104000],['staff',80000],
+    ['supplies',12000],['misc',22000],
+    ['purchasePrice',9600000],['loanAmount',6240000],
+    ['interestRate',6.50],['amortYears',30],['loanTerm',10],
+    ['closingCostPct',1.5],['capexBudget',0],
+  ].forEach(([id,v])=>{ if($(id)) $(id).value=v; });
+  liveCalc();
+}
+
+function resetAll(){
+  document.querySelectorAll('.inp').forEach(e=>e.value='');
+  ['kpiCards','waterfallDiv','scorecard','returnsGrid','debtGrid','unitMixStats',
+   'dealVerdict','proformaTable','sourcesUses','scenarioDiv','capSens','rentSens','vacSens','rateSens']
+    .forEach(id=>{ const e=$(id); if(e) e.innerHTML=''; });
+  ['equityDisp','ltvDisp','monthlyDisp','annDSDisp','loanConstDisp',
+   'pvTotalUnits','pvAvgRent','pvGPR','pvEGI'].forEach(id=>{ const e=$(id); if(e) e.textContent='—'; });
+  Object.keys(CH).forEach(k=>{try{if(CH[k]&&typeof CH[k].destroy==='function') CH[k].destroy(); delete CH[k];}catch(e){}});
+  _xls=null;
+  switchTab('inputs',document.querySelectorAll('.tab-btn')[0]);
+}
+
+liveCalc();
+
+// ── Save Deal Feature ────────────────────────────────────────────
+var _saveData = null;
+
+function saveDeal(){
+  if(!_xls){alert('Please run the calculator first, then save.');return;}
+  // Pre-fill deal name if property name exists
+  var nameEl = document.getElementById('dealName');
+  var propName = document.getElementById('propName');
+  if(nameEl && propName && propName.value) nameEl.value = propName.value;
+  var modal = document.getElementById('saveModal');
+  if(modal){ modal.style.display='flex'; }
+  setTimeout(function(){ var ne=document.getElementById('dealName'); if(ne)ne.focus(); }, 100);
+}
+
+function closeModal(){
+  var modal = document.getElementById('saveModal');
+  if(modal) modal.style.display='none';
+}
+
+function confirmSave(){
+  var name = document.getElementById('dealName')?.value || 'Untitled Deal';
+  var address = document.getElementById('dealAddress')?.value || '';
+  if(!_xls){closeModal();return;}
+  
+  try{
+    var deals = [];
+    try{ var raw=localStorage.getItem('reproforma_deals'); if(raw) deals=JSON.parse(raw); }catch(e){}
+    
+    var id = 'deal_' + Date.now();
+    var deal = {
+      id: id,
+      tool: 'multifamily',
+      name: name,
+      address: address,
+      saved: new Date().toISOString(),
+      result: isNaN(_xls.levIRR)?'Cap: '+_xls.capRate.toFixed(1)+'%':_xls.levIRR.toFixed(1)+'% IRR',
+      // Store key inputs for restoration
+      inputs: {
+        studioUnits: document.getElementById('studioUnits')?.value||'',
+        studioRent: document.getElementById('studioRent')?.value||'',
+        oneBedUnits: document.getElementById('oneBedUnits')?.value||'',
+        rent1Bed: document.getElementById('rent1Bed')?.value||'',
+        twoBedUnits: document.getElementById('twoBedUnits')?.value||'',
+        rent2Bed: document.getElementById('rent2Bed')?.value||'',
+        threeBedUnits: document.getElementById('threeBedUnits')?.value||'',
+        rent3Bed: document.getElementById('rent3Bed')?.value||'',
+        otherIncome: document.getElementById('otherIncome')?.value||'',
+        vacancyRate: document.getElementById('vacancyRate')?.value||'',
+        rentGrowth: document.getElementById('rentGrowth')?.value||'',
+        expGrowth: document.getElementById('expGrowth')?.value||'',
+        holdPeriod: document.getElementById('holdPeriod')?.value||'',
+        exitCap: document.getElementById('exitCap')?.value||'',
+        sellCosts: document.getElementById('sellCosts')?.value||'',
+        discRate: document.getElementById('discRate')?.value||'',
+        targetIRR: document.getElementById('targetIRR')?.value||'',
+        propertyTaxes: document.getElementById('propertyTaxes')?.value||'',
+        insurance: document.getElementById('insurance')?.value||'',
+        utilities: document.getElementById('utilities')?.value||'',
+        maintenance: document.getElementById('maintenance')?.value||'',
+        management: document.getElementById('management')?.value||'',
+        staff: document.getElementById('staff')?.value||'',
+        supplies: document.getElementById('supplies')?.value||'',
+        misc: document.getElementById('misc')?.value||'',
+        purchasePrice: document.getElementById('purchasePrice')?.value||'',
+        loanAmount: document.getElementById('loanAmount')?.value||'',
+        interestRate: document.getElementById('interestRate')?.value||'',
+        amortYears: document.getElementById('amortYears')?.value||'',
+        loanTerm: document.getElementById('loanTerm')?.value||'',
+        closingCostPct: document.getElementById('closingCostPct')?.value||'',
+        capexBudget: document.getElementById('capexBudget')?.value||'',
+        propName: document.getElementById('propName')?.value||'',
+      },
+      // Store key metrics for display
+      metrics: {
+        capRate: _xls.capRate,
+        noi: _xls.NOI,
+        levIRR: _xls.levIRR,
+        dscr: _xls.DSCR,
+        em: _xls.EM,
+        price: _xls.price,
+        totalUnits: _xls.totalUnits,
+      }
+    };
+    
+    deals.unshift(deal); // add to front
+    if(deals.length > 20) deals = deals.slice(0,20); // max 20 saved deals
+    localStorage.setItem('reproforma_deals', JSON.stringify(deals));
+    
+    closeModal();
+    showToast('✓ Deal saved — "' + name + '"');
+  }catch(e){
+    closeModal();
+    alert('Could not save deal: ' + e.message);
+  }
+}
+
+function showToast(msg){
+  var toast = document.getElementById('saveToast');
+  var toastMsg = document.getElementById('toastMsg');
+  if(!toast) return;
+  if(toastMsg) toastMsg.textContent = msg;
+  toast.style.display='flex';
+  setTimeout(function(){ toast.style.display='none'; }, 3500);
+}
+
+// ── Restore deal from URL param ──────────────────────────────────
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  var dealId = params.get('deal');
+  if(!dealId) return;
+  try{
+    var raw = localStorage.getItem('reproforma_deals');
+    if(!raw) return;
+    var deals = JSON.parse(raw);
+    var deal = deals.find(function(d){ return d.id === dealId; });
+    if(!deal || !deal.inputs) return;
+    // Restore all inputs
+    Object.keys(deal.inputs).forEach(function(key){
+      var el = document.getElementById(key);
+      if(el && deal.inputs[key]) el.value = deal.inputs[key];
+    });
+    // Trigger calculation
+    setTimeout(function(){
+      liveCalc();
+      setTimeout(function(){
+        var pn = document.getElementById('propName');
+        if(pn) pn.value = deal.inputs.propName || deal.name;
+        showToast('Deal "' + deal.name + '" restored');
+      }, 500);
+    }, 300);
+  }catch(e){ console.log('Could not restore deal:', e); }
+})();
+
+// Close modal on background click
+document.getElementById('saveModal')?.addEventListener('click', function(e){
+  if(e.target === this) closeModal();
+});
+
+</script>
+
+
+<!-- SAVE DEAL MODAL -->
+<div id="saveModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:14px;padding:28px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+    <h3 style="font-size:16px;font-weight:700;margin-bottom:6px;">💾 Save this deal</h3>
+    <p style="font-size:13px;color:#64748b;margin-bottom:16px;">Give this deal a name to find it later. Saved locally in your browser — no account needed.</p>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#64748b;display:block;margin-bottom:4px;">Deal Name</label>
+      <input id="dealName" type="text" placeholder="e.g. Austin 72-Unit Value-Add" style="width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;font-family:Inter,sans-serif;outline:none;">
+    </div>
+    <div style="margin-bottom:16px;">
+      <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#64748b;display:block;margin-bottom:4px;">Address / Location (optional)</label>
+      <input id="dealAddress" type="text" placeholder="e.g. 123 Main St, Austin TX" style="width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;font-family:Inter,sans-serif;outline:none;">
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="confirmSave()" style="flex:1;background:#0043ce;color:white;border:none;border-radius:8px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;">Save Deal</button>
+      <button onclick="closeModal()" style="background:white;color:#475569;border:1px solid #cbd5e1;border-radius:8px;padding:11px 18px;font-size:14px;cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- SAVE TOAST -->
+<div id="saveToast" style="display:none;position:fixed;bottom:24px;right:24px;background:#15803d;color:white;padding:14px 20px;border-radius:10px;font-size:14px;font-weight:600;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,.2);display:flex;align-items:center;gap:10px;">
+  <span>✓</span><span id="toastMsg">Deal saved!</span>
+</div>
+
+</body>
+</html>
