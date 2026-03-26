@@ -932,6 +932,12 @@ a{text-decoration:none;color:inherit;}
 // Industry-standard residential land developer model
 // ═══════════════════════════════════════════════════════════════════
 
+
+// ── GA4 Event Tracking ────────────────────────────────────────
+function gaEvent(action, params){
+  try{ if(window.gtag) gtag('event', action, params); }catch(e){}
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const $  = id => document.getElementById(id);
 const num = id => parseFloat($(id)?.value) || 0;
@@ -1059,6 +1065,7 @@ function getTypes(){
 // MAIN CALCULATE
 // ═══════════════════════════════════════════════════════════════════
 function calculate(){
+  gaEvent("calculate",{tool:"land_development",method:"manual"});
   const types = getTypes();
   if(!types.length){ alert('Enter at least one product type with lots and a price.'); return; }
 
@@ -1623,6 +1630,7 @@ function calculate(){
 // Realistic industry-standard values
 // ═══════════════════════════════════════════════════════════════════
 function loadDemo(){
+  gaEvent("demo_loaded",{tool:"land_development"});
   set('projName',  'Maple Ridge Estates');
   set('projLoc',   'Sussex County, DE');
   set('siteAcres', '58');
@@ -2451,6 +2459,7 @@ function confirmSave(){
     deals.unshift(deal);
     if(deals.length>20)deals=deals.slice(0,20);
     localStorage.setItem('reproforma_deals',JSON.stringify(deals));
+    gaEvent('deal_saved',{tool:'land_development',result:resultVal});
     document.getElementById('saveModal').style.display='none';
     var t=document.getElementById('saveToast');
     if(t){t.textContent='✓ Saved: '+name;t.style.display='block';setTimeout(function(){t.style.display='none';},3000);}
