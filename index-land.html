@@ -2367,8 +2367,12 @@ liveCalc();
 
 // ── Save Deal ──────────────────────────────────────────────────
 function saveDeal(){
+  if(!_xls){alert('Please run the calculator first, then save.');return;}
   var modal=document.getElementById('saveModal');
   if(!modal)return;
+  var nameEl=document.getElementById('dealName');
+  var projName=document.getElementById('projName');
+  if(nameEl&&projName&&projName.value)nameEl.value=projName.value;
   modal.style.display='flex';
   setTimeout(function(){var ne=document.getElementById('dealName');if(ne)ne.focus();},100);
 }
