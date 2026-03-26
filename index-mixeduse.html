@@ -1776,13 +1776,55 @@ function confirmSave(){
       id:id, tool:'mixeduse', name:name, address:address,
       saved:new Date().toISOString(), result:resultVal,
       inputs:{
-        address: document.getElementById('propAddress')?.value||'',
-        sqft: document.getElementById('sqft')?.value||'',
-        rent: document.getElementById('annualRent')?.value||'',
+        amortization: document.getElementById('amortization')?.value||'',
+        annualRent: document.getElementById('annualRent')?.value||'',
+        buildingClass: document.getElementById('buildingClass')?.value||'',
+        buildingSize: document.getElementById('buildingSize')?.value||'',
+        bumpType: document.getElementById('bumpType')?.value||'',
+        camExpense: document.getElementById('camExpense')?.value||'',
+        camReimb: document.getElementById('camReimb')?.value||'',
+        capitalImprovements: document.getElementById('capitalImprovements')?.value||'',
+        capitalReserves: document.getElementById('capitalReserves')?.value||'',
+        closingCosts: document.getElementById('closingCosts')?.value||'',
+        customBumpInterval: document.getElementById('customBumpInterval')?.value||'',
+        customBumpPct: document.getElementById('customBumpPct')?.value||'',
+        discountRate: document.getElementById('discountRate')?.value||'',
+        downtimeMonths: document.getElementById('downtimeMonths')?.value||'',
+        expenseGrowth: document.getElementById('expenseGrowth')?.value||'',
+        flag1031: document.getElementById('flag1031')?.value||'',
+        flagCostSeg: document.getElementById('flagCostSeg')?.value||'',
+        flagSLB: document.getElementById('flagSLB')?.value||'',
+        holdPeriod: document.getElementById('holdPeriod')?.value||'',
+        insurance: document.getElementById('insurance')?.value||'',
+        interestRate: document.getElementById('interestRate')?.value||'',
+        landSize: document.getElementById('landSize')?.value||'',
+        leaseRemaining: document.getElementById('leaseRemaining')?.value||'',
         leaseType: document.getElementById('leaseType')?.value||'',
-        price: document.getElementById('purchasePrice')?.value||'',
-        rate: document.getElementById('interestRate')?.value||'',
-        term: document.getElementById('loanTerm')?.value||'',
+        leasingComm: document.getElementById('leasingComm')?.value||'',
+        loanTerm: document.getElementById('loanTerm')?.value||'',
+        loanToValue: document.getElementById('loanToValue')?.value||'',
+        locationQuality: document.getElementById('locationQuality')?.value||'',
+        managementFee: document.getElementById('managementFee')?.value||'',
+        marketValueGrowth: document.getElementById('marketValueGrowth')?.value||'',
+        occupancyRate: document.getElementById('occupancyRate')?.value||'',
+        otherIncome: document.getElementById('otherIncome')?.value||'',
+        otherOpex: document.getElementById('otherOpex')?.value||'',
+        propName: document.getElementById('propName')?.value||'',
+        purchasePrice: document.getElementById('purchasePrice')?.value||'',
+        realEstateTaxes: document.getElementById('realEstateTaxes')?.value||'',
+        renewalOptions: document.getElementById('renewalOptions')?.value||'',
+        renewalProb: document.getElementById('renewalProb')?.value||'',
+        rentGrowth: document.getElementById('rentGrowth')?.value||'',
+        repairsMaint: document.getElementById('repairsMaint')?.value||'',
+        salesCosts: document.getElementById('salesCosts')?.value||'',
+        targetIRR: document.getElementById('targetIRR')?.value||'',
+        tenantCount: document.getElementById('tenantCount')?.value||'',
+        tenantCredit: document.getElementById('tenantCredit')?.value||'',
+        terminalCapRate: document.getElementById('terminalCapRate')?.value||'',
+        tiAllowance: document.getElementById('tiAllowance')?.value||'',
+        utilities: document.getElementById('utilities')?.value||'',
+        year1Budget: document.getElementById('year1Budget')?.value||'',
+        yearBuilt: document.getElementById('yearBuilt')?.value||'',
       }
     };
     deals.unshift(deal);
@@ -1794,6 +1836,39 @@ function confirmSave(){
   }catch(e){document.getElementById('saveModal').style.display='none';alert('Save failed: '+e.message);}
 }
 document.getElementById('saveModal')?.addEventListener('click',function(e){if(e.target===this)this.style.display='none';});
+
+
+// ── Toast notification ────────────────────────────────────────
+function showToast(msg){
+  var el=document.getElementById('saveToast');
+  if(!el)return;
+  el.textContent=msg;el.style.display='block';
+  setTimeout(function(){el.style.display='none';},3000);
+}
+
+// ── Restore saved deal from URL ───────────────────────────────
+(function(){
+  var params=new URLSearchParams(window.location.search);
+  var dealId=params.get('deal');
+  if(!dealId)return;
+  try{
+    var raw=localStorage.getItem('reproforma_deals');
+    if(!raw)return;
+    var deals=JSON.parse(raw);
+    var deal=deals.find(function(d){return d.id===dealId;});
+    if(!deal||!deal.inputs)return;
+    Object.keys(deal.inputs).forEach(function(key){
+      var el=document.getElementById(key);
+      if(el&&deal.inputs[key])el.value=deal.inputs[key];
+    });
+    setTimeout(function(){
+      try{ liveCalc(); calculate(); }catch(e){}
+      setTimeout(function(){
+        showToast('Deal "'+deal.name+'" restored');
+      },400);
+    },300);
+  }catch(e){console.log('Restore error:',e);}
+})();
 
 </script>
 
