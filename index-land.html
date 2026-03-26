@@ -2379,7 +2379,7 @@ function confirmSave(){
     var deals=[];
     try{var raw=localStorage.getItem('reproforma_deals');if(raw)deals=JSON.parse(raw);}catch(e){}
     var id='deal_'+Date.now();
-    var resultVal='Margin: '+(typeof grossMargin!=='undefined'?grossMargin.toFixed(1):'?')+'%';
+    var resultVal=(_xls&&!isNaN(_xls.levIRR))?_xls.levIRR.toFixed(1)+'% IRR':(_xls&&_xls.margin!==undefined)?'Margin: '+_xls.margin.toFixed(1)+'%':'Run calculator first';
     var deal={
       id:id, tool:'land', name:name, address:address,
       saved:new Date().toISOString(), result:resultVal,
