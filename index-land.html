@@ -1631,14 +1631,14 @@ function loadDemo(){
   set('analysisDate', today);
 
   // Lot mix: 80 SFD + 40 townhomes + 30 active adult
-  set('sfdLots', '80');  set('sfdP', '185000'); set('sfdEsc', '3.0'); set('sfdAbs', '4');
+  set('sfdLots', '80');  set('sfdP', '192000'); set('sfdEsc', '3.0'); set('sfdAbs', '4');
   set('thLots',  '40');  set('thP',  '138000'); set('thEsc',  '2.5'); set('thAbs',  '3');
   set('aaLots',  '30');  set('aaP',  '162000'); set('aaEsc',  '2.5'); set('aaAbs',  '2');
 
   // Acquisition
-  set('landCost',   '4200000');
+  set('landCost',   '6500000');
   set('closingPct', '2.5');
-  set('earnest',    '200000');
+  set('earnest',    '300000');
   set('ddCost',     '150000');
   set('ddMonths',   '6');
   set('extraAcq',   '0');
@@ -2388,22 +2388,64 @@ function confirmSave(){
       id:id, tool:'land', name:name, address:address,
       saved:new Date().toISOString(), result:resultVal,
       inputs:{
-        projName: document.getElementById('projName')?.value||'',
-        projLoc: document.getElementById('projLoc')?.value||'',
-        landCost: document.getElementById('landCost')?.value||'',
+        aaAbs: document.getElementById('aaAbs')?.value||'',
+        aaEsc: document.getElementById('aaEsc')?.value||'',
+        aaLots: document.getElementById('aaLots')?.value||'',
+        aaP: document.getElementById('aaP')?.value||'',
+        amenity: document.getElementById('amenity')?.value||'',
+        analysisDate: document.getElementById('analysisDate')?.value||'',
+        arch: document.getElementById('arch')?.value||'',
         closingPct: document.getElementById('closingPct')?.value||'',
+        contPct: document.getElementById('contPct')?.value||'',
+        costEsc: document.getElementById('costEsc')?.value||'',
+        curb: document.getElementById('curb')?.value||'',
         ddCost: document.getElementById('ddCost')?.value||'',
-        sfdLots: document.getElementById('sfdLots')?.value||'',
-        sfdP: document.getElementById('sfdP')?.value||'',
+        ddMonths: document.getElementById('ddMonths')?.value||'',
+        demo: document.getElementById('demo')?.value||'',
+        devFeePct: document.getElementById('devFeePct')?.value||'',
+        devMonths: document.getElementById('devMonths')?.value||'',
+        dryUtil: document.getElementById('dryUtil')?.value||'',
+        earnest: document.getElementById('earnest')?.value||'',
+        eng: document.getElementById('eng')?.value||'',
+        extraAcq: document.getElementById('extraAcq')?.value||'',
+        firstSale: document.getElementById('firstSale')?.value||'',
+        geotech: document.getElementById('geotech')?.value||'',
+        grading: document.getElementById('grading')?.value||'',
+        hoa: document.getElementById('hoa')?.value||'',
+        insurance: document.getElementById('insurance')?.value||'',
+        landCost: document.getElementById('landCost')?.value||'',
+        landscape: document.getElementById('landscape')?.value||'',
+        legal: document.getElementById('legal')?.value||'',
+        lighting: document.getElementById('lighting')?.value||'',
+        loanFee: document.getElementById('loanFee')?.value||'',
+        loanRate: document.getElementById('loanRate')?.value||'',
+        ltc: document.getElementById('ltc')?.value||'',
+        miscSoft: document.getElementById('miscSoft')?.value||'',
+        mktPct: document.getElementById('mktPct')?.value||'',
+        offSite: document.getElementById('offSite')?.value||'',
+        paving: document.getElementById('paving')?.value||'',
+        permits: document.getElementById('permits')?.value||'',
+        ph1: document.getElementById('ph1')?.value||'',
+        ph2: document.getElementById('ph2')?.value||'',
+        ph3: document.getElementById('ph3')?.value||'',
+        preDev: document.getElementById('preDev')?.value||'',
+        productType: document.getElementById('productType')?.value||'',
+        projLoc: document.getElementById('projLoc')?.value||'',
+        projName: document.getElementById('projName')?.value||'',
+        propTax: document.getElementById('propTax')?.value||'',
+        saleCostsP: document.getElementById('saleCostsP')?.value||'',
         sfdAbs: document.getElementById('sfdAbs')?.value||'',
         sfdEsc: document.getElementById('sfdEsc')?.value||'',
-        loanRate: document.getElementById('loanRate')?.value||'',
-        loanFee: document.getElementById('loanFee')?.value||'',
-        devFeePct: document.getElementById('devFeePct')?.value||'',
-        saleCostsP: document.getElementById('saleCostsP')?.value||'',
+        sfdLots: document.getElementById('sfdLots')?.value||'',
+        sfdP: document.getElementById('sfdP')?.value||'',
+        siteAcres: document.getElementById('siteAcres')?.value||'',
+        stormwater: document.getElementById('stormwater')?.value||'',
         targetIRR: document.getElementById('targetIRR')?.value||'',
-        costEsc: document.getElementById('costEsc')?.value||'',
-        contPct: document.getElementById('contPct')?.value||'',
+        thAbs: document.getElementById('thAbs')?.value||'',
+        thEsc: document.getElementById('thEsc')?.value||'',
+        thLots: document.getElementById('thLots')?.value||'',
+        thP: document.getElementById('thP')?.value||'',
+        wetUtil: document.getElementById('wetUtil')?.value||'',
       }
     };
     deals.unshift(deal);
