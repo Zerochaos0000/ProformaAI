@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://reproforma.com/sitemap.xml
+
+# Block any future admin paths
+Disallow: /admin/
+Disallow: /api/
