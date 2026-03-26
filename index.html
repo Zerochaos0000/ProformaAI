@@ -882,7 +882,10 @@ footer{background:#07101f;border-top:1px solid rgba(255,255,255,.07);padding:56p
         <div class="saved-title">Your deal history</div>
         <div class="saved-sub">Stored in your browser. No account needed. Click any deal to resume.</div>
       </div>
-      <a href="#tools" class="saved-new">+ New analysis</a>
+      <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;margin-top:4px;">
+        <button onclick="clearAllDeals()" id="clearAllBtn" style="display:none;background:none;border:1px solid var(--border);color:var(--muted);font-family:var(--sans);font-size:12px;font-weight:500;padding:8px 14px;border-radius:8px;cursor:pointer;transition:border-color .15s,color .15s;" onmouseover="this.style.borderColor='#fca5a5';this.style.color='#dc2626'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Clear all</button>
+        <a href="#tools" class="saved-new">+ New analysis</a>
+      </div>
     </div>
     <div id="savedDealsGrid" class="deals-g"></div>
     <div id="noDeals" class="no-deals" style="display:none;">
@@ -1015,8 +1018,11 @@ footer{background:#07101f;border-top:1px solid rgba(255,255,255,.07);padding:56p
   function render(){
     var d=get(),g=document.getElementById('savedDealsGrid'),nd=document.getElementById('noDeals');
     if(!g)return;
-    if(!d.length){g.style.display='none';nd.style.display='block';return;}
+    if(!d.length){g.style.display='none';nd.style.display='block';
+      var cb=document.getElementById('clearAllBtn');if(cb)cb.style.display='none';
+      return;}
     g.style.display='grid';nd.style.display='none';
+    var cb=document.getElementById('clearAllBtn');if(cb)cb.style.display='block';
     g.innerHTML=d.slice(0,6).map(function(x){
       var pg=PAGES[x.tool]||'index',ic=ICONS[x.tool]||'📋';
       var dt=x.saved?new Date(x.saved).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
@@ -1047,6 +1053,14 @@ footer{background:#07101f;border-top:1px solid rgba(255,255,255,.07);padding:56p
     try{
       var deals=get().filter(function(d){return d.id!==id;});
       localStorage.setItem('reproforma_deals',JSON.stringify(deals));
+      render();
+    }catch(e){}
+  };
+
+  window.clearAllDeals=function(){
+    if(!confirm('Clear all saved deals? This cannot be undone.')) return;
+    try{
+      localStorage.removeItem('reproforma_deals');
       render();
     }catch(e){}
   };
