@@ -1755,8 +1755,12 @@ onBumpTypeChange(); liveCalc();
 
 // ── Save Deal ──────────────────────────────────────────────────
 function saveDeal(){
+  if(!_xlsData){alert('Please run the calculator first, then save.');return;}
   var modal=document.getElementById('saveModal');
   if(!modal)return;
+  var nameEl=document.getElementById('dealName');
+  var propName=document.getElementById('propName');
+  if(nameEl&&propName&&propName.value)nameEl.value=propName.value;
   modal.style.display='flex';
   setTimeout(function(){var ne=document.getElementById('dealName');if(ne)ne.focus();},100);
 }
