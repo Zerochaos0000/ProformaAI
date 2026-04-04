@@ -107,16 +107,74 @@ a{text-decoration:none;color:inherit;}
 @media(max-width:768px){.ft-grid{grid-template-columns:1fr 1fr!important;}}
 @media(max-width:480px){.ft-grid{grid-template-columns:1fr!important;}}
 @media print{
-  header,.no-print,button{display:none!important;}
+  /* Hide nav, inputs, buttons, charts, sensitivity */
+  header,.no-print,button,.repro-nav,.repro-footer,.repro-other-tools,
+  nav,footer,#tab-inputs,#tab-sensitivity,#tab-charts,#tab-logic,
+  .tab-bar{display:none!important;}
+
+  /* Show all result tabs */
   .tab-panel{display:block!important;}
-  .wrap{padding:0!important;}
-  .card{break-inside:avoid;box-shadow:none!important;border:1px solid #e2e8f0!important;}
-  .tbl,.sens{font-size:10px!important;}
-  body{font-size:11px;}
-  #tab-inputs{display:none!important;}
-  /* Show summary + proforma + cashflow on print */
-  #tab-summary,#tab-proforma,#tab-cashflow{display:block!important;page-break-after:always;}
-  #tab-sensitivity,#tab-charts{display:none!important;}
+  #tab-summary,#tab-proforma,#tab-cashflow,#tab-quarterly{
+    display:block!important;
+    page-break-after:always;
+  }
+  #tab-quarterly{page-break-after:auto;}
+
+  /* Page setup */
+  @page{size:landscape;margin:15mm 12mm;}
+  body{font-size:10px;background:white!important;color:#1e293b;}
+  .wrap{padding:0!important;max-width:100%!important;}
+
+  /* Cards */
+  .card{
+    break-inside:avoid;
+    box-shadow:none!important;
+    border:1px solid #e2e8f0!important;
+    margin-bottom:10px!important;
+  }
+
+  /* Tables */
+  .tbl,.sens,#qtrTbl{
+    font-size:9px!important;
+    width:100%!important;
+  }
+  .tbl th,.sens th,#qtrTbl th{
+    font-size:8px!important;
+    padding:4px 6px!important;
+    background:#1e3a5f!important;
+    color:white!important;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+  .tbl td,.sens td,#qtrTbl td{
+    padding:3px 6px!important;
+    font-size:9px!important;
+  }
+
+  /* KPI grid */
+  #kpiRow{
+    display:grid!important;
+    grid-template-columns:repeat(4,1fr)!important;
+    gap:6px!important;
+  }
+  .kpi{break-inside:avoid;padding:8px!important;}
+  .kpi-val{font-size:16px!important;}
+
+  /* Two-column grids → single column on print */
+  .g2,.g3{display:block!important;}
+  .g2>*,.g3>*{margin-bottom:8px;break-inside:avoid;}
+
+  /* Print header on each page */
+  #tab-summary::before,#tab-proforma::before,#tab-cashflow::before,#tab-quarterly::before{
+    content:attr(data-title);
+    display:block;
+    font-size:11px;
+    font-weight:700;
+    color:#0043ce;
+    border-bottom:2px solid #0043ce;
+    padding-bottom:4px;
+    margin-bottom:12px;
+  }
 }
 </style>
 <style id="repro-nav-footer">
@@ -348,6 +406,7 @@ a{text-decoration:none;color:inherit;}
   <button class="tab-btn" onclick="sw('summary',this)">📊 Summary Dashboard</button>
   <button class="tab-btn" onclick="sw('proforma',this)">📋 Proforma</button>
   <button class="tab-btn" onclick="sw('cashflow',this)">💵 Annual Cash Flows</button>
+  <button class="tab-btn" onclick="sw('quarterly',this)">📅 Quarterly Cash Flows</button>
   <button class="tab-btn" onclick="sw('sensitivity',this)">🎯 Sensitivity</button>
   <button class="tab-btn" onclick="sw('charts',this)">📉 Charts</button>
   <button class="tab-btn" onclick="sw('logic',this)">🧮 Logic</button>
@@ -450,19 +509,47 @@ a{text-decoration:none;color:inherit;}
       <div class="f"><label class="lbl">Due Diligence / Entitlement ($)</label><div class="inp-p"><span>$</span><input class="inp" id="ddCost" type="number" placeholder="150,000"></div><p class="hint">Environmental, surveys, rezoning, planning fees</p></div>
       <div class="f"><label class="lbl">Due Diligence Period (Months)</label><input class="inp" id="ddMonths" type="number" placeholder="6"></div>
       <div class="f"><label class="lbl">Additional Acquisition Costs ($)</label><div class="inp-p"><span>$</span><input class="inp" id="extraAcq" type="number" placeholder="0"></div><p class="hint">Off-site road dedications, TDRs, development rights</p></div>
+
+      <!-- ── BUILDER DEPOSIT MILESTONES ── -->
+      <div style="margin-top:14px;padding:14px;background:#fdf4ff;border:1px solid #e9d5ff;border-radius:10px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#7c3aed;margin-bottom:12px;">💰 Builder Deposit Milestones</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div class="f"><label class="lbl">Deposit Per Lot ($) <span style="font-size:9px;font-weight:400;color:#94a3b8;text-transform:none;letter-spacing:0;">auto-calc from milestones</span></label><div class="inp-p"><span>$</span><input class="inp" id="depPerLot" type="number" placeholder="0" value="" oninput="onDepPerLotChange()"></div></div>
+          <div class="f"><label class="lbl">Total Deposit ($) <span style="font-size:9px;font-weight:400;color:#94a3b8;text-transform:none;letter-spacing:0;">sum of 1–4</span></label><input class="inp" id="depTotalDisp" type="text" readonly placeholder="—" style="background:#f8fafc;color:#7c3aed;font-weight:600;"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-top:6px;">
+          <div class="f"><label class="lbl">1. Agreement to Assign ($)</label><div class="inp-p"><span>$</span><input class="inp" id="dep1Amt" type="number" placeholder="0" value="" oninput="onMilestoneChange()"></div></div>
+          <div class="f"><label class="lbl">Month</label><input class="inp" id="dep1Mo" type="number" placeholder="0" value=""></div>
+        </div>
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px;">
+          <div class="f"><label class="lbl">2. Property Closing ($)</label><div class="inp-p"><span>$</span><input class="inp" id="dep2Amt" type="number" placeholder="0" value="" oninput="onMilestoneChange()"></div></div>
+          <div class="f"><label class="lbl">Month</label><input class="inp" id="dep2Mo" type="number" placeholder="0" value=""></div>
+        </div>
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px;">
+          <div class="f"><label class="lbl">3. S/W Infrastructure ($)</label><div class="inp-p"><span>$</span><input class="inp" id="dep3Amt" type="number" placeholder="0" value="" oninput="onMilestoneChange()"></div></div>
+          <div class="f"><label class="lbl">Month</label><input class="inp" id="dep3Mo" type="number" placeholder="0" value=""></div>
+        </div>
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px;">
+          <div class="f"><label class="lbl">4. Base Paving ($)</label><div class="inp-p"><span>$</span><input class="inp" id="dep4Amt" type="number" placeholder="0" value="" oninput="onMilestoneChange()"></div></div>
+          <div class="f"><label class="lbl">Month</label><input class="inp" id="dep4Mo" type="number" placeholder="0" value=""></div>
+        </div>
+        <div id="depSummaryBox" style="display:none;background:#ede9fe;border-radius:7px;padding:8px 12px;margin-top:8px;font-size:11px;color:#5b21b6;">
+          <span id="depSummaryText"></span>
+        </div>
+      </div>
     </div>
 
     <div class="card">
       <p class="sec">📅 Development Timeline</p>
-      <div class="f"><label class="lbl">Pre-Development Period (Months)</label><input class="inp" id="preDev" type="number" placeholder="6" oninput="liveCalc()"><p class="hint">Planning, permits, engineering before breaking ground</p></div>
-      <div class="f"><label class="lbl">Construction / Development Duration (Months)</label><input class="inp" id="devMonths" type="number" placeholder="18" oninput="liveCalc()"><p class="hint">Time to complete infrastructure and deliver lots</p></div>
-      <div class="f"><label class="lbl">First Lot Sale (Month from Closing)</label><input class="inp" id="firstSale" type="number" placeholder="20" oninput="liveCalc()"><p class="hint">Typically = pre-dev + construction period</p></div>
+      <div class="f"><label class="lbl">Pre-Development Period (Months)</label><input class="inp" id="preDev" type="number" placeholder="18" oninput="liveCalc()"><p class="hint">Entitlement, permits, DD before land closes. Industry standard: 18 months (rezoning) · 6–12 (by-right) · 24–36 (complex)</p></div>
+      <div class="f"><label class="lbl">Construction / Development Duration (Months)</label><input class="inp" id="devMonths" type="number" placeholder="12" oninput="liveCalc()"><p class="hint">Site work, utilities, roads after closing. Industry standard: 12 months (50–200 lots) · 6–12 (small) · 18–24 (large)</p></div>
+      <div class="f"><label class="lbl">First Lot Sale (Month from Project Start)</label><input class="inp" id="firstSale" type="number" placeholder="30" oninput="liveCalc()"><p class="hint">Pre-Dev + Construction = when site work is done and first lots close. Example: 18 mo pre-dev + 12 mo construction = month 30.</p></div>
       <div class="f"><label class="lbl">Annual Price Escalation on Costs (%)</label><div class="inp-s"><input class="inp" id="costEsc" type="number" step="0.5" placeholder="3.0"><span>%</span></div><p class="hint">Industry avg 2–4%/yr; apply to hard costs</p></div>
       <div class="f"><label class="lbl">Phase Allocation (Phases w/ % of Lots)</label>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:4px;">
-          <div><label class="lbl" style="font-size:9px;">Phase 1 %</label><div class="inp-s"><input class="inp" id="ph1" type="number" step="5" placeholder="40" oninput="liveCalc()"><span>%</span></div></div>
-          <div><label class="lbl" style="font-size:9px;">Phase 2 %</label><div class="inp-s"><input class="inp" id="ph2" type="number" step="5" placeholder="35" oninput="liveCalc()"><span>%</span></div></div>
-          <div><label class="lbl" style="font-size:9px;">Phase 3 %</label><div class="inp-s"><input class="inp" id="ph3" type="number" step="5" placeholder="25" oninput="liveCalc()"><span>%</span></div></div>
+          <div><label class="lbl" style="font-size:9px;">Phase 1 %</label><div class="inp-s"><input class="inp" id="ph1" type="number" step="5" placeholder="40" oninput="calculate()"><span>%</span></div></div>
+          <div><label class="lbl" style="font-size:9px;">Phase 2 %</label><div class="inp-s"><input class="inp" id="ph2" type="number" step="5" placeholder="35" oninput="calculate()"><span>%</span></div></div>
+          <div><label class="lbl" style="font-size:9px;">Phase 3 %</label><div class="inp-s"><input class="inp" id="ph3" type="number" step="5" placeholder="25" oninput="calculate()"><span>%</span></div></div>
         </div>
         <div id="phCheck" style="font-size:10px;margin-top:4px;min-height:14px;"></div>
       </div>
@@ -525,7 +612,7 @@ a{text-decoration:none;color:inherit;}
 </div><!-- /inputs -->
 
 <!-- ══ SUMMARY DASHBOARD ══════════════════════════════════════════════ -->
-<div id="tab-summary" class="tab-panel">
+<div id="tab-summary" class="tab-panel" data-title="Summary Dashboard">
 
   <!-- KPI Row -->
   <div id="kpiRow" style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:18px;"></div>
@@ -604,7 +691,7 @@ a{text-decoration:none;color:inherit;}
 </div>
 
 <!-- ══ PROFORMA TAB ════════════════════════════════════════════════════ -->
-<div id="tab-proforma" class="tab-panel">
+<div id="tab-proforma" class="tab-panel" data-title="Phase Proforma &amp; Sources/Uses">
   <div class="card" style="overflow-x:auto;margin-bottom:16px;">
     <p class="sec">Phase-by-Phase Development Proforma</p>
     <table class="tbl" id="proTbl"><tbody><tr><td colspan="6" style="padding:40px;text-align:center;color:#94a3b8;">Run the calculator to see the phase proforma.</td></tr></tbody></table>
@@ -616,7 +703,7 @@ a{text-decoration:none;color:inherit;}
 </div>
 
 <!-- ══ ANNUAL CASH FLOWS ════════════════════════════════════════════════ -->
-<div id="tab-cashflow" class="tab-panel">
+<div id="tab-cashflow" class="tab-panel" data-title="Annual Cash Flow Statement">
   <div class="card" style="overflow-x:auto;">
     <p class="sec">Annual Unlevered Cash Flow Statement</p>
     <div style="margin-bottom:12px;font-size:11px;color:#64748b;background:#f8fafc;border-radius:6px;padding:10px 12px;">
@@ -627,6 +714,18 @@ a{text-decoration:none;color:inherit;}
 </div>
 
 <!-- ══ SENSITIVITY ANALYSIS ════════════════════════════════════════════ -->
+<div id="tab-quarterly" class="tab-panel" data-title="Quarterly Cash Flows (NVR Draw Schedule)">
+  <div class="card" style="overflow-x:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <p class="sec">📅 Quarterly Cash Flows</p>
+      <span style="font-size:11px;color:#94a3b8;">NVR draw schedule view — groups monthly flows into Q1/Q2/Q3/Q4</span>
+    </div>
+    <table class="tbl" id="qtrTbl">
+      <tbody><tr><td colspan="7" style="padding:40px;text-align:center;color:#94a3b8;">Run the calculator to see quarterly cash flows.</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
 <div id="tab-sensitivity" class="tab-panel">
   <!-- 3-scenario toggle -->
   <div class="card" style="margin-bottom:16px;">
@@ -1015,6 +1114,123 @@ const CH = {};
 function mkC(id, cfg){ if(CH[id]) CH[id].destroy(); CH[id] = new Chart($(id), cfg); }
 
 // ── Live preview (runs on any input change) ───────────────────────────────────
+// ── Builder Deposit Live Calc ─────────────────────────────────────
+// ── Builder Deposit — two-way sync ────────────────────────────────
+function _depTotalLots(){
+  return (parseFloat(document.getElementById('sfdLots')?.value)||0) +
+         (parseFloat(document.getElementById('thLots')?.value)||0)  +
+         (parseFloat(document.getElementById('aaLots')?.value)||0);
+}
+function _depMilestoneTotal(){
+  return (parseFloat(document.getElementById('dep1Amt')?.value)||0) +
+         (parseFloat(document.getElementById('dep2Amt')?.value)||0) +
+         (parseFloat(document.getElementById('dep3Amt')?.value)||0) +
+         (parseFloat(document.getElementById('dep4Amt')?.value)||0);
+}
+// Called when milestones 1-4 change → auto-compute Deposit Per Lot
+function onMilestoneChange(){
+  const total = _depMilestoneTotal();
+  const lots  = _depTotalLots();
+  const perLotEl = document.getElementById('depPerLot');
+  if(perLotEl){
+    if(total > 0 && lots > 0){
+      perLotEl.value = Math.round(total / lots);
+    } else {
+      perLotEl.value = '';
+    }
+  }
+  _depRefreshSummary(total);
+}
+// Called when Deposit Per Lot changes → scale milestones proportionally
+function onDepPerLotChange(){
+  const depPerLot = parseFloat(document.getElementById('depPerLot')?.value)||0;
+  const lots = _depTotalLots();
+  const newTotal = depPerLot * lots;
+  const oldTotal = _depMilestoneTotal();
+  // If milestones are already set, scale them proportionally to match new total
+  if(oldTotal > 0 && newTotal > 0){
+    const scale = newTotal / oldTotal;
+    ['dep1Amt','dep2Amt','dep3Amt','dep4Amt'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el && parseFloat(el.value)){
+        el.value = Math.round(parseFloat(el.value) * scale);
+      }
+    });
+  }
+  _depRefreshSummary(newTotal || oldTotal);
+}
+function _depRefreshSummary(total){
+  const lots    = _depTotalLots();
+  const depPerLot = parseFloat(document.getElementById('depPerLot')?.value)||0;
+  const landCost  = parseFloat(document.getElementById('landCost')?.value)||0;
+  const dispEl    = document.getElementById('depTotalDisp');
+  if(dispEl) dispEl.value = total > 0 ? '$'+Math.round(total).toLocaleString() : '—';
+  const box = document.getElementById('depSummaryBox');
+  const txt = document.getElementById('depSummaryText');
+  if(box && txt){
+    if(total > 0){
+      const pctStr = landCost > 0 ? ' · '+(total/landCost*100).toFixed(1)+'% of land price' : '';
+      const plStr  = depPerLot > 0 ? ' · $'+depPerLot.toLocaleString()+'/lot' : (lots > 0 && total > 0 ? ' · $'+Math.round(total/lots).toLocaleString()+'/lot' : '');
+      txt.textContent = 'Total at risk: $'+Math.round(total).toLocaleString()+pctStr+plStr;
+      box.style.display = 'block';
+    } else {
+      box.style.display = 'none';
+    }
+  }
+}
+// Keep old name as alias so any legacy calls still work
+function liveCalcDeposit(){ onMilestoneChange(); }
+
+
+// ── Quarterly Cash Flow Renderer ───────────────────────────────────
+function renderQuarterly(yrRevs, yrCosts, unlevCFs, numYrs, depYrCredits, depYrCosts, depYrNet){
+  const tbl = document.getElementById('qtrTbl');
+  if(!tbl) return;
+  const hasDeposits = depYrCredits && depYrCredits.some(v=>v>0);
+  const qtrs = [];
+  for(let y=0; y<numYrs; y++){
+    const yr = y===0?'Yr 0':'Yr '+y;
+    for(let q=1;q<=4;q++){
+      qtrs.push({
+        label:  yr+' Q'+q,
+        rev:    (yrRevs[y]||0)/4,
+        cost:   (yrCosts[y]||0)/4,
+        depIn:  depYrCredits ? (depYrCredits[y]||0)/4 : 0,
+        depOut: depYrCosts   ? (depYrCosts[y]||0)/4   : 0,
+        depNet: depYrNet     ? (depYrNet[y]||0)/4      : 0,
+        net:    (unlevCFs[y]||0)/4,
+      });
+    }
+  }
+  let last = qtrs.length-1;
+  while(last>0 && qtrs[last].rev===0 && qtrs[last].cost===0 && qtrs[last].net===0) last--;
+  const trimmed = qtrs.slice(0, last+1);
+  let cum=0;
+  trimmed.forEach(q=>{ cum+=q.net; q.cum=cum; });
+  const fmtG = v => v===0?'—':`<span style="color:#15803d;">$${Math.round(v).toLocaleString()}</span>`;
+  const fmtR = v => v===0?'—':`<span style="color:#dc2626;">($${ Math.abs(Math.round(v)).toLocaleString()})</span>`;
+  const fmtB = v => v===0?'—':(v>0?`<span style="color:#15803d;font-weight:700;">$${Math.round(v).toLocaleString()}</span>`:`<span style="color:#dc2626;font-weight:700;">($${Math.abs(Math.round(v)).toLocaleString()})</span>`);
+  const depHead = hasDeposits ? `<th>Deposit Rcvd</th><th>Credit-Back</th><th>Net Deposit</th>` : '';
+  const thead = `<thead><tr><th style="text-align:left;min-width:90px;">Quarter</th><th>Lot Revenue</th><th>Dev Costs</th>${depHead}<th>Net CF</th><th>Cumulative</th></tr></thead>`;
+  let prevNeg=true;
+  const rows = trimmed.map((q,i)=>{
+    const brk = prevNeg && q.cum>=0; if(q.cum>=0) prevNeg=false;
+    const bg = brk?'background:#f0fdf4;':i%2===0?'background:#fafafa;':'';
+    const depTds = hasDeposits
+      ? `<td style="text-align:right;font-size:11px;">${fmtG(q.depIn)}</td><td style="text-align:right;font-size:11px;">${fmtR(q.depOut)}</td><td style="text-align:right;font-size:11px;">${fmtB(q.depNet)}</td>`
+      : '';
+    return `<tr style="${bg}"><td style="font-size:11px;font-weight:600;">${q.label}${brk?' <span style="font-size:9px;color:#15803d;background:#dcfce7;padding:1px 5px;border-radius:4px;">breakeven</span>':''}</td><td style="text-align:right;font-size:11px;">${fmtG(q.rev)}</td><td style="text-align:right;font-size:11px;">${fmtR(q.cost)}</td>${depTds}<td style="text-align:right;font-size:11px;">${fmtB(q.net)}</td><td style="text-align:right;font-size:11px;">${fmtB(q.cum)}</td></tr>`;
+  }).join('');
+  const tR=trimmed.reduce((s,q)=>s+q.rev,0), tC=trimmed.reduce((s,q)=>s+q.cost,0),
+        tN=trimmed.reduce((s,q)=>s+q.net,0), tDI=trimmed.reduce((s,q)=>s+q.depIn,0),
+        tDO=trimmed.reduce((s,q)=>s+q.depOut,0), tDN=trimmed.reduce((s,q)=>s+q.depNet,0);
+  const depTotals = hasDeposits
+    ? `<td style="text-align:right;font-size:11px;">$${Math.round(tDI).toLocaleString()}</td><td style="text-align:right;font-size:11px;">($${Math.round(tDO).toLocaleString()})</td><td style="text-align:right;font-size:11px;">${tDN>=0?'':'('}$${Math.abs(Math.round(tDN)).toLocaleString()}${tDN>=0?'':')'}</td>`
+    : '';
+  const tfoot = `<tfoot><tr style="background:#eff6ff;font-weight:700;color:#0043ce;"><td style="font-size:11px;">TOTAL</td><td style="text-align:right;font-size:11px;">$${Math.round(tR).toLocaleString()}</td><td style="text-align:right;font-size:11px;">($${Math.round(tC).toLocaleString()})</td>${depTotals}<td style="text-align:right;font-size:11px;">$${Math.round(tN).toLocaleString()}</td><td style="text-align:right;font-size:11px;">—</td></tr></tfoot>`;
+  tbl.innerHTML = thead + '<tbody>'+rows+'</tbody>' + tfoot;
+}
+
 function liveCalc(){
   const types = getTypes();
   const totalLots = types.reduce((s,t) => s+t.lots, 0);
@@ -1106,7 +1322,7 @@ function calculate(){
   const earnest     = num('earnest');
   const ddCost      = num('ddCost');
   const extraAcq    = num('extraAcq');
-  const totalAcq    = landCost + closingCost + ddCost + extraAcq;
+  const totalAcq    = landCost + closingCost + earnest + ddCost + extraAcq;
 
   // ── HARD DEV COSTS ────────────────────────────────────────────────
   const grading    = num('grading')    * totalLots;
@@ -1177,49 +1393,143 @@ function calculate(){
   const equity      = tdcExFin - loanBal;  // developer's equity required
 
   // ── ANNUAL CASH FLOWS for IRR ────────────────────────────────────
-  // Unlevered IRR: treats project as all-cash (ignore financing)
-  // Year 0: land acquisition
-  // Dev years: hard+soft+devfee spread over construction
-  // Sale years: net revenue from lot sales
-  const devYrCt  = Math.max(1, Math.ceil(devYrs));
-  const saleYrCt = Math.max(1, Math.ceil(saleYrs));
-  const numYrs   = devYrCt + saleYrCt + 1;
+  //
+  // TIMING MODEL (matches Rausch Farm / NVR spreadsheet):
+  //
+  //   Month 0             = Project start (analysis date)
+  //   Months 0..preDev    = Pre-dev: entitlement, DD — land has NOT closed yet
+  //   Month preDev        = Land closes → acquisition cost hits here
+  //   Months preDev..     = Construction (devMonths after closing)
+  //   firstSale           = Months from CLOSING to first lot sale
+  //   First sale from start = preDev + firstSale
+  //
+  // BUG FIXED: Previous code used ceil(firstSale/12) as saleStartYr,
+  //   treating firstSale as months from project start.
+  //   Correct: firstSale is months from CLOSING, so add preDev first.
+  //
+  // BUG FIXED: devYrCt was based only on devMonths, ignoring preDev.
+  //   Correct: total dev period = preDev + devMonths.
+
+  const devYrCt     = Math.max(1, Math.ceil((preDev + devMonths) / 12));
+  const saleYrCt    = Math.max(1, Math.ceil(saleYrs));
+  const firstSaleFromStart = firstSale;   // field is now months from project start
+  // saleStartYr = when revenue begins in the annual array
+  // No need to bound by devYrCt — phased projects sell while later phases
+  // are still under construction (Phase 1 lots ready while Phase 2 builds)
+  const saleStartYr = Math.max(1, Math.ceil(firstSaleFromStart / 12));
+  const numYrs      = saleStartYr + saleYrCt;
 
   const yrRevs  = Array(numYrs).fill(0);
   const yrCosts = Array(numYrs).fill(0);
 
-  // Year 0: acquisition
-  yrCosts[0] = totalAcq;
-  // Dev years: remaining costs (hard+soft+devfee)
-  const devCostTotal = totalHardDev + totalSoft + devFee;
-  for(let y=1; y<=devYrCt; y++) yrCosts[y] = devCostTotal / devYrCt;
-  // Sale years: revenue
-  for(let y=devYrCt+1; y<numYrs; y++) yrRevs[y] = netRevenue / saleYrCt;
+  // Standard industry pro forma model (A.CRE / Argus convention):
+  //   Year 0 = ALL acquisition costs at closing (land + closing costs + earnest + DD)
+  //   Years 1..devYrCt = construction/soft costs spread by phase %
+  //   Revenue starts at saleStartYr — preDev controls WHEN, not cost timing
+  //   Carry costs (taxes + insurance) spread across full project life
 
-  // Unlevered CFs (all-equity, no financing)
-  const unlevCFs = yrCosts.map((c,y) => yrRevs[y] - c);
+  yrCosts[0] = totalAcq;  // all acquisition at Year 0 (closing)
+
+  const devCostTotal = totalHardDev + totalSoft + devFee;
+  const carryTotal   = propTaxTotal + insurance;
+  const carryPerYr   = carryTotal / numYrs;
+  for(let y = 0; y < numYrs; y++) yrCosts[y] += carryPerYr;
+
+  // Construction costs shaped by phase % across Years 1..devYrCt
+  const constructionCost = devCostTotal - carryTotal;
+
+  const rawPh1 = num('ph1'), rawPh2 = num('ph2'), rawPh3 = num('ph3');
+  const rawPhSum = rawPh1 + rawPh2 + rawPh3;
+  let phFracs;
+  if(rawPhSum > 0 && Math.abs(rawPhSum - 100) < 1){
+    phFracs = [rawPh1, rawPh2, rawPh3].filter(p => p > 0).map(p => p / 100);
+  } else {
+    phFracs = [1.0];
+  }
+
+  const devYrsPerPhase = devYrCt / phFracs.length;
+  phFracs.forEach((frac, pi) => {
+    const phCost    = constructionCost * frac;
+    const phStartYr = Math.max(1, Math.round(pi * devYrsPerPhase) + 1);
+    const phEndYr   = Math.min(Math.round((pi + 1) * devYrsPerPhase), devYrCt);
+    const phYrCount = Math.max(1, phEndYr - phStartYr + 1);
+    const costPerYr = phCost / phYrCount;
+    for(let y = phStartYr; y <= phEndYr; y++) yrCosts[y] += costPerYr;
+  });
+
+  // Revenue starts at saleStartYr
+  for(let y = saleStartYr; y < numYrs; y++) yrRevs[y] = netRevenue / saleYrCt;
+
+  // ── BUILDER DEPOSITS — Rausch Farm / NVR structure ──────────────────────────
+  // INFLOWS:  Builder pays developer at each milestone (Agreement, Closing, S/W, Paving)
+  //           These are POSITIVE cash flows — developer receives cash at each milestone
+  // OUTFLOWS: Developer credits $depPerLot back to builder at each lot closing
+  //           These are NEGATIVE cash flows — proportional to lots sold per year
+  //
+  // Net = milestone inflows - lot-closing credits
+  // Annual totals from Rausch Farm: 2024:+200k, 2026:+1,004k, 2027:+448k,
+  //                                  2028:-800k, 2029:-684.5k, 2030:-167.5k
+  const dep1Amt   = parseFloat(document.getElementById('dep1Amt')?.value)||0;
+  const dep2Amt   = parseFloat(document.getElementById('dep2Amt')?.value)||0;
+  const dep3Amt   = parseFloat(document.getElementById('dep3Amt')?.value)||0;
+  const dep4Amt   = parseFloat(document.getElementById('dep4Amt')?.value)||0;
+  const dep1Mo    = parseInt(document.getElementById('dep1Mo')?.value)||0;
+  const dep2Mo    = parseInt(document.getElementById('dep2Mo')?.value)||0;
+  const dep3Mo    = parseInt(document.getElementById('dep3Mo')?.value)||0;
+  const dep4Mo    = parseInt(document.getElementById('dep4Mo')?.value)||0;
+  const depPerLot = parseFloat(document.getElementById('depPerLot')?.value)||0;
+  const totalBuilderDep = dep1Amt+dep2Amt+dep3Amt+dep4Amt || depPerLot*totalLots;
+
+  // INFLOWS: milestone deposits received from builder — positive in year they're paid
+  const depYrInflows = Array(numYrs).fill(0);
+  [[dep1Amt,dep1Mo],[dep2Amt,dep2Mo],[dep3Amt,dep3Mo],[dep4Amt,dep4Mo]].forEach(([amt,mo])=>{
+    if(amt>0){ const y=Math.min(Math.floor(mo/12),numYrs-1); depYrInflows[y]+=amt; }
+  });
+
+  // OUTFLOWS: $depPerLot credited back at each lot closing, proportional to lots sold per year
+  // Lots sell evenly across sale years — same pattern as revenue
+  const depYrOutflows = Array(numYrs).fill(0);
+  const creditPerLot = depPerLot > 0 ? depPerLot : (totalLots>0 ? totalBuilderDep/totalLots : 0);
+  if(creditPerLot>0 && totalLots>0){
+    for(let y=saleStartYr; y<numYrs; y++){
+      // Lots closed this year = same proportion as revenue split
+      const lotsThisYr = totalLots / saleYrCt;
+      depYrOutflows[y] = lotsThisYr * creditPerLot;
+    }
+  }
+
+  // Net deposit flow per year (positive = net inflow, negative = net outflow)
+  const depYrNet = Array(numYrs).fill(0).map((_,y) => depYrInflows[y] - depYrOutflows[y]);
+
+  // Keep depYrCosts / depYrCredits names for the cash flow table display
+  const depYrCosts   = depYrOutflows;   // credits back to builder at closing
+  const depYrCredits = depYrInflows;    // milestone payments received from builder
+
+  // Unlevered CFs — deposits are net positive/negative per year
+  // Milestone receipts IMPROVE early IRR; credit-backs REDUCE late-year cash flows
+  const unlevCFs = yrCosts.map((c,y) => yrRevs[y] - c + depYrNet[y]);
   const unlevIRR = calcIRR(unlevCFs);
   const unlevInvested = totalAcq + devCostTotal; // = tdcExFin
-  const unlevEM  = unlevInvested > 0 ? (grossProfit - totalFinance + unlevInvested) / unlevInvested : 1;
+  const unlevEM  = unlevInvested > 0 ? netRevenue / unlevInvested : 1;
   // Note: unlevered profit = netRevenue - tdcExFin (ignoring financing cost)
   const unlevProfit = netRevenue - tdcExFin;
   const unlevMargin = netRevenue ? unlevProfit / netRevenue * 100 : 0;
 
   // Levered CFs: developer's equity in/out, loan covers its share
-  // Year 0: equity down (acquisition equity portion)
-  // Dev years: equity portion of dev costs (loan draws cover rest)
-  // Sale years: net revenue minus loan repayment (principal + interest)
+  // Year 0..saleStartYr-1: equity portion of dev costs (no revenue yet)
+  // Sale years (saleStartYr..): net revenue minus loan repayment and interest
+  // Key: loop to saleStartYr (not devYrCt) to handle gap years where
+  // construction has finished but revenue hasn't started yet.
   const levCFs = Array(numYrs).fill(0);
-  levCFs[0] = -(totalAcq * (1 - ltcPct));  // equity for acquisition
-  for(let y=1; y<=devYrCt; y++) levCFs[y] = -(devCostTotal/devYrCt) * (1-ltcPct);
-  for(let y=devYrCt+1; y<numYrs; y++){
+  for(let y=0; y<saleStartYr; y++) levCFs[y] = -(yrCosts[y] || 0) * (1-ltcPct);
+  for(let y=saleStartYr; y<numYrs; y++){
     const rev = netRevenue / saleYrCt;
     const loanRepay = loanBal / saleYrCt;
     const finCost   = totalFinance / saleYrCt;
     levCFs[y] = rev - loanRepay - finCost;
   }
   const levIRR  = calcIRR(levCFs);
-  const equityIn = -levCFs.reduce((s,v)=>s+(v<0?v:0),0);
+  const equityIn = tdcExFin * (1 - ltcPct);  // total developer equity = TDC × (1-LTC)
   const levEM   = equityIn > 0 ? (grossProfit - totalFinance + equityIn) / equityIn : 1;
 
   // ── Switch to Summary ──────────────────────────────────────────────
@@ -1262,6 +1572,9 @@ function calculate(){
     wfR('  Soft Costs',          totalSoft,    '', true) +
     wfR('  Developer Fee',       devFee,       '', true) +
     wfR('  Financing Costs',     totalFinance, '', true) +
+    (totalBuilderDep>0 ? wfR('  Builder Deposits (Net)',
+      depYrNet.reduce((s,v)=>s+v,0),
+      'background:#fdf4ff;', depYrNet.reduce((s,v)=>s+v,0) < 0) : '') +
     wfR('Total All-In Costs',    totalCosts,   'background:#fef2f2;font-weight:700;', true) +
     wfR('Gross Profit',          grossProfit,  `background:${grossProfit>=0?'#eff6ff':'#fee2e2'};font-weight:700;color:${grossProfit>=0?'#0043ce':'#dc2626'};`) +
     `<div style="margin-top:10px;padding:10px;background:#f8fafc;border-radius:7px;font-size:11px;color:#64748b;line-height:1.8;">
@@ -1315,6 +1628,7 @@ function calculate(){
     { l:'Soft Costs',   sub:'Eng + legal + permits + carry', v:totalSoft,    c:'#f97316' },
     { l:'Developer Fee',sub:`${fpct(devFeePct*100)} of pre-fee costs`,       v:devFee, c:'#64748b' },
     { l:'Financing',    sub:'Interest + loan fees',          v:totalFinance, c:'#ef4444' },
+    ...(totalBuilderDep>0 ? [{ l:'Builder Deposits', sub:'Net deposit exposure at closing', v:Math.abs(depYrNet.reduce((s,v)=>s+v,0)), c:'#7c3aed' }] : []),
   ];
   $('budgetBreakdown').innerHTML = cats.map(c => `
     <div style="background:#f8fafc;border-radius:8px;padding:14px;">
@@ -1343,11 +1657,7 @@ function calculate(){
   </div>`;
 
   // ── Phase Proforma ─────────────────────────────────────────────
-  const rawPh = [num('ph1'), num('ph2'), num('ph3')];
-  const phSum  = rawPh.reduce((a,b) => a+b, 0);
-  const phPcts = phSum > 0 && Math.abs(phSum-100) < 1
-    ? rawPh.filter(p => p > 0).map(p => p/100)
-    : [0.4, 0.35, 0.25];
+  const phPcts = phFracs;  // already computed above, normalized to sum=1
   const phases = phPcts.map((pc, i) => {
     const rev  = Math.round(netRevenue * pc);
     const acq  = Math.round(totalAcq * pc);
@@ -1398,6 +1708,7 @@ function calculate(){
     ${DR('Loan Origination Fee',[...phases.map(p=>Math.round(loanFeeAmt*p.pc)),loanFeeAmt],true)}
     ${DR('Construction Loan Interest',[...phases.map(p=>Math.round(interestCost*p.pc)),interestCost],true)}
     ${TR('Total Financing',[...phases.map(p=>p.fin),totalFinance])}
+    ${totalBuilderDep>0?`${SH('BUILDER DEPOSITS')}${DR('Deposits Posted (Milestones)',[...phases.map(p=>Math.round(totalBuilderDep*p.pc)),totalBuilderDep],true)}${DR('Credits Back at Closing',[...phases.map(p=>Math.round(depYrOutflows.reduce((s,v)=>s+v,0)*p.pc)),depYrOutflows.reduce((s,v)=>s+v,0)],true)}${SR('Net Deposit Exposure',[...phases.map(p=>{const n=depYrNet.reduce((s,v)=>s+v,0)*p.pc;return n<0?'('+fmt(-n)+')':fmt(n);}),depYrNet.reduce((s,v)=>s+v,0)<0?'('+fmt(-depYrNet.reduce((s,v)=>s+v,0))+')':fmt(depYrNet.reduce((s,v)=>s+v,0))])}`:''}
     ${SH('TOTALS')}
     ${TR('Total All-In Costs',[...phases.map(p=>p.cost),totalCosts])}
     ${TR('Gross Profit',[...phases.map(p=>p.profit),grossProfit])}
@@ -1409,6 +1720,7 @@ function calculate(){
   $('sourcesUses').innerHTML = `<div class="g2" style="gap:16px;">
     <div><p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;letter-spacing:.05em;margin-bottom:10px;">USES OF FUNDS</p>
       ${[['Land Acquisition',totalAcq],['Hard Development',totalHardDev],['Soft Costs',totalSoft],['Developer Fee ('+fpct(devFeePct*100)+'%)',devFee],['Financing Costs',totalFinance]].map(([l,v])=>`<div class="qs"><span>${l}</span><div><strong>${fmt(v)}</strong><span style="font-size:10px;color:#94a3b8;margin-left:8px;">${fpct(v/totalCosts*100)}</span></div></div>`).join('')}
+      ${totalBuilderDep>0?`<div class="qs" style="background:#fdf4ff;border-radius:6px;padding:6px 10px;"><span style="color:#7c3aed;">Builder Deposits (Total Posted)</span><div><strong style="color:#7c3aed;">${fmt(totalBuilderDep)}</strong><span style="font-size:10px;color:#94a3b8;margin-left:8px;">${fmt(depPerLot)}/lot · credited back at closing</span></div></div>`:''}
       <div class="qs" style="background:#eff6ff;border-radius:6px;padding:8px 12px;margin-top:4px;font-weight:700;"><span style="color:#0043ce;">Total Development Cost (TDC)</span><strong style="color:#0043ce;">${fmt(totalCosts)}</strong></div>
     </div>
     <div><p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;letter-spacing:.05em;margin-bottom:10px;">SOURCES OF FUNDS</p>
@@ -1428,9 +1740,17 @@ function calculate(){
   const cfBody = `<tbody>
     <tr class="row-head"><td colspan="${numYrs+1}">REVENUE (Net lot sales)</td></tr>
     <tr><td style="padding-left:16px;color:#475569;">Net Lot Revenue</td>${cfYrs.map(y=>`<td class="${yrRevs[y]>0?'green':''}">${yrRevs[y]>0?fmt(yrRevs[y]):'—'}</td>`).join('')}</tr>
-    <tr class="row-head"><td colspan="${numYrs+1}">COSTS (Negative = cash out)</td></tr>
-    <tr><td style="padding-left:16px;color:#475569;">Land &amp; Acquisition</td>${cfYrs.map(y=>`<td class="${yrCosts[y]>0&&y===0?'red':''}">${y===0?'('+fmt(yrCosts[0])+')':'—'}</td>`).join('')}</tr>
-    <tr><td style="padding-left:16px;color:#475569;">Development Costs</td>${cfYrs.map(y=>`<td class="${y>0&&y<=devYrCt?'red':''}">${y>0&&y<=devYrCt?'('+fmt(devCostTotal/devYrCt)+')':'—'}</td>`).join('')}</tr>
+    <tr class="row-head"><td colspan="${numYrs+1}">COSTS</td></tr>
+    <tr><td style="padding-left:16px;color:#475569;">Land &amp; Acquisition</td>${cfYrs.map(y=>`<td class="${y===0?'red':''}">${y===0?'('+fmt(totalAcq)+')':'—'}</td>`).join('')}</tr>
+    <tr><td style="padding-left:16px;color:#475569;">Construction + Soft</td>${cfYrs.map(y=>`<td class="${y>0&&y<=devYrCt&&(yrCosts[y]-carryPerYr)>0?'red':''}">${y>0&&y<=devYrCt&&(yrCosts[y]-carryPerYr)>0?'('+fmt(yrCosts[y]-carryPerYr)+')':'—'}</td>`).join('')}</tr>
+    <tr><td style="padding-left:16px;color:#475569;">Carry (Tax + Insurance)</td>${cfYrs.map(y=>`<td class="${carryPerYr>0?'red':''}">${carryPerYr>0?'('+fmt(carryPerYr)+')':'—'}</td>`).join('')}</tr>
+    ${totalBuilderDep>0?`
+    <tr class="row-head"><td colspan="${numYrs+1}">BUILDER DEPOSITS (NVR Structure)</td></tr>
+    <tr><td style="padding-left:16px;color:#15803d;">  Milestone Receipts (+)</td>${cfYrs.map(y=>`<td class="${depYrCredits[y]>0?'green':''}">${depYrCredits[y]>0?fmt(depYrCredits[y]):'—'}</td>`).join('')}</tr>
+    <tr><td style="padding-left:16px;color:#dc2626;">  Credit-Backs at Closing (−)</td>${cfYrs.map(y=>`<td class="${depYrCosts[y]>0?'red':''}">${depYrCosts[y]>0?'('+fmt(depYrCosts[y])+')':'—'}</td>`).join('')}</tr>
+    <tr><td style="padding-left:16px;color:#7c3aed;font-weight:600;">  Net Deposit Flow</td>${cfYrs.map(y=>{const net=depYrNet[y];return`<td style="color:${net>0?'#15803d':net<0?'#dc2626':'#94a3b8'};font-weight:600;">${net!==0?(net>0?fmt(net):'('+fmt(-net)+')') :'—'}</td>`;}).join('')}</tr>
+    `:''}
+
     <tr class="row-total"><td>Net Cash Flow (Unlevered)</td>${cfYrs.map(y=>{const v=unlevCFs[y];return`<td style="color:${v>=0?'#15803d':'#dc2626'};">${v>=0?fmt(v):'('+fmt(-v)+')'}</td>`;}).join('')}</tr>
     <tr><td style="padding-left:16px;color:#64748b;font-size:11px;">Cumulative (Unlevered)</td>${cfYrs.map(y=>{cumCF+=unlevCFs[y];return`<td style="color:${cumCF>=0?'#15803d':'#dc2626'};">${cumCF>=0?fmt(cumCF):'('+fmt(-cumCF)+')'}</td>`;}).join('')}</tr>
   </tbody>`;
@@ -1447,13 +1767,14 @@ function calculate(){
     const adjCost    = adjTDCexFin + adjFinance;
     const adjProfit  = adjRev - adjCost;
     const adjMargin  = adjRev ? adjProfit/adjRev*100 : 0;
-    // IRR: use clean unlevered CF structure scaled by multipliers
-    const adjAcq    = totalAcq * costMult;
-    const adjDevCost= devCostTotal * costMult;
-    const adjSaleRevYr = adjRev / saleYrCt;
-    const adjCFs = [-adjAcq];
-    for(let y=1; y<=devYrCt; y++) adjCFs.push(-adjDevCost/devYrCt);
-    for(let y=devYrCt+1; y<numYrs; y++) adjCFs.push(adjSaleRevYr);
+    // IRR: pre-allocated array — costs at 0..devYrCt, revenue at saleStartYr..end
+    const adjAcq     = totalAcq * costMult;
+    const adjDevCost = devCostTotal * costMult;
+    const snYrs      = saleStartYr + saleYrCt;
+    const adjCFs     = Array(snYrs).fill(0);
+    adjCFs[0] -= adjAcq;
+    for(let y=1; y<=Math.min(devYrCt, snYrs-1); y++) adjCFs[y] -= adjDevCost/devYrCt;
+    for(let y=saleStartYr; y<snYrs; y++) adjCFs[y] += adjRev/saleYrCt;
     const adjIRR = calcIRR(adjCFs);
     const adjEqIn = adjAcq + adjDevCost - adjLoan;
     const adjEM  = adjEqIn > 0 ? (adjProfit - adjFinance + adjEqIn)/adjEqIn : 1;
@@ -1481,17 +1802,19 @@ function calculate(){
 
   // Build scenario CFs using correct unlevered method
   function scenCFs(adjAcq2, adjDevCost2, adjRev2){
-    const cfs = [-adjAcq2];
-    for(let y=1; y<=devYrCt; y++) cfs.push(-adjDevCost2/devYrCt);
-    for(let y=devYrCt+1; y<numYrs; y++) cfs.push(adjRev2/saleYrCt);
+    const snYrs = saleStartYr + saleYrCt;
+    const cfs   = Array(snYrs).fill(0);
+    cfs[0] -= adjAcq2;
+    for(let y=1; y<=Math.min(devYrCt, snYrs-1); y++) cfs[y] -= adjDevCost2/devYrCt;
+    for(let y=saleStartYr; y<snYrs; y++) cfs[y] += adjRev2/saleYrCt;
     return cfs;
   }
 
   // Land price sensitivity
   const ppVals = [0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4].map(m => Math.round(landCost*m));
   $('ppSens').innerHTML = makeST(ppVals.map(lc2 => {
-    const cl2 = (lc2+ddCost+extraAcq)*closingPct;
-    const acq2 = lc2+cl2+ddCost+extraAcq;
+    const cl2 = lc2 * closingPct;
+    const acq2 = lc2+cl2+earnest+ddCost+extraAcq;
     const c2 = acq2+totalHardDev+totalSoft+devFee+totalFinance;
     const pr2 = netRevenue-c2, mg2 = netRevenue?pr2/netRevenue*100:0;
     const eq2In = acq2+devCostTotal-(acq2+devCostTotal)*ltcPct;
@@ -1568,8 +1891,8 @@ function calculate(){
   ]},options:co});
 
   mkC('chCostPie',{type:'doughnut',data:{
-    labels:['Acquisition','Hard Dev','Soft + Dev Fee','Financing'],
-    datasets:[{data:[totalAcq,totalHardDev,totalSoft+devFee,totalFinance].map(Math.round),backgroundColor:['#0043ce','#7c3aed','#f97316','#ef4444'],borderWidth:0}]
+    labels:['Acquisition','Hard Dev','Soft + Dev Fee','Financing',...(totalBuilderDep>0?['Builder Deposits']:[] )],
+    datasets:[{data:[totalAcq,totalHardDev,totalSoft+devFee,totalFinance,...(totalBuilderDep>0?[Math.abs(depYrNet.reduce((s,v)=>s+v,0))]:[] )].map(Math.round),backgroundColor:['#0043ce','#7c3aed','#f97316','#ef4444','#a855f7'],borderWidth:0}]
   },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}}}});
 
   let cum2=0;
@@ -1585,6 +1908,9 @@ function calculate(){
     datasets:[{data:typeRevs.map(t=>t.rev),backgroundColor:['#0043ce','#7c3aed','#b45309','#22c55e'],borderWidth:0}]
   },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}}}});
 
+  // ── Quarterly Cash Flows ───────────────────────────────────────────────────
+  renderQuarterly(yrRevs, yrCosts, unlevCFs, numYrs, depYrCredits, depYrCosts, depYrNet);
+
   // ── Store all computed values for Excel export ─────────────────────────────
   _xls = {
     projName:$('projName')?.value||'Land Development',
@@ -1599,7 +1925,7 @@ function calculate(){
     miscSoft, totalSoft, devFeePct, devFee,
     ltcPct, bankRate, loanFee, loanBal, loanFeeAmt, interestCost, totalFinance,
     totalCosts, grossProfit, margin, roi, tIRR,
-    tdcExFin, devCostTotal, devYrCt, saleYrCt, numYrs, yrRevs, yrCosts,
+    tdcExFin, devCostTotal, devYrCt, saleYrCt, numYrs, yrRevs, yrCosts, carryPerYr,
     unlevCFs, unlevIRR, unlevEM, unlevProfit, unlevMargin,
     levCFs, levIRR, levEM, equityIn,
     phases,
@@ -1622,6 +1948,29 @@ function calculate(){
           const cells = tr.querySelectorAll('td'); const isBase = tr.classList.contains('base');
           return {l:cells[0]?.textContent||'',pr:parseFloat(cells[1]?.textContent?.replace(/[$,()]/g,''))*( cells[1]?.textContent?.includes('(')?-1:1)||0,mg:parseFloat(cells[2]?.textContent)||0,ir:parseFloat(cells[3]?.textContent)||0,em:parseFloat(cells[4]?.textContent)||0,pl:parseFloat(cells[5]?.textContent?.replace(/[$,()]/g,''))||0,base:isBase};
         }),
+    // Quarterly cash flows for Excel export
+    quarterlyRows: (()=>{
+      const qtrs = [];
+      for(let y=0; y<numYrs; y++){
+        for(let q=1; q<=4; q++){
+          qtrs.push({
+            label: 'Yr '+y+' Q'+q,
+            rev:   yrRevs[y]/4,
+            cost:  yrCosts[y]/4,
+            depIn: depYrCredits[y]/4,
+            depOut:depYrCosts[y]/4,
+            depNet:depYrNet[y]/4,
+            net:   unlevCFs[y]/4,
+          });
+        }
+      }
+      // Trim trailing all-zero quarters
+      while(qtrs.length && qtrs[qtrs.length-1].rev===0 && qtrs[qtrs.length-1].net===0) qtrs.pop();
+      let cum=0;
+      qtrs.forEach(q=>{ cum+=q.net; q.cum=cum; });
+      return qtrs;
+    })(),
+    saleStartYr, saleYrCt, totalBuilderDep,
   };
 }
 
@@ -1638,47 +1987,55 @@ function loadDemo(){
   const today = new Date().toISOString().split('T')[0];
   set('analysisDate', today);
 
-  // Lot mix: 80 SFD + 40 townhomes + 30 active adult
+  // Lot mix — 150 lots, industry-standard DE suburban absorption
   set('sfdLots', '80');  set('sfdP', '192000'); set('sfdEsc', '3.0'); set('sfdAbs', '4');
   set('thLots',  '40');  set('thP',  '138000'); set('thEsc',  '2.5'); set('thAbs',  '3');
   set('aaLots',  '30');  set('aaP',  '162000'); set('aaEsc',  '2.5'); set('aaAbs',  '2');
 
-  // Acquisition
-  set('landCost',   '6500000');
-  set('closingPct', '2.5');
-  set('earnest',    '300000');
-  set('ddCost',     '150000');
+  // Acquisition — realistic Sussex County, DE coastal market
+  set('landCost',   '7200000');  // $7.2M for 58 acres = $124k/acre
+  set('closingPct', '2.5');      // title, transfer tax, recording
+  set('earnest',    '400000');   // 5.6% of land — typical for DE
+  set('ddCost',     '175000');   // environmental, surveys, rezoning
   set('ddMonths',   '12');
   set('extraAcq',   '0');
 
-  // Timeline
-  set('preDev',    '18');
-  set('devMonths', '18');
-  set('firstSale', '38');
-  set('costEsc',   '3.0');
-  set('ph1', '40'); set('ph2', '35'); set('ph3', '25');
+  // ── TIMELINE — Industry standard (NAHB / ULI benchmarks) ─────────────────
+  //
+  //  Pre-dev (entitlement):  18 months  Jan 2026 → Jun 2027  land closes
+  //  Construction:           12 months  Jun 2027 → Jun 2028  lots delivered
+  //  First lot sale:         month 30   from project start = 18 + 12
+  //
+  //  Sellout: 150 lots ÷ 9/mo = 17 months  ≈ months 30–47
+  //  Total project:          ~47 months = 3.9 years
+  //
+  set('preDev',    '18');   // months — rezoning/entitlement (industry: 18 typical)
+  set('devMonths', '12');   // months — site work after closing (industry: 12 for 50–200 lots)
+  set('firstSale', '30');   // month 30 from start = 18 preDev + 12 construction
+  set('costEsc',   '2.5');  // % cost escalation/yr (industry: 2–4%)
+  set('ph1', '60'); set('ph2', '40'); set('ph3', '0');  // 2-phase: 60/40 split
 
-  // Financing
-  set('ltc',        '65');
-  set('loanRate',   '9.25');
-  set('loanFee',    '1.0');
-  set('devFeePct',  '3.0');
-  set('saleCostsP', '2.5');
-  set('targetIRR',  '20');
+  // Financing — current market (2026)
+  set('ltc',        '65');    // 60–70% LTC standard for land dev
+  set('loanRate',   '9.25');  // current construction lending
+  set('loanFee',    '1.0');   // origination fee
+  set('devFeePct',  '3.0');   // developer oversight fee
+  set('saleCostsP', '2.5');   // transfer tax + title + commissions
+  set('targetIRR',  '20');    // industry target: 20–25% unlevered
 
-  // Hard costs (per lot)
-  set('grading',    '6500');
-  set('wetUtil',    '14000');
-  set('dryUtil',    '4500');
-  set('paving',     '9000');
-  set('curb',       '3500');
-  set('landscape',  '2500');
-  set('amenity',    '250000');
-  set('offSite',    '350000');
-  set('stormwater', '280000');
-  set('lighting',   '85000');
-  set('demo',       '50000');
-  set('contPct',    '12');
+  // Hard costs — Delaware suburban benchmarks (~$56k/lot all-in with contingency)
+  set('grading',    '6500');   // grading & earthwork
+  set('wetUtil',    '14000');  // water, sewer, storm
+  set('dryUtil',    '4500');   // electric, gas, telecom
+  set('paving',     '9000');   // roads & paving
+  set('curb',       '3500');   // curb, gutter, sidewalk
+  set('landscape',  '2500');   // common area landscaping
+  set('amenity',    '350000'); // clubhouse / pool / entry (active adult community)
+  set('offSite',    '550000'); // road widening, signal, utility extensions
+  set('stormwater', '380000'); // retention ponds, BMP (DE coastal regs)
+  set('lighting',   '85000');  // street lighting
+  set('demo',       '50000');  // clearing & demolition
+  set('contPct',    '12');     // 12% contingency — industry standard
 
   // Soft costs
   set('eng',        '220000');
@@ -1686,11 +2043,19 @@ function loadDemo(){
   set('geotech',    '45000');
   set('legal',      '65000');
   set('permits',    '120000');
-  set('propTax',    '400');
-  set('insurance',  '22000');
-  set('hoa',        '35000');
-  set('mktPct',     '1.5');
+  set('propTax',    '400');    // $/lot/yr carry
+  set('insurance',  '22000');  // builder's risk/yr
+  set('hoa',        '35000');  // HOA setup
+  set('mktPct',     '1.5');    // marketing % of revenue
   set('miscSoft',   '30000');
+
+  // Builder deposit milestones (NVR/Ryan Homes structure)
+  // Total: $2,272,000 = $16,000/lot × 142 lots
+  set('dep1Amt', '100000');  set('dep1Mo', '0');   // Agreement at signing
+  set('dep2Amt', '1004000'); set('dep2Mo', '6');   // Property Closing (month 6 from closing = month 24)
+  set('dep3Amt', '534000');  set('dep3Mo', '18');  // S/W milestone
+  set('dep4Amt', '534000');  set('dep4Mo', '24');  // Base Paving milestone
+  onMilestoneChange();
 
   liveCalc();
   calculate();
@@ -1735,6 +2100,8 @@ function exportXLS(){
   const FMT_CURR = '"$"#,##0;("$"#,##0);"-"';
   const FMT_PCT  = '0.0%;(0.0%);"-"';
   const FMT_MULT = '0.00"×"';
+  // Helper: write a multiple as formatted string (SheetJS free doesn't support custom fmt reliably)
+  const fmtMult = v => (isNaN(v)||!isFinite(v)) ? '—' : v.toFixed(2)+'×';
   const FMT_INT  = '#,##0;(#,##0);"-"';
 
   // Apply styles to a range of cells
@@ -1815,9 +2182,9 @@ function exportXLS(){
     ['Profit Margin',         X.margin/100, FMT_PCT,  'Target: ≥25%',     X.margin>=25?'✅ '+X.margin.toFixed(1)+'% — Strong':X.margin>=15?'⚠ '+X.margin.toFixed(1)+'% — Marginal':'❌ '+X.margin.toFixed(1)+'% — Weak'],
     ['Return on Cost',        X.roi/100,    FMT_PCT,  'Target: ≥25%',     X.roi>=25?'✅ Strong':'⚠ Review'],
     ['Unlevered IRR',         X.unlevIRR/100,FMT_PCT,`Target: ≥${X.tIRR}%`, isNaN(X.unlevIRR)?'N/A':X.unlevIRR>=X.tIRR?'✅ Exceeds target':'⚠ Below target'],
-    ['Equity Multiple',       X.unlevEM,    FMT_MULT, 'Target: ≥1.5×',    X.unlevEM>=1.5?'✅ '+X.unlevEM.toFixed(2)+'×':'⚠ '+X.unlevEM.toFixed(2)+'×'],
+    ['Equity Multiple',       fmtMult(X.unlevEM), null, 'Target: ≥1.5×',    X.unlevEM>=1.5?'✅ '+fmtMult(X.unlevEM):'⚠ '+fmtMult(X.unlevEM)],
     ['Levered IRR',           X.levIRR/100, FMT_PCT,  'Should > Unlev.',  isNaN(X.levIRR)?'N/A':X.levIRR>X.unlevIRR?'✅ Positive leverage':'⚠ Check structure'],
-    ['Levered Multiple',      X.levEM,      FMT_MULT, 'Target: ≥2.0×',    X.levEM>=2?'✅ '+X.levEM.toFixed(2)+'×':'⚠ '+X.levEM.toFixed(2)+'×'],
+    ['Levered Multiple',      fmtMult(X.levEM), null, 'Target: ≥2.0×',    X.levEM>=2?'✅ '+fmtMult(X.levEM):'⚠ '+fmtMult(X.levEM)],
     ['Profit / Lot',          X.grossProfit/X.totalLots, FMT_CURR,'Target: $25k–60k', ''],
     ['Land as % of TDC',      X.totalAcq/X.totalCosts, FMT_PCT,'Rule: 20–30%', ''],
     ['Total Lots',            X.totalLots,  FMT_INT,  '',                 ''],
@@ -1896,8 +2263,8 @@ function exportXLS(){
     ['Cash-on-Cash Return on Equity',   (X.grossProfit-X.totalFinance)/X.equityIn,FMT_PCT],
     ['Unlevered IRR (All-Cash)',         X.unlevIRR/100,                          FMT_PCT],
     ['Levered IRR (with Loan)',          X.levIRR/100,                            FMT_PCT],
-    ['Unlevered Equity Multiple',        X.unlevEM,                               FMT_MULT],
-    ['Levered Equity Multiple',          X.levEM,                                 FMT_MULT],
+    ['Unlevered Equity Multiple',        fmtMult(X.unlevEM),                      null],
+    ['Levered Equity Multiple',          fmtMult(X.levEM),                        null],
   ];
   retData.forEach((row,i)=>{
     const bg = i%2===0?LGREEN:LGREENB;
@@ -2011,6 +2378,18 @@ function exportXLS(){
   r = proformaRow(ws2,r,'Total Financing',X.phases.map(p=>p.fin),X.totalFinance,false,true,false);
   r++;
 
+  // Builder Deposits (NVR structure) — only if entered
+  if(X.totalBuilderDep > 0){
+    r = proformaSection(ws2, r, 'BUILDER DEPOSITS (NVR STRUCTURE)');
+    const totalDepOut = X.quarterlyRows.reduce((s,q)=>s+(q.depOut||0)*4,0);
+    const totalDepNet = X.totalBuilderDep - totalDepOut;
+    r = proformaRow(ws2,r,'Deposits Posted (Milestones)',X.phases.map(ph=>Math.round(X.totalBuilderDep*ph.pc)),X.totalBuilderDep,false,false,true);
+    r = proformaRow(ws2,r,'Credits Back at Lot Closing',X.phases.map(ph=>-Math.round(totalDepOut*ph.pc)),-totalDepOut,true,false,true);
+    const netVals = X.phases.map(ph=>Math.round(totalDepNet*ph.pc));
+    r = proformaRow(ws2,r,'Net Deposit Exposure',netVals,totalDepNet,totalDepNet<0,true,false);
+    r++;
+  }
+
   // Totals
   r = proformaSection(ws2, r, 'TOTALS');
   // Total costs row (red)
@@ -2064,32 +2443,67 @@ function exportXLS(){
 
   // Revenue section
   setCell(ws3,r,1,'▸  REVENUE (Net lot sales)','s',null,hdrStyle(BLUE,WHITE,true,10,'left'));
-  ws3['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:X.numYrs}});
+  ws3['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:X.numYrs}}); r++;
+  setCell(ws3,r,1,'Net Lot Revenue','s',null,{...dataStyle(GRAY1,'FF000000',false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+  X.yrRevs.forEach((v,i) => { if(v>0) setCell(ws3,r,i+2,Math.round(v),'n',FMT_CURR,dataStyle(GRAY1,GREEN,false,'right')); });
   r++;
-  setCell(ws3,r,1,'Net Lot Revenue','s',null,dataStyle(GRAY1,'FF000000',false,'left'));
-  X.yrRevs.forEach((v,i) => setCell(ws3,r,i+2,v||null,'n',FMT_CURR,dataStyle(GRAY1,v>0?GREEN:'FF000000',false,'right')));
-  r++;
+
+  // Costs section
   setCell(ws3,r,1,'▸  COSTS (Negative = cash out)','s',null,hdrStyle(BLUE,WHITE,true,10,'left'));
-  ws3['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:X.numYrs}});
+  ws3['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:X.numYrs}}); r++;
+
+  setCell(ws3,r,1,'Land & Acquisition Costs','s',null,{...dataStyle(GRAY1,'FF000000',false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+  setCell(ws3,r,2,-Math.round(X.totalAcq),'n',FMT_CURR,dataStyle(GRAY1,COST_R,false,'right'));
   r++;
-  setCell(ws3,r,1,'Land & Acquisition Costs','s',null,dataStyle(GRAY1,'FF000000',false,'left'));
-  X.yrRevs.forEach((_,i) => {
-    const v = i===0?-X.totalAcq:null;
-    setCell(ws3,r,i+2,v,'n',FMT_CURR,dataStyle(GRAY1,v&&v<0?COST_R:'FF000000',false,'right'));
-  });
-  r++;
-  setCell(ws3,r,1,'Hard Development + Soft + Dev Fee','s',null,dataStyle(WHITE,'FF000000',false,'left'));
-  X.yrRevs.forEach((_,i) => {
-    const v = (i>=1&&i<=X.devYrCt)?-X.devCostTotal/X.devYrCt:null;
-    setCell(ws3,r,i+2,v,'n',FMT_CURR,dataStyle(WHITE,v&&v<0?COST_R:'FF000000',false,'right'));
+
+  setCell(ws3,r,1,'Hard Development + Soft + Dev Fee','s',null,{...dataStyle(WHITE,'FF000000',false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+  X.yrCosts.forEach((v,i) => {
+    if(i===0) return;
+    const cv = v - (X.carryPerYr||0);
+    if(cv > 0.5) setCell(ws3,r,i+2,-Math.round(cv),'n',FMT_CURR,dataStyle(WHITE,COST_R,false,'right'));
   });
   r++;
 
+  setCell(ws3,r,1,'Property Tax & Insurance (Carry)','s',null,{...dataStyle(GRAY1,'FF000000',false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+  X.yrCosts.forEach((_,i) => setCell(ws3,r,i+2,-Math.round(X.carryPerYr||0),'n',FMT_CURR,dataStyle(GRAY1,COST_R,false,'right')));
+  r++;
+
+  // Builder deposits section — only if deposits entered
+  if(X.totalBuilderDep > 0){
+    setCell(ws3,r,1,'▸  BUILDER DEPOSITS (NVR Structure)','s',null,hdrStyle('FF7C3AED',WHITE,true,10,'left'));
+    ws3['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:X.numYrs}}); r++;
+
+    // Rebuild annual deposit arrays from quarterly data
+    const annDepIn  = Array(X.numYrs).fill(0);
+    const annDepOut = Array(X.numYrs).fill(0);
+    X.quarterlyRows.forEach(q => {
+      const m = q.label.match(/^Yr (\d+) Q/);
+      if(!m) return;
+      const y = parseInt(m[1]);
+      if(y < X.numYrs){ annDepIn[y] += (q.depIn||0)*4; annDepOut[y] += (q.depOut||0)*4; }
+    });
+
+    setCell(ws3,r,1,'Milestone Receipts (+)','s',null,{...dataStyle(LGREENB,GREEN,false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+    annDepIn.forEach((v,i) => { if(v>0.5) setCell(ws3,r,i+2,Math.round(v),'n',FMT_CURR,dataStyle(LGREENB,GREEN,false,'right')); });
+    r++;
+
+    setCell(ws3,r,1,'Credit-Backs at Lot Closing (−)','s',null,{...dataStyle(GRAY1,'FF000000',false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+    annDepOut.forEach((v,i) => { if(v>0.5) setCell(ws3,r,i+2,-Math.round(v),'n',FMT_CURR,dataStyle(GRAY1,COST_R,false,'right')); });
+    r++;
+
+    setCell(ws3,r,1,'Net Deposit Flow','s',null,{...dataStyle('FFF5F3FF','FF7C3AED',true,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
+    annDepIn.forEach((di,i) => {
+      const dn = di - annDepOut[i];
+      if(Math.abs(dn)>0.5) setCell(ws3,r,i+2,Math.round(dn),'n',FMT_CURR,dataStyle('FFF5F3FF',dn>=0?GREEN:COST_R,true,'right'));
+    });
+    r++;
+  }
+
   // Net CF row
   setCell(ws3,r,1,'NET CASH FLOW (Unlevered)','s',null,{...totalStyle(LBLUE,BLUE),alignment:{horizontal:'left',vertical:'center'},font:{bold:true,sz:10,color:{rgb:BLUE},name:'Calibri'}});
-  X.unlevCFs.forEach((v,i) => setCell(ws3,r,i+2,v,'n',FMT_CURR,totalStyle(LBLUE,v>=0?GREEN:COST_R)));
+  X.unlevCFs.forEach((v,i) => setCell(ws3,r,i+2,Math.round(v),'n',FMT_CURR,totalStyle(LBLUE,v>=0?GREEN:COST_R)));
   r++;
-  // Cumulative
+
   let cumCFx = 0;
   setCell(ws3,r,1,'Cumulative Cash Flow','s',null,{...dataStyle('FFF0F4FF',DGRAY,false,'left'),font:{bold:false,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
   X.unlevCFs.forEach((v,i) => {
@@ -2104,9 +2518,9 @@ function exportXLS(){
   r++;
   const cfRets = [
     ['Unlevered IRR (All-Cash)',     X.unlevIRR/100,                         FMT_PCT,  'Discount rate that sets NPV = 0'],
-    ['Unlevered Equity Multiple',    X.unlevEM,                              FMT_MULT, 'Total return / equity invested'],
+    ['Unlevered Equity Multiple',    fmtMult(X.unlevEM),                     null,     'Total return / equity invested'],
     ['Levered IRR (with Loan)',      X.levIRR/100,                           FMT_PCT,  'Should exceed unlevered'],
-    ['Levered Equity Multiple',      X.levEM,                                FMT_MULT, 'After loan repayment + interest'],
+    ['Levered Equity Multiple',      fmtMult(X.levEM),                       null,     'After loan repayment + interest'],
     ['Construction Loan Balance',    X.loanBal,                              FMT_CURR, 'Based on '+Math.round(X.ltcPct*100)+'% LTC'],
     ['Developer Equity Required',    X.equityIn,                             FMT_CURR, 'Cash invested net of loan'],
     ['Total Financing Cost',         X.totalFinance,                         FMT_CURR, 'Interest + origination fee'],
@@ -2125,7 +2539,78 @@ function exportXLS(){
   XLSX.utils.book_append_sheet(wb, ws3, 'Annual Cash Flows');
 
   // ═══════════════════════════════════════════════════════════════════
-  // SHEET 4: SENSITIVITY ANALYSIS
+  // SHEET 4: QUARTERLY CASH FLOWS
+  // ═══════════════════════════════════════════════════════════════════
+  const ws4q = {};
+  ws4q['!merges'] = [];
+  r = 1;
+
+  // Title
+  setCell(ws4q,r,1,X.projName.toUpperCase()+' — QUARTERLY CASH FLOWS','s',null,hdrStyle(NAVY,WHITE,true,13,'center'));
+  ws4q['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:6}}); r++;
+  setCell(ws4q,r,1,'Development period = Years 0–'+X.devYrCt+' · First lot sales = Year '+X.saleStartYr+' · '+X.totalLots+' lots at '+X.totalAbsPerMo.toFixed(1)+'/mo','s',null,{...dataStyle('FFF0F4FF',DGRAY,false,'center'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
+  ws4q['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:6}}); r+=2;
+
+  // Column headers
+  const qHasDeposits = X.totalBuilderDep > 0;
+  const qCols = qHasDeposits
+    ? ['Quarter','Lot Revenue','Dev Costs','Deposit Rcvd','Deposit Credit','Net Deposit','Net Cash Flow','Cumulative']
+    : ['Quarter','Lot Revenue','Dev Costs','Net Cash Flow','Cumulative'];
+  qCols.forEach((h,i) => setCell(ws4q,r,i+1,h,'s',null,hdrStyle(DBLUE,WHITE,true,9,i===0?'left':'center')));
+  r++;
+
+  let prevCumNeg = true;
+  X.quarterlyRows.forEach((q,i) => {
+    const isBreak = prevCumNeg && q.cum >= 0;
+    if(q.cum >= 0) prevCumNeg = false;
+    const bg = isBreak ? LGREEN : i%2===0 ? GRAY1 : WHITE;
+    const labelText = q.label + (isBreak ? ' ★ Breakeven' : '');
+    setCell(ws4q,r,1,labelText,'s',null,{...dataStyle(bg,'FF000000',isBreak,'left'),font:{bold:isBreak,sz:10,color:{rgb:isBreak?GREEN:'FF000000'},name:'Calibri'}});
+    setCell(ws4q,r,2,q.rev>0?q.rev:0,'n',FMT_CURR,dataStyle(bg,q.rev>0?GREEN:'FF94A3B8',false,'right'));
+    setCell(ws4q,r,3,q.cost>0?-q.cost:0,'n',FMT_CURR,dataStyle(bg,q.cost>0?COST_R:'FF94A3B8',false,'right'));
+    if(qHasDeposits){
+      setCell(ws4q,r,4,q.depIn>0?q.depIn:0,'n',FMT_CURR,dataStyle(bg,q.depIn>0?GREEN:'FF94A3B8',false,'right'));
+      setCell(ws4q,r,5,q.depOut>0?-q.depOut:0,'n',FMT_CURR,dataStyle(bg,q.depOut>0?COST_R:'FF94A3B8',false,'right'));
+      setCell(ws4q,r,6,q.depNet,'n',FMT_CURR,dataStyle(bg,q.depNet>0?GREEN:q.depNet<0?COST_R:'FF94A3B8',false,'right'));
+      setCell(ws4q,r,7,q.net,'n',FMT_CURR,{...dataStyle(bg,q.net>=0?GREEN:COST_R,true,'right'),font:{bold:true,sz:10,color:{rgb:q.net>=0?GREEN:COST_R},name:'Calibri'}});
+      setCell(ws4q,r,8,q.cum,'n',FMT_CURR,{...dataStyle(bg,q.cum>=0?GREEN:COST_R,true,'right'),font:{bold:true,sz:10,color:{rgb:q.cum>=0?GREEN:COST_R},name:'Calibri'}});
+    } else {
+      setCell(ws4q,r,4,q.net,'n',FMT_CURR,{...dataStyle(bg,q.net>=0?GREEN:COST_R,true,'right'),font:{bold:true,sz:10,color:{rgb:q.net>=0?GREEN:COST_R},name:'Calibri'}});
+      setCell(ws4q,r,5,q.cum,'n',FMT_CURR,{...dataStyle(bg,q.cum>=0?GREEN:COST_R,true,'right'),font:{bold:true,sz:10,color:{rgb:q.cum>=0?GREEN:COST_R},name:'Calibri'}});
+    }
+    r++;
+  });
+
+  // Totals row
+  const qTotRev  = X.quarterlyRows.reduce((s,q)=>s+q.rev,0);
+  const qTotCost = X.quarterlyRows.reduce((s,q)=>s+q.cost,0);
+  const qTotNet  = X.quarterlyRows.reduce((s,q)=>s+q.net,0);
+  const qTotDI   = X.quarterlyRows.reduce((s,q)=>s+q.depIn,0);
+  const qTotDO   = X.quarterlyRows.reduce((s,q)=>s+q.depOut,0);
+  const qTotDN   = X.quarterlyRows.reduce((s,q)=>s+q.depNet,0);
+  const qTotStyle = (fg) => ({font:{bold:true,color:{rgb:fg},sz:10,name:'Calibri'},fill:{fgColor:{rgb:LBLUE},patternType:'solid'},alignment:{horizontal:'right',vertical:'center'},border:{top:{style:'medium',color:{rgb:BLUE}},bottom:{style:'medium',color:{rgb:BLUE}},left:{style:'thin',color:{rgb:'FFCBD5E1'}},right:{style:'thin',color:{rgb:'FFCBD5E1'}}}});
+  setCell(ws4q,r,1,'TOTAL','s',null,{...qTotStyle(BLUE),alignment:{horizontal:'left',vertical:'center'}});
+  setCell(ws4q,r,2,qTotRev,'n',FMT_CURR,qTotStyle(GREEN));
+  setCell(ws4q,r,3,-qTotCost,'n',FMT_CURR,qTotStyle(COST_R));
+  if(qHasDeposits){
+    setCell(ws4q,r,4,qTotDI,'n',FMT_CURR,qTotStyle(GREEN));
+    setCell(ws4q,r,5,-qTotDO,'n',FMT_CURR,qTotStyle(COST_R));
+    setCell(ws4q,r,6,qTotDN,'n',FMT_CURR,qTotStyle(qTotDN>=0?GREEN:COST_R));
+    setCell(ws4q,r,7,qTotNet,'n',FMT_CURR,qTotStyle(qTotNet>=0?GREEN:COST_R));
+    setCell(ws4q,r,8,'—','s',null,qTotStyle(DGRAY));
+  } else {
+    setCell(ws4q,r,4,qTotNet,'n',FMT_CURR,qTotStyle(qTotNet>=0?GREEN:COST_R));
+    setCell(ws4q,r,5,'—','s',null,qTotStyle(DGRAY));
+  }
+  r++;
+
+  const qColCount = qHasDeposits ? 8 : 5;
+  ws4q['!ref'] = XLSX.utils.encode_range({s:{r:0,c:0},e:{r:r+2,c:qColCount}});
+  ws4q['!cols'] = [{wch:18},...Array(qColCount-1).fill({wch:16})];
+  XLSX.utils.book_append_sheet(wb, ws4q, 'Quarterly Cash Flows');
+
+  // ═══════════════════════════════════════════════════════════════════
+  // SHEET 5: SENSITIVITY ANALYSIS
   // ═══════════════════════════════════════════════════════════════════
   const ws4 = {};
   ws4['!merges'] = [];
@@ -2148,14 +2633,14 @@ function exportXLS(){
     sensHdrs.forEach((h,i) => setCell(ws,row,i+1,h,'s',null,hdrStyle(DBLUE,WHITE,true,9,'center')));
     row++;
     rows.forEach((d,i)=>{
-      const bg = d.base?LBLUE:d.margin>=20&&d.irr>=X.tIRR?'FFF0FFF4':d.margin<15?'FFFFF5F5':i%2===0?GRAY1:WHITE;
-      const assess = d.margin>=25&&d.irr>=X.tIRR?'✅ Strong':d.margin>=15&&d.irr>=X.tIRR*0.8?'⚠ Marginal':'❌ Weak';
+      const bg = d.base?LBLUE:d.mg>=20&&d.ir>=X.tIRR?'FFF0FFF4':d.mg<15?'FFFFF5F5':i%2===0?GRAY1:WHITE;
+      const assess = d.mg>=25&&d.ir>=X.tIRR?'✅ Strong':d.mg>=15&&d.ir>=X.tIRR*0.8?'⚠ Marginal':'❌ Weak';
       const ac = assess.startsWith('✅')?GREEN:assess.startsWith('⚠')?AMBER:RED;
       setCell(ws,row,1,d.l,'s',null,dataStyle(bg,d.base?BLUE:'FF000000',d.base,'left'));
       setCell(ws,row,2,d.pr,'n',FMT_CURR,dataStyle(bg,d.pr>=0?BLUE:COST_R,d.base,'right'));
       setCell(ws,row,3,d.mg/100,'n',FMT_PCT,dataStyle(bg,d.mg>=25?GREEN:d.mg>=15?AMBER:COST_R,d.base,'right'));
       setCell(ws,row,4,isNaN(d.ir)?0:d.ir/100,'n',FMT_PCT,dataStyle(bg,d.ir>=X.tIRR?GREEN:d.ir>=X.tIRR*0.8?AMBER:COST_R,d.base,'right'));
-      setCell(ws,row,5,d.em,'n',FMT_MULT,dataStyle(bg,d.em>=1.5?GREEN:AMBER,d.base,'right'));
+      setCell(ws,row,5,fmtMult(d.em),'s',null,dataStyle(bg,d.em>=1.5?GREEN:AMBER,d.base,'right'));
       setCell(ws,row,6,d.pl,'n',FMT_CURR,dataStyle(bg,BLUE,d.base,'right'));
       setCell(ws,row,7,assess,'s',null,dataStyle(bg,ac,assess.startsWith('✅'),'left'));
       row++;
@@ -2227,7 +2712,7 @@ function exportXLS(){
   r = inputSec(ws5,r,'DEVELOPMENT TIMELINE');
   r = inputRow(ws5,r,'Pre-Development Period',  X.preDev,'#,##0 "months"','Planning, permits, engineering',false);
   r = inputRow(ws5,r,'Construction Duration',   X.devMonths,'#,##0 "months"','Infrastructure & lot delivery',false);
-  r = inputRow(ws5,r,'First Lot Sale (month)',  X.firstSale,'#,##0','Month from closing date',false);
+  r = inputRow(ws5,r,'First Lot Sale (month from start)',  X.firstSale,'#,##0','Month from project start = Pre-Dev + Construction',false);
   r = inputRow(ws5,r,'Cost Escalation Rate',    X.costEscRate*100,'0.0"%/yr"','Applied to hard dev costs',true);
   r = inputRow(ws5,r,'Phase 1 — % of Lots',    X.phases[0]?.pc*100||0,'0"%"',''+Math.round((X.phases[0]?.lots||0))+' lots',false);
   r = inputRow(ws5,r,'Phase 2 — % of Lots',    X.phases[1]?.pc*100||0,'0"%"',''+Math.round((X.phases[1]?.lots||0))+' lots',false);
@@ -2256,7 +2741,7 @@ function exportXLS(){
     ['Profit per Lot',          Math.round(X.grossProfit/X.totalLots), FMT_CURR],
     ['Unlevered IRR',           X.unlevIRR/100,                 FMT_PCT],
     ['Levered IRR',             X.levIRR/100,                   FMT_PCT],
-    ['Equity Multiple',         X.unlevEM,                      FMT_MULT],
+    ['Equity Multiple',         fmtMult(X.unlevEM),             null],
     ['Construction Loan',       X.loanBal,                      FMT_CURR],
     ['Developer Equity Required',X.equityIn,                    FMT_CURR],
   ];
