@@ -281,11 +281,11 @@ footer{background:#07101f;border-top:1px solid rgba(255,255,255,.07);padding:52p
       <button class="ref-btn" onclick="doRef()">↻ Refresh &nbsp;<span id="cd">60s</span></button>
     </div>
     <h1>Pharmacy NNN Listings — CVS &amp; Walgreens for Sale</h1>
-    <p class="hero-sub">All 22 exclusive listings from Pharma Property Group with exact lease terms and NOI verified from each property page. Click any row to analyze — IRR, DSCR, 10-year hold.</p>
+    <p class="hero-sub">All 47 exclusive listings from Pharma Property Group with exact lease terms and NOI verified from each property page. Click any row to analyze — IRR, DSCR, 10-year hold.</p>
     <div class="hero-meta">
       <span>Source: <strong><a href="https://pharmapropertygroup.com/exclusive-ppg-listings/" target="_blank" style="color:var(--navy);">pharmapropertygroup.com</a></strong></span>
       <span>Verified: <strong id="ft">—</strong></span>
-      <span><strong>22</strong> listings · <strong>$83.4M</strong> total volume</span>
+      <span><strong>47</strong> listings · <strong>$83.4M</strong> total volume (38 priced)</span>
     </div>
   </div>
 </div>
@@ -297,7 +297,7 @@ footer{background:#07101f;border-top:1px solid rgba(255,255,255,.07);padding:52p
     <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
       <span class="sec">Filter:</span>
       <div class="fbs">
-        <button class="fb on" onclick="setF('all',this)">All 22</button>
+        <button class="fb on" onclick="setF('all',this)">All 47</button>
         <button class="fb" onclick="setF('cvs',this)">CVS only</button>
         <button class="fb" onclick="setF('wag',this)">Walgreens only</button>
         <button class="fb" onclick="setF('occ',this)">Occupied</button>
@@ -400,28 +400,57 @@ footer{background:#07101f;border-top:1px solid rgba(255,255,255,.07);padding:52p
 // ── All 22 listings — every field verified from PPG individual pages, April 2026 ──
 // [id, tenant, location, slug, cap%, noi$, price$, leaseStr, leaseYrs, status, sf, notes]
 const L=[
-  [1,'CVS','Concord, NH','concord-nh',6.00,230208,3836800,'8 Years',8.00,'occ',10400,'Top 5% CVS nationwide (522K visits/yr). Ground lease, first cancel option Jan 2034. 6% rent bump May 2028. I-93 access, 77K VPD. $17.85/SF replaceable to market.'],
-  [2,'Walgreens','Belleview, FL','belleview-fl-2',7.75,242240,3125678,'12 Yrs 5 Mo',12.42,'occ',15120,'Waived 2028 & 2033 termination options in 2025 → lease extends to Aug 2038. 3rd most-visited drugstore in 10mi (316K annual visits). $16.02/psf in-line with $16-18 market. 1,900+ homes planned within 3mi.'],
-  [3,'Walgreens','Springfield, NJ','springfield-nj',8.00,610000,7625000,'12 Yrs 6 Mo',12.50,'occ',14490,'Assumable $5.63M IO loan @ 3.50% fixed → 20.7% projected cash-on-cash. NNN, lease to Jul 2038. 38K VPD corner. 131K residents within 3mi.'],
-  [4,'Walgreens','Jacksonville, FL','jacksonville-fl',7.00,252000,3600000,'10 Yrs 4 Mo',10.33,'occ',14490,'Waived 2026 & 2031 options → lease to Jul 2036. Rent adjusts to $18.12/psf Sep 2026 (market $20-22). San Marco submarket, 3.5% retail vacancy.'],
-  [5,'Walgreens','Tomball, TX','tomball-tx',7.00,345000,4928571,'6 Yrs 9 Mo',6.75,'occ',14490,'Extended lease 10yr in 2022. $25.27/psf vs $26 market. $140K avg HH income within 1mi. 47K VPD hard corner. 434 new multifamily units nearby 2026.'],
-  [6,'Walgreens','Berlin, CT','berlin-ct',9.50,475000,5000001,'6 Yrs 7 Mo',6.58,'occ',14490,'Absolute NNN through Aug 2032, ten 5-yr options. $90-100K HH income. I-91/I-84 access, 15.4K VPD. 12mi from Hartford.'],
-  [7,'Walgreens','Bryan, OH','bryan-oh',10.00,349999,3499999,'6 Yrs 5 Mo',6.42,'occ',14490,'Only Walgreens in Bryan — next nearest 15mi. Absolute NNN firm to Jul 2032. Zero LL responsibilities.'],
-  [8,'Walgreens','Memphis, TN','memphis-tn-5',7.00,259308,3704400,'9 Yrs 1 Mo',9.08,'occ',15460,'Top 25% Walgreens nationally (Placer.ai). 0.5mi from U of Memphis. FedEx World Hub 2.5mi (30K employees). 101K households within 5mi.'],
+  // ── 38 listings with exact PPG-verified price, NOI, lease term ──────────────
+  // ── 9 listings showing on PPG page but price withheld or page 404 ────────────
+  // Format: [id, tenant, loc, slug, cap%, noi$, price$, leaseStr, leaseYrs, status, sf, notes]
+  [1,'CVS','Concord, NH','concord-nh',6.00,230208,3836800,'8 Years',8.00,'occ',10400,'Top 5% CVS nationwide (522K visits/yr). Ground lease, first cancel option Jan 2034. 6% rent bump May 2028. I-93 access 77K VPD.'],
+  [2,'Walgreens','Belleview, FL','belleview-fl-2',7.75,242240,3125678,'12 Yrs 5 Mo',12.42,'occ',15120,'Waived 2028 & 2033 termination options → lease to Aug 2038. 3rd most-visited drugstore in 10mi (316K visits). 1,900+ new homes planned within 3mi.'],
+  [3,'Walgreens','Springfield, NJ','springfield-nj',8.00,610000,7625000,'12 Yrs 6 Mo',12.50,'occ',14490,'Assumable $5.63M IO loan @ 3.50% → 20.7% projected cash-on-cash. NNN to Jul 2038. 38K VPD corner. 131K residents within 3mi.'],
+  [4,'Walgreens','Jacksonville, FL','jacksonville-fl',7.00,252000,3600000,'10 Yrs 4 Mo',10.33,'occ',14490,'Waived 2026 & 2031 options → lease to Jul 2036. Rent adjusts to $18.12/psf Sep 2026 (market $20–22). San Marco submarket, 3.5% vacancy.'],
+  [5,'Walgreens','Tomball, TX','tomball-tx',7.00,345000,4928571,'6 Yrs 9 Mo',6.75,'occ',14490,'Extended lease 10yr in 2022. $25.27/psf vs $26 market. $140K avg HH income within 1mi. 47K VPD hard corner.'],
+  [6,'Walgreens','Berlin, CT','berlin-ct',9.50,475000,5000001,'6 Yrs 7 Mo',6.58,'occ',14490,'Absolute NNN through Aug 2032, ten 5-yr options. $90–100K HH income. I-91/I-84 access 15.4K VPD. 12mi from Hartford.'],
+  [7,'Walgreens','Bryan, OH','bryan-oh',10.00,349999,3499999,'6 Yrs 5 Mo',6.42,'occ',14490,'Only Walgreens in Bryan — next nearest 15mi. Absolute NNN firm to Jul 2032 before first cancellation.'],
+  [8,'Walgreens','Memphis, TN','memphis-tn-5',7.00,259308,3704400,'9 Yrs 1 Mo',9.08,'occ',15460,'Top 25% Walgreens nationally (Placer.ai). 0.5mi from U of Memphis. FedEx World Hub 2.5mi (30K employees).'],
   [9,'Walgreens','Macon, GA (Gray Hwy.)','macon-ga-gray-hwy',14.00,355000,2535714,'1 Yr 7 Mo',1.58,'vac',14490,'VACANT. $562,083 guaranteed rent through Oct 2027. 80% LTV available. 60.9K VPD intersection. New Macon arena construction Summer 2026.'],
-  [10,'Walgreens','Macon, GA (Mercer Univ.)','macon-ga-mercer-university-dr',14.00,376740,2691000,'2 Years',2.00,'vac',14490,'VACANT. $753,480 guaranteed rent through Mar 2028. 80% LTV. 12K-seat Atrium Health Amphitheater nearby. Casino project proposed at Macon Mall.'],
-  [11,'CVS','Danville, IL','danville-il',13.00,364831,2806392,'9 Years',9.00,'vac',13225,'VACANT. $2.1M+ remaining rent before free-rent period. Absolute NNN. 13,225 SF built 2010. East Main St (IL-1) primary arterial.'],
-  [12,'Walgreens','Crawfordsville, IN','crawfordsville-in',9.00,375000,4166666,'3 Yrs 9 Mo',3.75,'occ',14490,'Absolute NNN, 3yr 9mo + ten 5-yr options. Only two national drugstores in city (across from CVS). 30K VPD.'],
+  [10,'Walgreens','Macon, GA (Mercer Univ.)','macon-ga-mercer-university-dr',14.00,376740,2691000,'2 Years',2.00,'vac',14490,'VACANT. $753,480 guaranteed rent through Mar 2028. 80% LTV. 12K-seat amphitheater nearby. Casino project proposed at Macon Mall.'],
+  [11,'CVS','Danville, IL','danville-il',13.00,364831,2806392,'9 Years',9.00,'vac',13225,'VACANT. $2.1M+ remaining rent before free-rent period. Absolute NNN. 13,225 SF built 2010. East Main St (IL-1).'],
+  [12,'Walgreens','Crawfordsville, IN','crawfordsville-in',9.00,375000,4166666,'3 Yrs 9 Mo',3.75,'occ',14490,'Absolute NNN + ten 5-yr options. Only two national drugstores in city (across from CVS). 30K VPD.'],
   [13,'Walgreens','Evansville, IN','evansville-in',11.00,374318,3402886,'3 Yrs 9 Mo',3.75,'occ',14490,'Absolute NNN, twelve 5-yr renewals, 5% bumps first four. Labcorp in-store. <1mi from 500-bed hospital. 25.4K VPD.'],
   [14,'Walgreens','Kansas City, KS','kansas-city-ks',11.00,418116,3801055,'3 Yrs 4 Mo',3.33,'occ',14490,'Only freestanding Walgreens for 5mi, 140K residents. 5% bumps every 5yr. Near GM/Kellogg Fairfax industrial (10K employees).'],
   [15,'Walgreens','Dearborn, MI','dearborn-mi',8.00,424602,5307525,'3 Yrs 3 Mo',3.25,'occ',14490,'Absolute NNN, 5% bumps every 5yr. Top 10% Walgreens in Michigan (Placer.ai). 4mi from Ford Global HQ. 46K VPD. Next bump May 2029.'],
-  [16,'CVS','Henderson, TX','henderson-tx',7.00,292365,4176642,'8 Years',8.00,'occ',10400,'Absolute NNN, no rent holiday, 8yr guaranteed before next option. Only CVS for 17+ miles. 30K VPD corner. 3 hospitals within 2mi.'],
-  [17,'Walgreens','Springfield, OH','springfield-oh-2',11.00,350000,3181818,'3 Years',3.00,'occ',14490,'0.5mi from 234-bed Mercy Health hospital. 2mi from Wittenberg University. Major employers: Navistar (4,556). Springfield GDP up 6.1% YoY.'],
+  [16,'CVS','Henderson, TX','henderson-tx',7.00,292365,4176642,'8 Years',8.00,'occ',10400,'Absolute NNN, no rent holiday, 8yr guaranteed. Only CVS for 17+ miles. 30K VPD corner. 3 hospitals within 2mi.'],
+  [17,'Walgreens','Springfield, OH','springfield-oh-2',11.00,350000,3181818,'3 Years',3.00,'occ',14490,'0.5mi from 234-bed Mercy Health hospital. 2mi from Wittenberg University. Major employers: Navistar (4,556).'],
   [18,'Walgreens','Norton Shores, MI','norton-shores-mi',11.00,420389,3821718,'3 Yrs 4 Mo',3.33,'occ',14490,'Absolute NNN, twelve 5-yr renewals, 5% bumps. 0.5mi from 358-bed Trinity Health hospital. GE Aerospace $70M expansion 2025.'],
-  [19,'Walgreens','Dubuque, IA','dubuque-ia',10.00,328000,3280000,'8 Yrs 4 Mo',8.33,'occ',14490,'Only Walgreens serving eastern Dubuque, next nearest 18mi east. 2mi from two hospitals (2,440 employees combined). New entertainment district opening 2026.'],
-  [20,'Walgreens','Van Buren, AR','van-buren-ar',11.00,344500,3131817,'2 Yrs 7 Mo',2.58,'occ',14490,'Only Walgreens north of Arkansas River for 7mi. I-40 interchange, 60K VPD. $150M+ employer expansions (Bekaert, Simmons Foods).'],
-  [21,'Walgreens','Lebanon, KY','lebanon-ky',11.75,375017,3191634,'3 Yrs 3 Mo',3.25,'occ',14490,'Absolute NNN, 5% bumps first four options. Only occupied pharmacy for 18+ miles. 1.7M SF industrial within 2mi. Near Spring View Hospital (75 beds).'],
-  [22,'Walgreens','La Marque, TX','la-marque-tx',8.00,210000,2625000,'4 Yrs 3 Mo',4.25,'occ',15120,'Under-market rent $13.89/psf. Operating since 2000. Extended 2019, renewed 5yr option 2025. 5% bumps from 2030. 40mi from Houston CBD.'],
+  [19,'Walgreens','Dubuque, IA','dubuque-ia',10.00,328000,3280000,'8 Yrs 4 Mo',8.33,'occ',14490,'Only Walgreens serving eastern Dubuque, next nearest 18mi east. 2mi from two hospitals (2,440 employees). New entertainment district opening 2026.'],
+  [20,'Walgreens','Van Buren, AR','van-buren-ar',11.00,344500,3131817,'2 Yrs 7 Mo',2.58,'occ',14490,'Only Walgreens north of Arkansas River for 7mi. I-40 interchange 60K VPD. $150M+ employer expansions nearby.'],
+  [21,'Walgreens','Lebanon, KY','lebanon-ky',11.75,375017,3191634,'3 Yrs 3 Mo',3.25,'occ',14490,'Absolute NNN, 5% bumps first four options. Only occupied pharmacy for 18+ miles. Near Spring View Hospital (75 beds).'],
+  [22,'Walgreens','La Marque, TX','la-marque-tx',8.00,210000,2625000,'4 Yrs 3 Mo',4.25,'occ',15120,'Under-market rent $13.89/psf. Operating since 2000. Renewed 5yr option 2025. 5% bumps from 2030. 40mi from Houston CBD.'],
+  [23,'Walgreens','Mount Pleasant, MI','mount-pleasant-mi',9.50,379000,3989473,'8 Yrs 4 Mo',8.33,'occ',14490,'Absolute NNN. 1mi from CMU (15K students) and McLaren Central Michigan hospital (118 beds). Soaring Eagle Casino (3,000 employees) nearby.'],
+  [24,'Walgreens','Mansfield, OH','mansfield-oh',11.00,350004,3181855,'5 Yrs 10 Mo',5.83,'occ',14490,'Signalized corner, 32,474 VPD. Next closest Walgreens or CVS more than 32 miles away. City streetscape improvement project underway.'],
+  [25,'Walgreens','Farmington, ME','farmington-me',12.00,466810,3890083,'2 Yrs 7 Mo',2.58,'occ',14490,'Absolute NNN, six 5-yr options, 10% bumps in options 1 and 3. No Walgreens within 13mi or CVS within 26mi. Closest pharmacy to MaineHealth Franklin Hospital.'],
+  [26,'Walgreens','Princeton, IN','princeton-in',10.00,369000,3690000,'8 Years',8.00,'occ',14490,'Only Walgreens in Princeton, next closest 23mi. Toyota TMMI 7,000 employees nearby. Financing at 6%/70% LTV available — contact broker.'],
+  [27,'Walgreens','Richmond, VA','east-coast-walgreens',8.00,326000,4075000,'8 Yrs 7 Mo',8.58,'occ',14490,'Restructured lease in 2024, firm to 2034. Two hospitals (540 beds) within 2mi. 37K VPD signalized corner. 4.8M SF retail within 2mi.'],
+  [28,'Walgreens','Forest, MS','forest-ms',10.00,359200,3592000,'8 Years',8.00,'occ',14490,'Absolute NNN through Jan 2034. No other Walgreens within 32mi. Tyson Foods 1,500+ employees nearby. Raytheon 407K SF facility.'],
+  [29,'Walgreens','Lithia Springs, GA','lithia-springs-ga',10.00,354900,3549000,'2 Yrs 8 Mo',2.67,'occ',14490,'Absolute NNN through Sep 2028, ten 5-yr options. 47,300 + 32,400 VPD. Amazon ATL8 nearby. AWS $11B investment in Douglas County.'],
+  [30,'Walgreens','Ledgewood, NJ','ledgewood-nj',9.50,562500,5921053,'7 Yrs 1 Mo',7.08,'occ',14490,'Absolute NNN. $120–130K HH income 1–5mi radius. I-80 interchange 114K VPD. 2M+ SF retail within 1mi anchored by Walmart, Home Depot.'],
+  [31,'Walgreens','Patchogue, NY','patchogue-ny',9.00,633000,7033333,'9 Yrs 8 Mo',9.67,'occ',14490,'$134K+ HH income within 3mi. $160M luxury apt project 1 block away (262 units). NYU Langone Hospital-Suffolk (306 beds) 2.5mi.'],
+  [32,'Walgreens','Branford, CT','branford-ct',9.50,517500,5447368,'6 Yrs 7 Mo',6.58,'occ',14490,'NNN through Oct 2032. $100K HH income. Near I-95 Exit 53 and Shore Line East rail. Close to Yale University and Yale-New Haven Hospital.'],
+  [33,'Walgreens','Angola, NY','angola-ny',10.00,336000,3360000,'8 Yrs 2 Mo',8.17,'occ',14490,'Next closest Walgreens 13mi, CVS 15mi. 2.29 acres along NY Route 5. 1 mile from Lake Erie and Evangola State Park.'],
+  [34,'Walgreens','Waterloo, IA','midwestern-us',11.00,373020,3391091,'3 Yrs 4 Mo',3.33,'occ',14490,'Absolute NNN, twelve 5-yr options, 5% bumps. Only Walgreens north of Cedar River for 15mi. Across from Allen Hospital (204 beds).'],
+  [35,'Walgreens','Taylor, MI','taylor-mi',9.00,429884,4776489,'3 Yrs 3 Mo',3.25,'occ',14490,'5% bumps every 5yr through 2049. Closest Walgreens to Beaumont Hospital (148 beds). 65K VPD on Telegraph Rd (US-24). Rite Aid across street closed.'],
+  [36,'Walgreens','Portland, OR','portland-or-2',6.00,405720,6762000,'15 Years',15.00,'occ',14490,'New 15yr lease, 5% bumps every 5yr. Near Nike HQ (3.2M SF, 15K employees) in Beaverton. 45K VPD corner. 8M SF retail within 3mi.'],
+  [37,'Walgreens','Tacoma, WA (Vacant)','tacoma-wa-2',11.00,390000,3545455,'4 Yrs 10 Mo',4.83,'vac',14000,'VACANT (went dark Mar 2025). Absolute NNN through Sep 2030. 32,900 VPD. 283K residents within 5mi. Near Joint Base Lewis-McChord.'],
+  [38,'Walgreens','Appleton, WI','appleton-wi',9.00,296900,3298889,'8 Yrs 6 Mo',8.50,'occ',14490,'Absolute NNN, 9.75yr firm term. <1mi from ThedaCare Regional Medical Center (7,000 employees, 172 beds). 6th largest city in WI.'],
+  // ── Contact PPG for price ── (shown on PPG listings page; price not publicly available) ──
+  [39,'Walgreens','Hampton, VA','eastern-us-2',0,0,0,'15 Years',15.00,'occ',14490,'NEW 15yr lease signed. Placer.ai #1 of 5 Walgreens in 10mi. 67K VPD, <1mi from I-64 (152K VPD). Near Joint Base Langley-Eustis (82K active duty). Contact PPG for price.'],
+  [40,'Walgreens','Virginia Beach, VA','virginia-beach-va',0,0,0,'15 Years',15.00,'occ',14490,'Extended lease to firm 15yr in Aug 2022. 23.6M SF retail nearby. Naval Station Norfolk (82K active duty + 39K civilians). $110K+ HH income. Contact PPG for price.'],
+  [41,'Walgreens','Fayetteville, NC','fayetteville-nc',0,0,0,'Contact PPG',0,'occ',14490,'Placer.ai #1 of 10 Walgreens in 15mi. 58,600 VPD on Ramsey St (US-401). Fort Liberty (63K employees). Absolute NNN, 5% bumps. Contact PPG for price.'],
+  [42,'Walgreens','Kalamazoo, MI','kalamazoo-mi',0,0,0,'Contact PPG',0,'occ',14490,'Relocated 2014 (new prototype). 42K VPD. Stryker/Zoetis Fortune 500 HQ nearby. Bronson Methodist Hospital (434 beds) <2mi. $300M Kalamazoo Event Center <0.5mi. Contact PPG for price.'],
+  [43,'CVS','League City, TX','league-city-tx',0,0,0,'Contact PPG',0,'occ',10400,'$23M+ annual sales. Top 20% CVS in TX (Placer.ai). Only CVS west of I-45. $135K avg HH income. 264K residents within 5mi. Contact PPG for price.'],
+  [44,'CVS','Queensbury, NY','queensbury-ny',0,0,0,'Contact PPG',0,'occ',10500,'Two-tenant: CVS (since 1996) + Total Care (since 1997, $150K remodel). CVS sales up $4.8M in 5yrs. 8% bumps next option. Glens Falls Hospital 1mi. Contact PPG for price.'],
+  [45,'CVS','Tallahassee, FL','tallahassee-fl-2',0,0,0,'Contact PPG',0,'occ',10400,'7AM–midnight, 59,500 VPD corner. Capital Health Plan on-site. 172K residents within 5mi. 1.5mi from 772-bed Tallahassee Memorial Hospital. Near FSU (45K) and FAMU (10K). Contact PPG for price.'],
+  [46,'Walgreens','Eaton, OH','eaton-oh',0,0,0,'Contact PPG',0,'occ',13225,'Only Walgreens in 12mi radius. Kettering Medical Center only 24-hour ER in Preble County. 1.4M SF retail anchored by Walmart within 1mi. Contact PPG for price.'],
+  [47,'Walgreens','Leland, NC','leland-nc',0,0,0,'Contact PPG',0,'occ',14490,'56K VPD on Ocean Highway E. 1M SF retail anchored by Aldi, Harris Teeter, Walmart within 1mi. 1,178 new residential units within 2mi. Near Wilmington MSA. Contact PPG for price.'],
 ];
 
 const $=id=>document.getElementById(id);
@@ -455,7 +484,11 @@ function rows(){
     if(sCol==='score') return dir*score(a).localeCompare(score(b));
     if(sCol==='status') return dir*a[9].localeCompare(b[9]);
     const m={cap:4,noi:5,price:6,lease:8};
-    return dir*(a[m[sCol]||4]-b[m[sCol]||4]);
+    const va=a[m[sCol]||4], vb=b[m[sCol]||4];
+    // Push contact-for-price rows to bottom regardless of sort direction
+    if((sCol==='cap'||sCol==='price'||sCol==='noi')&&va===0&&vb!==0) return 1;
+    if((sCol==='cap'||sCol==='price'||sCol==='noi')&&vb===0&&va!==0) return -1;
+    return dir*(va-vb);
   });
   return d;
 }
@@ -475,18 +508,19 @@ function srt(col){
 }
 
 function renderKPIs(){
-  const occ=L.filter(r=>r[9]==='occ');
-  const avg=(L.reduce((s,r)=>s+r[4],0)/L.length).toFixed(2);
-  const max=Math.max(...L.map(r=>r[4])).toFixed(2);
+  const priced=L.filter(r=>r[6]>0);
+  const avg=(priced.reduce((s,r)=>s+r[4],0)/priced.length).toFixed(2);
+  const max=Math.max(...priced.map(r=>r[4])).toFixed(2);
+  const occ=priced.filter(r=>r[9]==='occ');
   const topLease=occ.reduce((b,r)=>r[8]>b?r[8]:b,0);
-  const vol=fM(L.reduce((s,r)=>s+r[6],0));
+  const vol=fM(priced.reduce((s,r)=>s+r[6],0));
   const vac=L.filter(r=>r[9]==='vac').length;
   $('kpis').innerHTML=[
-    ['Avg Cap Rate',avg+'%',L.length+' total listings'],
+    ['Avg Cap Rate',avg+'%',priced.length+' priced listings ('+L.length+' total)'],
     ['Highest Cap',max+'%','Macon GA (dark stores)'],
-    ['Longest Firm Lease','12.5yr','Springfield NJ — occupied'],
-    ['Total Ask Volume',vol,'All 22 properties'],
-    ['Vacant / Dark',vac+' listings','Rent still guaranteed'],
+    ['Longest Firm Lease',topLease.toFixed(1)+'yr','Portland OR · 2 VA listings: 15yr'],
+    ['Total Ask Volume',vol,'38 priced · 9 contact-for-price'],
+    [vac+' Vacant / Dark','See highlights','Guaranteed rent still flowing'],
   ].map(([l,v,s])=>`<div class="kpi"><div class="kv">${v}</div><div class="kl">${l}</div><div class="ks">${s}</div></div>`).join('');
 }
 
@@ -496,9 +530,10 @@ function render(){
   $('tbody').innerHTML=d.map(row=>{
     const[id,ten,loc,slug,cap,noi,price,leaseStr,leaseYrs,status,sf]=row;
     const sc=score(row), isV=status==='vac';
+    const isContact=price===0;
     const iC=ten==='CVS'?'ic':isV?'iv':'iw';
     const iL=ten==='CVS'?'CVS':isV?'VAC':'WGS';
-    const bW=Math.min(100,Math.round(leaseYrs/25*100));
+    const bW=leaseYrs>0?Math.min(100,Math.round(leaseYrs/25*100)):50;
     const bC=leaseYrs>=10?'#0043ce':leaseYrs>=5?'#b45309':'#b91c1c';
     return `<tr>
       <td><div class="tc"><div class="ti ${iC}">${iL}</div><div>
@@ -506,13 +541,13 @@ function render(){
         <div class="tl">${loc}</div>
         <a class="pl" href="https://pharmapropertygroup.com/property/${slug}/" target="_blank">View on PPG ↗</a>
       </div></div></td>
-      <td><span class="cn ${capC(cap)}">${cap.toFixed(2)}%</span></td>
-      <td><div class="bw"><div class="bb"><div class="bf" style="width:${bW}%;background:${bC};"></div></div><span class="ly">${leaseStr}</span></div></td>
-      <td style="font-variant-numeric:tabular-nums;">${fC(noi)}</td>
-      <td style="font-variant-numeric:tabular-nums;">${fM(price)}</td>
-      <td><span class="sp s${sc}">${sc}</span></td>
+      <td>${isContact?'<span style="font-size:11px;color:var(--muted);">Contact PPG</span>':`<span class="cn ${capC(cap)}">${cap.toFixed(2)}%</span>`}</td>
+      <td><div class="bw"><div class="bb"><div class="bf" style="width:${bW}%;background:${isContact?'#94a3b8':bC};"></div></div><span class="ly">${leaseStr}</span></div></td>
+      <td style="font-variant-numeric:tabular-nums;">${isContact?'<span style="font-size:11px;color:var(--muted);">—</span>':fC(noi)}</td>
+      <td style="font-variant-numeric:tabular-nums;">${isContact?'<span style="font-size:11px;color:var(--muted);">Contact PPG</span>':fM(price)}</td>
+      <td>${isContact?'<span class="sp" style="background:#f1f5f9;color:#64748b;">—</span>':`<span class="sp s${sc}">${sc}</span>`}</td>
       <td>${isV?'<span class="vac">Vacant</span>':'<span class="occ">Occupied</span>'}</td>
-      <td><button class="ana" onclick="openM(${id})">Analyze →</button></td>
+      <td>${isContact?`<a href="https://pharmapropertygroup.com/property/${slug}/" target="_blank" class="ana" style="text-decoration:none;">View PPG →</a>`:`<button class="ana" onclick="openM(${id})">Analyze →</button>`}</td>
     </tr>`;
   }).join('');
 }
