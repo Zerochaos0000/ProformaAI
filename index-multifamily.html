@@ -385,44 +385,44 @@ a{text-decoration:none;color:inherit;}
       <div class="unit-sec">
         <p style="font-size:11px;font-weight:700;color:#0043ce;margin-bottom:8px;">Studio / Efficiency</p>
         <div class="g2" style="gap:8px;">
-          <div class="f"><label class="lbl"># Units</label><input class="inp" id="studioUnits" type="number" placeholder="0" oninput="liveCalc()"></div>
-          <div class="f"><label class="lbl">Rent/Unit/Mo ($)</label><div class="inp-p"><span>$</span><input class="inp" id="studioRent" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+          <div class="f"><label class="lbl"># Units</label><input class="inp" id="studioUnits" type="number" placeholder="0"></div>
+          <div class="f"><label class="lbl">Rent/Unit/Mo ($)</label><div class="inp-p"><span>$</span><input class="inp" id="studioRent" type="number" placeholder="0"></div></div>
         </div>
       </div>
       <div class="unit-sec">
         <p style="font-size:11px;font-weight:700;color:#0043ce;margin-bottom:8px;">1-Bedroom</p>
         <div class="g2" style="gap:8px;">
-          <div class="f"><label class="lbl"># Units</label><input class="inp" id="oneBedUnits" type="number" placeholder="0" oninput="liveCalc()"></div>
-          <div class="f"><label class="lbl">Rent/Unit/Mo ($)</label><div class="inp-p"><span>$</span><input class="inp" id="rent1Bed" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+          <div class="f"><label class="lbl"># Units</label><input class="inp" id="oneBedUnits" type="number" placeholder="0"></div>
+          <div class="f"><label class="lbl">Rent/Unit/Mo ($)</label><div class="inp-p"><span>$</span><input class="inp" id="rent1Bed" type="number" placeholder="0"></div></div>
         </div>
       </div>
       <div class="unit-sec">
         <p style="font-size:11px;font-weight:700;color:#0043ce;margin-bottom:8px;">2-Bedroom</p>
         <div class="g2" style="gap:8px;">
-          <div class="f"><label class="lbl"># Units</label><input class="inp" id="twoBedUnits" type="number" placeholder="0" oninput="liveCalc()"></div>
-          <div class="f"><label class="lbl">Rent/Unit/Mo ($)</label><div class="inp-p"><span>$</span><input class="inp" id="rent2Bed" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+          <div class="f"><label class="lbl"># Units</label><input class="inp" id="twoBedUnits" type="number" placeholder="0"></div>
+          <div class="f"><label class="lbl">Rent/Unit/Mo ($)</label><div class="inp-p"><span>$</span><input class="inp" id="rent2Bed" type="number" placeholder="0"></div></div>
         </div>
       </div>
       <div class="unit-sec">
         <p style="font-size:11px;font-weight:700;color:#0043ce;margin-bottom:8px;">3-Bedroom+</p>
         <div class="g2" style="gap:8px;">
-          <div class="f"><label class="lbl"># Units</label><input class="inp" id="threeBedUnits" type="number" placeholder="0" oninput="liveCalc()"></div>
-          <div class="f"><label class="lbl">Rent/Unit/Mo ($)</label><div class="inp-p"><span>$</span><input class="inp" id="rent3Bed" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+          <div class="f"><label class="lbl"># Units</label><input class="inp" id="threeBedUnits" type="number" placeholder="0"></div>
+          <div class="f"><label class="lbl">Rent/Unit/Mo ($)</label><div class="inp-p"><span>$</span><input class="inp" id="rent3Bed" type="number" placeholder="0"></div></div>
         </div>
       </div>
       <div class="f"><label class="lbl">Property Name / Address</label><input class="inp" id="propName" type="text" placeholder="e.g. Riverside Apartments – Austin, TX"></div>
-      <div class="f"><label class="lbl">Other Income ($/yr) <span style="font-weight:400;text-transform:none;font-size:9px;">parking, laundry, storage</span></label><div class="inp-p"><span>$</span><input class="inp" id="otherIncome" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+      <div class="f"><label class="lbl">Other Income ($/yr) <span style="font-weight:400;text-transform:none;font-size:9px;">parking, laundry, storage</span></label><div class="inp-p"><span>$</span><input class="inp" id="otherIncome" type="number" placeholder="0"></div></div>
     </div>
 
     <!-- Income, Vacancy & Hold -->
     <div class="card">
       <p class="sec">💰 Income &amp; Hold Assumptions</p>
-      <div class="f"><label class="lbl">Vacancy Rate (%)</label><div class="inp-s"><input class="inp" id="vacancyRate" type="number" step="0.5" placeholder="5.0" oninput="liveCalc()"><span>%</span></div><p class="hint">5–7% stabilized · 10–15% value-add</p></div>
-      <div class="f"><label class="lbl">Annual Rent Growth (%)</label><div class="inp-s"><input class="inp" id="rentGrowth" type="number" step="0.25" placeholder="3.0" oninput="liveCalc()"><span>%</span></div><p class="hint">Yardi Matrix 2025 forecast: 2.4% A/B, 1.7% C</p></div>
-      <div class="f"><label class="lbl">Annual Expense Growth (%)</label><div class="inp-s"><input class="inp" id="expGrowth" type="number" step="0.25" placeholder="3.0" oninput="liveCalc()"><span>%</span></div><p class="hint">2025: insurance &amp; taxes driving costs up</p></div>
-      <div class="f"><label class="lbl">Hold Period (Years)</label><input class="inp" id="holdPeriod" type="number" placeholder="5" oninput="liveCalc()"></div>
-      <div class="f"><label class="lbl">Exit Cap Rate (%)</label><div class="inp-s"><input class="inp" id="exitCap" type="number" step="0.25" placeholder="5.50" oninput="liveCalc()"><span>%</span></div><p class="hint">Usually 25–50 bps above going-in</p></div>
-      <div class="f"><label class="lbl">Selling Costs at Exit (%)</label><div class="inp-s"><input class="inp" id="sellCosts" type="number" step="0.25" placeholder="2.0" oninput="liveCalc()"><span>%</span></div></div>
+      <div class="f"><label class="lbl">Vacancy Rate (%)</label><div class="inp-s"><input class="inp" id="vacancyRate" type="number" step="0.5" placeholder="5.0"><span>%</span></div><p class="hint">5–7% stabilized · 10–15% value-add</p></div>
+      <div class="f"><label class="lbl">Annual Rent Growth (%)</label><div class="inp-s"><input class="inp" id="rentGrowth" type="number" step="0.25" placeholder="3.0"><span>%</span></div><p class="hint">Yardi Matrix 2025 forecast: 2.4% A/B, 1.7% C</p></div>
+      <div class="f"><label class="lbl">Annual Expense Growth (%)</label><div class="inp-s"><input class="inp" id="expGrowth" type="number" step="0.25" placeholder="3.0"><span>%</span></div><p class="hint">2025: insurance &amp; taxes driving costs up</p></div>
+      <div class="f"><label class="lbl">Hold Period (Years)</label><input class="inp" id="holdPeriod" type="number" placeholder="5"></div>
+      <div class="f"><label class="lbl">Exit Cap Rate (%)</label><div class="inp-s"><input class="inp" id="exitCap" type="number" step="0.25" placeholder="5.50"><span>%</span></div><p class="hint">Usually 25–50 bps above going-in</p></div>
+      <div class="f"><label class="lbl">Selling Costs at Exit (%)</label><div class="inp-s"><input class="inp" id="sellCosts" type="number" step="0.25" placeholder="2.0"><span>%</span></div></div>
       <div class="f"><label class="lbl">Discount Rate (NPV) (%)</label><div class="inp-s"><input class="inp" id="discRate" type="number" step="0.25" placeholder="7.0"><span>%</span></div></div>
       <div class="f"><label class="lbl">Target IRR (%)</label><div class="inp-s"><input class="inp" id="targetIRR" type="number" step="0.5" placeholder="15.0"><span>%</span></div><p class="hint">Value-add: 12–18% · Core: 8–12%</p></div>
     </div>
@@ -431,29 +431,29 @@ a{text-decoration:none;color:inherit;}
     <div class="card">
       <p class="sec">📋 Operating Expenses ($/yr)</p>
       <p style="font-size:10px;color:#94a3b8;margin-bottom:10px;">Total annual amounts. Per-unit benchmarks shown in results. Target OER: 40–55% of EGI.</p>
-      <div class="f"><label class="lbl">Property Taxes</label><div class="inp-p"><span>$</span><input class="inp" id="propertyTaxes" type="number" placeholder="0" oninput="liveCalc()"></div></div>
-      <div class="f"><label class="lbl">Insurance</label><div class="inp-p"><span>$</span><input class="inp" id="insurance" type="number" placeholder="0" oninput="liveCalc()"></div></div>
-      <div class="f"><label class="lbl">Utilities (Common Area)</label><div class="inp-p"><span>$</span><input class="inp" id="utilities" type="number" placeholder="0" oninput="liveCalc()"></div></div>
-      <div class="f"><label class="lbl">Repairs &amp; Maintenance</label><div class="inp-p"><span>$</span><input class="inp" id="maintenance" type="number" placeholder="0" oninput="liveCalc()"></div></div>
-      <div class="f"><label class="lbl">Property Management</label><div class="inp-p"><span>$</span><input class="inp" id="management" type="number" placeholder="0" oninput="liveCalc()"></div><p class="hint">Or use 6–10% of EGI as guideline</p></div>
-      <div class="f"><label class="lbl">Payroll / Staff</label><div class="inp-p"><span>$</span><input class="inp" id="staff" type="number" placeholder="0" oninput="liveCalc()"></div></div>
-      <div class="f"><label class="lbl">Supplies / Marketing</label><div class="inp-p"><span>$</span><input class="inp" id="supplies" type="number" placeholder="0" oninput="liveCalc()"></div></div>
-      <div class="f"><label class="lbl">Reserves &amp; Misc</label><div class="inp-p"><span>$</span><input class="inp" id="misc" type="number" placeholder="0" oninput="liveCalc()"></div><p class="hint">~$250–500/unit/yr for older properties</p></div>
+      <div class="f"><label class="lbl">Property Taxes</label><div class="inp-p"><span>$</span><input class="inp" id="propertyTaxes" type="number" placeholder="0"></div></div>
+      <div class="f"><label class="lbl">Insurance</label><div class="inp-p"><span>$</span><input class="inp" id="insurance" type="number" placeholder="0"></div></div>
+      <div class="f"><label class="lbl">Utilities (Common Area)</label><div class="inp-p"><span>$</span><input class="inp" id="utilities" type="number" placeholder="0"></div></div>
+      <div class="f"><label class="lbl">Repairs &amp; Maintenance</label><div class="inp-p"><span>$</span><input class="inp" id="maintenance" type="number" placeholder="0"></div></div>
+      <div class="f"><label class="lbl">Property Management</label><div class="inp-p"><span>$</span><input class="inp" id="management" type="number" placeholder="0"></div><p class="hint">Or use 6–10% of EGI as guideline</p></div>
+      <div class="f"><label class="lbl">Payroll / Staff</label><div class="inp-p"><span>$</span><input class="inp" id="staff" type="number" placeholder="0"></div></div>
+      <div class="f"><label class="lbl">Supplies / Marketing</label><div class="inp-p"><span>$</span><input class="inp" id="supplies" type="number" placeholder="0"></div></div>
+      <div class="f"><label class="lbl">Reserves &amp; Misc</label><div class="inp-p"><span>$</span><input class="inp" id="misc" type="number" placeholder="0"></div><p class="hint">~$250–500/unit/yr for older properties</p></div>
     </div>
 
     <!-- Acquisition & Financing -->
     <div class="card">
       <p class="sec">🏦 Acquisition &amp; Financing</p>
-      <div class="f"><label class="lbl">Purchase Price ($)</label><div class="inp-p"><span>$</span><input class="inp" id="purchasePrice" type="number" placeholder="0" oninput="liveCalc()"></div></div>
-      <div class="f"><label class="lbl">Loan Amount ($)</label><div class="inp-p"><span>$</span><input class="inp" id="loanAmount" type="number" placeholder="0" oninput="liveCalc()"></div></div>
-      <div class="f"><label class="lbl">Interest Rate (%/yr)</label><div class="inp-s"><input class="inp" id="interestRate" type="number" step="0.25" placeholder="6.50" oninput="liveCalc()"><span>%</span></div><p class="hint">Agency (Fannie/Freddie) ~6.0–7.0% 2025</p></div>
+      <div class="f"><label class="lbl">Purchase Price ($)</label><div class="inp-p"><span>$</span><input class="inp" id="purchasePrice" type="number" placeholder="0"></div></div>
+      <div class="f"><label class="lbl">Loan Amount ($)</label><div class="inp-p"><span>$</span><input class="inp" id="loanAmount" type="number" placeholder="0"></div></div>
+      <div class="f"><label class="lbl">Interest Rate (%/yr)</label><div class="inp-s"><input class="inp" id="interestRate" type="number" step="0.25" placeholder="6.50"><span>%</span></div><p class="hint">Agency (Fannie/Freddie) ~6.0–7.0% 2025</p></div>
       <div class="g2" style="gap:8px;">
-        <div class="f"><label class="lbl">Amortization (Yrs)</label><input class="inp" id="amortYears" type="number" placeholder="30" oninput="liveCalc()"></div>
+        <div class="f"><label class="lbl">Amortization (Yrs)</label><input class="inp" id="amortYears" type="number" placeholder="30"></div>
         <div class="f"><label class="lbl">Loan Term (Yrs)</label><input class="inp" id="loanTerm" type="number" placeholder="10"></div>
       </div>
       <div class="g2" style="gap:8px;">
-        <div class="f"><label class="lbl">Closing Costs (%)</label><div class="inp-s"><input class="inp" id="closingCostPct" type="number" step="0.25" placeholder="1.5" oninput="liveCalc()"><span>%</span></div></div>
-        <div class="f"><label class="lbl">CapEx Budget ($)</label><div class="inp-p"><span>$</span><input class="inp" id="capexBudget" type="number" placeholder="0" oninput="liveCalc()"></div></div>
+        <div class="f"><label class="lbl">Closing Costs (%)</label><div class="inp-s"><input class="inp" id="closingCostPct" type="number" step="0.25" placeholder="1.5"><span>%</span></div></div>
+        <div class="f"><label class="lbl">CapEx Budget ($)</label><div class="inp-p"><span>$</span><input class="inp" id="capexBudget" type="number" placeholder="0"></div></div>
       </div>
       <!-- Live loan preview -->
       <div class="lpv">
@@ -742,21 +742,21 @@ function liveCalc(){
     $('loanConstDisp').textContent = loan>0 ? pct(ads/loan*100) : '—';
   }
 
-  // Auto-calculate when enough inputs present
+  // Auto-calculate when enough inputs present (silent refresh — stay on current tab)
   if(price>0 && GPR>0 && num('interestRate')>0 && num('vacancyRate')>0){
-    calculate();
+    calculate(false);
   }
 }
 ['studioUnits','studioRent','oneBedUnits','rent1Bed','twoBedUnits','rent2Bed','threeBedUnits','rent3Bed',
  'otherIncome','vacancyRate','rentGrowth','expGrowth','holdPeriod','exitCap',
- 'purchasePrice','loanAmount','interestRate','amortYears','closingCostPct','capexBudget',
+ 'purchasePrice','loanAmount','interestRate','amortYears','closingCostPct','capexBudget','sellCosts',
  'propertyTaxes','insurance','utilities','maintenance','management','staff','supplies','misc']
   .forEach(id=>{ const e=$(id); if(e) e.addEventListener('input',liveCalc); });
 
 // ══════════════════════════════════════════════════════════════════════════════
 // MAIN CALCULATE
 // ══════════════════════════════════════════════════════════════════════════════
-function calculate(){
+function calculate(switchToResults=true){
   // Unit mix
   const s0=num('studioUnits'), rs=num('studioRent');
   const u1=num('oneBedUnits'), r1=num('rent1Bed');
@@ -854,7 +854,7 @@ function calculate(){
   const unlevEM=(ufCFs.slice(1).reduce((a,b)=>a+b,0)+(price+closing+capex))/(price+closing+capex);
 
   // ── Switch to results ──────────────────────────────────────────────────────
-  switchTab('results', document.querySelectorAll('.tab-btn')[1]);
+  if(switchToResults){ switchTab('results', document.querySelectorAll('.tab-btn')[1]); }
 
   // ── Deal Verdict ───────────────────────────────────────────────────────────
   const checks=[capRate>=5, (levIRR||0)>=tIRR, (DSCR||0)>=1.25, debtYield>=8, breakEvenOcc<=80];
@@ -1390,6 +1390,7 @@ function loadDemo(){
     ['closingCostPct',1.5],['capexBudget',0],
   ].forEach(([id,v])=>{ if($(id)) $(id).value=v; });
   liveCalc();
+  calculate();
 }
 
 function resetAll(){
@@ -1571,6 +1572,5 @@ document.getElementById('saveModal')?.addEventListener('click', function(e){
 <div id="saveToast" style="display:none;position:fixed;bottom:24px;right:24px;background:#15803d;color:white;padding:14px 20px;border-radius:10px;font-size:14px;font-weight:600;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,.2);display:flex;align-items:center;gap:10px;">
   <span>✓</span><span id="toastMsg">Deal saved!</span>
 </div>
-
 </body>
 </html>
