@@ -582,11 +582,13 @@ function calc(){
   const term=parseInt($('lt').value)||30, mp=num('mp');
   const em=num('em'), ea=num('ea'), ls=num('ls'), lm=Math.max(1,num('lm')||1);
   const bw=$("biweekly")?.checked;
-  const bwExtra=bw?_orig.std/12:0; // biweekly adds 1/12 payment per month
   if(!la||!rate){alert('Please enter loan amount and interest rate.');return;}
   const remTerm=term*12-mp;
   const origTermMo=term*12;
+  // Compute _orig first so bwExtra can reference the correct standard payment
   _orig =amortize(bal,rate,remTerm,0,0,0,1,la,origTermMo);
+  // biweekly adds 1 extra payment per year = std/12 per month
+  const bwExtra=bw?_orig.std/12:0;
   _accel=amortize(bal,rate,remTerm,em+bwExtra,ea,ls,lm,la,origTermMo);
 
   const oY=Math.floor(_orig.months/12),oM=_orig.months%12;
