@@ -538,10 +538,16 @@ function mkC(id,cfg){if(CH[id])CH[id].destroy();CH[id]=new Chart($(id),cfg);}
 
 let _orig=null,_accel=null;
 
-function amortize(startBal,rate,termMo,extraMo,extraAnn,lumpSum,lumpMo){
+function amortize(startBal,rate,termMo,extraMo,extraAnn,lumpSum,lumpMo,origLoan,origTermMo){
   let bal=startBal;
   const mr=rate/12;
-  const std=startBal*mr/(1-Math.pow(1+mr,-termMo));
+  // BUGFIX (per Prof. Redding, UD): When a borrower has paid down principal
+  // faster than the schedule (e.g. via lump-sum inheritance), the monthly payment
+  // must remain based on the ORIGINAL loan amount over the ORIGINAL full term —
+  // not reamortized over the remaining term using the lower current balance.
+  const paymentBasis = (origLoan && origLoan > startBal) ? origLoan : startBal;
+  const paymentTerm  = (origLoan && origLoan > startBal && origTermMo) ? origTermMo : termMo;
+  const std=paymentBasis*mr/(1-Math.pow(1+mr,-paymentTerm));
   let totInt=0,totPrin=0,totPaid=0;
   const sched=[];
   for(let m=1;bal>0.01&&m<=termMo+240;m++){
@@ -577,8 +583,9 @@ function calc(){
   const bwExtra=bw?_orig.std/12:0; // biweekly adds 1/12 payment per month
   if(!la||!rate){alert('Please enter loan amount and interest rate.');return;}
   const remTerm=term*12-mp;
-  _orig =amortize(bal,rate,remTerm,0,0,0,1);
-  _accel=amortize(bal,rate,remTerm,em+bwExtra,ea,ls,lm);
+  const origTermMo=term*12;
+  _orig =amortize(bal,rate,remTerm,0,0,0,1,la,origTermMo);
+  _accel=amortize(bal,rate,remTerm,em+bwExtra,ea,ls,lm,la,origTermMo);
 
   const oY=Math.floor(_orig.months/12),oM=_orig.months%12;
   const aY=Math.floor(_accel.months/12),aM=_accel.months%12;
