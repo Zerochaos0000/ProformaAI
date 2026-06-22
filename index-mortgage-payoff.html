@@ -558,7 +558,9 @@ function amortize(startBal,rate,termMo,extraMo,extraAnn,lumpSum,lumpMo,origLoan,
     if(m===lumpMo)ex+=lumpSum;
     ex=Math.min(ex,bal-pp);
     bal-=(pp+ex); totInt+=ip; totPrin+=(pp+ex); totPaid+=(std+ex);
-    sched.push({m,pmt:std+ex,prin:pp+ex,int:ip,ex,bal:Math.max(0,bal)});
+    // actualPmt: in the final month only charge what is owed (prin+int), not full scheduled payment
+    const actualPmt = bal <= 0 ? (pp+ex+ip) : (std+ex);
+    sched.push({m,pmt:actualPmt,prin:pp+ex,int:ip,ex,bal:Math.max(0,bal)});
     if(bal<=0)break;
   }
   return{sched,totInt,totPrin,totPaid,months:sched.length,std};
