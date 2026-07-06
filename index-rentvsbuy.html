@@ -559,17 +559,19 @@ function calc(){
   let loanBal=loan, homeVal=homePrice, cumTaxSave=0;
   let curRent=monthlyRent;
 
-  // Renter: invests down payment amount (closing costs were never spent by renter)
-  let rentInvest=dp;  // renter invests the equivalent of down payment
+  // Renter invests the cash the buyer put down + paid in closing costs — money the
+  // renter never had to spend. Renter's principal basis (contributions) tracked
+  // separately from investment value so we can isolate pure investment GAINS later.
+  const initialRenterCash=dp+closingCosts;
+  let rentInvest=initialRenterCash;
+  let renterContrib=initialRenterCash;
+  let cumCashFlowInvested=0; // portion of rentInvest from ongoing monthly savings (not the initial DP)
 
   for(let yr=1;yr<=Math.max(holdYears,30);yr++){
     // ── RENT side ─────────────────────────────────────────────────
     let yrRent=0;
     for(let m=0;m<12;m++){yrRent+=curRent+rIns;curRent*=(1+rentInc/12);}
     cumRent+=yrRent;
-    // Renter's invested down payment grows at investment return
-    // ALSO: renter invests the monthly savings vs owning (if any) — simplified: just grow dp
-    rentInvest*=(1+invRet);
 
     // ── OWN side — mortgage ────────────────────────────────────────
     homeVal*=(1+appreciation);
@@ -598,13 +600,27 @@ function calc(){
     const yrOwnNet=yrOwnBase-itemizingBenefit;
     cumOwn+=yrOwnNet;
 
+    // ── Renter invests the down payment/closing costs, PLUS any month-to-month
+    // cash-flow savings vs. owning (standard rent-vs-buy methodology — e.g. NYT
+    // calculator). If owning costs more out of pocket than renting in a given
+    // year, that surplus is assumed to be invested by the renter instead of spent.
+    rentInvest*=(1+invRet);
+    const yrCashDiff=yrOwnNet-yrRent; // positive = owning cost more cash that year
+    if(yrCashDiff>0){
+      const contribution=yrCashDiff*Math.sqrt(1+invRet); // ~mid-year contribution, half-year of growth
+      rentInvest+=contribution;
+      renterContrib+=contribution;
+      cumCashFlowInvested+=contribution;
+    }
+
     const equity=homeVal-Math.max(0,loanBal);
     // Net cost of owning = what you paid - equity you built
     const netOwn=cumOwn-equity;
-    // Net cost of renting = rent paid - investment gains on down payment
-    const netRent=cumRent-(rentInvest-dp);
+    // Net cost of renting = rent paid - PURE investment gains (contributions excluded,
+    // since contributions are savings, not spending, and shouldn't be double-counted)
+    const netRent=cumRent-(rentInvest-renterContrib);
 
-    _data.push({yr,cumRent:Math.round(cumRent),cumOwn:Math.round(cumOwn),netOwn:Math.round(netOwn),netRent:Math.round(netRent),homeVal:Math.round(homeVal),equity:Math.round(equity),loanBal:Math.round(Math.max(0,loanBal)),yrInt:Math.round(yrInt),taxSave:Math.round(itemizingBenefit),cumTaxSave:Math.round(cumTaxSave)});
+    _data.push({yr,cumRent:Math.round(cumRent),cumOwn:Math.round(cumOwn),netOwn:Math.round(netOwn),netRent:Math.round(netRent),homeVal:Math.round(homeVal),equity:Math.round(equity),loanBal:Math.round(Math.max(0,loanBal)),yrInt:Math.round(yrInt),taxSave:Math.round(itemizingBenefit),cumTaxSave:Math.round(cumTaxSave),rentInvest:Math.round(rentInvest),renterContrib:Math.round(renterContrib),cumCashFlowInvested:Math.round(cumCashFlowInvested)});
   }
 
   const hd=_data[holdYears-1]||_data[_data.length-1];
@@ -635,7 +651,9 @@ function calc(){
   $('rentCost').innerHTML=
     crr('Total Rent Paid',fmt(hd.cumRent))+
     crr('Renter\'s Insurance',fmt(Math.round(rIns*12*holdYears)))+
-    crr('Investment Gain on Down Payment ($'+Math.round(dp/1000)+'k @ '+pct(invRet*100)+')',`+${fmt(Math.round(rentInvest-dp))}`,false,'#15803d')+
+    crr('Initial Investment (DP + Closing Costs, $'+Math.round(initialRenterCash/1000)+'k @ '+pct(invRet*100)+')',fmt(initialRenterCash))+
+    (hd.cumCashFlowInvested>0?crr('+ Monthly Savings Invested (years owning cost more)',fmt(hd.cumCashFlowInvested)):'')+
+    crr('Total Investment Gains',`+${fmt(hd.rentInvest-hd.renterContrib)}`,false,'#15803d')+
     crr('Net True Cost of Renting',fmt(hd.netRent),true,'#1d4ed8');
 
   $('ownCost').innerHTML=
