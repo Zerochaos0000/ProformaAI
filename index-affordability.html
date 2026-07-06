@@ -340,6 +340,15 @@ a{text-decoration:none;color:inherit;}
       <div id="pgmNote" style="background:#eff6ff;border-radius:7px;padding:10px;font-size:11px;color:#1d4ed8;line-height:1.5;margin-top:4px;">
         Conventional: Best for 680+ credit, 20% down. Up to 50% back-end DTI with automated underwriting (DU/LP).
       </div>
+      <div id="vaUseRow" class="f" style="display:none;margin-top:10px;">
+        <label class="lb">VA Funding Fee — Usage</label>
+        <select class="inp" id="vaFirstUse">
+          <option value="first">First-time use (lower fee)</option>
+          <option value="subsequent">Subsequent use (higher fee)</option>
+          <option value="exempt">Exempt (service-connected disability)</option>
+        </select>
+        <p class="hint">2026 rate: 2.15% first-use / 3.30% subsequent-use with &lt;5% down, dropping to 1.5% at 5%+ down and 1.25% at 10%+ down. Financed into the loan.</p>
+      </div>
     </div>
 
     <!-- Debts -->
@@ -567,6 +576,7 @@ const PGM_DTI={
 function onPgmChange(){
   const pgm=$('loanPgm').value;
   $('pgmNote').textContent=PGM_NOTES[pgm];
+  if($('vaUseRow')) $('vaUseRow').style.display = pgm==='va' ? '' : 'none';
 }
 
 // ── Live preview ────────────────────────────────────────────────
@@ -631,7 +641,22 @@ function calc(){
   // FHA — add upfront MIP to loan
   const fhaUpfront=pgm==='fha'?0.0175:0; // 1.75% of loan
   const loan=Math.max(0,maxP-dp);
-  const actualLoan=pgm==='fha'?loan*(1+fhaUpfront):loan;
+
+  // VA funding fee (2026 rates, unchanged since April 2023) — varies by down payment %
+  // and first-time vs. subsequent use. Financed into the loan, same as FHA upfront MIP.
+  const dpPctForVA = maxP>0 ? dp/maxP : 0;
+  const vaUse = $('vaFirstUse')?.value || 'first';
+  let vaFundingFeePct=0;
+  if(pgm==='va' && vaUse!=='exempt'){
+    if(dpPctForVA>=0.10) vaFundingFeePct=0.0125;
+    else if(dpPctForVA>=0.05) vaFundingFeePct=0.015;
+    else vaFundingFeePct = vaUse==='subsequent' ? 0.033 : 0.0215;
+  }
+
+  const actualLoan = pgm==='fha' ? loan*(1+fhaUpfront)
+                    : pgm==='va'  ? loan*(1+vaFundingFeePct)
+                    : loan;
+  const vaFundingFeeAmt = pgm==='va' ? loan*vaFundingFeePct : 0;
   const moPI=actualLoan&&moRate?actualLoan*moRate/(1-Math.pow(1+moRate,-n)):0;
   const moTax=maxP*txRate/12;
   
@@ -661,12 +686,16 @@ function calc(){
   const moderate=maxP; // as calculated
   const stretch=pgm==='conv'?solveAtDTI(0.50,0.35):pgm==='fha'?solveAtDTI(0.43,0.31):solveAtDTI(0.41,null);
 
-  _result={moInc,moDebts,dp,rate,term,txRate,insAnn,moHOA,pgm,maxP,loan,actualLoan,moPI,moTax,moIns,moHOA,pmi,mip,moTotal,fDTI,bDTI,conservative,moderate,stretch,n,moRate,fhaUpfront};
+  _result={moInc,moDebts,dp,rate,term,txRate,insAnn,moHOA,pgm,maxP,loan,actualLoan,moPI,moTax,moIns,moHOA,pmi,mip,moTotal,fDTI,bDTI,conservative,moderate,stretch,n,moRate,fhaUpfront,vaFundingFeePct,vaFundingFeeAmt,vaUse};
 
   // ── KPI Cards ───────────────────────────────────────────────────
+  const loanSub = pgm==='fha' ? `+${fmt(loan*fhaUpfront)} upfront MIP`
+                 : pgm==='va' && vaFundingFeeAmt>0 ? `+${fmt(vaFundingFeeAmt)} VA funding fee (${pct(vaFundingFeePct*100,2)})`
+                 : pgm==='va' ? 'VA funding fee: exempt'
+                 : 'Down payment: '+fmt(dp);
   $('summaryCards').innerHTML=[
     {l:'Max Home Price',v:fmt(maxP),c:'#0043ce',s:'Based on '+$('loanPgm').options[$('loanPgm').selectedIndex].text.split('(')[0].trim()},
-    {l:'Max Loan Amount',v:fmt(loan),c:'#0056b3',s:pgm==='fha'?`+${fmt(loan*fhaUpfront)} upfront MIP`:'Down payment: '+fmt(dp)},
+    {l:'Max Loan Amount',v:fmt(loan),c:'#0056b3',s:loanSub},
     {l:'Monthly PITI'+(pmi||mip?' + PMI':''),v:fmt(moTotal),c:'#475569',s:'Principal · Interest · Tax · Insurance'},
     {l:'Back-End DTI',v:pct(bDTI),c:bC(bDTI,dti.back*100,(dti.back+0.05)*100),s:`Limit: ${pct(dti.back*100,0)} (${pgm.toUpperCase()})`},
   ].map(c=>`<div class="mc" style="border-top-color:${c.c};">
@@ -697,6 +726,7 @@ function calc(){
     (pmi>0?`<div class="rr"><span style="color:#b45309;">⚠️ PMI (< 20% down)</span><span style="color:#b45309;">${fmt(pmi)}/mo</span></div>`:'')+
     (mip>0?`<div class="rr"><span style="color:#b45309;">⚠️ FHA MIP (annual)</span><span style="color:#b45309;">${fmt(mip)}/mo</span></div>`:'')+
     rr('Total Monthly Payment',fmt(moTotal),true)+
+    (pgm==='fha'||(pgm==='va'&&vaFundingFeeAmt>0)?`<div class="rr"><span style="color:#b45309;">⚠️ ${pgm==='fha'?'FHA upfront MIP (financed into loan)':'VA funding fee (financed into loan)'}</span><span style="color:#b45309;">${fmt(pgm==='fha'?loan*fhaUpfront:vaFundingFeeAmt)}</span></div>`:'')+
     `<div style="margin-top:10px;padding:10px;background:#f8fafc;border-radius:7px;font-size:12px;color:#64748b;line-height:1.7;">
       Annual housing cost: <strong>${fmt(moTotal*12)}</strong><br>
       Over ${term} years (P&I only): <strong>${fmt(moPI*12*term)}</strong><br>
@@ -797,6 +827,9 @@ function exportXLS(){
     ['Property Tax Rate',D.txRate,'',''],
     ['Annual Insurance',D.insAnn,'',''],
     ['Monthly HOA',D.moHOA,'',''],
+    ['FHA Upfront MIP (financed)',D.pgm==='fha'?D.loan*D.fhaUpfront:0,'',''],
+    ['VA Funding Fee (financed)',D.pgm==='va'?D.vaFundingFeeAmt:0,'',''],
+    ['VA Funding Fee Rate',D.pgm==='va'?D.vaFundingFeePct:0,'',''],
     [''],
     ['LOAN TOTALS (at recommended price)','','',''],
     ['Total P&I Payments (lifetime)',D.moPI*12*D.term,'',''],
@@ -805,11 +838,11 @@ function exportXLS(){
   ]);
   // Set number formats
   const currFmt='$#,##0;($#,##0);"-"', pctFmt='0.0%';
-  [[5,2],[6,2],[7,2],[11,2],[11,3],[11,4],[12,2],[12,3],[12,4],[16,2],[17,2],[18,2],[19,2],[20,2],[21,2],[24,2],[25,2],[26,2],[27,2],[30,2],[31,2],[33,2],[34,2],[35,2],[36,2],[39,2],[40,2],[41,2]].forEach(([r,c])=>{
+  [[5,2],[6,2],[7,2],[11,2],[11,3],[11,4],[12,2],[12,3],[12,4],[16,2],[17,2],[18,2],[19,2],[20,2],[21,2],[24,2],[25,2],[26,2],[27,2],[30,2],[31,2],[33,2],[34,2],[35,2],[36,2],[40,2],[41,2],[42,2]].forEach(([r,c])=>{
     const addr=XLSX.utils.encode_cell({r:r-1,c:c-1});
     if(ws[addr])ws[addr].z=currFmt;
   });
-  [[24,2],[25,2],[26,2],[27,2]].forEach(([r,c])=>{
+  [[24,2],[25,2],[26,2],[27,2],[37,2]].forEach(([r,c])=>{
     const addr=XLSX.utils.encode_cell({r:r-1,c:c-1});
     if(ws[addr])ws[addr].z=pctFmt;
   });
