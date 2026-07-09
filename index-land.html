@@ -1063,6 +1063,11 @@ const num = id => parseFloat($(id)?.value) || 0;
 const set = (id, v) => { if($(id)) $(id).value = v; };
 const fmt = v => isNaN(v)||!isFinite(v) ? '—' : '$' + Math.round(v).toLocaleString();
 const fpct = (v, d=1) => isNaN(v)||!isFinite(v) ? '—' : v.toFixed(d) + '%';
+// IRR-specific display: our solver returns a 999% sentinel for cash flows so
+// strongly front-loaded (e.g. large early builder deposits) that NPV never
+// crosses zero — an exceptionally high, not undefined, return. Show it as a
+// capped ">500%" rather than a literal, oddly-precise "999.0%".
+const fpctIRR = v => (v==null||isNaN(v)||!isFinite(v)) ? 'N/A' : v>=999 ? '>500%' : fpct(v);
 const bC = (v, warn, good) => v >= good ? '#15803d' : v >= warn ? '#b45309' : '#b91c1c';
 const neg = v => v < 0;
 
@@ -1108,10 +1113,38 @@ function sw(name, btn){
 
 // ── IRR solver (bisection + Newton-Raphson) ───────────────────────────────────
 function calcIRR(flows){
-  const npv = r => flows.reduce((s,f,t) => s + f / Math.pow(1+r, t), 0);
-  let lo = -0.9999, hi = 10;
-  if(npv(lo) * npv(hi) > 0) return NaN;
-  let mid = 0.1;
+  const npv = r => {
+    let s = 0;
+    for(let t = 0; t < flows.length; t++){
+      const denom = Math.pow(1+r, t);
+      // Reject not just non-finite denominators but numerically meaningless tiny
+      // ones too — e.g. 0.6^49 ≈ 1e-11 is technically finite, but dividing a
+      // real cash flow by it produces a huge, meaningless quotient that can
+      // masquerade as a legitimate sign change and corrupt the bracket scan.
+      if(!isFinite(denom) || Math.abs(denom) < 1e-8) return NaN;
+      s += flows[t] / denom;
+    }
+    return s;
+  };
+  // Scan for a bracketing sign change across a numerically safe rate range. A
+  // plain two-endpoint check (e.g. lo=-0.9999) can both miss the true root on
+  // "non-normal" cash flows AND overflow: (1+r)^t blows up for r near -100% once
+  // t spans 40–50+ periods (monthly arrays), producing garbage npv values. Real
+  // per-period IRRs are essentially always within [-50%, +500%], so stay there.
+  let lo = null, hi = null;
+  let prevR = -0.45, prevV = npv(prevR);
+  if(isFinite(prevV) && Math.abs(prevV) < 1e-6){ lo = hi = prevR; }
+  if(lo === null){
+    for(let r = -0.43; r <= 5 && lo === null; r += (r < 1 ? 0.02 : 0.25)){
+      const v = npv(r);
+      if(!isFinite(v)){ continue; } // skip numerically broken points, don't bracket on them
+      if(Math.abs(v) < 1e-6){ lo = hi = r; break; }
+      if(isFinite(prevV) && prevV * v < 0){ lo = prevR; hi = r; break; }
+      prevR = r; prevV = v;
+    }
+  }
+  if(lo === null) return NaN;
+  let mid = (lo+hi)/2;
   for(let i=0; i<80; i++){
     mid = (lo+hi)/2; const nm = npv(mid);
     if(Math.abs(nm)<1e-6 || (hi-lo)<1e-10) break;
@@ -1121,7 +1154,7 @@ function calcIRR(flows){
   for(let i=0; i<60; i++){
     let v=0, d=0;
     flows.forEach((f,t) => { const disc=Math.pow(1+r,t); v+=f/disc; d-=t*f/((1+r)*disc); });
-    if(Math.abs(d)<1e-14) break;
+    if(!isFinite(v) || !isFinite(d) || Math.abs(d)<1e-14) break;
     const rn = r - v/d;
     if(!isFinite(rn)) break;
     if(Math.abs(rn-r)<1e-11){ r=rn; break; }
@@ -1203,24 +1236,25 @@ function liveCalcDeposit(){ onMilestoneChange(); }
 
 
 // ── Quarterly Cash Flow Renderer ───────────────────────────────────
-function renderQuarterly(yrRevs, yrCosts, unlevCFs, numYrs, depYrCredits, depYrCosts, depYrNet){
+function renderQuarterly(monthlyRev, monthlyAllCost, monthlyDepIn, monthlyDepOut, totalMo){
   const tbl = document.getElementById('qtrTbl');
   if(!tbl) return;
-  const hasDeposits = depYrCredits && depYrCredits.some(v=>v>0);
+  const hasDeposits = monthlyDepIn && monthlyDepIn.some(v=>v>0);
   const qtrs = [];
-  for(let y=0; y<numYrs; y++){
-    const yr = y===0?'Yr 0':'Yr '+y;
-    for(let q=1;q<=4;q++){
-      qtrs.push({
-        label:  yr+' Q'+q,
-        rev:    (yrRevs[y]||0)/4,
-        cost:   (yrCosts[y]||0)/4,
-        depIn:  depYrCredits ? (depYrCredits[y]||0)/4 : 0,
-        depOut: depYrCosts   ? (depYrCosts[y]||0)/4   : 0,
-        depNet: depYrNet     ? (depYrNet[y]||0)/4      : 0,
-        net:    (unlevCFs[y]||0)/4,
-      });
+  const numQtrs = Math.ceil(totalMo/3);
+  for(let q=0; q<numQtrs; q++){
+    const mStart = q*3, mEnd = Math.min(totalMo, mStart+3);
+    let rev=0, cost=0, depIn=0, depOut=0;
+    for(let m=mStart; m<mEnd; m++){
+      rev += monthlyRev[m]||0; cost += monthlyAllCost[m]||0;
+      depIn += (monthlyDepIn?monthlyDepIn[m]:0)||0; depOut += (monthlyDepOut?monthlyDepOut[m]:0)||0;
     }
+    const depNet = depIn - depOut;
+    qtrs.push({
+      label: 'Yr '+Math.floor(mStart/12)+' Q'+((Math.floor(mStart/3)%4)+1),
+      rev, cost, depIn, depOut, depNet,
+      net: rev - cost + depNet,
+    });
   }
   let last = qtrs.length-1;
   while(last>0 && qtrs[last].rev===0 && qtrs[last].cost===0 && qtrs[last].net===0) last--;
@@ -1312,28 +1346,48 @@ function calculate(){
   const preDev    = num('preDev')    || 6;
   const devMonths = num('devMonths') || 18;
   const firstSale = num('firstSale') || (preDev + devMonths);
-  const selloutMo = Math.ceil(totalLots / totalAbsPerMo);
-  const totalMo   = Math.max(firstSale + selloutMo, preDev + devMonths + selloutMo);
+  // Per-type sellout (more accurate than a single blended pace when types differ)
+  const typeSelloutMo = types.map(t => Math.max(1, Math.ceil(t.lots / (t.abs || 1))));
+  const selloutMo = Math.max(...typeSelloutMo, 1);
+  const totalMoRaw = Math.max(firstSale + selloutMo, preDev + devMonths + selloutMo);
+  const totalMo   = Math.max(1, Math.ceil(totalMoRaw));
   const totalYrs  = totalMo / 12;
   const devYrs    = (preDev + devMonths) / 12;
   const saleYrs   = selloutMo / 12;
 
-  // ── REVENUE with annual price escalation ─────────────────────────
-  // Each lot type escalates at its % per year; sellout takes saleYrs years
-  // Avg lots sold per year = totalLots / saleYrs → avg escalation at midpoint
+  // ── MONTHLY LOT SALES — true monthly absorption & compounded escalation ────
+  // Each lot type sells at its own pace starting at `firstSale` (months from
+  // project start), with price escalating monthly-compounded from its annual
+  // rate. Replaces the old "average escalation factor over the sellout period."
+  const monthlyRev  = Array(totalMo).fill(0);
+  const monthlyLots = Array(totalMo).fill(0);
+  const typeRevTotals = {};
+  types.forEach(t => {
+    let remaining = t.lots, m = firstSale;
+    typeRevTotals[t.name] = 0;
+    while(remaining > 0 && m < totalMo){
+      const lotsThisMo = Math.min(t.abs || remaining, remaining);
+      const escFactor  = Math.pow(1 + t.esc, m / 12);
+      const revThisMo  = lotsThisMo * t.price * escFactor;
+      monthlyRev[m]  += revThisMo;
+      monthlyLots[m] += lotsThisMo;
+      typeRevTotals[t.name] += revThisMo;
+      remaining -= lotsThisMo;
+      m++;
+    }
+  });
   const typeRevs = types.map(t => {
-    // Simple avg escalation over sellout period: (saleYrs/2) years at esc rate
-    const avgEscFactor = t.esc > 0 ? (1 + t.esc * saleYrs/2) : 1;
-    const avgPrice = t.price * avgEscFactor;
-    const rev = Math.round(t.lots * avgPrice);
+    const rev = Math.round(typeRevTotals[t.name]);
+    const avgPrice = t.lots > 0 ? rev / t.lots : t.price;
     return { ...t, avgPrice, rev };
   });
-  const lotRevenue = typeRevs.reduce((s,t) => s+t.rev, 0);
+  const lotRevenue = monthlyRev.reduce((a,b) => a+b, 0);
 
   // Sale closing costs (transfer tax, title, commissions)
   const saleCostsPct = $('saleCostsP')?.value.trim()==='' ? 0.025 : parseFloat($('saleCostsP').value)/100;
   const saleCosts    = lotRevenue * saleCostsPct;
   const netRevenue   = lotRevenue - saleCosts;
+  const monthlyNetRev = monthlyRev.map(v => v * (1 - saleCostsPct));
 
   // ── ACQUISITION ──────────────────────────────────────────────────
   const landCost    = num('landCost');
@@ -1344,7 +1398,7 @@ function calculate(){
   const extraAcq    = num('extraAcq');
   const totalAcq    = landCost + closingCost + earnest + ddCost + extraAcq;
 
-  // ── HARD DEV COSTS ────────────────────────────────────────────────
+  // ── HARD DEV COSTS — monthly-compounded escalation across construction phases ──
   const grading    = num('grading')    * totalLots;
   const wetUtil    = num('wetUtil')    * totalLots;
   const dryUtil    = num('dryUtil')    * totalLots;
@@ -1358,14 +1412,42 @@ function calculate(){
   const demo       = num('demo');
   const hardBase   = grading+wetUtil+dryUtil+paving+curb+landscape+amenity+offSite+stormwater+lighting+demo;
 
-  // Cost escalation — allow 0
   const costEscRate = $('costEsc')?.value.trim()==='' ? 0.03 : parseFloat($('costEsc').value||0)/100;
-  const costEscAmt  = hardBase * costEscRate * (devMonths/12/2);
+  const contPct     = $('contPct')?.value.trim()==='' ? 0.10 : parseFloat($('contPct').value||0)/100;
 
-  // Contingency — allow 0
-  const contPct    = $('contPct')?.value.trim()==='' ? 0.10 : parseFloat($('contPct').value||0)/100;
-  const contingency = (hardBase + costEscAmt) * contPct;
-  const totalHardDev = hardBase + costEscAmt + contingency;
+  const rawPh1 = num('ph1'), rawPh2 = num('ph2'), rawPh3 = num('ph3');
+  const rawPhSum = rawPh1 + rawPh2 + rawPh3;
+  let phFracs;
+  if(rawPhSum > 0 && Math.abs(rawPhSum - 100) < 1){
+    phFracs = [rawPh1, rawPh2, rawPh3].filter(p => p > 0).map(p => p / 100);
+  } else {
+    phFracs = [1.0];
+  }
+  // Construction happens post-closing (month = preDev) across devMonths, split by phase
+  const devMonthsPerPhase = devMonths / phFracs.length;
+  const phaseWindows = phFracs.map((frac,pi) => {
+    const startMo = Math.round(preDev + pi*devMonthsPerPhase);
+    const endMoRaw = Math.round(preDev + (pi+1)*devMonthsPerPhase);
+    const endMo = Math.max(endMoRaw, startMo+1);
+    return { frac, startMo, endMo, moCount: Math.max(1, endMo-startMo) };
+  });
+
+  const monthlyHardCost = Array(totalMo).fill(0);
+  let hardBeforeContingency = 0;
+  phaseWindows.forEach(pw => {
+    const phCost    = hardBase * pw.frac;
+    const perMoBase = phCost / pw.moCount;
+    for(let m = pw.startMo; m < pw.endMo && m < totalMo; m++){
+      const escFactor = Math.pow(1 + costEscRate, m/12);
+      const escCost = perMoBase * escFactor;
+      monthlyHardCost[m] += escCost;
+      hardBeforeContingency += escCost;
+    }
+  });
+  const contingency  = hardBeforeContingency * contPct;
+  const costEscAmt   = hardBeforeContingency - hardBase; // escalation $ vs base, for display
+  for(let m=0;m<totalMo;m++) monthlyHardCost[m] *= (1+contPct);
+  const totalHardDev = hardBeforeContingency * (1+contPct); // = sum(monthlyHardCost)
 
   // ── SOFT COSTS ────────────────────────────────────────────────────
   const eng        = num('eng');
@@ -1386,20 +1468,58 @@ function calculate(){
   const devFeePct  = devFeeRaw === '' ? 0.03 : parseFloat(devFeeRaw||0)/100;
   const devFee     = (totalAcq + totalHardDev + totalSoft) * devFeePct;
 
-  // ── FINANCING ─────────────────────────────────────────────────────
+  // Non-carry soft costs + dev fee ride the same construction-phase timing as hard
+  // costs (no escalation, matching how soft costs were always treated). Carry costs
+  // spread across the full project life; marketing is timed with actual sale months.
+  const carryTotal = propTaxTotal + insurance;
+  const nonCarrySoftFee = (totalSoft - carryTotal) - marketing + devFee;
+  const monthlyOtherCost = Array(totalMo).fill(0);
+  phaseWindows.forEach(pw => {
+    const bundleCost = nonCarrySoftFee * pw.frac;
+    const perMo = bundleCost / pw.moCount;
+    for(let m = pw.startMo; m < pw.endMo && m < totalMo; m++) monthlyOtherCost[m] += perMo;
+  });
+  const carryPerMo = carryTotal / totalMo;
+  for(let m=0;m<totalMo;m++) monthlyOtherCost[m] += carryPerMo;
+  if(lotRevenue > 0){ for(let m=0;m<totalMo;m++) monthlyOtherCost[m] += marketing * (monthlyRev[m]/lotRevenue); }
+
+  const monthlyAcq = Array(totalMo).fill(0);
+  monthlyAcq[Math.min(Math.round(preDev), totalMo-1)] += totalAcq;
+
+  const monthlyAllCost = Array(totalMo).fill(0).map((_,m) => monthlyAcq[m] + monthlyHardCost[m] + monthlyOtherCost[m]);
+
+  // ── FINANCING — real monthly draw / paydown / interest simulation ──────────
   const ltcRaw    = $('ltc')?.value.trim();
   const ltcPct    = ltcRaw==='' ? 0.65 : parseFloat(ltcRaw||0)/100;
   const rateRaw   = $('loanRate')?.value.trim();
   const bankRate  = rateRaw==='' ? 0.09 : parseFloat(rateRaw||0)/100;
   const feeRaw    = $('loanFee')?.value.trim();
   const loanFee   = feeRaw==='' ? 0.01 : parseFloat(feeRaw||0)/100;
-  // LTC applied to all costs except financing itself (standard practice)
+  // LTC applied to all costs except financing itself (standard practice) — committed loan sizing
   const loanBal    = (totalAcq + totalHardDev + totalSoft + devFee) * ltcPct;
   const loanFeeAmt = loanBal * loanFee;
-  // Interest: avg 60% drawn during construction, declining to 30% during sellout
-  const interestCost = loanBal * 0.60 * bankRate * (devMonths/12) +
-                       loanBal * 0.30 * bankRate * (selloutMo/12);
-  const totalFinance  = loanFeeAmt + interestCost;
+
+  // Loan draws ltcPct of every cost dollar as incurred; revenue's ltcPct share pays
+  // the loan back down as lots close (standard lot-release structure); interest
+  // accrues monthly on the outstanding balance and capitalizes into it. Once the
+  // balance is retired, any further revenue share flows straight to the developer
+  // rather than the lender (the debt is paid off — nothing left for it to claim).
+  let _bal = 0, _cumInt = 0;
+  const monthlyLevCFBase = Array(totalMo).fill(0); // developer's CF before builder deposits
+  for(let m=0; m<totalMo; m++){
+    const intM = _bal * (bankRate/12);
+    _bal += intM; _cumInt += intM;
+    const draw = ltcPct * monthlyAllCost[m];
+    _bal += draw;
+    const equityCostShare = monthlyAllCost[m] - draw;
+    const revToLender = Math.min(_bal, ltcPct * monthlyNetRev[m]);
+    _bal -= revToLender;
+    const revToDeveloper = monthlyNetRev[m] - revToLender;
+    monthlyLevCFBase[m] = -equityCostShare + revToDeveloper;
+  }
+  const finalLoanShortfall = _bal; // >0 if the loan wasn't fully repaid by its revenue share
+  const interestCost = _cumInt;
+  const totalFinance = loanFeeAmt + interestCost;
 
   // ── TOTALS ────────────────────────────────────────────────────────
   const totalCosts   = totalAcq + totalHardDev + totalSoft + devFee + totalFinance;
@@ -1408,87 +1528,32 @@ function calculate(){
   const roi          = totalCosts ? grossProfit / totalCosts * 100 : 0;
   const tIRR         = num('targetIRR') || 20;
 
-  // Total development cost excluding financing (for LTC base & IRR)
   const tdcExFin    = totalAcq + totalHardDev + totalSoft + devFee;
-  const equity      = tdcExFin - loanBal;  // developer's equity required
+  const equity      = tdcExFin - loanBal;
 
-  // ── ANNUAL CASH FLOWS for IRR ────────────────────────────────────
-  //
-  // TIMING MODEL (matches Rausch Farm / NVR spreadsheet):
-  //
-  //   Month 0             = Project start (analysis date)
-  //   Months 0..preDev    = Pre-dev: entitlement, DD — land has NOT closed yet
-  //   Month preDev        = Land closes → acquisition cost hits here
-  //   Months preDev..     = Construction (devMonths after closing)
-  //   firstSale           = Months from CLOSING to first lot sale
-  //   First sale from start = preDev + firstSale
-  //
-  // BUG FIXED: Previous code used ceil(firstSale/12) as saleStartYr,
-  //   treating firstSale as months from project start.
-  //   Correct: firstSale is months from CLOSING, so add preDev first.
-  //
-  // BUG FIXED: devYrCt was based only on devMonths, ignoring preDev.
-  //   Correct: total dev period = preDev + devMonths.
-
+  // ── ANNUAL BUCKETS — aggregated from the monthly engine above ──────────────
+  // Downstream tables/exports still display by year; the math above is now
+  // computed at true monthly resolution for accurate escalation & IRR timing.
   const devYrCt     = Math.max(1, Math.ceil((preDev + devMonths) / 12));
   const saleYrCt    = Math.max(1, Math.ceil(saleYrs));
-  const firstSaleFromStart = firstSale;   // field is now months from project start
-  // saleStartYr = when revenue begins in the annual array
-  // No need to bound by devYrCt — phased projects sell while later phases
-  // are still under construction (Phase 1 lots ready while Phase 2 builds)
+  const firstSaleFromStart = firstSale;   // field is months from project start
   const saleStartYr = Math.max(1, Math.ceil(firstSaleFromStart / 12));
-  const numYrs      = saleStartYr + saleYrCt;
+  const numYrs      = Math.max(saleStartYr + saleYrCt, Math.ceil(totalMo/12));
 
   const yrRevs  = Array(numYrs).fill(0);
   const yrCosts = Array(numYrs).fill(0);
-
-  // Standard industry pro forma model (A.CRE / Argus convention):
-  //   Year 0 = ALL acquisition costs at closing (land + closing costs + earnest + DD)
-  //   Years 1..devYrCt = construction/soft costs spread by phase %
-  //   Revenue starts at saleStartYr — preDev controls WHEN, not cost timing
-  //   Carry costs (taxes + insurance) spread across full project life
-
-  yrCosts[0] = totalAcq;  // all acquisition at Year 0 (closing)
-
-  const devCostTotal = totalHardDev + totalSoft + devFee;
-  const carryTotal   = propTaxTotal + insurance;
-  const carryPerYr   = carryTotal / numYrs;
-  for(let y = 0; y < numYrs; y++) yrCosts[y] += carryPerYr;
-
-  // Construction costs shaped by phase % across Years 1..devYrCt
-  const constructionCost = devCostTotal - carryTotal;
-
-  const rawPh1 = num('ph1'), rawPh2 = num('ph2'), rawPh3 = num('ph3');
-  const rawPhSum = rawPh1 + rawPh2 + rawPh3;
-  let phFracs;
-  if(rawPhSum > 0 && Math.abs(rawPhSum - 100) < 1){
-    phFracs = [rawPh1, rawPh2, rawPh3].filter(p => p > 0).map(p => p / 100);
-  } else {
-    phFracs = [1.0];
+  for(let m=0; m<totalMo; m++){
+    const y = Math.min(Math.floor(m/12), numYrs-1);
+    yrRevs[y]  += monthlyRev[m];
+    yrCosts[y] += monthlyAllCost[m];
   }
-
-  const devYrsPerPhase = devYrCt / phFracs.length;
-  phFracs.forEach((frac, pi) => {
-    const phCost    = constructionCost * frac;
-    const phStartYr = Math.max(1, Math.round(pi * devYrsPerPhase) + 1);
-    const phEndYr   = Math.min(Math.round((pi + 1) * devYrsPerPhase), devYrCt);
-    const phYrCount = Math.max(1, phEndYr - phStartYr + 1);
-    const costPerYr = phCost / phYrCount;
-    for(let y = phStartYr; y <= phEndYr; y++) yrCosts[y] += costPerYr;
-  });
-
-  // Revenue starts at saleStartYr
-  for(let y = saleStartYr; y < numYrs; y++) yrRevs[y] = netRevenue / saleYrCt;
+  const devCostTotal   = totalHardDev + totalSoft + devFee; // kept for sensitivity helpers
+  const carryPerYr     = carryTotal / numYrs;                // display-only sub-line approximation
+  const devYrsPerPhase = devYrCt / phFracs.length;            // kept for legacy references
 
   // ── BUILDER DEPOSITS — Rausch Farm / NVR structure ──────────────────────────
   // INFLOWS:  Builder pays developer at each milestone (Agreement, Closing, S/W, Paving)
-  //           These are POSITIVE cash flows — developer receives cash at each milestone
   // OUTFLOWS: Developer credits $depPerLot back to builder at each lot closing
-  //           These are NEGATIVE cash flows — proportional to lots sold per year
-  //
-  // Net = milestone inflows - lot-closing credits
-  // Annual totals from Rausch Farm: 2024:+200k, 2026:+1,004k, 2027:+448k,
-  //                                  2028:-800k, 2029:-684.5k, 2030:-167.5k
   const dep1Amt   = parseFloat(document.getElementById('dep1Amt')?.value)||0;
   const dep2Amt   = parseFloat(document.getElementById('dep2Amt')?.value)||0;
   const dep3Amt   = parseFloat(document.getElementById('dep3Amt')?.value)||0;
@@ -1500,55 +1565,77 @@ function calculate(){
   const depPerLot = parseFloat(document.getElementById('depPerLot')?.value)||0;
   const totalBuilderDep = dep1Amt+dep2Amt+dep3Amt+dep4Amt || depPerLot*totalLots;
 
-  // INFLOWS: milestone deposits received from builder — positive in year they're paid
-  const depYrInflows = Array(numYrs).fill(0);
+  // Milestone inflows placed at their exact month, then aggregated to annual buckets
+  const monthlyDepIn = Array(totalMo).fill(0);
   [[dep1Amt,dep1Mo],[dep2Amt,dep2Mo],[dep3Amt,dep3Mo],[dep4Amt,dep4Mo]].forEach(([amt,mo])=>{
-    if(amt>0){ const y=Math.min(Math.floor(mo/12),numYrs-1); depYrInflows[y]+=amt; }
+    if(amt>0){ const m=Math.min(Math.max(0,mo),totalMo-1); monthlyDepIn[m]+=amt; }
   });
+  const depYrInflows = Array(numYrs).fill(0);
+  for(let m=0;m<totalMo;m++){ const y=Math.min(Math.floor(m/12),numYrs-1); depYrInflows[y]+=monthlyDepIn[m]; }
 
-  // OUTFLOWS: $depPerLot credited back at each lot closing, proportional to lots sold per year
-  // Lots sell evenly across sale years — same pattern as revenue
-  const depYrOutflows = Array(numYrs).fill(0);
+  // Credit-backs timed with actual monthly lot closings — not an even annual spread
   const creditPerLot = depPerLot > 0 ? depPerLot : (totalLots>0 ? totalBuilderDep/totalLots : 0);
-  if(creditPerLot>0 && totalLots>0){
-    for(let y=saleStartYr; y<numYrs; y++){
-      // Lots closed this year = same proportion as revenue split
-      const lotsThisYr = totalLots / saleYrCt;
-      depYrOutflows[y] = lotsThisYr * creditPerLot;
-    }
-  }
+  const monthlyDepOut = Array(totalMo).fill(0);
+  if(creditPerLot>0){ for(let m=0;m<totalMo;m++) monthlyDepOut[m] = monthlyLots[m]*creditPerLot; }
+  const depYrOutflows = Array(numYrs).fill(0);
+  for(let m=0;m<totalMo;m++){ const y=Math.min(Math.floor(m/12),numYrs-1); depYrOutflows[y]+=monthlyDepOut[m]; }
 
-  // Net deposit flow per year (positive = net inflow, negative = net outflow)
   const depYrNet = Array(numYrs).fill(0).map((_,y) => depYrInflows[y] - depYrOutflows[y]);
-
-  // Keep depYrCosts / depYrCredits names for the cash flow table display
   const depYrCosts   = depYrOutflows;   // credits back to builder at closing
   const depYrCredits = depYrInflows;    // milestone payments received from builder
+  const monthlyDepNet = monthlyDepIn.map((v,m) => v - monthlyDepOut[m]);
 
-  // Unlevered CFs — deposits are net positive/negative per year
-  // Milestone receipts IMPROVE early IRR; credit-backs REDUCE late-year cash flows
-  const unlevCFs = yrCosts.map((c,y) => yrRevs[y] - c + depYrNet[y]);
-  const unlevIRR = calcIRR(unlevCFs);
+  // Converts a monthly IRR (from calcIRR) to an annualized %. Falls back to a
+  // high capped estimate — instead of a bare N/A — when the cash flow's NPV
+  // never crosses zero in the tested range. That happens on deals so strongly
+  // cash-flow positive up front (e.g. large early builder deposits before major
+  // spend) that no finite discount rate makes NPV negative; the return is
+  // exceptionally high, not undefined, so showing "N/A" would be misleading.
+  function monthlyToAnnualIRR(flows){
+    const sum = flows.reduce((a,b)=>a+b, 0);
+    const mo = calcIRR(flows);
+    if(!isNaN(mo)){
+      const annual = (Math.pow(1+mo/100, 12)-1)*100;
+      // Guard against spurious "multiple IRR" roots: cash flows with several
+      // sign changes (e.g. a large final loan-shortfall true-up on a deal that
+      // loses money) can mathematically cross zero at a high discount rate even
+      // though the deal nets negative overall. That root isn't economically
+      // meaningful — a cash flow stream that sums negative should never display
+      // a positive IRR.
+      if(sum < 0 && annual > 0) return NaN;
+      return annual;
+    }
+    const npvAt = r => {
+      let s = 0;
+      for(let t=0; t<flows.length; t++){
+        const d = Math.pow(1+r, t);
+        if(!isFinite(d) || Math.abs(d) < 1e-8) return NaN;
+        s += flows[t]/d;
+      }
+      return s;
+    };
+    const highTest = npvAt(3); // 300%/month — already an absurd hurdle
+    if(isFinite(highTest) && highTest > 0 && sum >= 0) return 999; // display cap: "exceptionally high"
+    return NaN;
+  }
+
+  // ── UNLEVERED IRR — true monthly resolution, annualized ─────────────────────
+  const monthlyUnlevCF = monthlyAllCost.map((c,m) => monthlyRev[m] - c + monthlyDepNet[m]);
+  const unlevIRR = monthlyToAnnualIRR(monthlyUnlevCF);
+  const unlevCFs = yrCosts.map((c,y) => yrRevs[y] - c + depYrNet[y]); // annual, for display/export
   const unlevInvested = totalAcq + devCostTotal; // = tdcExFin
   const unlevEM  = unlevInvested > 0 ? netRevenue / unlevInvested : 1;
-  // Note: unlevered profit = netRevenue - tdcExFin (ignoring financing cost)
   const unlevProfit = netRevenue - tdcExFin;
   const unlevMargin = netRevenue ? unlevProfit / netRevenue * 100 : 0;
 
-  // Levered CFs: developer's equity in/out, loan covers its share
-  // Year 0..saleStartYr-1: equity portion of dev costs (no revenue yet)
-  // Sale years (saleStartYr..): net revenue minus loan repayment and interest
-  // Key: loop to saleStartYr (not devYrCt) to handle gap years where
-  // construction has finished but revenue hasn't started yet.
+  // ── LEVERED IRR — the loan's own draws/paydowns/capitalized interest are
+  // self-contained in the balance simulation above (monthlyLevCFBase); just add
+  // the builder-deposit cash flows, which sit outside the loan mechanics.
+  const monthlyLevCF = monthlyLevCFBase.map((v,m) => v + monthlyDepNet[m]);
+  if(finalLoanShortfall > 0.5) monthlyLevCF[totalMo-1] -= finalLoanShortfall; // true up any unpaid loan balance
+  const levIRR = monthlyToAnnualIRR(monthlyLevCF);
   const levCFs = Array(numYrs).fill(0);
-  for(let y=0; y<saleStartYr; y++) levCFs[y] = -(yrCosts[y] || 0) * (1-ltcPct);
-  for(let y=saleStartYr; y<numYrs; y++){
-    const rev = netRevenue / saleYrCt;
-    const loanRepay = loanBal / saleYrCt;
-    const finCost   = totalFinance / saleYrCt;
-    levCFs[y] = rev - loanRepay - finCost;
-  }
-  const levIRR  = calcIRR(levCFs);
+  for(let m=0;m<totalMo;m++){ const y=Math.min(Math.floor(m/12),numYrs-1); levCFs[y]+=monthlyLevCF[m]; }
   const equityIn = tdcExFin * (1 - ltcPct);  // total developer equity = TDC × (1-LTC)
   const levEM   = equityIn > 0 ? (grossProfit - totalFinance + equityIn) / equityIn : 1;
 
@@ -1610,9 +1697,9 @@ function calculate(){
   $('returnsDiv').innerHTML =
     rpR('Profit Margin',     fpct(margin),   'Target: ≥25–30% for land dev',      bC(margin, 20, 28)) +
     rpR('Return on Cost',    fpct(roi),      'Target: 25–40%',                     bC(roi, 20, 30)) +
-    rpR('Unlevered IRR',     isNaN(unlevIRR)?'N/A':fpct(unlevIRR), `Target ≥${tIRR}%`,  bC(unlevIRR||0, tIRR*0.8, tIRR)) +
+    rpR('Unlevered IRR',     fpctIRR(unlevIRR), `Target ≥${tIRR}%`,  bC(unlevIRR||0, tIRR*0.8, tIRR)) +
     rpR('Equity Multiple',   isNaN(unlevEM)?'—':unlevEM.toFixed(2)+'×', 'Target: 1.5–2.5×', bC((unlevEM-1)*100||0,40,70)) +
-    rpR('Levered IRR',       isNaN(levIRR)?'N/A':fpct(levIRR),   'Should exceed unlevered',  bC(levIRR||0, tIRR, tIRR*1.3)) +
+    rpR('Levered IRR',       fpctIRR(levIRR),   'Should exceed unlevered',  bC(levIRR||0, tIRR, tIRR*1.3)) +
     rpR('Sellout Period',    `${Math.round(selloutMo)} months`, `${totalAbsPerMo.toFixed(1)} lots/mo pace`, '#475569') +
     rpR('Profit / Lot',      fmt(grossProfit/totalLots), 'Target: $25k–$60k/lot', bC(grossProfit/totalLots,20000,40000)) +
     rpR('Land % of TDC',     fpct(totalAcq/totalCosts*100), 'Rule of thumb: 20–30% of TDC', '');
@@ -1626,7 +1713,7 @@ function calculate(){
     pR('Margin (ex fin)',    fpct(unlevMargin)) +
     pR('Total All-In Cost',  fmt(totalCosts)) +
     pR('All-In Margin',      fpct(margin)) +
-    pR('Unlevered IRR',      isNaN(unlevIRR)?'N/A':fpct(unlevIRR)) +
+    pR('Unlevered IRR',      fpctIRR(unlevIRR)) +
     pR('Equity Multiple',    isNaN(unlevEM)?'—':unlevEM.toFixed(2)+'×') +
     `<div style="background:#dbeafe;border-radius:6px;padding:8px;margin-top:8px;font-size:11px;color:#1d4ed8;text-align:center;">Industry target: 25–30% margin · 20–25% unlevered IRR</div>`;
 
@@ -1637,7 +1724,7 @@ function calculate(){
     pR('Total Financing Cost',   fmt(totalFinance)) +
     pR('Developer Equity In',    fmt(equityIn)) +
     pR('Net After Debt Service', fmt(grossProfit - totalFinance)) +
-    pR('Levered IRR',            isNaN(levIRR)?'N/A':fpct(levIRR)) +
+    pR('Levered IRR',            fpctIRR(levIRR)) +
     pR('Levered Multiple',       isNaN(levEM)?'—':levEM.toFixed(2)+'×') +
     `<div style="background:#dcfce7;border-radius:6px;padding:8px;margin-top:8px;font-size:11px;color:#15803d;text-align:center;">Leverage amplifies returns — and risk. Levered IRR should exceed unlevered.</div>`;
 
@@ -1670,7 +1757,7 @@ function calculate(){
         ${isGood ? '✅ Feasible — Returns Meet Thresholds' : isWarn ? '⚠️ Marginal — Review Assumptions' : '❌ Below Threshold — Renegotiate or Pass'}
       </p>
       <div style="margin-left:auto;text-align:right;">
-        <p style="font-size:12px;color:#475569;">${fpct(margin)} margin · ${isNaN(unlevIRR)?'N/A':fpct(unlevIRR)} unlevered IRR · ${isNaN(levIRR)?'N/A':fpct(levIRR)} levered IRR</p>
+        <p style="font-size:12px;color:#475569;">${fpct(margin)} margin · ${fpctIRR(unlevIRR)} unlevered IRR · ${fpctIRR(levIRR)} levered IRR</p>
         <p style="font-size:12px;color:#475569;">${fmt(grossProfit/totalLots)}/lot profit · ${totalLots} lots · ${Math.round(totalMo)}-month total project</p>
       </div>
     </div>
@@ -1747,7 +1834,7 @@ function calculate(){
       ${[['Construction Loan ('+fpct(ltcPct*100)+'% LTC)',loanBal],['Developer Equity',equityIn]].map(([l,v])=>`<div class="qs"><span>${l}</span><div><strong>${fmt(v)}</strong><span style="font-size:10px;color:#94a3b8;margin-left:8px;">${fpct(v/tdcExFin*100)}</span></div></div>`).join('')}
       <div class="qs" style="background:#eff6ff;border-radius:6px;padding:8px 12px;margin-top:4px;font-weight:700;"><span style="color:#0043ce;">Total Sources</span><strong style="color:#0043ce;">${fmt(tdcExFin)}</strong></div>
       <div style="background:#f0fdf4;border-radius:6px;padding:10px 12px;margin-top:8px;font-size:11px;color:#15803d;">
-        <strong>Return on Equity:</strong> ${fpct((grossProfit-totalFinance)/equityIn*100)} cash-on-cash &nbsp;·&nbsp; ${isNaN(levIRR)?'N/A':fpct(levIRR)} levered IRR
+        <strong>Return on Equity:</strong> ${fpct((grossProfit-totalFinance)/equityIn*100)} cash-on-cash &nbsp;·&nbsp; ${fpctIRR(levIRR)} levered IRR
       </div>
     </div>
   </div>`;
@@ -1929,7 +2016,7 @@ function calculate(){
   },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}}}});
 
   // ── Quarterly Cash Flows ───────────────────────────────────────────────────
-  renderQuarterly(yrRevs, yrCosts, unlevCFs, numYrs, depYrCredits, depYrCosts, depYrNet);
+  renderQuarterly(monthlyRev, monthlyAllCost, monthlyDepIn, monthlyDepOut, totalMo);
 
   // ── Store all computed values for Excel export ─────────────────────────────
   _xls = {
@@ -1968,21 +2055,23 @@ function calculate(){
           const cells = tr.querySelectorAll('td'); const isBase = tr.classList.contains('base');
           return {l:cells[0]?.textContent||'',pr:parseFloat(cells[1]?.textContent?.replace(/[$,()]/g,''))*( cells[1]?.textContent?.includes('(')?-1:1)||0,mg:parseFloat(cells[2]?.textContent)||0,ir:parseFloat(cells[3]?.textContent)||0,em:parseFloat(cells[4]?.textContent)||0,pl:parseFloat(cells[5]?.textContent?.replace(/[$,()]/g,''))||0,base:isBase};
         }),
-    // Quarterly cash flows for Excel export
+    // Quarterly cash flows for Excel export — real monthly sums, not an even /4 split
     quarterlyRows: (()=>{
       const qtrs = [];
-      for(let y=0; y<numYrs; y++){
-        for(let q=1; q<=4; q++){
-          qtrs.push({
-            label: 'Yr '+y+' Q'+q,
-            rev:   yrRevs[y]/4,
-            cost:  yrCosts[y]/4,
-            depIn: depYrCredits[y]/4,
-            depOut:depYrCosts[y]/4,
-            depNet:depYrNet[y]/4,
-            net:   unlevCFs[y]/4,
-          });
+      const numQtrs = Math.ceil(totalMo/3);
+      for(let q=0; q<numQtrs; q++){
+        const mStart = q*3, mEnd = Math.min(totalMo, mStart+3);
+        let rev=0, cost=0, depIn=0, depOut=0;
+        for(let m=mStart; m<mEnd; m++){
+          rev += monthlyRev[m]; cost += monthlyAllCost[m];
+          depIn += monthlyDepIn[m]; depOut += monthlyDepOut[m];
         }
+        const depNet = depIn - depOut;
+        qtrs.push({
+          label: 'Yr '+Math.floor(mStart/12)+' Q'+((Math.floor(mStart/3)%4)+1),
+          rev, cost, depIn, depOut, depNet,
+          net: rev - cost + depNet,
+        });
       }
       // Trim trailing all-zero quarters
       while(qtrs.length && qtrs[qtrs.length-1].rev===0 && qtrs[qtrs.length-1].net===0) qtrs.pop();
