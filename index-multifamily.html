@@ -463,6 +463,21 @@ a{text-decoration:none;color:inherit;}
         <div class="lpv-row"><span>Annual Debt Service</span><span id="annDSDisp">—</span></div>
         <div class="lpv-row"><span>Loan Constant</span><span id="loanConstDisp">—</span></div>
       </div>
+    </div>
+
+    <!-- Value-Add Renovation Program -->
+    <div class="card">
+      <p class="sec">🔨 Value-Add Renovation Program</p>
+      <p style="font-size:10px;color:#94a3b8;margin-bottom:10px;">Optional. Leave Units to Renovate at 0 for a stabilized/no-renovation deal.</p>
+      <div class="g2" style="gap:8px;">
+        <div class="f"><label class="lbl">Units to Renovate</label><input class="inp" id="renoUnits" type="number" placeholder="0"></div>
+        <div class="f"><label class="lbl">Pace (units/yr)</label><input class="inp" id="renoPacePerYear" type="number" placeholder="12"></div>
+      </div>
+      <div class="g2" style="gap:8px;">
+        <div class="f"><label class="lbl">Cost per Unit ($)</label><div class="inp-p"><span>$</span><input class="inp" id="renoCostPerUnit" type="number" placeholder="10,000"></div></div>
+        <div class="f"><label class="lbl">Rent Premium ($/mo/unit)</label><div class="inp-p"><span>$</span><input class="inp" id="renoPremium" type="number" placeholder="150"></div></div>
+      </div>
+      <p class="hint">Typical value-add: $8k–15k/unit for a light interior renovation (flooring, counters, fixtures, appliances), targeting $100–250/mo premium. Renovation cost is spent as cash flow during the years the work happens — not added to Day-1 equity.</p>
       <div style="margin-top:14px;text-align:center;">
         <button class="btn-p" onclick="calculate()" style="padding:12px 36px;font-size:14px;width:100%;">Calculate Proforma →</button>
       </div>
@@ -750,7 +765,8 @@ function liveCalc(){
 ['studioUnits','studioRent','oneBedUnits','rent1Bed','twoBedUnits','rent2Bed','threeBedUnits','rent3Bed',
  'otherIncome','vacancyRate','rentGrowth','expGrowth','holdPeriod','exitCap',
  'purchasePrice','loanAmount','interestRate','amortYears','closingCostPct','capexBudget','sellCosts',
- 'propertyTaxes','insurance','utilities','maintenance','management','staff','supplies','misc']
+ 'propertyTaxes','insurance','utilities','maintenance','management','staff','supplies','misc',
+ 'renoUnits','renoPacePerYear','renoCostPerUnit','renoPremium']
   .forEach(id=>{ const e=$(id); if(e) e.addEventListener('input',liveCalc); });
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -770,7 +786,7 @@ function calculate(switchToResults=true){
   const vacRate=num('vacancyRate')/100||0.05;
   const vacancyLoss=GPR*vacRate;
   const otherInc=num('otherIncome');
-  const EGI=GPR-vacancyLoss+otherInc;
+  const EGI0=GPR-vacancyLoss+otherInc;
 
   // Expenses
   const expItems={
@@ -784,6 +800,30 @@ function calculate(switchToResults=true){
     'Reserves & Misc':num('misc'),
   };
   const totalExp=Object.values(expItems).reduce((a,b)=>a+b,0);
+
+  // ── Value-Add Renovation Program ────────────────────────────────────────
+  // Units are renovated at a fixed pace (units/yr) up to a cap. Each renovated
+  // unit adds a rent premium once complete; renovation cost is spent as cash
+  // outflow the year the work happens (not upfront in equityOut).
+  const renoUnitsTotal=Math.min(num('renoUnits')||0, totalUnits);
+  const renoCostPerUnit=num('renoCostPerUnit')||0;
+  const renoPace=Math.max(1, num('renoPacePerYear')||renoUnitsTotal||1);
+  const renoPremium=num('renoPremium')||0;
+  function renoForYear(y){
+    if(!renoUnitsTotal) return {cumUnits:0,newUnits:0,capexY:0,avgUnits:0,incomeY:0};
+    const cumPrev=Math.min(renoUnitsTotal, renoPace*(y-1));
+    const cumNow=Math.min(renoUnitsTotal, renoPace*y);
+    const newUnits=Math.max(0,cumNow-cumPrev);
+    const capexY=newUnits*renoCostPerUnit;
+    const avgUnits=(cumPrev+cumNow)/2; // mid-year completion approximation
+    const incomeY=avgUnits*renoPremium*12;
+    return {cumUnits:cumNow,newUnits,capexY,avgUnits,incomeY};
+  }
+
+  // Year 1 headline figures (include partial-year value-add impact)
+  const reno1=renoForYear(1);
+  const GPR1=GPR+reno1.incomeY;
+  const EGI=EGI0+reno1.incomeY;
   const NOI=EGI-totalExp;
 
   // Financing
@@ -798,16 +838,17 @@ function calculate(switchToResults=true){
   const equityOut=price-loan+closing+capex;
   const ADS=annualDS(loan,rate,amort);
   const loanConst=loan>0?ADS/loan*100:0;
-  const levCF=NOI-ADS;
+  const levCF=NOI-ADS-reno1.capexY;
   const capRate=price>0?NOI/price*100:0;
   const CoC=equityOut>0?levCF/equityOut*100:0;
   const DSCR=ADS>0?NOI/ADS:null;
   const debtYield=loan>0?NOI/loan*100:0;
-  const GRM=GPR>0?price/GPR:null;
+  const GRM=GPR1>0?price/GPR1:null;
   const pricePU=totalUnits>0?price/totalUnits:0;
   const expPU=totalUnits>0?totalExp/totalUnits:0;
   const OER=EGI>0?totalExp/EGI*100:0;
-  const breakEvenOcc=(totalExp+ADS)/GPR*100;
+  const breakEvenOcc=(totalExp+ADS)/GPR1*100;
+  const renoTotalCost=renoUnitsTotal*renoCostPerUnit;
 
   // Hold period
   const hold=Math.min(Math.max(num('holdPeriod')||5,1),25);
@@ -822,18 +863,19 @@ function calculate(switchToResults=true){
   let rows=[], cashFlowsLev=[-equityOut];
   for(let y=1;y<=hold;y++){
     const g=Math.pow(1+rentG,y-1), eg=Math.pow(1+expG,y-1);
-    const yGPR=GPR*g, yVac=yGPR*vacRate, yOther=otherInc;
+    const renoY=renoForYear(y);
+    const yGPR=GPR*g+renoY.incomeY, yVac=(GPR*g)*vacRate, yOther=otherInc;
     const yEGI=yGPR-yVac+yOther;
     const yExp=totalExp*eg;
     const yNOI=yEGI-yExp;
-    const yLevCF=yNOI-ADS;
+    const yLevCF=yNOI-ADS-renoY.capexY;
     const b0=loanBal(loan,rate,amort,y-1), b1=loanBal(loan,rate,amort,y);
     const prin=b0-b1, intPaid=ADS-prin;
     const dscr_y=ADS>0?yNOI/ADS:null;
     const capRateY=price>0?yNOI/price*100:null;
     const dyY=loan>0?yNOI/loan*100:null;
     const beOccY=(yExp+ADS)/yGPR*100;
-    rows.push({y,yGPR,yVac,yOther,yEGI,yExp,yNOI,ADS,intPaid,prin,yLevCF,b0,b1,dscr_y,capRateY,dyY,beOccY,OER_y:yEGI>0?yExp/yEGI*100:0});
+    rows.push({y,yGPR,yVac,yOther,yEGI,yExp,yNOI,ADS,intPaid,prin,yLevCF,b0,b1,dscr_y,capRateY,dyY,beOccY,OER_y:yEGI>0?yExp/yEGI*100:0,renoCapexY:renoY.capexY,renoIncomeY:renoY.incomeY,renoCumUnits:renoY.cumUnits});
     cashFlowsLev.push(yLevCF);
   }
   const exitNOI=rows[hold-1].yNOI;
@@ -848,7 +890,7 @@ function calculate(switchToResults=true){
   const NPV=cashFlowsLev.reduce((a,f,t)=>a+f/Math.pow(1+discR,t),0);
 
   // Unlevered IRR
-  const ufCFs=[-(price+closing+capex),...rows.map(r=>r.yNOI)];
+  const ufCFs=[-(price+closing+capex),...rows.map(r=>r.yNOI-r.renoCapexY)];
   ufCFs[hold]+=salePrice-saleCost;
   const unlevIRR=calcIRR(ufCFs);
   const unlevEM=(ufCFs.slice(1).reduce((a,b)=>a+b,0)+(price+closing+capex))/(price+closing+capex);
@@ -878,6 +920,12 @@ function calculate(switchToResults=true){
     {l:'DSCR (Yr 1)',       v:DSCR?fmtX(DSCR):'N/A', c:bC(DSCR||0,1.1,1.35), sub:'Min: 1.25×'},
     {l:'Breakeven Occ.',    v:pct(breakEvenOcc),   c:bC(100-breakEvenOcc,10,20), sub:'Lower = safer'},
   ];
+  if(renoUnitsTotal>0){
+    const stabRenoYr=Math.min(hold,Math.ceil(renoUnitsTotal/renoPace));
+    const stabNOI=rows[stabRenoYr-1]?rows[stabRenoYr-1].yNOI:exitNOI;
+    kpis.push({l:'Stabilized NOI (post-Reno)',v:fmt(stabNOI),c:'#7c3aed',sub:`Yr ${stabRenoYr} · ${renoUnitsTotal} units renovated`});
+    kpis.push({l:'Total Renovation Spend',v:fmt(renoTotalCost),c:'#7c3aed',sub:fmt(renoCostPerUnit)+'/unit × '+renoUnitsTotal+' units'});
+  }
   $('kpiCards').innerHTML=kpis.map(k=>`<div class="kpi" style="border-top:3px solid ${k.c};">
     <div class="kpi-val" style="color:${k.c};">${k.v}</div>
     <div class="kpi-lbl">${k.l}</div>
@@ -890,6 +938,7 @@ function calculate(switchToResults=true){
   const wNeg=(l,v)=>`<div class="wf" style="padding-left:22px;"><span style="color:#64748b;">${l}</span><span style="color:#dc2626;">(${fmt(v)})</span></div>`;
   $('waterfallDiv').innerHTML=
     wRow('Gross Potential Rent',fmt(GPR),'background:#f0fdf4;')+
+    (reno1.incomeY>0?wRow('+ Value-Add Rent Premium',fmt(reno1.incomeY)):'')+
     wNeg('Vacancy Loss',vacancyLoss)+
     (otherInc?wRow('+ Other Income',fmt(otherInc)):'') +
     wRow('Effective Gross Income (EGI)',fmt(EGI),'background:#f8fafc;font-weight:600;')+
@@ -897,6 +946,7 @@ function calculate(switchToResults=true){
     wRow('Net Operating Income (NOI)',fmt(NOI),'background:#eff6ff;color:#0043ce;font-weight:700;')+
     `<div style="font-size:10px;color:#64748b;padding:4px 10px;">${totalUnits} units · ${fmt(NOI/totalUnits)}/unit · OER ${pct(OER,0)}</div>`+
     wNeg('Annual Debt Service',ADS)+
+    (reno1.capexY>0?wNeg('Renovation CapEx ('+reno1.newUnits+' units)',reno1.capexY):'')+
     wRow('Levered Cash Flow (Yr 1)',fmt(levCF),'background:'+( levCF>=0?'#eff6ff':'#fee2e2' )+';font-weight:700;color:'+(levCF>=0?'#0043ce':'#dc2626')+';');
 
   // ── Scorecard ──────────────────────────────────────────────────────────────
@@ -989,7 +1039,8 @@ function calculate(switchToResults=true){
 
   $('proformaTable').innerHTML=cols+th+`<tbody>
     ${sR('INCOME')}
-    ${dR('Gross Potential Rent', rows.map(r=>r.yGPR))}
+    ${dR('Gross Potential Rent (base)', rows.map(r=>r.yGPR-r.renoIncomeY))}
+    ${renoUnitsTotal>0?dR('+ Value-Add Rent Premium', rows.map(r=>r.renoIncomeY)):''}
     ${dR('Vacancy Loss', rows.map(r=>r.yVac), true)}
     ${dR('Other Income', rows.map(r=>r.yOther))}
     ${tR('Effective Gross Income (EGI)', rows.map(r=>r.yEGI))}
@@ -1003,6 +1054,9 @@ function calculate(switchToResults=true){
     ${sR('DEBT SERVICE')}
     ${dR('Interest', rows.map(r=>r.intPaid), true)}
     ${dR('Principal', rows.map(r=>r.prin), true)}
+    ${renoUnitsTotal>0?sR('VALUE-ADD RENOVATION'):''}
+    ${renoUnitsTotal>0?dR('Renovation CapEx', rows.map(r=>r.renoCapexY), true, false):''}
+    ${renoUnitsTotal>0?txR('Cumulative Units Renovated', rows.map(r=>r.renoCumUnits+' / '+renoUnitsTotal)):''}
     ${tR('Levered Cash Flow', rows.map(r=>r.yLevCF))}
     ${sR('METRICS')}
     ${dR('Loan Balance (EOY)', rows.map(r=>r.b1))}
@@ -1016,6 +1070,7 @@ function calculate(switchToResults=true){
     <div><p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;margin-bottom:10px;">USES OF FUNDS</p>
       ${[['Purchase Price',price],['Closing Costs ('+pct(closingPct*100,1)+')',closing],['CapEx Budget',capex]].filter(([,v])=>v>0).map(([l,v])=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f8fafc;font-size:12px;"><span>${l}</span><strong>${fmt(v)}</strong></div>`).join('')}
       <div style="display:flex;justify-content:space-between;padding:7px 12px;background:#eff6ff;border-radius:6px;font-weight:700;margin-top:4px;font-size:12px;"><span style="color:#0043ce;">Total Uses</span><strong style="color:#0043ce;">${fmt(price+closing+capex)}</strong></div>
+      ${renoUnitsTotal>0?`<div style="margin-top:8px;padding:8px 10px;background:#faf5ff;border-radius:6px;font-size:11px;color:#7c3aed;">+ ${fmt(renoTotalCost)} value-add renovation budget, phased in over the hold as cash flow (not upfront equity)</div>`:''}
     </div>
     <div><p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;margin-bottom:10px;">SOURCES OF FUNDS</p>
       ${[['Loan Amount ('+(loan&&price?pct(loan/price*100,0):'—')+'% LTV)',loan],['Developer Equity',equityOut]].filter(([,v])=>v>0).map(([l,v])=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f8fafc;font-size:12px;"><span>${l}</span><strong>${fmt(v)}</strong></div>`).join('')}
@@ -1054,6 +1109,42 @@ function calculate(switchToResults=true){
     ${rows2.map((r,i)=>`<tr${i===Math.floor(rows2.length/2)?' class="base"':''}>${r.map((v,ci)=>`<td${ci>0?' style="color:'+( typeof v==='string'&&v.startsWith('N')? '#94a3b8':'inherit')+'"':''}>${v}</td>`).join('')}</tr>`).join('')}
     </tbody></table>`;
   }
+  // Linear-interpolates the driver value (xs) at which a metric (ys) first
+  // crosses `threshold`, scanning consecutive pairs for a sign change. Used to
+  // find the exact "breakpoint" input value that breaches a covenant/target —
+  // not just the discrete step values shown in the table.
+  function findBreakpoint(xs, ys, threshold){
+    for(let i=0;i<ys.length-1;i++){
+      const y0=ys[i], y1=ys[i+1];
+      if(y0==null||y1==null||isNaN(y0)||isNaN(y1)||y0===y1) continue;
+      if((y0-threshold)*(y1-threshold)<=0){
+        const t=(threshold-y0)/(y1-y0);
+        return xs[i]+t*(xs[i+1]-xs[i]);
+      }
+    }
+    return null;
+  }
+  // Wraps a formatted value in red if it breaches a covenant threshold (below
+  // `min`) — mirrors the red flagging convention on institutional sensitivity grids.
+  function flagIf(breached, formatted){
+    return breached ? `<span style="color:#b91c1c;font-weight:700;">${formatted} ⚠</span>` : formatted;
+  }
+  function breakpointCallout(lines){
+    return `<div style="margin-top:8px;padding:8px 10px;background:#fef2f2;border:1px solid #fecaca;border-radius:7px;font-size:11px;color:#991b1b;line-height:1.6;">
+      <strong>⚠ Breakpoints:</strong> ${lines.join(' &nbsp;·&nbsp; ')}
+    </div>`;
+  }
+  // When no crossing is found, distinguish "always comfortably clears the
+  // covenant" from "never clears it even at the best case shown" — otherwise a
+  // deal that fails everywhere would misleadingly read as "stays above" the min.
+  function noBreakpointMsg(ys, threshold, label, fmtThresh){
+    const valid = ys.filter(y=>y!=null&&!isNaN(y));
+    if(!valid.length) return `${label}: insufficient data across range tested`;
+    const allPass = valid.every(y=>y>=threshold);
+    return allPass
+      ? `${label} stays above ${fmtThresh} across the full range tested`
+      : `${label} stays <strong>below</strong> ${fmtThresh} across the entire range tested — doesn't clear the covenant even at the best case shown`;
+  }
 
   // 3-Scenario
   const scenarios=[
@@ -1066,38 +1157,77 @@ function calculate(switchToResults=true){
 
   // Cap sensitivity
   const capVals=[4.0,4.5,5.0,5.25,5.5,5.75,6.0,6.5,7.0];
+  const capIRRs=[];
   $('capSens').innerHTML=senTbl(['Exit Cap','Sale Price','Net Proceeds','Levered IRR'],
-    capVals.map(c=>{const sp=rows[hold-1].yNOI/c*100,proc=sp-sp*sellCosts-finalBal,cf2=[...cashFlowsLev.slice(0,-1),cashFlowsLev[hold-1]+proc];return[c.toFixed(2)+'%',fmt(sp),fmt(proc),isNaN(calcIRR(cf2))?'N/A':pct(calcIRR(cf2))]}));
+    capVals.map(c=>{const sp=rows[hold-1].yNOI/c*100,proc=sp-sp*sellCosts-finalBal,cf2=[...cashFlowsLev.slice(0,-1),cashFlowsLev[hold-1]+proc];
+      const irrV=calcIRR(cf2); capIRRs.push(irrV);
+      return[c.toFixed(2)+'%',fmt(sp),fmt(proc),flagIf(!isNaN(irrV)&&irrV<tIRR, isNaN(irrV)?'N/A':pct(irrV))]}));
+  { const bp=findBreakpoint(capVals,capIRRs,tIRR);
+    if($('capSens')) $('capSens').innerHTML += breakpointCallout([
+      bp!=null ? `Levered IRR drops below your ${tIRR}% target at exit cap ≥ <strong>${bp.toFixed(2)}%</strong>` : noBreakpointMsg(capIRRs, tIRR, 'Levered IRR', tIRR+'%')
+    ]);
+  }
 
   // Rent growth sensitivity
   const rgVals=[0,0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,5.0];
+  const rgIRRs=[];
   $('rentSens').innerHTML=senTbl(['Rent Growth','Exit NOI','IRR','CoC Yr1'],
     rgVals.map(g=>{
-      const rs2=buildRows(GPR,otherInc,vacRate,totalExp,loan,rate,amort,ADS,g/100,expG,hold);
+      const rs2=buildRows(GPR,otherInc,vacRate,totalExp,loan,rate,amort,ADS,g/100,expG,hold,renoForYear);
       const xNOI=rs2[hold-1].yNOI, sp2=xNOI/exitCapRate, fb2=loanBal(loan,rate,amort,hold);
       const cf2=[-equityOut,...rs2.map(r=>r.yLevCF)]; cf2[hold]+=sp2-sp2*sellCosts-fb2;
-      return[g.toFixed(1)+'%',fmt(xNOI),isNaN(calcIRR(cf2))?'N/A':pct(calcIRR(cf2)),pct(rs2[0].yLevCF/equityOut*100)];
+      const irrV=calcIRR(cf2); rgIRRs.push(irrV);
+      return[g.toFixed(1)+'%',fmt(xNOI),flagIf(!isNaN(irrV)&&irrV<tIRR, isNaN(irrV)?'N/A':pct(irrV)),pct(rs2[0].yLevCF/equityOut*100)];
     }));
+  { const bp=findBreakpoint(rgVals,rgIRRs,tIRR);
+    if($('rentSens')) $('rentSens').innerHTML += breakpointCallout([
+      bp!=null ? `Levered IRR drops below your ${tIRR}% target at rent growth ≤ <strong>${bp.toFixed(2)}%</strong>/yr` : noBreakpointMsg(rgIRRs, tIRR, 'Levered IRR', tIRR+'%')
+    ]);
+  }
 
   // Vacancy sensitivity
   const vacVals=[2,3,4,5,6,7,8,10,12,15];
-  $('vacSens').innerHTML=senTbl(['Vacancy','Year 1 NOI','DSCR','Levered IRR'],
+  const vacDSCRs=[], vacDYs=[];
+  $('vacSens').innerHTML=senTbl(['Vacancy','Year 1 NOI','DSCR','Debt Yield','Levered IRR'],
     vacVals.map(v=>{
       const egi2=GPR*(1-v/100)+otherInc, noi2=egi2-totalExp, lev2=noi2-ADS;
-      const dscr2=ADS>0?noi2/ADS:null;
+      const dscr2=ADS>0?noi2/ADS:null, dy2=loan>0?noi2/loan*100:null;
+      vacDSCRs.push(dscr2); vacDYs.push(dy2);
       const cf2=[-equityOut,...Array(hold).fill(lev2)]; cf2[hold]+=saleProc;
-      return[v+'%',fmt(noi2),dscr2?fmtX(dscr2):'N/A',isNaN(calcIRR(cf2))?'N/A':pct(calcIRR(cf2))];
+      const irrV=calcIRR(cf2);
+      return[v+'%',fmt(noi2),
+        flagIf(dscr2!=null&&dscr2<1.25, dscr2?fmtX(dscr2):'N/A'),
+        flagIf(dy2!=null&&dy2<8, dy2!=null?pct(dy2):'N/A'),
+        isNaN(irrV)?'N/A':pct(irrV)];
     }));
+  { const bpD=findBreakpoint(vacVals,vacDSCRs,1.25), bpY=findBreakpoint(vacVals,vacDYs,8);
+    const lines=[];
+    lines.push(bpD!=null ? `DSCR breaches 1.25× at vacancy ≥ <strong>${bpD.toFixed(1)}%</strong>` : noBreakpointMsg(vacDSCRs, 1.25, 'DSCR', '1.25×'));
+    lines.push(bpY!=null ? `Debt Yield breaches 8% at vacancy ≥ <strong>${bpY.toFixed(1)}%</strong>` : noBreakpointMsg(vacDYs, 8, 'Debt Yield', '8%'));
+    if($('vacSens')) $('vacSens').innerHTML += breakpointCallout(lines);
+  }
 
   // Interest rate sensitivity
   const rateVals=[5.0,5.5,6.0,6.25,6.5,6.75,7.0,7.5,8.0];
-  $('rateSens').innerHTML=senTbl(['Int Rate','Ann DS','DSCR','Levered IRR'],
+  const rateDSCRs=[], rateDYs=[];
+  $('rateSens').innerHTML=senTbl(['Int Rate','Ann DS','DSCR','Debt Yield','Levered IRR'],
     rateVals.map(rt=>{
-      const ads2=annualDS(loan,rt,amort), lev2=NOI-ads2, dscr2=ads2>0?NOI/ads2:null;
+      const ads2=annualDS(loan,rt,amort), lev2=NOI-ads2, dscr2=ads2>0?NOI/ads2:null, dy2=loan>0?NOI/loan*100:null;
+      rateDSCRs.push(dscr2); rateDYs.push(dy2);
       const fb2=loanBal(loan,rt,amort,hold);
       const cf2=[-equityOut,...Array(hold).fill(lev2)]; cf2[hold]+=salePrice-saleCost-fb2;
-      return[pct(rt,1),fmt(ads2),dscr2?fmtX(dscr2):'N/A',isNaN(calcIRR(cf2))?'N/A':pct(calcIRR(cf2))];
+      const irrV=calcIRR(cf2);
+      return[pct(rt,1),fmt(ads2),
+        flagIf(dscr2!=null&&dscr2<1.25, dscr2?fmtX(dscr2):'N/A'),
+        flagIf(dy2!=null&&dy2<8, dy2!=null?pct(dy2):'N/A'),
+        isNaN(irrV)?'N/A':pct(irrV)];
     }));
+  { const bpD=findBreakpoint(rateVals,rateDSCRs,1.25), bpY=findBreakpoint(rateVals,rateDYs,8);
+    const lines=[];
+    lines.push(bpD!=null ? `DSCR breaches 1.25× at a rate ≥ <strong>${bpD.toFixed(2)}%</strong>` : noBreakpointMsg(rateDSCRs, 1.25, 'DSCR', '1.25×'));
+    lines.push(bpY!=null ? `Debt Yield breaches 8% at a rate ≥ <strong>${bpY.toFixed(2)}%</strong>` : noBreakpointMsg(rateDYs, 8, 'Debt Yield', '8%')+' (Debt Yield doesn\'t depend on rate)');
+    if($('rateSens')) $('rateSens').innerHTML += breakpointCallout(lines);
+  }
 
   // ── Charts ─────────────────────────────────────────────────────────────────
   const co={responsive:true,maintainAspectRatio:false,
@@ -1143,17 +1273,19 @@ function calculate(switchToResults=true){
     levIRR,unlevIRR,EM,unlevEM,NPV,
     salePrice,saleCost,finalBal,saleProc,exitNOI,
     rows,cashFlowsLev,unitTypes,
+    renoUnitsTotal,renoCostPerUnit,renoPace,renoPremium,renoTotalCost,
   };
 }
 
-// Helper: rebuild rows with different rent growth
-function buildRows(GPR,otherInc,vacRate,totalExp,loan,rate,amort,ADS,rentG,expG,hold){
+// Helper: rebuild rows with different rent growth (optionally including value-add reno schedule)
+function buildRows(GPR,otherInc,vacRate,totalExp,loan,rate,amort,ADS,rentG,expG,hold,renoFn){
   let rows2=[];
   for(let y=1;y<=hold;y++){
     const g=Math.pow(1+rentG,y-1), eg=Math.pow(1+expG,y-1);
-    const yGPR=GPR*g, yVac=yGPR*vacRate, yEGI=yGPR-yVac+otherInc, yExp=totalExp*eg, yNOI=yEGI-yExp;
+    const renoY=renoFn?renoFn(y):{incomeY:0,capexY:0};
+    const yGPR=GPR*g+renoY.incomeY, yVac=(GPR*g)*vacRate, yEGI=yGPR-yVac+otherInc, yExp=totalExp*eg, yNOI=yEGI-yExp;
     const b1=loanBal(loan,rate,amort,y);
-    rows2.push({y,yNOI,yLevCF:yNOI-ADS,b1});
+    rows2.push({y,yNOI,yLevCF:yNOI-ADS-renoY.capexY,b1});
   }
   return rows2;
 }
@@ -1388,6 +1520,7 @@ function loadDemo(){
     ['purchasePrice',9600000],['loanAmount',6240000],
     ['interestRate',6.50],['amortYears',30],['loanTerm',10],
     ['closingCostPct',1.5],['capexBudget',0],
+    ['renoUnits',48],['renoPacePerYear',12],['renoCostPerUnit',9500],['renoPremium',150],
   ].forEach(([id,v])=>{ if($(id)) $(id).value=v; });
   liveCalc();
   calculate();
