@@ -537,6 +537,32 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--slate);marg
 
       <div class="icard">
         <div class="icard-title">
+          <div class="icard-icon" style="background:#fdf2f8;"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#be185d" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3v-6m-3 6v-9m-2 9h10a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div>
+          Percentage Rent (Retail Overage)
+          <span class="ml-1 text-xs font-normal normal-case text-gray-400">Optional</span>
+        </div>
+        <p style="font-size:10px;color:#94a3b8;margin-bottom:10px;">Leave Tenant Sales at $0 to disable. Common on restaurant &amp; anchor tenant leases — tenant pays base rent + a % of gross sales above a breakpoint.</p>
+        <div class="grid grid-cols-2 gap-2" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;">
+          <div class="field"><label class="lbl">Tenant Sales ($/SF/yr)</label><div class="inp-prefix"><span>$</span><input class="inp" id="tenantSalesPSF" type="number" step="1" placeholder="0" oninput="onPctRentChange()"></div></div>
+          <div class="field"><label class="lbl">Sales Growth (%/yr)</label><div class="inp-suffix"><input class="inp" id="salesGrowth" type="number" step="0.1" value="2.0"><span>%</span></div></div>
+        </div>
+        <div class="field"><label class="lbl">Percentage Rent Rate</label><div class="inp-suffix"><input class="inp" id="pctRentRate" type="number" step="0.1" value="6.0" oninput="onPctRentChange()"><span>%</span></div><p class="hint">Typical range: 4–8% of sales over breakpoint (restaurants/retail)</p></div>
+        <div class="field"><label class="lbl">Breakpoint Type</label>
+          <select class="inp" id="breakpointType" onchange="onPctRentChange()">
+            <option value="natural">Natural (Base Rent ÷ Pct Rate)</option>
+            <option value="fixed">Fixed $ Breakpoint</option>
+          </select></div>
+        <div id="rowFixedBreakpoint" style="display:none;">
+          <div class="field"><label class="lbl">Fixed Breakpoint ($/yr)</label><div class="inp-prefix"><span>$</span><input class="inp" id="fixedBreakpoint" type="number" placeholder="0"></div></div>
+        </div>
+        <div id="pctRentPreview" class="loan-preview" style="display:none;">
+          <div class="loan-row"><span>Breakpoint (Yr 1)</span><span id="pctRentBreakpointDisp">—</span></div>
+          <div class="loan-row"><span>Est. Percentage Rent (Yr 1)</span><span id="pctRentYr1Disp">—</span></div>
+        </div>
+      </div>
+
+      <div class="icard">
+        <div class="icard-title">
           <div class="icard-icon" style="background:#fff7ed;"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#c2410c" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16"/></svg></div>
           Operating Expenses ($/SF/yr)
           <span id="expenseNote" class="ml-1 text-xs font-normal normal-case text-gray-400">NNN → $0</span>
@@ -991,6 +1017,24 @@ function liveCalc(){
 ['buildingSize','annualRent','purchasePrice','loanToValue','interestRate','amortization','closingCosts']
   .forEach(id=>{ const e=$(id); if(e) e.addEventListener('input',liveCalc); });
 
+// ── Percentage Rent live preview ────────────────────────────────────────────
+function onPctRentChange(){
+  const bpType = str('breakpointType');
+  if($('rowFixedBreakpoint')) $('rowFixedBreakpoint').style.display = bpType==='fixed' ? '' : 'none';
+  const sf = num('buildingSize')||9100, baseRent = num('annualRent');
+  const salesPSF = num('tenantSalesPSF'), pctRate = num('pctRentRate')/100;
+  const preview = $('pctRentPreview');
+  if(!salesPSF || !pctRate){ if(preview) preview.style.display='none'; return; }
+  if(preview) preview.style.display='';
+  const breakpoint = bpType==='fixed' ? (num('fixedBreakpoint')||0) : (pctRate>0 ? baseRent/pctRate : 0);
+  const tenantSales = salesPSF*sf;
+  const pctRent = Math.max(0, tenantSales-breakpoint)*pctRate;
+  if($('pctRentBreakpointDisp')) $('pctRentBreakpointDisp').textContent = fmt(breakpoint);
+  if($('pctRentYr1Disp')) $('pctRentYr1Disp').textContent = fmt(pctRent)+'/yr';
+}
+['annualRent','tenantSalesPSF','pctRentRate','fixedBreakpoint','buildingSize']
+  .forEach(id=>{ const e=$(id); if(e) e.addEventListener('input',onPctRentChange); });
+
 // ── Color helpers ──────────────────────────────────────────────────────────────
 const bC  = (v,lo,hi) => v>=hi?'bg-green':v>=lo?'bg-amber':'bg-red';
 const mcC = (v,lo,hi) => v>=hi?'mc-green':v>=lo?'mc-amber':'mc-red';
@@ -1006,6 +1050,40 @@ function senTable(rows){
       Object.entries(r).map(([k,v],ci)=>`<td${ci>0?' style="text-align:right"':''}>${v}</td>`).join('')+
     '</tr>').join('')+
     '</tbody></table>';
+}
+// Linear-interpolates the driver value (xs) at which a metric (ys) first crosses
+// `threshold`, scanning consecutive pairs for a sign change — finds the exact
+// "breakpoint" input value that breaches a covenant/target, not just the discrete
+// step values shown in the table.
+function findBreakpoint(xs, ys, threshold){
+  for(let i=0;i<ys.length-1;i++){
+    const y0=ys[i], y1=ys[i+1];
+    if(y0==null||y1==null||isNaN(y0)||isNaN(y1)||y0===y1) continue;
+    if((y0-threshold)*(y1-threshold)<=0){
+      const t=(threshold-y0)/(y1-y0);
+      return xs[i]+t*(xs[i+1]-xs[i]);
+    }
+  }
+  return null;
+}
+function flagIf(breached, formatted){
+  return breached ? `<span style="color:#b91c1c;font-weight:700;">${formatted} ⚠</span>` : formatted;
+}
+function breakpointCallout(lines){
+  return `<div style="margin-top:8px;padding:8px 10px;background:#fef2f2;border:1px solid #fecaca;border-radius:7px;font-size:11px;color:#991b1b;line-height:1.6;">
+    <strong>⚠ Breakpoints:</strong> ${lines.join(' &nbsp;·&nbsp; ')}
+  </div>`;
+}
+// When no crossing is found, distinguish "always comfortably clears the
+// covenant" from "never clears it even at the best case shown" — otherwise a
+// deal that fails everywhere would misleadingly read as "stays above" the min.
+function noBreakpointMsg(ys, threshold, label, fmtThresh){
+  const valid = ys.filter(y=>y!=null&&!isNaN(y));
+  if(!valid.length) return `${label}: insufficient data across range tested`;
+  const allPass = valid.every(y=>y>=threshold);
+  return allPass
+    ? `${label} stays above ${fmtThresh} across the full range tested`
+    : `${label} stays <strong>below</strong> ${fmtThresh} across the entire range tested — doesn't clear the covenant even at the best case shown`;
 }
 
 // ── Charts registry ────────────────────────────────────────────────────────────
@@ -1050,6 +1128,20 @@ function calculate(){
   const taxPSF=num('realEstateTaxes'), insPSF=num('insurance'), camPSF=num('camExpense');
   const utilPSF=num('utilities'), rmPSF=num('repairsMaint'), othPSF=num('otherOpex');
 
+  // Percentage rent (retail overage) — tenant pays base rent + a % of gross
+  // sales above a breakpoint. Common on restaurant/anchor retail leases.
+  const salesPSF   = num('tenantSalesPSF');
+  const salesGrowth= num('salesGrowth')/100||0;
+  const pctRentRate= num('pctRentRate')/100||0;
+  const bpType     = str('breakpointType');
+  const fixedBP    = num('fixedBreakpoint');
+  function pctRentForYear(y, rentY){
+    if(!salesPSF || !pctRentRate) return 0;
+    const tenantSalesYr = salesPSF*sf*Math.pow(1+salesGrowth, y-1);
+    const breakpoint = bpType==='fixed' ? fixedBP : (pctRentRate>0 ? rentY/pctRentRate : 0);
+    return Math.max(0, tenantSalesYr-breakpoint)*pctRentRate;
+  }
+
   if(!baseRent||!price){ alert('Please enter Annual Base Rent and Purchase Price.'); return; }
 
   const loan    = price*ltv;
@@ -1074,7 +1166,8 @@ function calculate(){
   let cashFlows=[-equity0], rows=[];
   for(let y=1;y<=hold;y++){
     const rentY=rentSched[y-1], effR=effRent(y,rentY);
-    const egi=effR+camR+othInc;
+    const pctRentY=pctRentForYear(y,rentY);
+    const egi=effR+camR+othInc+pctRentY;
     const mgmt=egi*mgmtPct;
     const opx=opex(y)+mgmt+capRes;
     const noi=egi-opx;
@@ -1084,7 +1177,7 @@ function calculate(){
     const dscr=annDS>0?noi/annDS:null;
     const capRateYr = price>0 ? noi/price*100 : null;
     const debtYield = loan>0 ? noi/loan*100 : null;
-    rows.push({y,rentY,effR,egi,mgmt,opx,noi,annDS,intPaid,prin,levCF,b0,b1,dscr,capRateYr,debtYield});
+    rows.push({y,rentY,effR,pctRentY,egi,mgmt,opx,noi,annDS,intPaid,prin,levCF,b0,b1,dscr,capRateYr,debtYield});
     cashFlows.push(levCF);
   }
 
@@ -1133,6 +1226,9 @@ function calculate(){
     {l:'Debt Yield (Yr 1)',  v:debtYieldY1!=null?pct(debtYieldY1):'N/A', cls:mcC(debtYieldY1||0,8,10), sub:'NOI ÷ Loan (lender risk metric)'},
     {l:'Breakeven Occ.',     v:breakEvenOcc!=null?pct(breakEvenOcc,1):'N/A', cls:mcC(breakEvenOcc!=null?100-breakEvenOcc:0,10,20), sub:'Min occ. to cover debt service'},
   ];
+  if(rows[0].pctRentY>0){
+    cards.push({l:'Percentage Rent (Yr 1)',v:fmt(rows[0].pctRentY),cls:'mc-blue',sub:`${pctRentRate*100}% of sales over breakpoint`});
+  }
   $('summaryCards').innerHTML = cards.map(s=>`<div class="metric-card ${s.cls}" style="padding:16px 18px;">
     <div class="metric-val" style="font-size:22px;">${s.v}</div>
     <div class="metric-lbl">${s.l}</div>
@@ -1232,7 +1328,8 @@ function calculate(){
     wfN('Equity Deployed', equity0)+
     wfR('Gross Rental Income', fmt(r1.rentY))+
     (r1.rentY!==r1.effR?wfN('Vacancy / Credit Loss', r1.rentY-r1.effR):'')+
-    (r1.egi!==r1.effR?wfR('+ CAM &amp; Other Income', fmt(r1.egi-r1.effR),' indent'):'')+
+    (camR||othInc?wfR('+ CAM &amp; Other Income', fmt(camR+othInc),' indent'):'')+
+    (r1.pctRentY>0?wfR('+ Percentage Rent (Overage)', fmt(r1.pctRentY),' indent'):'')+
     wfR('Effective Gross Income (EGI)', fmt(r1.egi),' subtotal')+
     wfN('Operating Expenses', r1.opx)+
     wfR('Net Operating Income (NOI)', fmt(r1.noi),' total')+
@@ -1274,41 +1371,75 @@ function calculate(){
 
   // ── Sensitivity Tables ────────────────────────────────────────────────
   const caps=[5.0,5.5,6.0,6.5,7.0,7.5,8.0,8.5,9.0];
+  const capIRRs=[];
   $('capSensitivity').innerHTML=senTable(caps.map(c=>{
     const sp=rows[hold-1].noi/(c/100), proc=sp-sp*salesCPct-finalBal;
     const cf2=[-equity0,...rows.map((r,i)=>i===hold-1?r.levCF+proc:r.levCF)];
-    return {'Exit Cap':c.toFixed(1)+'%','Sale Price':fmt(sp),'IRR':fmtIRR(safeIRR(cf2))};
+    const irrV=safeIRR(cf2); capIRRs.push(irrV);
+    return {'Exit Cap':c.toFixed(1)+'%','Sale Price':fmt(sp),'IRR':flagIf(irrV!=null&&irrV<targetIRR, fmtIRR(irrV))};
   }));
+  { const bp=findBreakpoint(caps,capIRRs,targetIRR);
+    $('capSensitivity').innerHTML += breakpointCallout([
+      bp!=null ? `Levered IRR drops below your ${targetIRR}% target at exit cap ≥ <strong>${bp.toFixed(2)}%</strong>` : noBreakpointMsg(capIRRs, targetIRR, 'Levered IRR', targetIRR+'%')
+    ]);
+  }
 
   const growths=[0,0.5,1,1.5,2,2.5,3,3.5,4];
+  const rgIRRs=[];
   $('rentSensitivity').innerHTML=senTable(growths.map(g=>{
     const rs=buildRent(baseRent,hold,'annual',g);
     const annCFs=rs.map((rentY,i)=>{
-      const eg=rentY+camR+othInc, op=opex(i+1)+eg*mgmtPct+capRes;
+      const pr=pctRentForYear(i+1,rentY);
+      const eg=rentY+camR+othInc+pr, op=opex(i+1)+eg*mgmtPct+capRes;
       return eg-op-annDS;
     });
-    const lastEGI=rs[hold-1]+camR+othInc, lastNOI=lastEGI-opex(hold)-lastEGI*mgmtPct-capRes;
+    const lastPr=pctRentForYear(hold,rs[hold-1]);
+    const lastEGI=rs[hold-1]+camR+othInc+lastPr, lastNOI=lastEGI-opex(hold)-lastEGI*mgmtPct-capRes;
     const sp2=lastNOI/exitCap, proc2=sp2-sp2*salesCPct-finalBal;
     const cf2=[-equity0,...annCFs.map((cf,i)=>i===hold-1?cf+proc2:cf)];
-    const yr1NOI=(rs[0]+camR+othInc)-(opex(1)+(rs[0]+camR+othInc)*mgmtPct+capRes);
-    return {'Rent Growth':g.toFixed(1)+'%','Yr 1 NOI':fmt(yr1NOI),'IRR':fmtIRR(safeIRR(cf2))};
+    const yr1Pr=pctRentForYear(1,rs[0]);
+    const yr1NOI=(rs[0]+camR+othInc+yr1Pr)-(opex(1)+(rs[0]+camR+othInc+yr1Pr)*mgmtPct+capRes);
+    const irrV=safeIRR(cf2); rgIRRs.push(irrV);
+    return {'Rent Growth':g.toFixed(1)+'%','Yr 1 NOI':fmt(yr1NOI),'IRR':flagIf(irrV!=null&&irrV<targetIRR, fmtIRR(irrV))};
   }));
+  { const bp=findBreakpoint(growths,rgIRRs,targetIRR);
+    $('rentSensitivity').innerHTML += breakpointCallout([
+      bp!=null ? `Levered IRR drops below your ${targetIRR}% target at rent growth ≤ <strong>${bp.toFixed(2)}%</strong>/yr` : noBreakpointMsg(rgIRRs, targetIRR, 'Levered IRR', targetIRR+'%')
+    ]);
+  }
 
   const occs=[70,75,80,85,90,92,95,97,100];
+  const occDSCRs=[], occDYs=[];
   $('occSensitivity').innerHTML=senTable(occs.map(o=>{
     const occFrac=o/100;
     const annCFs=rentSched.map((rentY,i)=>{
       const effR=currentType==='nnn'?rentY:rentY*occFrac;
-      const eg=effR+camR+othInc, op=opex(i+1)+eg*mgmtPct+capRes;
+      const pr=pctRentForYear(i+1,rentY);
+      const eg=effR+camR+othInc+pr, op=opex(i+1)+eg*mgmtPct+capRes;
       return eg-op-annDS;
     });
     const lastEffR=currentType==='nnn'?rentSched[hold-1]:rentSched[hold-1]*occFrac;
-    const lastNOI=(lastEffR+camR+othInc)-opex(hold)-(lastEffR+camR+othInc)*mgmtPct-capRes;
+    const lastPr=pctRentForYear(hold,rentSched[hold-1]);
+    const lastNOI=(lastEffR+camR+othInc+lastPr)-opex(hold)-(lastEffR+camR+othInc+lastPr)*mgmtPct-capRes;
     const sp2=lastNOI/exitCap, proc2=sp2-sp2*salesCPct-finalBal;
     const cf2=[-equity0,...annCFs.map((cf,i)=>i===hold-1?cf+proc2:cf)];
-    const yr1NOI=(currentType==='nnn'?rentSched[0]:rentSched[0]*occFrac+camR+othInc)-(opex(1)+(currentType==='nnn'?rentSched[0]:rentSched[0]*occFrac+camR+othInc)*mgmtPct+capRes);
-    return {'Occupancy':o+'%','NOI':fmt(yr1NOI),'IRR':fmtIRR(safeIRR(cf2))};
+    const yr1EffR=currentType==='nnn'?rentSched[0]:rentSched[0]*occFrac;
+    const yr1Pr=pctRentForYear(1,rentSched[0]);
+    const yr1NOI=(yr1EffR+camR+othInc+yr1Pr)-(opex(1)+(yr1EffR+camR+othInc+yr1Pr)*mgmtPct+capRes);
+    const dscr2=annDS>0?yr1NOI/annDS:null, dy2=loan>0?yr1NOI/loan*100:null;
+    occDSCRs.push(dscr2); occDYs.push(dy2);
+    const irrV=safeIRR(cf2);
+    return {'Occupancy':o+'%','NOI':fmt(yr1NOI),
+      'DSCR':flagIf(dscr2!=null&&dscr2<1.25, dscr2!=null?dscr2.toFixed(2)+'×':'N/A'),
+      'Debt Yield':flagIf(dy2!=null&&dy2<8, dy2!=null?pct(dy2):'N/A'),
+      'IRR':fmtIRR(irrV)};
   }));
+  { const bpD=findBreakpoint(occs,occDSCRs,1.25), bpY=findBreakpoint(occs,occDYs,8);
+    const lines=[];
+    lines.push(bpD!=null ? `DSCR breaches 1.25× at occupancy ≤ <strong>${bpD.toFixed(0)}%</strong>` : noBreakpointMsg(occDSCRs, 1.25, 'DSCR', '1.25×'));
+    lines.push(bpY!=null ? `Debt Yield breaches 8% at occupancy ≤ <strong>${bpY.toFixed(0)}%</strong>` : noBreakpointMsg(occDYs, 8, 'Debt Yield', '8%'));
+    $('occSensitivity').innerHTML += breakpointCallout(lines);
+  }
 
   // ── Proforma Table ────────────────────────────────────────────────────
   const yrs=rows.map(r=>'Yr '+r.y);
@@ -1324,7 +1455,8 @@ function calculate(){
     ${sr('INCOME')}
     ${dr('Gross Rental Income',rows.map(r=>r.rentY))}
     ${rows.some(r=>r.rentY!==r.effR)?dr('Vacancy / Credit Loss',rows.map(r=>r.rentY-r.effR),true):sr('')}
-    ${rows[0].egi!==rows[0].effR?dr('CAM &amp; Other Income',rows.map(r=>r.egi-r.effR)):dr('CAM &amp; Other Income',rows.map(()=>0))}
+    ${dr('CAM &amp; Other Income',rows.map(()=>camR+othInc))}
+    ${rows.some(r=>r.pctRentY>0)?dr('Percentage Rent (Overage)',rows.map(r=>r.pctRentY)):''}
     ${sbr('Effective Gross Income (EGI)',rows.map(r=>r.egi))}
     ${sr('EXPENSES')}
     ${dr('Total Operating Expenses',rows.map(r=>r.opx),true)}
@@ -1399,6 +1531,7 @@ function calculate(){
     pricePSF,rentPSF:baseRent/sf,grm,breakEvenOcc,
     salePrice,saleCost,finalBal,saleProc,capSpread,exitNOI,
     leaseRem, targetIRR,
+    camR, othInc, pctRentRate, salesPSF, bpType,
     rows, rentSched,
     capSens:caps.map(c=>{
       const sp=rows[hold-1].noi/(c/100),proc=sp-sp*salesCPct-finalBal;
@@ -1407,21 +1540,25 @@ function calculate(){
     }),
     rentSens:growths.map(g=>{
       const rs=buildRent(baseRent,hold,'annual',g);
-      const annCFs=rs.map((rentY,i)=>{const eg=rentY+camR+othInc,op=opex(i+1)+eg*mgmtPct+capRes;return eg-op-annDS;});
-      const lastNOI=(rs[hold-1]+camR+othInc)-opex(hold)-(rs[hold-1]+camR+othInc)*mgmtPct-capRes;
+      const annCFs=rs.map((rentY,i)=>{const pr=pctRentForYear(i+1,rentY),eg=rentY+camR+othInc+pr,op=opex(i+1)+eg*mgmtPct+capRes;return eg-op-annDS;});
+      const lastPr=pctRentForYear(hold,rs[hold-1]);
+      const lastNOI=(rs[hold-1]+camR+othInc+lastPr)-opex(hold)-(rs[hold-1]+camR+othInc+lastPr)*mgmtPct-capRes;
       const sp2=lastNOI/exitCap,proc2=sp2-sp2*salesCPct-finalBal;
       const cf2=[-equity0,...annCFs.map((cf,i)=>i===hold-1?cf+proc2:cf)];
-      return {growth:g,yr1noi:(rs[0]+camR+othInc)-(opex(1)+(rs[0]+camR+othInc)*mgmtPct+capRes),irr:safeIRR(cf2)};
+      const yr1Pr=pctRentForYear(1,rs[0]);
+      return {growth:g,yr1noi:(rs[0]+camR+othInc+yr1Pr)-(opex(1)+(rs[0]+camR+othInc+yr1Pr)*mgmtPct+capRes),irr:safeIRR(cf2)};
     }),
     occSens:occs.map(o=>{
       const occFrac=o/100;
-      const annCFs=rentSched.map((rentY,i)=>{const effR=currentType==='nnn'?rentY:rentY*occFrac;const eg=effR+camR+othInc,op=opex(i+1)+eg*mgmtPct+capRes;return eg-op-annDS;});
+      const annCFs=rentSched.map((rentY,i)=>{const effR=currentType==='nnn'?rentY:rentY*occFrac;const pr=pctRentForYear(i+1,rentY);const eg=effR+camR+othInc+pr,op=opex(i+1)+eg*mgmtPct+capRes;return eg-op-annDS;});
       const lastEffR=currentType==='nnn'?rentSched[hold-1]:rentSched[hold-1]*occFrac;
-      const lastNOI=(lastEffR+camR+othInc)-opex(hold)-(lastEffR+camR+othInc)*mgmtPct-capRes;
+      const lastPr=pctRentForYear(hold,rentSched[hold-1]);
+      const lastNOI=(lastEffR+camR+othInc+lastPr)-opex(hold)-(lastEffR+camR+othInc+lastPr)*mgmtPct-capRes;
       const sp2=lastNOI/exitCap,proc2=sp2-sp2*salesCPct-finalBal;
       const cf2=[-equity0,...annCFs.map((cf,i)=>i===hold-1?cf+proc2:cf)];
       const yr1EffR=currentType==='nnn'?rentSched[0]:rentSched[0]*occFrac;
-      return {occ:o,yr1noi:(yr1EffR+camR+othInc)-(opex(1)+(yr1EffR+camR+othInc)*mgmtPct+capRes),irr:safeIRR(cf2)};
+      const yr1Pr=pctRentForYear(1,rentSched[0]);
+      return {occ:o,yr1noi:(yr1EffR+camR+othInc+yr1Pr)-(opex(1)+(yr1EffR+camR+othInc+yr1Pr)*mgmtPct+capRes),irr:safeIRR(cf2)};
     }),
   };
 }
@@ -1588,7 +1725,8 @@ function exportExcel(){
   proSec(ws2,r,'INCOME',NC+1); r++;
   proRow(ws2,r,'Gross Rental Income',D.rows.map(rw=>rw.rentY),undefined,false,false); r++;
   if(D.rows.some(rw=>rw.rentY!==rw.effR)){ proRow(ws2,r,'Vacancy / Credit Loss',D.rows.map(rw=>-(rw.rentY-rw.effR)),undefined,true,false); r++; }
-  proRow(ws2,r,'CAM & Other Income',D.rows.map(rw=>rw.egi-rw.effR),undefined,false,false); r++;
+  proRow(ws2,r,'CAM & Other Income',D.rows.map(()=>D.camR+D.othInc),undefined,false,false); r++;
+  if(D.rows.some(rw=>rw.pctRentY>0)){ proRow(ws2,r,'Percentage Rent (Overage)',D.rows.map(rw=>rw.pctRentY),undefined,false,false); r++; }
   proRow(ws2,r,'Effective Gross Income (EGI)',D.rows.map(rw=>rw.egi),undefined,false,true); r++;
 
   proSec(ws2,r,'EXPENSES',NC+1); r++;
