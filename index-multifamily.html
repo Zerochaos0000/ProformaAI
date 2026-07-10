@@ -1358,7 +1358,7 @@ function exportXLS(){
     const bg=i%2===0?GRAY1:WHITE;
     const iG=row[4].startsWith('✅'),iB=row[4].startsWith('❌');
     sc(ws1,r,1,row[0],'s',null,{...dat(bg,'FF000000',true,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
-    sc(ws1,r,2,row[1],'n',row[2],dat(bg,BLUE,true,'right'));
+    sc(ws1,r,2,(typeof row[1]==='number'&&!isNaN(row[1]))?row[1]:'N/A',(typeof row[1]==='number'&&!isNaN(row[1]))?'n':'s',row[2],dat(bg,BLUE,true,'right'));
     sc(ws1,r,3,row[3],'s',null,{...dat(bg,DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
     sc(ws1,r,4,row[4],'s',null,dat(bg,iG?GREEN:iB?RED:AMBER,iG||iB,'left'));
     r++;
