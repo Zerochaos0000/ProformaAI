@@ -1650,7 +1650,7 @@ function exportExcel(){
     const isGood=row[4].startsWith('✅'), isBad=row[4].startsWith('❌');
     const sc2=(c,v,type,fmt,style)=>sc(ws1,r,c,v,type,fmt,style);
     sc2(1,row[0],'s',null,{...dat(bg,'FF000000',true,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
-    sc2(2,typeof row[1]==='number'?row[1]:'—','s'===typeof row[1]?'s':'n',row[2],dat(bg,BLUE,true,'right'));
+    sc2(2,(typeof row[1]==='number'&&!isNaN(row[1]))?row[1]:'—',(typeof row[1]==='number'&&!isNaN(row[1]))?'n':'s',row[2],dat(bg,BLUE,true,'right'));
     sc2(3,row[3],'s',null,{...dat(bg,DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
     sc2(4,row[4],'s',null,dat(bg,isGood?GREEN:isBad?RED:AMBER,isGood||isBad,'left'));
     r++;
@@ -1679,7 +1679,7 @@ function exportExcel(){
     const isTot=row[0].startsWith('TOTAL');
     const bg=isTot?LBLUE:isHdr?GRAY2:i%2===0?GRAY1:WHITE;
     sc(ws1,r,1,row[0],'s',null,isHdr?hdr(BLUE,WHITE,true,10,'left'):{...dat(bg,'FF000000',isTot,'left'),alignment:{horizontal:'left',vertical:'center',indent:isHdr?0:1}});
-    if(row[1]) sc(ws1,r,2,row[1],'n',row[2],isTot?tot(LBLUE,BLUE):dat(bg,isTot?BLUE:COST,isTot,'right'));
+    if(row[1]) sc(ws1,r,2,row[1],(typeof row[1]==='number'&&!isNaN(row[1]))?'n':'s',row[2],isTot?tot(LBLUE,BLUE):dat(bg,isTot?BLUE:COST,isTot,'right'));
     if(row[3]) sc(ws1,r,4,row[3],'s',null,{...dat(bg,DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
     r++;
   });
@@ -1713,11 +1713,13 @@ function exportExcel(){
     if(isTot) lStyle.font={bold:true,color:{rgb:BLUE},sz:10,name:'Calibri'};
     sc(ws,row,1,label,'s',null,lStyle);
     vals.forEach((v,i)=>{
+      if(v==null) return; // blank cell — e.g. exit-only line items have no per-year value
       const fc=isCost&&!isTot?COST:isTot?BLUE:'FF000000';
       sc(ws,row,i+2,v,'n',FMT_CURR,isTot?tot(bg,fc):dat(bg,fc,false,'right'));
     });
     if(exitVal!==undefined){
-      sc(ws,row,vals.length+2,typeof exitVal==='number'?exitVal:null,typeof exitVal==='number'?'n':'s',FMT_CURR,dat('FFFFF8F0','FF4B0082',true,'right'));
+      if(typeof exitVal==='number') sc(ws,row,vals.length+2,exitVal,'n',FMT_CURR,dat('FFFFF8F0','FF4B0082',true,'right'));
+      else if(exitVal!=null) sc(ws,row,vals.length+2,exitVal,'s',null,dat('FFFFF8F0','FF4B0082',true,'right'));
     }
   }
 
@@ -1784,7 +1786,7 @@ function exportExcel(){
       const bg=isBase?LBLUE:ri%2===0?GRAY1:WHITE;
       drow.forEach((v,ci)=>{
         const style=dat(bg,isBase?BLUE:'FF000000',isBase,ci>0?'right':'left');
-        sc(ws,row,ci+1,typeof v==='number'?v:v,'s'===typeof v?'s':'n',
+        sc(ws,row,ci+1,v,typeof v==='string'?'s':'n',
            typeof v==='number'&&ci>0?v<1?FMT_PCT:FMT_CURR:null,style);
       }); row++;
     });
@@ -1851,8 +1853,9 @@ function exportExcel(){
   ];
   calcItems.forEach((ci,i)=>{
     const bg=i%2===0?LGREEN:LGREENB;
+    const valid=typeof ci[1]==='number'&&!isNaN(ci[1])&&isFinite(ci[1]);
     sc(ws4,r,1,ci[0],'s',null,{...dat(bg,'FF000000',false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
-    sc(ws4,r,2,ci[1],'n',ci[2],dat(bg,GREEN,true,'right'));
+    sc(ws4,r,2,valid?ci[1]:'N/A',valid?'n':'s',ci[2],dat(bg,GREEN,true,'right'));
     r++;
   });
   ws4['!ref']=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:r+2,c:3}});
