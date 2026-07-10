@@ -2290,9 +2290,9 @@ function exportXLS(){
     ['Gross Profit',          X.grossProfit,FMT_CURR, 'Target: >$0',      X.grossProfit>0?'✅ Positive':'❌ Loss'],
     ['Profit Margin',         X.margin/100, FMT_PCT,  'Target: ≥25%',     X.margin>=25?'✅ '+X.margin.toFixed(1)+'% — Strong':X.margin>=15?'⚠ '+X.margin.toFixed(1)+'% — Marginal':'❌ '+X.margin.toFixed(1)+'% — Weak'],
     ['Return on Cost',        X.roi/100,    FMT_PCT,  'Target: ≥25%',     X.roi>=25?'✅ Strong':'⚠ Review'],
-    ['Unlevered IRR',         X.unlevIRR/100,FMT_PCT,`Target: ≥${X.tIRR}%`, isNaN(X.unlevIRR)?'N/A':X.unlevIRR>=X.tIRR?'✅ Exceeds target':'⚠ Below target'],
+    ['Unlevered IRR',         isNaN(X.unlevIRR)?'N/A':X.unlevIRR/100,FMT_PCT,`Target: ≥${X.tIRR}%`, isNaN(X.unlevIRR)?'N/A':X.unlevIRR>=X.tIRR?'✅ Exceeds target':'⚠ Below target'],
     ['Equity Multiple',       fmtMult(X.unlevEM), null, 'Target: ≥1.5×',    X.unlevEM>=1.5?'✅ '+fmtMult(X.unlevEM):'⚠ '+fmtMult(X.unlevEM)],
-    ['Levered IRR',           X.levIRR/100, FMT_PCT,  'Should > Unlev.',  isNaN(X.levIRR)?'N/A':X.levIRR>X.unlevIRR?'✅ Positive leverage':'⚠ Check structure'],
+    ['Levered IRR',           isNaN(X.levIRR)?'N/A':X.levIRR/100, FMT_PCT,  'Should > Unlev.',  isNaN(X.levIRR)?'N/A':X.levIRR>X.unlevIRR?'✅ Positive leverage':'⚠ Check structure'],
     ['Levered Multiple',      fmtMult(X.levEM), null, 'Target: ≥2.0×',    X.levEM>=2?'✅ '+fmtMult(X.levEM):'⚠ '+fmtMult(X.levEM)],
     ['Profit / Lot',          X.grossProfit/X.totalLots, FMT_CURR,'Target: $25k–60k', ''],
     ['Land as % of TDC',      X.totalAcq/X.totalCosts, FMT_PCT,'Rule: 20–30%', ''],
@@ -2303,7 +2303,7 @@ function exportXLS(){
   kpiData.forEach((row,i)=>{
     const bg = i%2===0?GRAY1:WHITE;
     setCell(ws1,r,1,row[0],'s',null,{...dataStyle(bg,'FF000000',true,'left'),font:{bold:true,color:{rgb:'FF000000'},sz:10,name:'Calibri'}});
-    setCell(ws1,r,2,typeof row[1]==='number'?row[1]:row[1],'s'===typeof row[1]?'s':'n',row[2],dataStyle(bg,BLUE,true,'right'));
+    setCell(ws1,r,2,row[1],typeof row[1]==='string'?'s':'n',row[2],dataStyle(bg,BLUE,true,'right'));
     setCell(ws1,r,3,row[3],'s',null,{...dataStyle(bg,DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
     const sc = row[4].startsWith('✅')?GREEN:row[4].startsWith('⚠')?AMBER:RED;
     setCell(ws1,r,4,row[4],'s',null,dataStyle(bg,sc,row[4].startsWith('✅'),'left'));
@@ -2330,7 +2330,7 @@ function exportXLS(){
   budgetData.forEach((row,i)=>{
     const bg = i%2===0?GRAY1:WHITE;
     setCell(ws1,r,1,row[0],'s',null,{...dataStyle(bg,'FF000000',true,'left'),font:{bold:true,sz:10,color:{rgb:'FF000000'},name:'Calibri'}});
-    setCell(ws1,r,2,row[1],'n',FMT_CURR,dataStyle(bg,COST_R,false,'right'));
+    setCell(ws1,r,2,row[1],typeof row[1]==='string'?'s':'n',FMT_CURR,dataStyle(bg,COST_R,false,'right'));
     setCell(ws1,r,3,row[2],'n',FMT_PCT, dataStyle(bg,'FF000000',false,'right'));
     setCell(ws1,r,4,Math.round(row[3]),'n',FMT_CURR,dataStyle(bg,DGRAY,false,'right'));
     r++;
@@ -2352,7 +2352,7 @@ function exportXLS(){
   srcData.forEach((row,i)=>{
     const bg = i%2===0?GRAY1:WHITE;
     setCell(ws1,r,1,row[0],'s',null,{...dataStyle(bg,'FF000000',true,'left'),font:{bold:true,sz:10,color:{rgb:'FF000000'},name:'Calibri'}});
-    setCell(ws1,r,2,row[1],'n',FMT_CURR,dataStyle(bg,BLUE,true,'right'));
+    setCell(ws1,r,2,row[1],typeof row[1]==='string'?'s':'n',FMT_CURR,dataStyle(bg,BLUE,true,'right'));
     setCell(ws1,r,3,row[2],'n',FMT_PCT, dataStyle(bg,'FF000000',false,'right'));
     setCell(ws1,r,4,row[3],'s',null,{...dataStyle(bg,DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
     r++;
@@ -2369,16 +2369,16 @@ function exportXLS(){
   const retData = [
     ['Equity Invested',                 X.equityIn,                              FMT_CURR],
     ['Net Profit After Financing',      X.grossProfit-X.totalFinance,            FMT_CURR],
-    ['Cash-on-Cash Return on Equity',   (X.grossProfit-X.totalFinance)/X.equityIn,FMT_PCT],
-    ['Unlevered IRR (All-Cash)',         X.unlevIRR/100,                          FMT_PCT],
-    ['Levered IRR (with Loan)',          X.levIRR/100,                            FMT_PCT],
+    ['Cash-on-Cash Return on Equity',   X.equityIn>0?(X.grossProfit-X.totalFinance)/X.equityIn:'N/A',FMT_PCT],
+    ['Unlevered IRR (All-Cash)',         isNaN(X.unlevIRR)?'N/A':X.unlevIRR/100,  FMT_PCT],
+    ['Levered IRR (with Loan)',          isNaN(X.levIRR)?'N/A':X.levIRR/100,      FMT_PCT],
     ['Unlevered Equity Multiple',        fmtMult(X.unlevEM),                      null],
     ['Levered Equity Multiple',          fmtMult(X.levEM),                        null],
   ];
   retData.forEach((row,i)=>{
     const bg = i%2===0?LGREEN:LGREENB;
     setCell(ws1,r,1,row[0],'s',null,{...dataStyle(bg,'FF000000',true,'left'),font:{bold:true,sz:10,color:{rgb:'FF000000'},name:'Calibri'}});
-    setCell(ws1,r,2,row[1],'n',row[2],dataStyle(bg,GREEN,true,'right'));
+    setCell(ws1,r,2,row[1],typeof row[1]==='string'?'s':'n',row[2],dataStyle(bg,GREEN,true,'right'));
     ws1['!merges'].push({s:{r:r-1,c:2},e:{r:r-1,c:3}});
     r++;
   });
@@ -2518,7 +2518,10 @@ function exportXLS(){
   r++;
   // Profit/Lot
   setCell(ws2,r,1,'PROFIT / LOT','s',null,{...totalStyle(LBLUE,BLUE),alignment:{horizontal:'left',vertical:'center'},font:{bold:true,sz:10,color:{rgb:BLUE},name:'Calibri'}});
-  X.phases.forEach((p,i) => setCell(ws2,r,i+2,Math.round(p.profit/p.lots),'n',FMT_CURR,totalStyle(LBLUE,BLUE)));
+  X.phases.forEach((p,i) => {
+    const v = p.lots>0?Math.round(p.profit/p.lots):'N/A';
+    setCell(ws2,r,i+2,v,typeof v==='string'?'s':'n',FMT_CURR,totalStyle(LBLUE,BLUE));
+  });
   setCell(ws2,r,X.phases.length+2,Math.round(X.grossProfit/X.totalLots),'n',FMT_CURR,totalStyle(LBLUE,BLUE));
 
   ws2['!ref'] = XLSX.utils.encode_range({s:{r:0,c:0},e:{r:r+2,c:5}});
@@ -2626,9 +2629,9 @@ function exportXLS(){
   ws3['!merges'].push({s:{r:r-1,c:0},e:{r:r-1,c:X.numYrs}});
   r++;
   const cfRets = [
-    ['Unlevered IRR (All-Cash)',     X.unlevIRR/100,                         FMT_PCT,  'Discount rate that sets NPV = 0'],
+    ['Unlevered IRR (All-Cash)',     isNaN(X.unlevIRR)?'N/A':X.unlevIRR/100, FMT_PCT,  'Discount rate that sets NPV = 0'],
     ['Unlevered Equity Multiple',    fmtMult(X.unlevEM),                     null,     'Total return / equity invested'],
-    ['Levered IRR (with Loan)',      X.levIRR/100,                           FMT_PCT,  'Should exceed unlevered'],
+    ['Levered IRR (with Loan)',      isNaN(X.levIRR)?'N/A':X.levIRR/100,     FMT_PCT,  'Should exceed unlevered'],
     ['Levered Equity Multiple',      fmtMult(X.levEM),                       null,     'After loan repayment + interest'],
     ['Construction Loan Balance',    X.loanBal,                              FMT_CURR, 'Based on '+Math.round(X.ltcPct*100)+'% LTC'],
     ['Developer Equity Required',    X.equityIn,                             FMT_CURR, 'Cash invested net of loan'],
@@ -2637,7 +2640,7 @@ function exportXLS(){
   cfRets.forEach((row,i)=>{
     const bg = i%2===0?LGREEN:LGREENB;
     setCell(ws3,r,1,row[0],'s',null,{...dataStyle(bg,'FF000000',true,'left'),font:{bold:true,sz:10,color:{rgb:'FF000000'},name:'Calibri'}});
-    setCell(ws3,r,2,row[1],'n',row[2],dataStyle(bg,GREEN,true,'right'));
+    setCell(ws3,r,2,row[1],typeof row[1]==='string'?'s':'n',row[2],dataStyle(bg,GREEN,true,'right'));
     ws3['!merges'].push({s:{r:r-1,c:2},e:{r:r-1,c:X.numYrs}});
     setCell(ws3,r,3,row[3],'s',null,{...dataStyle(bg,DGRAY,false,'left'),font:{italic:true,sz:9,color:{rgb:DGRAY},name:'Calibri'}});
     r++;
@@ -2848,8 +2851,8 @@ function exportXLS(){
     ['Gross Profit',            X.grossProfit,                  FMT_CURR],
     ['Profit Margin',           X.margin/100,                   FMT_PCT],
     ['Profit per Lot',          Math.round(X.grossProfit/X.totalLots), FMT_CURR],
-    ['Unlevered IRR',           X.unlevIRR/100,                 FMT_PCT],
-    ['Levered IRR',             X.levIRR/100,                   FMT_PCT],
+    ['Unlevered IRR',           isNaN(X.unlevIRR)?'N/A':X.unlevIRR/100, FMT_PCT],
+    ['Levered IRR',             isNaN(X.levIRR)?'N/A':X.levIRR/100,     FMT_PCT],
     ['Equity Multiple',         fmtMult(X.unlevEM),             null],
     ['Construction Loan',       X.loanBal,                      FMT_CURR],
     ['Developer Equity Required',X.equityIn,                    FMT_CURR],
@@ -2857,7 +2860,7 @@ function exportXLS(){
   calcRes.forEach((row,i)=>{
     const bg = i%2===0?LGREEN:LGREENB;
     setCell(ws5,r,1,row[0],'s',null,{...dataStyle(bg,'FF000000',false,'left'),alignment:{horizontal:'left',vertical:'center',indent:1}});
-    setCell(ws5,r,2,row[1],'n',row[2],dataStyle(bg,GREEN,true,'right'));
+    setCell(ws5,r,2,row[1],typeof row[1]==='string'?'s':'n',row[2],dataStyle(bg,GREEN,true,'right'));
     ws5['!merges'].push({s:{r:r-1,c:2},e:{r:r-1,c:2}});
     r++;
   });
